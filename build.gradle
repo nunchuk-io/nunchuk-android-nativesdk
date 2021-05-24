@@ -1,0 +1,123 @@
+apply from: 'configs/dependencies.gradle'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion androidConfig.compileSdkVersion
+    defaultConfig {
+        minSdkVersion androidConfig.minSdkVersion
+        targetSdkVersion androidConfig.targetSdkVersion
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11 -stdlib=libc++"
+                ndk {
+                    'armeabi-v7a'
+                }
+            }
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["library": "true"]
+            }
+        }
+    }
+
+    flavorDimensions 'cpuArch'
+    productFlavors {
+        arm8 {
+            dimension 'cpuArch'
+            ndk {
+                abiFilters 'arm64-v8a', 'armeabi-v7a'
+            }
+        }
+        arm64_v8a {
+            dimension 'cpuArch'
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+        }
+        armeabi_v7a {
+            dimension 'cpuArch'
+            ndk {
+                abiFilters 'armeabi-v7a'
+            }
+        }
+        x86_64 {
+            dimension 'cpuArch'
+            ndk {
+                abiFilters 'x86_64'
+            }
+        }
+        universal {
+            dimension 'cpuArch'
+            // include all default ABIs. with NDK-r16,  it is:
+            //   armeabi-v7a, arm64-v8a, x86, x86_64
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/native/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+}
+
+buildscript {
+    apply from: 'configs/dependencies.gradle'
+    ext {
+        kotlin_version = '1.4.31'
+    }
+    repositories {
+        google()
+        jcenter()
+        maven { url "https://maven.google.com" }
+        mavenLocal()
+    }
+    dependencies {
+        classpath pluginsDeps.gradleAndroid
+        classpath pluginsDeps.gradleCpd
+        classpath kotlinDeps.plugin
+        classpath pluginsDeps.googleServices
+        classpath pluginsDeps.crashlytics
+        classpath pluginsDeps.kotlinAndroidRuntime
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url "https://maven.google.com" }
+        mavenLocal()
+    }
+}
+
+publishing {
+    print("build dir::$buildDir")
+    publications {
+        maven(MavenPublication) {
+            groupId 'io.nunchuk.android'
+            artifactId 'nativesdk-arm64_v8a'
+            version '1.0.0'
+            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-arm64_v8a-debug.aar")
+        }
+    }
+
+    repositories {
+        maven {
+            url mavenLocal().getUrl()
+        }
+    }
+}
