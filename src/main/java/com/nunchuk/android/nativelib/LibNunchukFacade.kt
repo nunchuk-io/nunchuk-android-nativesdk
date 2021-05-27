@@ -316,8 +316,11 @@ class LibNunchukFacade(private val nunchukAndroid: LibNunchukAndroid) {
     )
 
     @Throws(NCNativeException::class)
-    fun valueFromAmount(amount: Amount) = nunchukAndroid.valueFromAmount(
-        amount = amount
-    )
+    fun valueFromAmount(amount: Amount) = nunchukAndroid.valueFromAmount(amount = amount)
 
+    @Throws(NCNativeException::class)
+    fun estimateFee(type: Int) = nunchukAndroid.estimateFee(type = type)
+
+    @Throws(NCNativeException::class)
+    fun isValidAddress(address: String) = nunchukAndroid.isValidAddress(address = address)
 }

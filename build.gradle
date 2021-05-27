@@ -87,10 +87,7 @@ buildscript {
     }
     dependencies {
         classpath pluginsDeps.gradleAndroid
-        classpath pluginsDeps.gradleCpd
         classpath kotlinDeps.plugin
-        classpath pluginsDeps.googleServices
-        classpath pluginsDeps.crashlytics
         classpath pluginsDeps.kotlinAndroidRuntime
     }
 }
@@ -105,7 +102,6 @@ allprojects {
 }
 
 publishing {
-    print("build dir::$buildDir")
     publications {
         maven(MavenPublication) {
             groupId 'io.nunchuk.android'
