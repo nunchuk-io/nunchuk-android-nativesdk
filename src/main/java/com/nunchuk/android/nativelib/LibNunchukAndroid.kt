@@ -183,6 +183,12 @@ class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun valueFromAmount(amount: Amount): String
 
+    @Throws(NCNativeException::class)
+    external fun estimateFee(type: Int): Amount
+
+    @Throws(NCNativeException::class)
+    external fun isValidAddress(address: String): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

@@ -24,6 +24,7 @@ add_library(nunchuk-android SHARED
         wallet-jni.cpp
         signer-jni.cpp
         transaction-jni.cpp
+        util-jni.cpp
 )
 
 set(UR__DISABLE_TESTS ON)
