@@ -361,8 +361,38 @@ std::vector<UnspentOutput> Serializer::convert2CUnspentOutputs(JNIEnv *env, jobj
 }
 
 std::map<std::string, Amount> Serializer::convert2CAmountsMap(JNIEnv *env, jobject outputs) {
-    // TODO
-    return std::map<std::string, Amount>();
+    std::map<std::string, Amount> mapOut = std::map<std::string, Amount>();
+
+    // Get the Map's entry Set.
+    jclass mapClass = env->FindClass("java/util/Map");
+    jmethodID entrySet = env->GetMethodID(mapClass, "entrySet", "()Ljava/util/Set;");
+    jobject set = env->CallObjectMethod(outputs, entrySet);
+    jclass setClass = env->FindClass("java/util/Set");
+    jmethodID iteratorMethodId = env->GetMethodID(setClass, "iterator", "()Ljava/util/Iterator;");
+    jobject iterator = env->CallObjectMethod(set, iteratorMethodId);
+
+    // Get the Iterator method IDs
+    jclass iteratorClass = env->FindClass("java/util/Iterator");
+    jmethodID hasNext = env->GetMethodID(iteratorClass, "hasNext", "()Z");
+    jmethodID next = env->GetMethodID(iteratorClass, "next", "()Ljava/lang/Object;");
+
+    // Get the Entry class method IDs
+    jclass entryClass = env->FindClass("java/util/Map$Entry");
+    jmethodID getKey = env->GetMethodID(entryClass, "getKey", "()Ljava/lang/Object;");
+    jmethodID getValue = env->GetMethodID(entryClass, "getValue", "()Ljava/lang/Object;");
+
+    // Iterate over the entry Set
+    while (env->CallBooleanMethod(iterator, hasNext)) {
+        jobject entry = env->CallObjectMethod(iterator, next);
+        auto key = (jstring) env->CallObjectMethod(entry, getKey);
+        auto value = (jobject) env->CallObjectMethod(entry, getValue);
+        const char *keyStr = env->GetStringUTFChars(key, JNI_FALSE);
+        Amount valueStr = Serializer::convert2CAmount(env, value);
+
+        mapOut.insert(std::make_pair(std::string(keyStr), valueStr));
+
+    }
+    return mapOut;
 }
 
 Amount Serializer::convert2CAmount(JNIEnv *env, jobject amount) {
