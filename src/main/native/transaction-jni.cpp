@@ -207,7 +207,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransactionMemo(
 }
 
 extern "C"
-JNIEXPORT void JNICALL
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransaction(
         JNIEnv *env,
         jobject thiz,
@@ -215,11 +215,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransaction(
         jstring tx_id,
         jobject device
 ) {
-    NunchukProvider::get()->nu->SignTransaction(
+    auto transaction =  NunchukProvider::get()->nu->SignTransaction(
             env->GetStringUTFChars(wallet_id, JNI_FALSE),
             env->GetStringUTFChars(tx_id, JNI_FALSE),
             Serializer::convert2CDevice(env, device)
     );
+    return Deserializer::convert2JTransaction(env, transaction);
 }
 
 extern "C"

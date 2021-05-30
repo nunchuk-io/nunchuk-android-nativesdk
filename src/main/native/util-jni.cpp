@@ -44,3 +44,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidAddress(
     }
 }
 
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDevices(
+        JNIEnv *env,
+        jobject thiz
+) {
+    auto devices = NunchukProvider::get()->nu->GetDevices();
+    return Deserializer::convert2JDevices(env, devices);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getChainTip(
+        JNIEnv *env,
+        jobject thiz
+) {
+    return NunchukProvider::get()->nu->GetChainTip();
+}
+

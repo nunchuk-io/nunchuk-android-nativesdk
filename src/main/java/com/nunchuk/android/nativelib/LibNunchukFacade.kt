@@ -7,7 +7,9 @@ import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
 import com.nunchuk.android.type.WalletType
 
-class LibNunchukFacade(private val nunchukAndroid: LibNunchukAndroid) {
+class LibNunchukFacade {
+
+    private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
 
     @Throws(NCNativeException::class)
     fun initNunchuk(appSettings: AppSettings) {
@@ -323,4 +325,10 @@ class LibNunchukFacade(private val nunchukAndroid: LibNunchukAndroid) {
 
     @Throws(NCNativeException::class)
     fun isValidAddress(address: String) = nunchukAndroid.isValidAddress(address = address)
+
+    @Throws(NCNativeException::class)
+    fun getDevices() = nunchukAndroid.getDevices()
+
+    @Throws(NCNativeException::class)
+    fun getChainTip() = nunchukAndroid.getChainTip()
 }
