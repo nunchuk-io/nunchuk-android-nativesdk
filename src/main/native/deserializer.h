@@ -22,6 +22,8 @@ public:
 
     static jobject convert2JDevice(JNIEnv *env, const Device &device);
 
+    static jobject convert2JDevices(JNIEnv *env, const std::vector<Device> devices);
+
     static jobject convert2JAmount(JNIEnv *env, const Amount amount);
 
     static jobject convert2JTxInput(JNIEnv *env, const TxInput input);

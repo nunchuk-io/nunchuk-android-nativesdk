@@ -4,6 +4,7 @@ import com.nunchuk.android.type.TransactionStatus
 
 data class Transaction(
     var txId: String = "",
+    var height: Int = 0,
     var inputs: List<TxInput> = emptyList(),
     var outputs: List<TxOutput> = emptyList(),
     var userOutputs: List<TxOutput> = emptyList(),

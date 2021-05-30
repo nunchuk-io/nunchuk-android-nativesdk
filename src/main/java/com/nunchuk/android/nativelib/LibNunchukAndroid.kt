@@ -6,7 +6,7 @@ import com.nunchuk.android.model.bridge.WalletBridge
 
 internal const val LIB_NAME = "nunchuk-android"
 
-class LibNunchukAndroid {
+internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun initNunchuk(
@@ -163,7 +163,7 @@ class LibNunchukAndroid {
     external fun updateTransactionMemo(walletId: String, txId: String, newMemo: String): Boolean
 
     @Throws(NCNativeException::class)
-    external fun signTransaction(walletId: String, txId: String, device: Device)
+    external fun signTransaction(walletId: String, txId: String, device: Device): Transaction
 
     @Throws(NCNativeException::class)
     external fun exportTransactionHistory(walletId: String, filePath: String, format: Int)
@@ -188,6 +188,12 @@ class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun isValidAddress(address: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getDevices(): List<Device>
+
+    @Throws(NCNativeException::class)
+    external fun getChainTip(): Int
 
     companion object {
         init {

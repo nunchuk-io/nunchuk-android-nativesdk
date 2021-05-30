@@ -70,6 +70,19 @@ jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
     return instance;
 }
 
+jobject Deserializer::convert2JDevices(JNIEnv *env, const std::vector<Device> devices) {
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const Device &device: devices) {
+        jobject element = convert2JDevice(env, device);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}
+
 jobject Deserializer::convert2JAmount(JNIEnv *env, const Amount amount) {
     syslog(LOG_DEBUG, "[JNI] convert2JAmount()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/Amount");
@@ -265,6 +278,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
     jobject instance = env->NewObject(clazz, constructor);
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_txid().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"), transaction.get_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInputs", "(Ljava/util/List;)V"), convert2JTxInputs(env, transaction.get_inputs()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setOutputs", "(Ljava/util/List;)V"), convert2JTxOutputs(env, transaction.get_outputs()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceiveOutput", "(Ljava/util/List;)V"), convert2JTxOutputs(env, transaction.get_receive_outputs()));
