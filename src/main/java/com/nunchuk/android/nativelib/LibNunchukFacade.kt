@@ -331,4 +331,7 @@ class LibNunchukFacade {
 
     @Throws(NCNativeException::class)
     fun getChainTip() = nunchukAndroid.getChainTip()
+
+    @Throws(NCNativeException::class)
+    fun sendSignerPassphrase(masterSignerId: String, passphrase: String) = nunchukAndroid.sendSignerPassphrase(masterSignerId, passphrase)
 }
