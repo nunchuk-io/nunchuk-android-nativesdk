@@ -201,3 +201,23 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteMasterSigner(
     syslog(LOG_DEBUG, "[JNI]deleteMasterSigner()");
     return NunchukProvider::get()->nu->DeleteMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendSignerPassphrase(
+        JNIEnv *env,
+        jobject thiz,
+        jstring mastersigner_id,
+        jstring passphrase
+) {
+    try {
+        NunchukProvider::get()->nu->SendSignerPassphrase(
+        env->GetStringUTFChars(mastersigner_id, JNI_FALSE),
+        env->GetStringUTFChars(passphrase, JNI_FALSE)
+    );
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] sendSignerPassphrase error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
+}
