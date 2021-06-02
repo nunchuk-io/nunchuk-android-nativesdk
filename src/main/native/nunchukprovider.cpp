@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <syslog.h>
 #include <nunchuk.h>
-#include "provider.h"
+#include "nunchukprovider.h"
 
 using namespace nunchuk;
 

@@ -1,10 +1,10 @@
 #include <cstring>
 #include <jni.h>
-#include <syslog.h>
 #include <nunchuk.h>
-#include "provider.h"
+#include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "modelprovider.h"
 
 using namespace nunchuk;
 
@@ -19,32 +19,33 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSigner(
         jstring derivation_path,
         jstring master_fingerprint
 ) {
-    syslog(LOG_DEBUG, "[JNI]createSigner()");
     try {
         const SingleSigner &signer = NunchukProvider::get()->nu->CreateSigner(
-                env->GetStringUTFChars(name, nullptr),
-                env->GetStringUTFChars(xpub, nullptr),
-                env->GetStringUTFChars(public_key, nullptr),
-                env->GetStringUTFChars(derivation_path, nullptr),
-                env->GetStringUTFChars(master_fingerprint, nullptr)
+                env->GetStringUTFChars(name, JNI_FALSE),
+                env->GetStringUTFChars(xpub, JNI_FALSE),
+                env->GetStringUTFChars(public_key, JNI_FALSE),
+                env->GetStringUTFChars(derivation_path, JNI_FALSE),
+                env->GetStringUTFChars(master_fingerprint, JNI_FALSE)
         );
-        syslog(LOG_DEBUG, "[JNI][signer]name::%s", signer.get_name().c_str());
-        syslog(LOG_DEBUG, "[JNI][signer]public_key::%s", signer.get_public_key().c_str());
-        syslog(LOG_DEBUG, "[JNI][signer]xpub::%s", signer.get_xpub().c_str());
         return Deserializer::convert2JSigner(env, signer);
     } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] createSigner error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
-        return env->ExceptionOccurred();
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptySingleSigner(env);
     }
 }
 
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRemoteSigners(JNIEnv *env, jobject thiz) {
-    syslog(LOG_DEBUG, "[JNI]getRemoteSigner()");
-    auto signers = NunchukProvider::get()->nu->GetRemoteSigners();
-    return Deserializer::convert2JSigners(env, signers);
+    try {
+        auto signers = NunchukProvider::get()->nu->GetRemoteSigners();
+        return Deserializer::convert2JSigners(env, signers);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyList(env);
+    }
 }
 
 extern "C"
@@ -55,10 +56,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteRemoteSigner(
         jstring master_fingerprint,
         jstring derivation_path
 ) {
-    NunchukProvider::get()->nu->DeleteRemoteSigner(
-            env->GetStringUTFChars(master_fingerprint, nullptr),
-            env->GetStringUTFChars(derivation_path, nullptr
-            ));
+    try {
+        NunchukProvider::get()->nu->DeleteRemoteSigner(
+            env->GetStringUTFChars(master_fingerprint, JNI_FALSE),
+            env->GetStringUTFChars(derivation_path, JNI_FALSE
+        ));
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
 }
 
 extern "C"
@@ -68,8 +74,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateRemoteSigner(
         jobject thiz,
         jobject signer
 ) {
-    auto singleSigner = Serializer::convert2CSigner(env, signer);
-    NunchukProvider::get()->nu->UpdateRemoteSigner(singleSigner);
+    try {
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        NunchukProvider::get()->nu->UpdateRemoteSigner(singleSigner);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
 }
 
 extern "C"
@@ -79,8 +90,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateMasterSigner(
         jobject thiz,
         jobject signer
 ) {
-    auto masterSigner = Serializer::convert2CMasterSigner(env, signer);
-    NunchukProvider::get()->nu->UpdateMasterSigner(masterSigner);
+    try {
+        auto masterSigner = Serializer::convert2CMasterSigner(env, signer);
+        NunchukProvider::get()->nu->UpdateMasterSigner(masterSigner);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
 }
 
 extern "C"
@@ -120,7 +136,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSigner(
         jstring mnemonic,
         jstring passphrase
 ) {
-    syslog(LOG_DEBUG, "[JNI]createSoftwareSigner()");
     try {
         const MasterSigner &signer = NunchukProvider::get()->nu->CreateSoftwareSigner(
                 env->GetStringUTFChars(name, JNI_FALSE),
@@ -128,13 +143,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSigner(
                 env->GetStringUTFChars(passphrase, JNI_FALSE),
                 [](int percent) { return true; }
         );
-        syslog(LOG_DEBUG, "[JNI][SoftwareSigner]name::%s", signer.get_name().c_str());
-        syslog(LOG_DEBUG, "[JNI][SoftwareSigner]public_key::%s", signer.get_id().c_str());
         return Deserializer::convert2JMasterSigner(env, signer);
     } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] createSoftwareSigner error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
-        return env->ExceptionOccurred();
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyMasterSigner(env);
     }
 }
 
@@ -144,9 +157,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMasterSigners(
         JNIEnv *env,
         jobject thiz
 ) {
-    syslog(LOG_DEBUG, "[JNI]getMasterSigners()");
-    auto signers = NunchukProvider::get()->nu->GetMasterSigners();
-    return Deserializer::convert2JMasterSigners(env, signers);
+    try {
+        auto signers = NunchukProvider::get()->nu->GetMasterSigners();
+        return Deserializer::convert2JMasterSigners(env, signers);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyList(env);
+    }
 }
 
 extern "C"
@@ -156,9 +174,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMasterSigner(
         jobject thiz,
         jstring mastersigner_id
 ) {
-    syslog(LOG_DEBUG, "[JNI]getMasterSigners()");
-    auto signer = NunchukProvider::get()->nu->GetMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
-    return Deserializer::convert2JMasterSigner(env, signer);
+    try {
+        auto signer = NunchukProvider::get()->nu->GetMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
+        return Deserializer::convert2JMasterSigner(env, signer);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyMasterSigner(env);
+    }
 }
 
 extern "C"
@@ -168,9 +191,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignersFromMasterSigner(
         jobject thiz,
         jstring mastersigner_id
 ) {
-    syslog(LOG_DEBUG, "[JNI]getSignersFromMasterSigner()");
-    auto signer = NunchukProvider::get()->nu->GetSignersFromMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
-    return Deserializer::convert2JSigners(env, signer);
+    try {
+        auto signer = NunchukProvider::get()->nu->GetSignersFromMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
+        return Deserializer::convert2JSigners(env, signer);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyList(env);
+    }
 }
 
 extern "C"
@@ -182,13 +210,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getUnusedSignerFromMasterSi
         jint wallet_type,
         jint address_type
 ) {
-    syslog(LOG_DEBUG, "[JNI]getSignersFromMasterSigner()");
-    auto signer = NunchukProvider::get()->nu->GetUnusedSignerFromMasterSigner(
+    try {
+        auto signer = NunchukProvider::get()->nu->GetUnusedSignerFromMasterSigner(
             env->GetStringUTFChars(mastersigner_id, JNI_FALSE),
             Serializer::convert2CWalletType(wallet_type),
             Serializer::convert2CAddressType(address_type)
-    );
-    return Deserializer::convert2JSigner(env, signer);
+        );
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptySingleSigner(env);
+    }
 }
 
 extern "C"
@@ -198,8 +231,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteMasterSigner(
         jobject thiz,
         jstring mastersigner_id
 ) {
-    syslog(LOG_DEBUG, "[JNI]deleteMasterSigner()");
-    return NunchukProvider::get()->nu->DeleteMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
+    try {
+        return NunchukProvider::get()->nu->DeleteMasterSigner(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
 }
 
 extern "C"
@@ -212,11 +250,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendSignerPassphrase(
 ) {
     try {
         NunchukProvider::get()->nu->SendSignerPassphrase(
-        env->GetStringUTFChars(mastersigner_id, JNI_FALSE),
-        env->GetStringUTFChars(passphrase, JNI_FALSE)
-    );
+            env->GetStringUTFChars(mastersigner_id, JNI_FALSE),
+            env->GetStringUTFChars(passphrase, JNI_FALSE)
+        );
     } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] sendSignerPassphrase error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
     }

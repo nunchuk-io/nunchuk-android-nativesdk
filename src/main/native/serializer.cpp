@@ -3,7 +3,7 @@
 #include <syslog.h>
 #include <nunchuk.h>
 #include "serializer.h"
-#include "provider.h"
+#include "nunchukprovider.h"
 
 using namespace nunchuk;
 
