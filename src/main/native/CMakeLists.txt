@@ -19,12 +19,13 @@ set(UR__DISABLE_TESTS ON)
 add_library(nunchuk-android SHARED
         deserializer.cpp
         serializer.cpp
-        provider.cpp
+        nunchukprovider.cpp
         initializer-jni.cpp
         wallet-jni.cpp
         signer-jni.cpp
         transaction-jni.cpp
         util-jni.cpp
+        modelprovider.cpp
 )
 
 set(UR__DISABLE_TESTS ON)

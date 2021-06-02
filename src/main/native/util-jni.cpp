@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <syslog.h>
 #include <nunchuk.h>
-#include "provider.h"
+#include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
 
@@ -60,6 +60,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getChainTip(
         JNIEnv *env,
         jobject thiz
 ) {
-    return NunchukProvider::get()->nu->GetChainTip();
+    try {
+        return NunchukProvider::get()->nu->GetChainTip();
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return -1;
+    }
 }
 

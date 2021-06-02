@@ -1,10 +1,10 @@
 #include <cstring>
 #include <jni.h>
-#include <syslog.h>
 #include <nunchuk.h>
-#include "provider.h"
+#include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "modelprovider.h"
 
 using namespace nunchuk;
 
@@ -16,12 +16,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastTransaction(
         jstring wallet_id,
         jstring tx_id
 ) {
-    syslog(LOG_DEBUG, "[JNI]broadcastTransaction()");
-    auto transaction = NunchukProvider::get()->nu->BroadcastTransaction(
+    try {
+        auto transaction = NunchukProvider::get()->nu->BroadcastTransaction(
             env->GetStringUTFChars(wallet_id, JNI_FALSE),
             env->GetStringUTFChars(tx_id, JNI_FALSE)
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -37,15 +42,21 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
         jboolean subtract_fee_from_amount
 ) {
     syslog(LOG_DEBUG, "[JNI]createTransaction()");
-    auto transaction = NunchukProvider::get()->nu->CreateTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            Serializer::convert2CAmountsMap(env, outputs),
-            env->GetStringUTFChars(memo, JNI_FALSE),
-            Serializer::convert2CUnspentOutputs(env, inputs),
-            Serializer::convert2CAmount(env, fee_rate),
-            subtract_fee_from_amount
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+    try {
+        auto transaction = NunchukProvider::get()->nu->CreateTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                Serializer::convert2CAmountsMap(env, outputs),
+                env->GetStringUTFChars(memo, JNI_FALSE),
+                Serializer::convert2CUnspentOutputs(env, inputs),
+                Serializer::convert2CAmount(env, fee_rate),
+                subtract_fee_from_amount
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -59,15 +70,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jobject fee_rate,
         jboolean subtract_fee_from_amount
 ) {
-    syslog(LOG_DEBUG, "[JNI]draftTransaction()");
-    auto transaction = NunchukProvider::get()->nu->DraftTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            Serializer::convert2CAmountsMap(env, outputs),
-            Serializer::convert2CUnspentOutputs(env, inputs),
-            Serializer::convert2CAmount(env, fee_rate),
-            subtract_fee_from_amount
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+    try {
+        auto transaction = NunchukProvider::get()->nu->DraftTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                Serializer::convert2CAmountsMap(env, outputs),
+                Serializer::convert2CUnspentOutputs(env, inputs),
+                Serializer::convert2CAmount(env, fee_rate),
+                subtract_fee_from_amount
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -78,10 +94,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteTransaction(
         jstring wallet_id,
         jstring tx_id
 ) {
-    return NunchukProvider::get()->nu->DeleteTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE)
-    );
+    try {
+        return NunchukProvider::get()->nu->DeleteTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE)
+        );
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
 }
 
 extern "C"
@@ -92,11 +114,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoboTransaction(
         jstring wallet_id,
         jstring tx_id
 ) {
-    auto values = NunchukProvider::get()->nu->ExportCoboTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE)
-    );
-    return Deserializer::convert2JListString(env, values);
+    try {
+        auto values = NunchukProvider::get()->nu->ExportCoboTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JListString(env, values);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyList(env);
+    }
 }
 
 extern "C"
@@ -108,11 +136,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransaction(
         jstring tx_id,
         jstring file_path
 ) {
-    return NunchukProvider::get()->nu->ExportTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE),
-            env->GetStringUTFChars(file_path, JNI_FALSE)
-    );
+    try {
+        return NunchukProvider::get()->nu->ExportTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                env->GetStringUTFChars(file_path, JNI_FALSE)
+        );
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
 }
 
 extern "C"
@@ -123,11 +157,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransaction(
         jstring wallet_id,
         jstring tx_id
 ) {
-    auto transaction = NunchukProvider::get()->nu->GetTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE)
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+    try {
+        auto transaction = NunchukProvider::get()->nu->GetTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -139,12 +179,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransaction(
         jstring tx_id,
         jobject new_fee_rate
 ) {
-    auto transaction = NunchukProvider::get()->nu->ReplaceTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE),
-            Serializer::convert2CAmount(env, new_fee_rate)
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+    try {
+        auto transaction = NunchukProvider::get()->nu->ReplaceTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                Serializer::convert2CAmount(env, new_fee_rate)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -155,11 +201,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTransaction(
         jstring wallet_id,
         jstring file_path
 ) {
-    auto transaction = NunchukProvider::get()->nu->ImportTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(file_path, JNI_FALSE)
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+    try {
+        auto transaction = NunchukProvider::get()->nu->ImportTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(file_path, JNI_FALSE)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -171,12 +223,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransactionHistory(
         jint count,
         jint skip
 ) {
-    auto transactions = NunchukProvider::get()->nu->GetTransactionHistory(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            count,
-            skip
-    );
-    return Deserializer::convert2JTransactions(env, transactions);
+    try {
+        auto transactions = NunchukProvider::get()->nu->GetTransactionHistory(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                count,
+                skip
+        );
+        return Deserializer::convert2JTransactions(env, transactions);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyList(env);
+    }
 }
 
 extern "C"
@@ -187,7 +245,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoboTransaction(
         jstring wallet_id,
         jobject qr_data
 ) {
-    // TODO: implement importCoboTransaction()
+    // TODO
+    return ModelProvider::createEmptyTransaction(env);
 }
 
 extern "C"
@@ -199,11 +258,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransactionMemo(
         jstring tx_id,
         jstring new_memo
 ) {
-    return NunchukProvider::get()->nu->UpdateTransactionMemo(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE),
-            env->GetStringUTFChars(new_memo, JNI_FALSE)
-    );
+    try {
+        return NunchukProvider::get()->nu->UpdateTransactionMemo(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                env->GetStringUTFChars(new_memo, JNI_FALSE)
+        );
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
 }
 
 extern "C"
@@ -215,12 +280,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransaction(
         jstring tx_id,
         jobject device
 ) {
-    auto transaction =  NunchukProvider::get()->nu->SignTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE),
-            Serializer::convert2CDevice(env, device)
-    );
-    return Deserializer::convert2JTransaction(env, transaction);
+    try {
+        auto transaction =  NunchukProvider::get()->nu->SignTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                Serializer::convert2CDevice(env, device)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyTransaction(env);
+    }
 }
 
 extern "C"
@@ -232,11 +303,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransactionHistory(
         jstring file_path,
         jint format
 ) {
-    NunchukProvider::get()->nu->ExportTransactionHistory(
+    try {
+        NunchukProvider::get()->nu->ExportTransactionHistory(
             env->GetStringUTFChars(wallet_id, JNI_FALSE),
             env->GetStringUTFChars(file_path, JNI_FALSE),
             Serializer::convert2CExportFormat(format)
-    );
+        );
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
 }
 
 extern "C"
@@ -248,11 +324,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddresses(
         jboolean used,
         jboolean internal
 ) {
-    auto values = NunchukProvider::get()->nu->GetAddresses(
+    try {
+        auto values = NunchukProvider::get()->nu->GetAddresses(
             env->GetStringUTFChars(wallet_id, JNI_FALSE),
             used,
-            internal);
-    return Deserializer::convert2JListString(env, values);
+            internal
+        );
+        return Deserializer::convert2JListString(env, values);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyList(env);
+    }
 }
 
 extern "C"
@@ -263,10 +346,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressBalance(
         jstring wallet_id,
         jstring address
 ) {
-    auto value = NunchukProvider::get()->nu->GetAddressBalance(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(address, JNI_FALSE));
-    return Deserializer::convert2JAmount(env, value);
+    try {
+        auto value = NunchukProvider::get()->nu->GetAddressBalance(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(address, JNI_FALSE));
+        return Deserializer::convert2JAmount(env, value);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyAmount(env);
+    }
 }
 
 extern "C"
@@ -293,7 +382,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_newAddress(
                 internal);
         return env->NewStringUTF(value.c_str());
     } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] newAddress error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
         return env->NewStringUTF("");
@@ -307,6 +395,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFee(
         jobject thiz,
         jint type
 ) {
-    auto value = NunchukProvider::get()->nu->EstimateFee(type);
-    return Deserializer::convert2JAmount(env, value);
+    try {
+        auto value = NunchukProvider::get()->nu->EstimateFee(type);
+        return Deserializer::convert2JAmount(env, value);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return ModelProvider::createEmptyAmount(env);
+    }
+
 }
