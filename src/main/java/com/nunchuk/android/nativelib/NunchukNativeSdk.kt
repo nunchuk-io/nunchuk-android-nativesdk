@@ -7,7 +7,7 @@ import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
 import com.nunchuk.android.type.WalletType
 
-class LibNunchukFacade {
+class NunchukNativeSdk {
 
     private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
 
@@ -334,4 +334,7 @@ class LibNunchukFacade {
 
     @Throws(NCNativeException::class)
     fun sendSignerPassphrase(masterSignerId: String, passphrase: String) = nunchukAndroid.sendSignerPassphrase(masterSignerId, passphrase)
+
+    @Throws(NCNativeException::class)
+    fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
 }

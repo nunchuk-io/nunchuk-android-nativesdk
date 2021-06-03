@@ -153,3 +153,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateWallet(
         return JNI_FALSE;
     }
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteWallet(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id
+) {
+    try {
+        return NunchukProvider::get()->nu->DeleteWallet(env->GetStringUTFChars(wallet_id, JNI_FALSE));
+    }   catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
+}
+
