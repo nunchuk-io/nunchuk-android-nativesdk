@@ -33,7 +33,7 @@ jobject Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::strin
         jmethodID putMethod = env->GetMethodID(clazz, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
         if (!signersMap.empty()) {
             for (const auto &it : signersMap) {
-                env->CallObjectMethod(instance, putMethod, env->NewStringUTF(it.first.c_str()), it.second ? JNI_TRUE : JNI_FALSE);
+                env->CallObjectMethod(instance, putMethod, env->NewStringUTF(it.first.c_str()), convert2JBoolean(env, it.second));
             }
         }
     } catch (const std::exception &e) {

@@ -198,6 +198,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun sendSignerPassphrase(masterSignerId: String, passphrase: String)
 
+    @Throws(NCNativeException::class)
+    external fun deleteWallet(walletId: String): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
