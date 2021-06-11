@@ -39,6 +39,15 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun createCoboSigner(
+        name: String,
+        jsonInfo: String
+    ) = nunchukAndroid.createCoboSigner(
+        name = name,
+        jsonInfo = jsonInfo
+    )
+
+    @Throws(NCNativeException::class)
     fun createSoftwareSigner(
         name: String,
         mnemonic: String,
