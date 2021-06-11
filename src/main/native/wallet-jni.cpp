@@ -4,7 +4,6 @@
 #include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
-#include "modelprovider.h"
 
 using namespace nunchuk;
 
@@ -15,8 +14,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWallets(JNIEnv *env, job
         auto wallets = NunchukProvider::get()->nu->GetWallets();
         return Deserializer::convert2JWallets(env, wallets);
     } catch (std::exception &e) {
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyList(env);
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
     }
 }
 
@@ -46,6 +45,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftWallet(
         );
         return env->NewStringUTF(filePath.c_str());
     } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
         return env->NewStringUTF("");
     }
@@ -78,8 +78,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
         return Deserializer::convert2JWallet(env, wallet);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyWallet(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -115,8 +114,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoboWallet(JNIEnv *en
         return Deserializer::convert2JListString(env, values);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyList(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -132,8 +130,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWallet(
         return Deserializer::convert2JWallet(env, wallet);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyWallet(env);
+        return env->ExceptionOccurred();
     }
 }
 

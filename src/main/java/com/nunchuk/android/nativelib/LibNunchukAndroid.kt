@@ -28,6 +28,12 @@ internal class LibNunchukAndroid {
     ): SingleSigner
 
     @Throws(NCNativeException::class)
+    external fun createCoboSigner(
+        name: String,
+        jsonInfo: String
+    ): SingleSigner
+
+    @Throws(NCNativeException::class)
     external fun createSoftwareSigner(
         name: String,
         mnemonic: String,

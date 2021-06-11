@@ -4,7 +4,6 @@
 #include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
-#include "modelprovider.h"
 
 using namespace nunchuk;
 
@@ -30,8 +29,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSigner(
         return Deserializer::convert2JSigner(env, signer);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptySingleSigner(env);
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createCoboSigner(
+        JNIEnv *env,
+        jobject thiz,
+        jstring name,
+        jstring jsonInfo
+) {
+    try {
+        const SingleSigner &signer = NunchukProvider::get()->nu->CreateCoboSigner(
+                env->GetStringUTFChars(name, JNI_FALSE),
+                env->GetStringUTFChars(jsonInfo, JNI_FALSE)
+        );
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
     }
 }
 
@@ -43,8 +61,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRemoteSigners(JNIEnv *en
         return Deserializer::convert2JSigners(env, signers);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyList(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -105,7 +122,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateMnemonic(
         JNIEnv *env,
         jobject thiz
 ) {
-    return env->NewStringUTF(Utils::GenerateMnemonic().c_str());
+    try {
+        return env->NewStringUTF(Utils::GenerateMnemonic().c_str());
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return env->NewStringUTF("");
+    }
 }
 
 extern "C"
@@ -114,7 +137,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBip39WordList(
         JNIEnv *env,
         jobject thiz
 ) {
-    return Deserializer::convert2JListString(env, Utils::GetBIP39WordList());
+    try {
+        return Deserializer::convert2JListString(env, Utils::GetBIP39WordList());
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
 }
 
 extern "C"
@@ -124,7 +152,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_checkMnemonic(
         jobject thiz,
         jstring mnemonic
 ) {
-    return Utils::CheckMnemonic(env->GetStringUTFChars(mnemonic, JNI_FALSE));
+    try {
+        return Utils::CheckMnemonic(env->GetStringUTFChars(mnemonic, JNI_FALSE));
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
 }
 
 extern "C"
@@ -146,8 +180,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSigner(
         return Deserializer::convert2JMasterSigner(env, signer);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyMasterSigner(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -162,8 +195,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMasterSigners(
         return Deserializer::convert2JMasterSigners(env, signers);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyList(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -179,8 +211,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMasterSigner(
         return Deserializer::convert2JMasterSigner(env, signer);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyMasterSigner(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -196,8 +227,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignersFromMasterSigner(
         return Deserializer::convert2JSigners(env, signer);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptyList(env);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -219,8 +249,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getUnusedSignerFromMasterSi
         return Deserializer::convert2JSigner(env, signer);
     } catch (std::exception &e) {
         Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-        return ModelProvider::createEmptySingleSigner(env);
+        return env->ExceptionOccurred();
     }
 }
 
