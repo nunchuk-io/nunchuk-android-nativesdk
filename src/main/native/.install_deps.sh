@@ -1,12 +1,12 @@
 set -e
 
 if [ -z "$ANDROID_SDK" ]; then
-  echo "export the $ANDROID_SDK environment variable"
+  echo "export the ANDROID_SDK environment variable"
   exit 1
 fi
 
 if [ -z "$ANDROID_NDK_HOME" ]; then
-  echo "export the $ANDROID_NDK_HOME environment variable"
+  echo "export the ANDROID_NDK_HOME environment variable"
   exit 1
 fi
 
