@@ -106,7 +106,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'io.nunchuk.android'
             artifactId 'nativesdk-arm64_v8a'
-            version '1.0.0'
+            version '1.0.1'
             artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-arm64_v8a-debug.aar")
         }
     }
