@@ -101,7 +101,7 @@ allprojects {
     }
 }
 
-def SUPPORTED_FLAVOR = "arm64-v8a"
+def SUPPORTED_FLAVOR = "arm64_v8a"
 publishing {
     publications {
         maven(MavenPublication) {
