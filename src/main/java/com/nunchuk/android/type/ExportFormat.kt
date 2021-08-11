@@ -6,4 +6,5 @@ enum class ExportFormat {
     COLDCARD,
     COBO,
     CSV,
+    BSMS
 }

@@ -101,13 +101,14 @@ allprojects {
     }
 }
 
+def SUPPORTED_FLAVOR = "arm64-v8a"
 publishing {
     publications {
         maven(MavenPublication) {
             groupId 'io.nunchuk.android'
-            artifactId 'nativesdk-arm64_v8a'
+            artifactId "nativesdk-${SUPPORTED_FLAVOR}"
             version '1.0.1'
-            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-arm64_v8a-debug.aar")
+            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_FLAVOR}-debug.aar")
         }
     }
 
