@@ -12,14 +12,16 @@ class NunchukNativeSdk {
     private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
 
     @Throws(NCNativeException::class)
-    fun initNunchuk(appSettings: AppSettings) {
+    fun initNunchuk(appSettings: AppSettings, passphrase: String, accountId: String) {
         nunchukAndroid.initNunchuk(
             chain = appSettings.chain.ordinal,
             hwiPath = appSettings.hwiPath,
             enableProxy = appSettings.enableProxy,
             testnetServers = appSettings.testnetServers,
             backendType = appSettings.backendType.ordinal,
-            storagePath = appSettings.storagePath
+            storagePath = appSettings.storagePath,
+            passphrase = passphrase,
+            accountId = accountId
         )
     }
 

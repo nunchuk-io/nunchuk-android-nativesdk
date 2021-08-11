@@ -15,6 +15,10 @@ NunchukProvider *NunchukProvider::get() {
 
 NunchukProvider *NunchukProvider::_instance = nullptr;
 
-void NunchukProvider::initNunchuk(const AppSettings &settings) {
-    nu = MakeNunchuk(settings);
+void NunchukProvider::initNunchuk(
+    const AppSettings &settings,
+    const std::string& pass_phrase,
+    const std::string& account_id
+) {
+    nu = MakeNunchukForAccount(settings, pass_phrase, account_id);
 }

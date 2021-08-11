@@ -15,7 +15,9 @@ internal class LibNunchukAndroid {
         enableProxy: Boolean,
         testnetServers: List<String>,
         backendType: Int,
-        storagePath: String
+        storagePath: String,
+        passphrase: String,
+        accountId: String
     )
 
     @Throws(NCNativeException::class)

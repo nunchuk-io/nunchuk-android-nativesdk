@@ -18,5 +18,9 @@ public:
 
     std::unique_ptr<Nunchuk> nu;
 
-    void initNunchuk(const AppSettings &settings);
+    void initNunchuk(
+        const AppSettings &settings,
+        const std::string& pass_phrase,
+        const std::string& account_id
+    );
 };

@@ -17,7 +17,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jboolean enable_proxy,
         jobject testnet_servers,
         jint backend_type,
-        jstring storage_path
+        jstring storage_path,
+        jstring pass_phrase,
+        jstring account_id
 ) {
     try {
         AppSettings settings;
@@ -28,7 +30,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_testnet_servers({"testnet.nunchuk.io:50001"});
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
-        NunchukProvider::get()->initNunchuk(settings);
+        NunchukProvider::get()->initNunchuk(
+            settings,
+            env->GetStringUTFChars(pass_phrase, JNI_FALSE),
+            env->GetStringUTFChars(account_id, JNI_FALSE)
+        );
     } catch (const std::exception &e) {
         Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
