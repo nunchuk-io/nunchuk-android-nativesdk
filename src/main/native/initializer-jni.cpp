@@ -33,7 +33,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 
         jclass clazz = env->FindClass("com/nunchuk/android/model/SendEventExecutor");
-        jmethodID method = env->GetMethodID(clazz, "execute", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+        jmethodID method = env->GetMethodID(clazz, "execute", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
 
         NunchukProvider::get()->initNunchuk(
                 settings,

@@ -1,5 +1,5 @@
 package com.nunchuk.android.model
 
 interface SendEventExecutor {
-    fun execute(type: String, content: String): String
+    fun execute(roomId: String, type: String, content: String): String
 }
