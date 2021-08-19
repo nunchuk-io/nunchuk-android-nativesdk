@@ -33,18 +33,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 
         jclass clazz = env->FindClass("com/nunchuk/android/model/SendEventExecutor");
-        jmethodID method = env->GetMethodID(clazz, "invoke", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+        jmethodID method = env->GetMethodID(clazz, "execute", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
 
         NunchukProvider::get()->initNunchuk(
                 settings,
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
                 env->GetStringUTFChars(account_id, JNI_FALSE),
-                [&env, &send_event_executor, &method](std::string option, std::string speed) {
+                [&env, &send_event_executor, &method](std::string room_id, std::string type, std::string content) {
                     auto result = (jstring) env->CallObjectMethod(
                             send_event_executor,
                             method,
-                            env->NewStringUTF(option.c_str()),
-                            env->NewStringUTF(speed.c_str())
+                            env->NewStringUTF(room_id.c_str()),
+                            env->NewStringUTF(type.c_str()),
+                            env->NewStringUTF(content.c_str())
                     );
                     return env->GetStringUTFChars(result, JNI_FALSE);
                 }
