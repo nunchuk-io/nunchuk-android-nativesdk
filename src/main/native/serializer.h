@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <syslog.h>
 #include <nunchuk.h>
+#include <nunchukmatrix.h>
 
 using namespace nunchuk;
 
