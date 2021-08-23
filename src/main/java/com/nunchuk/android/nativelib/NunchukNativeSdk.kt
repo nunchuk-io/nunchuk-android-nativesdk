@@ -12,7 +12,7 @@ class NunchukNativeSdk {
     private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
 
     @Throws(NCNativeException::class)
-    fun initNunchuk(appSettings: AppSettings, passphrase: String, accountId: String, sendEventExecutor: SendEventExecutor) {
+    fun initNunchuk(appSettings: AppSettings, passphrase: String, accountId: String) {
         nunchukAndroid.initNunchuk(
             chain = appSettings.chain.ordinal,
             hwiPath = appSettings.hwiPath,
@@ -21,8 +21,7 @@ class NunchukNativeSdk {
             backendType = appSettings.backendType.ordinal,
             storagePath = appSettings.storagePath,
             passphrase = passphrase,
-            accountId = accountId,
-            sendEventExecutor = sendEventExecutor
+            accountId = accountId
         )
     }
 
@@ -349,4 +348,23 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
+
+    @Throws(NCNativeException::class)
+    fun initWallet(
+        roomId: String,
+        name: String,
+        totalSigns: Int,
+        requireSigns: Int,
+        addressType: AddressType,
+        isEscrow: Boolean
+    ) {
+        nunchukAndroid.initWallet(
+            roomId = roomId,
+            name = name,
+            totalSigns = totalSigns,
+            requireSigns = requireSigns,
+            addressType = addressType.ordinal,
+            isEscrow = isEscrow
+        )
+    }
 }

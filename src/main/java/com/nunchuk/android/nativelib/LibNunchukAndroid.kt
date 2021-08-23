@@ -17,8 +17,7 @@ internal class LibNunchukAndroid {
         backendType: Int,
         storagePath: String,
         passphrase: String,
-        accountId: String,
-        sendEventExecutor: SendEventExecutor
+        accountId: String
     )
 
     @Throws(NCNativeException::class)
@@ -209,6 +208,17 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun deleteWallet(walletId: String): Boolean
+
+    // SHARED WALLET
+    @Throws(NCNativeException::class)
+    external fun initWallet(
+        roomId:String,
+        name: String,
+        totalSigns: Int,
+        requireSigns: Int,
+        addressType: Int,
+        isEscrow: Boolean
+    )
 
     companion object {
         init {

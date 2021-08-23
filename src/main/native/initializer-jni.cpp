@@ -7,6 +7,9 @@
 
 using namespace nunchuk;
 
+static JavaVM *jvm = NULL;
+JNIEnv *store_env;
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
@@ -19,8 +22,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jint backend_type,
         jstring storage_path,
         jstring pass_phrase,
-        jstring account_id,
-        jobject send_event_executor
+        jstring account_id
 ) {
     try {
         AppSettings settings;
@@ -32,22 +34,35 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 
-        jclass clazz = env->FindClass("com/nunchuk/android/model/SendEventExecutor");
-        jmethodID method = env->GetMethodID(clazz, "execute", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
-
+        env->GetJavaVM(&jvm);
+        store_env = env;
         NunchukProvider::get()->initNunchuk(
                 settings,
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
                 env->GetStringUTFChars(account_id, JNI_FALSE),
-                [&env, &send_event_executor, &method](std::string room_id, std::string type, std::string content) {
-                    auto result = (jstring) env->CallObjectMethod(
-                            send_event_executor,
-                            method,
-                            env->NewStringUTF(room_id.c_str()),
-                            env->NewStringUTF(type.c_str()),
-                            env->NewStringUTF(content.c_str())
-                    );
-                    return env->GetStringUTFChars(result, JNI_FALSE);
+                [](std::string room_id, std::string type, std::string content) {
+                    JNIEnv *g_env;
+                    try {
+                        JavaVMAttachArgs args;
+                        args.version = JNI_VERSION_1_6;
+                        args.name = nullptr;
+                        args.group = nullptr;
+
+                        jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        jclass clazz = g_env->FindClass("com/nunchuk/android/model/SendEventHelper");
+                        jmethodID method = g_env->GetStaticMethodID(clazz, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+                        g_env->CallStaticVoidMethod(
+                                clazz,
+                                method,
+                                g_env->NewStringUTF(room_id.c_str()),
+                                g_env->NewStringUTF(type.c_str()),
+                                g_env->NewStringUTF(content.c_str())
+                        );
+                    } catch (const std::exception &t) {
+                        Deserializer::convert2JException(g_env, t.what());
+                        g_env->ExceptionOccurred();
+                    }
+                    return "";
                 }
         );
     } catch (const std::exception &e) {
@@ -55,4 +70,3 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         env->ExceptionOccurred();
     }
 }
-
