@@ -211,14 +211,35 @@ internal class LibNunchukAndroid {
 
     // SHARED WALLET
     @Throws(NCNativeException::class)
-    external fun initWallet(
-        roomId:String,
+    external fun initSharedWallet(
+        roomId: String,
         name: String,
-        totalSigns: Int,
         requireSigns: Int,
+        totalSigns: Int,
         addressType: Int,
         isEscrow: Boolean
-    )
+    ): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun joinSharedWallet(roomId: String, signer: SingleSigner): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun leaveSharedWallet(roomId: String, joinEventId: String, reason: String): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun cancelSharedWallet(roomId: String, reason: String): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun createSharedWallet(roomId: String): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun consumeEvent(event: NunchukMatrixEvent)
+
+    @Throws(NCNativeException::class)
+    external fun getRoomWallet(roomId: String): RoomWallet
+
+    @Throws(NCNativeException::class)
+    external fun getAllRoomWallets(): List<RoomWallet>
 
     companion object {
         init {

@@ -313,3 +313,54 @@ jobject Deserializer::convert2JTransactions(JNIEnv *env, const std::vector<Trans
     }
     return arrayListInstance;
 }
+
+jobject Deserializer::convert2JMatrixEvent(JNIEnv *env, const NunchukMatrixEvent &event) {
+    syslog(LOG_DEBUG, "[JNI] convert2JMatrixEvent()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/NunchukMatrixEvent");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_type().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_content().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_room_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSender", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_sender().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTime", "(J)V"), event.get_ts());
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JMatrixEvent error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JRoomWallet(JNIEnv *env, const RoomWallet &wallet) {
+    syslog(LOG_DEBUG, "[JNI] convert2JRoomWallet()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/RoomWallet");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_wallet_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setJoinEventIds", "(Ljava/util/List;)V"), convert2JListString(env, wallet.get_join_event_ids()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLeaveEventIds", "(Ljava/util/List;)V"), convert2JListString(env, wallet.get_leave_event_ids()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFinalizeEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_finalize_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_cancel_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_ready_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPinData", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_pin_data().c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JMatrixEvent error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JRoomWallets(JNIEnv *env, const std::vector<RoomWallet> &wallets) {
+    syslog(LOG_DEBUG, "[JNI] convert2JRoomWallets()");
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const RoomWallet &s: wallets) {
+        jobject element = convert2JRoomWallet(env, s);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}

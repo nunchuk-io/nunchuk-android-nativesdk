@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <syslog.h>
 #include <nunchuk.h>
+#include <nunchukmatrix.h>
 
 using namespace nunchuk;
 
@@ -53,5 +54,11 @@ public:
     static jobject convert2JTransaction(JNIEnv *env, const Transaction &transaction);
 
     static jobject convert2JTransactions(JNIEnv *env, const std::vector<Transaction> &transactions);
+
+    static jobject convert2JMatrixEvent(JNIEnv *env, const NunchukMatrixEvent &event);
+
+    static jobject convert2JRoomWallet(JNIEnv *env, const RoomWallet &wallet);
+
+    static jobject convert2JRoomWallets(JNIEnv *env, const std::vector<RoomWallet> &wallets);
 
 };

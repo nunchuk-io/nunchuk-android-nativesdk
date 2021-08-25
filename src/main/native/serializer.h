@@ -48,4 +48,6 @@ public:
     static std::map<std::string, Amount> convert2CAmountsMap(JNIEnv *pEnv, jobject amountsMap);
 
     static Amount convert2CAmount(JNIEnv *env, jobject amount);
+
+    static NunchukMatrixEvent convert2CMatrixEvent(JNIEnv *env, jobject event);
 };

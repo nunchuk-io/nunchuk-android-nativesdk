@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <syslog.h>
 #include <nunchuk.h>
+#include <nunchukmatrix.h>
 #include "serializer.h"
 #include "nunchukprovider.h"
 
@@ -399,4 +400,47 @@ Amount Serializer::convert2CAmount(JNIEnv *env, jobject amount) {
     jclass clazz = env->FindClass("com/nunchuk/android/model/Amount");
     jfieldID fieldId = env->GetFieldID(clazz, "value", "J");
     return env->GetLongField(amount, fieldId);
+}
+
+NunchukMatrixEvent Serializer::convert2CMatrixEvent(JNIEnv *env, jobject event) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/NunchukMatrixEvent");
+
+    jfieldID fieldType = env->GetFieldID(clazz, "type", "Ljava/lang/String;");
+    auto typeVal = (jstring) env->GetObjectField(event, fieldType);
+    auto type = env->GetStringUTFChars(typeVal, JNI_FALSE);
+
+    jfieldID fieldContent = env->GetFieldID(clazz, "content", "Ljava/lang/String;");
+    auto contentVal = (jstring) env->GetObjectField(event, fieldContent);
+    auto content = env->GetStringUTFChars(contentVal, JNI_FALSE);
+
+    jfieldID fieldEventId = env->GetFieldID(clazz, "eventId", "Ljava/lang/String;");
+    auto eventIdVal = (jstring) env->GetObjectField(event, fieldEventId);
+    auto eventId = env->GetStringUTFChars(eventIdVal, JNI_FALSE);
+
+    jfieldID fieldRoomId = env->GetFieldID(clazz, "roomId", "Ljava/lang/String;");
+    auto roomIdVal = (jstring) env->GetObjectField(event, fieldEventId);
+    auto roomId = env->GetStringUTFChars(roomIdVal, JNI_FALSE);
+
+    jfieldID fieldSender = env->GetFieldID(clazz, "sender", "Ljava/lang/String;");
+    auto senderVal = (jstring) env->GetObjectField(event, fieldSender);
+    auto sender = env->GetStringUTFChars(senderVal, JNI_FALSE);
+
+    jfieldID fieldTime = env->GetFieldID(clazz, "time", "J");
+    auto time = env->GetLongField(event, fieldTime);
+
+    env->ReleaseStringUTFChars(typeVal, type);
+    env->ReleaseStringUTFChars(contentVal, content);
+    env->ReleaseStringUTFChars(eventIdVal, eventId);
+    env->ReleaseStringUTFChars(roomIdVal, roomId);
+    env->ReleaseStringUTFChars(senderVal, sender);
+
+    NunchukMatrixEvent matrixEvent = NunchukMatrixEvent();
+    matrixEvent.set_type(type);
+    matrixEvent.set_content(type);
+    matrixEvent.set_event_id(eventId);
+    matrixEvent.set_room_id(roomId);
+    matrixEvent.set_sender(sender);
+    matrixEvent.set_ts(time);
+
+    return matrixEvent;
 }

@@ -350,21 +350,53 @@ class NunchukNativeSdk {
     fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
 
     @Throws(NCNativeException::class)
-    fun initWallet(
+    fun initSharedWallet(
         roomId: String,
         name: String,
         totalSigns: Int,
         requireSigns: Int,
         addressType: AddressType,
         isEscrow: Boolean
-    ) {
-        nunchukAndroid.initWallet(
-            roomId = roomId,
-            name = name,
-            totalSigns = totalSigns,
-            requireSigns = requireSigns,
-            addressType = addressType.ordinal,
-            isEscrow = isEscrow
-        )
+    ) = nunchukAndroid.initSharedWallet(
+        roomId = roomId,
+        name = name,
+        totalSigns = totalSigns,
+        requireSigns = requireSigns,
+        addressType = addressType.ordinal,
+        isEscrow = isEscrow
+    )
+
+    @Throws(NCNativeException::class)
+    fun joinSharedWallet(roomId: String, signer: SingleSigner) = nunchukAndroid.joinSharedWallet(
+        roomId = roomId,
+        signer = signer
+    )
+
+    @Throws(NCNativeException::class)
+    fun leaveSharedWallet(roomId: String, joinEventId: String, reason: String) = nunchukAndroid.leaveSharedWallet(
+        roomId = roomId,
+        joinEventId = joinEventId,
+        reason = reason
+    )
+
+    @Throws(NCNativeException::class)
+    fun cancelSharedWallet(roomId: String, reason: String) = nunchukAndroid.cancelSharedWallet(
+        roomId = roomId,
+        reason = reason
+    )
+
+    @Throws(NCNativeException::class)
+    fun createSharedWallet(roomId: String) = nunchukAndroid.createSharedWallet(roomId = roomId)
+
+    @Throws(NCNativeException::class)
+    fun consumeEvent(event: NunchukMatrixEvent) {
+        nunchukAndroid.consumeEvent(event = event)
     }
+
+    @Throws(NCNativeException::class)
+    fun getRoomWallet(roomId: String) = nunchukAndroid.getRoomWallet(roomId = roomId)
+
+    @Throws(NCNativeException::class)
+    fun getAllRoomWallets() = nunchukAndroid.getAllRoomWallets()
+
 }
