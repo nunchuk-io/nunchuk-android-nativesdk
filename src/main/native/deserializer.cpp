@@ -344,9 +344,10 @@ jobject Deserializer::convert2JRoomWallet(JNIEnv *env, const RoomWallet &wallet)
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFinalizeEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_finalize_event_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_cancel_event_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_ready_event_id().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPinData", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_pin_data().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDeleteEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_delete_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setJsonContent", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_json_content().c_str()));
     } catch (const std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] convert2JMatrixEvent error::%s", e.what());
+        syslog(LOG_DEBUG, "[JNI] convert2JRoomWallet error::%s", e.what());
     }
     return instance;
 }

@@ -10,6 +10,7 @@ data class NunchukMatrixEvent(
 )
 
 data class RoomWallet(
+    var roomId:String = "",
     var walletId: String = "",
     var initEventId: String = "",
     var joinEventIds: List<String> = emptyList(),
@@ -17,7 +18,8 @@ data class RoomWallet(
     var finalizeEventId: String = "",
     var cancelEventId: String = "",
     var readyEventId: String = "",
-    var pinData: String = "",
+    var deleteEventId:String = "",
+    var jsonContent: String = "",
 )
 
 data class RoomTransaction(

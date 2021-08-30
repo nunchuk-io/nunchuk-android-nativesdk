@@ -418,7 +418,7 @@ NunchukMatrixEvent Serializer::convert2CMatrixEvent(JNIEnv *env, jobject event) 
     auto eventId = env->GetStringUTFChars(eventIdVal, JNI_FALSE);
 
     jfieldID fieldRoomId = env->GetFieldID(clazz, "roomId", "Ljava/lang/String;");
-    auto roomIdVal = (jstring) env->GetObjectField(event, fieldEventId);
+    auto roomIdVal = (jstring) env->GetObjectField(event, fieldRoomId);
     auto roomId = env->GetStringUTFChars(roomIdVal, JNI_FALSE);
 
     jfieldID fieldSender = env->GetFieldID(clazz, "sender", "Ljava/lang/String;");
@@ -428,19 +428,26 @@ NunchukMatrixEvent Serializer::convert2CMatrixEvent(JNIEnv *env, jobject event) 
     jfieldID fieldTime = env->GetFieldID(clazz, "time", "J");
     auto time = env->GetLongField(event, fieldTime);
 
+    NunchukMatrixEvent matrixEvent = NunchukMatrixEvent();
+    matrixEvent.set_type(type);
+    matrixEvent.set_content(content);
+    matrixEvent.set_event_id(eventId);
+    matrixEvent.set_room_id(roomId);
+    matrixEvent.set_sender(sender);
+    matrixEvent.set_ts(time);
+
+    syslog(LOG_DEBUG, "[JNI][NunchukMatrixEvent]type:: %s", matrixEvent.get_type().c_str());
+    syslog(LOG_DEBUG, "[JNI][NunchukMatrixEvent]content:: %s", matrixEvent.get_content().c_str());
+    syslog(LOG_DEBUG, "[JNI][NunchukMatrixEvent]eventId:: %s", matrixEvent.get_event_id().c_str());
+    syslog(LOG_DEBUG, "[JNI][NunchukMatrixEvent]roomId:: %s", matrixEvent.get_room_id().c_str());
+    syslog(LOG_DEBUG, "[JNI][NunchukMatrixEvent]sender:: %s", matrixEvent.get_sender().c_str());
+    syslog(LOG_DEBUG, "[JNI][NunchukMatrixEvent]time:: %ld", matrixEvent.get_ts());
+
     env->ReleaseStringUTFChars(typeVal, type);
     env->ReleaseStringUTFChars(contentVal, content);
     env->ReleaseStringUTFChars(eventIdVal, eventId);
     env->ReleaseStringUTFChars(roomIdVal, roomId);
     env->ReleaseStringUTFChars(senderVal, sender);
-
-    NunchukMatrixEvent matrixEvent = NunchukMatrixEvent();
-    matrixEvent.set_type(type);
-    matrixEvent.set_content(type);
-    matrixEvent.set_event_id(eventId);
-    matrixEvent.set_room_id(roomId);
-    matrixEvent.set_sender(sender);
-    matrixEvent.set_ts(time);
 
     return matrixEvent;
 }
