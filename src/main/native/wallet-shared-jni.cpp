@@ -172,6 +172,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRoomWallet(
         jstring room_id
 ) {
     syslog(LOG_DEBUG, "[JNI]getRoomWallet()");
+    syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
     try {
         auto roomWallet = NunchukProvider::get()->nuMatrix->GetRoomWallet(
                 env->GetStringUTFChars(room_id, JNI_FALSE)

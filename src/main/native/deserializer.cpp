@@ -320,6 +320,10 @@ jobject Deserializer::convert2JMatrixEvent(JNIEnv *env, const NunchukMatrixEvent
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
+        syslog(LOG_DEBUG, "[JNI]content::%s", event.get_content().c_str());
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", event.get_room_id().c_str());
+        syslog(LOG_DEBUG, "[JNI]sender::%s", event.get_sender().c_str());
+        syslog(LOG_DEBUG, "[JNI]time::%ld", event.get_ts());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_type().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_content().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(event.get_event_id().c_str()));
@@ -338,6 +342,10 @@ jobject Deserializer::convert2JRoomWallet(JNIEnv *env, const RoomWallet &wallet)
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
+        syslog(LOG_DEBUG, "[JNI]walletId::%s", wallet.get_wallet_id().c_str());
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", wallet.get_room_id().c_str());
+        syslog(LOG_DEBUG, "[JNI]jsonContent::%s", wallet.get_json_content().c_str());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_room_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_wallet_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setJoinEventIds", "(Ljava/util/List;)V"), convert2JListString(env, wallet.get_join_event_ids()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLeaveEventIds", "(Ljava/util/List;)V"), convert2JListString(env, wallet.get_leave_event_ids()));
