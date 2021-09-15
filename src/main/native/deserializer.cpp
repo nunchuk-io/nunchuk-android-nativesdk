@@ -373,3 +373,41 @@ jobject Deserializer::convert2JRoomWallets(JNIEnv *env, const std::vector<RoomWa
     }
     return arrayListInstance;
 }
+
+jobject Deserializer::convert2JRoomTransaction(JNIEnv *env, const RoomTransaction &transaction) {
+    syslog(LOG_DEBUG, "[JNI] convert2JRoomTransaction()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/RoomTransaction");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        syslog(LOG_DEBUG, "[JNI]walletId::%s", transaction.get_wallet_id().c_str());
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", transaction.get_room_id().c_str());
+        syslog(LOG_DEBUG, "[JNI]txId::%s", transaction.get_tx_id().c_str());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_room_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_wallet_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_tx_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInitEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_init_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSignEventIds", "(Ljava/util/List;)V"), convert2JListString(env, transaction.get_sign_event_ids()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRejectEventIds", "(Ljava/util/List;)V"), convert2JListString(env, transaction.get_reject_event_ids()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBroadcastEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_broadcast_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_cancel_event_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_ready_event_id().c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JRoomTransaction error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JRoomTransactions(JNIEnv *env, const std::vector<RoomTransaction> &transactions) {
+    syslog(LOG_DEBUG, "[JNI] convert2JRoomTransactions()");
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const RoomTransaction &s: transactions) {
+        jobject element = convert2JRoomTransaction(env, s);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}

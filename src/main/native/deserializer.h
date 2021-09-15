@@ -61,4 +61,8 @@ public:
 
     static jobject convert2JRoomWallets(JNIEnv *env, const std::vector<RoomWallet> &wallets);
 
+    static jobject convert2JRoomTransaction(JNIEnv *env, const RoomTransaction &transaction);
+
+    static jobject convert2JRoomTransactions(JNIEnv *env, const std::vector<RoomTransaction> &transactions);
+
 };

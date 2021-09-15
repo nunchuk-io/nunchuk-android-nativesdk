@@ -241,6 +241,39 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getAllRoomWallets(): List<RoomWallet>
 
+    @Throws(NCNativeException::class)
+    external fun initRoomTransaction(
+        roomId: String,
+        outputs: Map<String, Amount>,
+        memo: String,
+        inputs: List<UnspentOutput>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean
+    ): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun signRoomTransaction(
+        initEventId: String,
+        device: Device
+    ): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun rejectRoomTransaction(
+        initEventId: String,
+        reason: String
+    ): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun cancelRoomTransaction(
+        initEventId: String,
+        reason: String
+    ): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun broadcastRoomTransaction(
+        initEventId: String
+    ): NunchukMatrixEvent
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

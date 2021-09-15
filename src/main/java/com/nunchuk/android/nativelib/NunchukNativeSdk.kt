@@ -399,4 +399,37 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getAllRoomWallets() = nunchukAndroid.getAllRoomWallets()
 
+    @Throws(NCNativeException::class)
+    fun initRoomTransaction(
+        roomId: String,
+        outputs: Map<String, Amount>,
+        memo: String,
+        inputs: List<UnspentOutput>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean
+    ) = nunchukAndroid.initRoomTransaction(roomId, outputs, memo, inputs, feeRate, subtractFeeFromAmount)
+
+    @Throws(NCNativeException::class)
+    fun signRoomTransaction(
+        initEventId: String,
+        device: Device
+    ) = nunchukAndroid.signRoomTransaction(initEventId, device)
+
+    @Throws(NCNativeException::class)
+    fun rejectRoomTransaction(
+        initEventId: String,
+        reason: String
+    ) = nunchukAndroid.rejectRoomTransaction(initEventId, reason)
+
+    @Throws(NCNativeException::class)
+    fun cancelRoomTransaction(
+        initEventId: String,
+        reason: String
+    ) = nunchukAndroid.cancelRoomTransaction(initEventId, reason)
+
+    @Throws(NCNativeException::class)
+    fun broadcastRoomTransaction(
+        initEventId: String
+    ) = nunchukAndroid.broadcastRoomTransaction(initEventId)
+
 }
