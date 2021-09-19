@@ -15,8 +15,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initSharedWallet(
         jobject thiz,
         jstring room_id,
         jstring name,
-        jint m,
-        jint n,
+        jint require_signs,
+        jint total_signs,
         jint address_type,
         jboolean is_escrow
 ) {
@@ -25,15 +25,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initSharedWallet(
         AddressType type = Serializer::convert2CAddressType(address_type);
         syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
         syslog(LOG_DEBUG, "[JNI]name::%s", env->GetStringUTFChars(name, JNI_FALSE));
-        syslog(LOG_DEBUG, "[JNI]m::%d", m);
-        syslog(LOG_DEBUG, "[JNI]n::%d", n);
+        syslog(LOG_DEBUG, "[JNI]m::%d", require_signs);
+        syslog(LOG_DEBUG, "[JNI]n::%d", total_signs);
         syslog(LOG_DEBUG, "[JNI]address_type::%d", address_type);
         syslog(LOG_DEBUG, "[JNI]is_escrow::%d", is_escrow);
         auto result = NunchukProvider::get()->nuMatrix->InitWallet(
                 env->GetStringUTFChars(room_id, JNI_FALSE),
                 env->GetStringUTFChars(name, JNI_FALSE),
-                m,
-                n,
+                require_signs,
+                total_signs,
                 type,
                 is_escrow
         );

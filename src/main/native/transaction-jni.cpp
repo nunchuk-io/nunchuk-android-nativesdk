@@ -370,8 +370,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_newAddress(
                 internal);
         return env->NewStringUTF(value.c_str());
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
         return env->NewStringUTF("");
     }
 }

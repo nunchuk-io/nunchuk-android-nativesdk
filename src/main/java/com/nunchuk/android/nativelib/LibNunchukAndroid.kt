@@ -214,8 +214,8 @@ internal class LibNunchukAndroid {
     external fun initSharedWallet(
         roomId: String,
         name: String,
-        totalSigns: Int,
         requireSigns: Int,
+        totalSigns: Int,
         addressType: Int,
         isEscrow: Boolean
     ): NunchukMatrixEvent

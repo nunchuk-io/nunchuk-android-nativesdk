@@ -236,7 +236,7 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
         jobject signers = convert2JSigners(env, wallet.get_signers());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_name().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalRequireSigns", "(I)V"), wallet.get_n());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalRequireSigns", "(I)V"), wallet.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/List;)V"), signers);
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setEscrow", "(Z)V"), wallet.is_escrow());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBalance", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, wallet.get_balance()));
