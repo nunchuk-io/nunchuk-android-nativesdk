@@ -126,3 +126,45 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastRoomTransaction(
         return env->ExceptionOccurred();
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRoomTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring init_event_id
+) {
+    syslog(LOG_DEBUG, "[JNI]getRoomTransaction()");
+    syslog(LOG_DEBUG, "[JNI]init_event_id::%s", env->GetStringUTFChars(init_event_id, JNI_FALSE));
+    try {
+        auto result = NunchukProvider::get()->nuMatrix->GetRoomTransaction(
+                env->GetStringUTFChars(init_event_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JRoomTransaction(env, result);
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] getRoomTransaction error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getPendingTransactions(
+        JNIEnv *env,
+        jobject thiz,
+        jstring room_id
+) {
+    syslog(LOG_DEBUG, "[JNI]getPendingTransactions()");
+    syslog(LOG_DEBUG, "[JNI]room_id::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
+    try {
+        auto result = NunchukProvider::get()->nuMatrix->GetPendingTransactions(
+                env->GetStringUTFChars(room_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JRoomTransactions(env, result);
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] getPendingTransactions error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}

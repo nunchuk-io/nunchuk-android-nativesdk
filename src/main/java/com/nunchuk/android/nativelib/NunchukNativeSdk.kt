@@ -432,4 +432,14 @@ class NunchukNativeSdk {
         initEventId: String
     ) = nunchukAndroid.broadcastRoomTransaction(initEventId)
 
+    @Throws(NCNativeException::class)
+    fun getRoomTransaction(
+        initEventId: String
+    ) = nunchukAndroid.getRoomTransaction(initEventId)
+
+    @Throws(NCNativeException::class)
+    fun getPendingTransactions(
+        roomId: String
+    ) = nunchukAndroid.getPendingTransactions(roomId)
+
 }

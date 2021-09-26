@@ -274,6 +274,16 @@ internal class LibNunchukAndroid {
         initEventId: String
     ): NunchukMatrixEvent
 
+    @Throws(NCNativeException::class)
+    external fun getRoomTransaction(
+        initEventId: String
+    ): RoomTransaction
+
+    @Throws(NCNativeException::class)
+    external fun getPendingTransactions(
+        roomId: String
+    ): List<RoomTransaction>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
