@@ -31,6 +31,8 @@ public:
 
     static std::vector<SingleSigner> convert2CSigners(JNIEnv *env, jobject signers);
 
+    static std::vector<std::string> convert2CListString(JNIEnv *env, jobject values);
+
     static Wallet convert2CWallet(JNIEnv *env, jobject wallet);
 
     static TxInput convert2CTxInput(JNIEnv *env, jobject input);

@@ -29,8 +29,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_chain(Serializer::convert2CChain(chain));
         settings.set_hwi_path(env->GetStringUTFChars(hwi_path, JNI_FALSE));
         settings.enable_proxy(enable_proxy);
-        // FIXME
-        settings.set_testnet_servers({"testnet.nunchuk.io:51001"});
+        settings.set_testnet_servers(Serializer::convert2CListString(env, testnet_servers));
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 

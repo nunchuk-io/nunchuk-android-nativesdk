@@ -91,6 +91,22 @@ ExportFormat Serializer::convert2CExportFormat(jint ordinal) {
     return format;
 }
 
+std::vector<std::string> Serializer::convert2CListString(JNIEnv *env, jobject signers) {
+    jclass cList = env->FindClass("java/util/List");
+
+    jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
+
+    jint size = env->CallIntMethod(signers, sizeMethod);
+    std::vector<std::string> result;
+    for (jint i = 0; i < size; i++) {
+        auto item = (jstring) env->CallObjectMethod(signers, getMethod, i);
+        auto value = env->GetStringUTFChars(item, JNI_FALSE);
+        result.emplace_back(value);
+    }
+    return result;
+}
+
 SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     jclass clazz = env->FindClass("com/nunchuk/android/model/SingleSigner");
 
