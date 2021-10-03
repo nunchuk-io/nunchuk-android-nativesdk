@@ -347,6 +347,7 @@ jobject Deserializer::convert2JRoomWallet(JNIEnv *env, const RoomWallet &wallet)
         syslog(LOG_DEBUG, "[JNI]jsonContent::%s", wallet.get_json_content().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_room_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_wallet_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInitEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_init_event_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setJoinEventIds", "(Ljava/util/List;)V"), convert2JListString(env, wallet.get_join_event_ids()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLeaveEventIds", "(Ljava/util/List;)V"), convert2JListString(env, wallet.get_leave_event_ids()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFinalizeEventId", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_finalize_event_id().c_str()));
