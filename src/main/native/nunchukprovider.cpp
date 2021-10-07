@@ -17,10 +17,10 @@ NunchukProvider *NunchukProvider::get() {
 NunchukProvider *NunchukProvider::_instance = nullptr;
 
 void NunchukProvider::initNunchuk(
-    const AppSettings &settings,
-    const std::string& pass_phrase,
-    const std::string& account_id,
-    SendEventFunc send_event_func
+        const AppSettings &settings,
+        const std::string &pass_phrase,
+        const std::string &account_id,
+        SendEventFunc send_event_func
 ) {
     nu = MakeNunchukForAccount(settings, pass_phrase, account_id);
     nuMatrix = MakeNunchukMatrixForAccount(settings, pass_phrase, account_id, send_event_func);

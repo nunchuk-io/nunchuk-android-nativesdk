@@ -69,3 +69,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         env->ExceptionOccurred();
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableGenerateReceiveEvent(
+        JNIEnv *env,
+        jobject thiz
+) {
+    try {
+        NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
+    } catch (const std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
+}

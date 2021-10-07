@@ -26,6 +26,11 @@ class NunchukNativeSdk {
     }
 
     @Throws(NCNativeException::class)
+    fun enableGenerateReceiveEvent() {
+        nunchukAndroid.enableGenerateReceiveEvent()
+    }
+
+    @Throws(NCNativeException::class)
     fun createSigner(
         name: String,
         xpub: String,

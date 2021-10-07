@@ -25,7 +25,7 @@ jobject Deserializer::convert2JListString(JNIEnv *env, const std::vector<std::st
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool> signersMap) {
+jobject Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool> &signersMap) {
     jclass clazz = env->FindClass("java/util/HashMap");
     jmethodID init = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, init);
@@ -70,7 +70,7 @@ jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
     return instance;
 }
 
-jobject Deserializer::convert2JDevices(JNIEnv *env, const std::vector<Device> devices) {
+jobject Deserializer::convert2JDevices(JNIEnv *env, const std::vector<Device> &devices) {
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
@@ -97,7 +97,7 @@ jobject Deserializer::convert2JAmount(JNIEnv *env, const Amount amount) {
     return instance;
 }
 
-jobject Deserializer::convert2JTxInput(JNIEnv *env, const TxInput input) {
+jobject Deserializer::convert2JTxInput(JNIEnv *env, const TxInput &input) {
     syslog(LOG_DEBUG, "[JNI] convert2JTxInput()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/TxInput");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
@@ -111,7 +111,7 @@ jobject Deserializer::convert2JTxInput(JNIEnv *env, const TxInput input) {
     return instance;
 }
 
-jobject Deserializer::convert2JTxInputs(JNIEnv *env, const std::vector<TxInput> inputs) {
+jobject Deserializer::convert2JTxInputs(JNIEnv *env, const std::vector<TxInput> &inputs) {
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
@@ -124,7 +124,7 @@ jobject Deserializer::convert2JTxInputs(JNIEnv *env, const std::vector<TxInput> 
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput output) {
+jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput &output) {
     syslog(LOG_DEBUG, "[JNI] convert2JTxOutput()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/TxOutput");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
@@ -138,7 +138,7 @@ jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput output) {
     return instance;
 }
 
-jobject Deserializer::convert2JTxOutputs(JNIEnv *env, const std::vector<TxOutput> outputs) {
+jobject Deserializer::convert2JTxOutputs(JNIEnv *env, const std::vector<TxOutput> &outputs) {
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");

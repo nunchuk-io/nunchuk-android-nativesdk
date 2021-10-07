@@ -21,9 +21,9 @@ public:
     std::unique_ptr<NunchukMatrix> nuMatrix;
 
     void initNunchuk(
-        const AppSettings &settings,
-        const std::string& pass_phrase,
-        const std::string& account_id,
-        SendEventFunc send_event_func
+            const AppSettings &settings,
+            const std::string &pass_phrase,
+            const std::string &account_id,
+            SendEventFunc send_event_func
     );
 };

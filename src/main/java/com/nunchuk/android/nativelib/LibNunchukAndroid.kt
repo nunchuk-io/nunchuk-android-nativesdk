@@ -21,6 +21,9 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun enableGenerateReceiveEvent()
+
+    @Throws(NCNativeException::class)
     external fun createSigner(
         name: String,
         xpub: String,

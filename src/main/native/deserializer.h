@@ -17,23 +17,23 @@ public:
 
     static jobject convert2JListString(JNIEnv *env, const std::vector<std::string> &values);
 
-    static jobject convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool> signersMap);
+    static jobject convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool>& signersMap);
 
     static void convert2JException(JNIEnv *env, const char *msg);
 
     static jobject convert2JDevice(JNIEnv *env, const Device &device);
 
-    static jobject convert2JDevices(JNIEnv *env, const std::vector<Device> devices);
+    static jobject convert2JDevices(JNIEnv *env, const std::vector<Device>& devices);
 
     static jobject convert2JAmount(JNIEnv *env, const Amount amount);
 
-    static jobject convert2JTxInput(JNIEnv *env, const TxInput input);
+    static jobject convert2JTxInput(JNIEnv *env, const TxInput& input);
 
-    static jobject convert2JTxInputs(JNIEnv *env, const std::vector<TxInput> inputs);
+    static jobject convert2JTxInputs(JNIEnv *env, const std::vector<TxInput>& inputs);
 
-    static jobject convert2JTxOutput(JNIEnv *env, const TxOutput output);
+    static jobject convert2JTxOutput(JNIEnv *env, const TxOutput& output);
 
-    static jobject convert2JTxOutputs(JNIEnv *env, const std::vector<TxOutput> outputs);
+    static jobject convert2JTxOutputs(JNIEnv *env, const std::vector<TxOutput>& outputs);
 
     static jobject convert2JAddressType(JNIEnv *env, const AddressType &type);
 
