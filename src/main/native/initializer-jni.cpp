@@ -7,8 +7,25 @@
 
 using namespace nunchuk;
 
-static JavaVM *jvm = NULL;
-JNIEnv *store_env;
+static JavaVM *jvm = nullptr;
+static jclass callbackClass;
+static jmethodID callbackMethod;
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    syslog(LOG_DEBUG, "[JNI]JNI_OnLoad()");
+    JNIEnv *env;
+    vm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    syslog(LOG_DEBUG, "[JNI]Init env");
+    jclass tmpClass = env->FindClass("com/nunchuk/android/model/SendEventHelper");
+    syslog(LOG_DEBUG, "[JNI]Init class");
+    jmethodID tmpMethod = env->GetStaticMethodID(tmpClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    syslog(LOG_DEBUG, "[JNI]Init method");
+    callbackClass = (jclass) env->NewGlobalRef(tmpClass);
+    syslog(LOG_DEBUG, "[JNI]Store class");
+    callbackMethod = tmpMethod;
+    syslog(LOG_DEBUG, "[JNI]Store method");
+    return JNI_VERSION_1_6;
+}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -34,25 +51,39 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 
         env->GetJavaVM(&jvm);
-        store_env = env;
         NunchukProvider::get()->initNunchuk(
                 settings,
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
                 env->GetStringUTFChars(account_id, JNI_FALSE),
-                [](std::string room_id, std::string type, std::string content) {
+                [](const std::string &room_id, const std::string &type, const std::string &content) {
+                    syslog(LOG_DEBUG, "[JNI]send_event_func()");
+                    syslog(LOG_DEBUG, "[JNI]room_id::%s", room_id.c_str());
+                    syslog(LOG_DEBUG, "[JNI]type::%s", type.c_str());
+                    syslog(LOG_DEBUG, "[JNI]content::%s", content.c_str());
                     JNIEnv *g_env;
                     try {
                         JavaVMAttachArgs args;
                         args.version = JNI_VERSION_1_6;
                         args.name = nullptr;
                         args.group = nullptr;
-
                         jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        jclass clazz = g_env->FindClass("com/nunchuk/android/model/SendEventHelper");
-                        jmethodID method = g_env->GetStaticMethodID(clazz, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+                        int envState = jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        if (envState == JNI_EDETACHED) {
+                            syslog(LOG_DEBUG, "[JNI]GetEnv: not attached\n");
+                            if (jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                                syslog(LOG_DEBUG, "[JNI]GetEnv: Failed to attach\n");
+                            } else {
+                                syslog(LOG_DEBUG, "[JNI]GetEnv: Attached to current thread\n");
+                            }
+                        } else if (envState == JNI_OK) {
+                            syslog(LOG_DEBUG, "[JNI]GetEnv: JNI_OK\n");
+                        } else if (envState == JNI_EVERSION) {
+                            syslog(LOG_DEBUG, "[JNI]GetEnv: version not supported\n");
+                        }
+                        syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod");
                         g_env->CallStaticVoidMethod(
-                                clazz,
-                                method,
+                                callbackClass,
+                                callbackMethod,
                                 g_env->NewStringUTF(room_id.c_str()),
                                 g_env->NewStringUTF(type.c_str()),
                                 g_env->NewStringUTF(content.c_str())
@@ -64,6 +95,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     return "";
                 }
         );
+        NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
     } catch (const std::exception &e) {
         Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
@@ -76,10 +108,4 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableGenerateReceiveEvent(
         JNIEnv *env,
         jobject thiz
 ) {
-    try {
-        NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
-    } catch (const std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-    }
 }
