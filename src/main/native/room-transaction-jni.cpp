@@ -168,3 +168,23 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getPendingTransactions(
         return env->ExceptionOccurred();
     }
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransactionId(
+        JNIEnv *env,
+        jobject thiz,
+        jstring event_id
+) {
+    syslog(LOG_DEBUG, "[JNI]getTransactionId()");
+    syslog(LOG_DEBUG, "[JNI]event_id::%s", env->GetStringUTFChars(event_id, JNI_FALSE));
+    try {
+        auto result = NunchukProvider::get()->nuMatrix->GetTransactionId(
+                env->GetStringUTFChars(event_id, JNI_FALSE)
+        );
+        return env->NewStringUTF(result.c_str());
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] getTransactionId error::%s", e.what());
+        return env->NewStringUTF("");
+    }
+}

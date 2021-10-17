@@ -287,6 +287,11 @@ internal class LibNunchukAndroid {
         roomId: String
     ): List<RoomTransaction>
 
+    @Throws(NCNativeException::class)
+    external fun getTransactionId(
+        eventId: String
+    ): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

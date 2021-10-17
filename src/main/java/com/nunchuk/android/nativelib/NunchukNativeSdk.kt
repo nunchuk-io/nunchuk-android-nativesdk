@@ -447,4 +447,9 @@ class NunchukNativeSdk {
         roomId: String
     ) = nunchukAndroid.getPendingTransactions(roomId)
 
+    @Throws(NCNativeException::class)
+    fun getTransactionId(
+        eventId: String
+    ) = nunchukAndroid.getTransactionId(eventId)
+
 }
