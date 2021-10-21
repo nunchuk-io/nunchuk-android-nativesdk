@@ -123,6 +123,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoboTransaction(
 }
 
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring tx_id
+) {
+    try {
+        auto transaction = NunchukProvider::get()->nu->ExportKeystoneTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JListString(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransaction(
         JNIEnv *env,

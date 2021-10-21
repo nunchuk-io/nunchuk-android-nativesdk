@@ -39,6 +39,12 @@ internal class LibNunchukAndroid {
     ): SingleSigner
 
     @Throws(NCNativeException::class)
+    external fun createKeystoneSigner(
+        name: String,
+        qrData: String
+    ): SingleSigner
+
+    @Throws(NCNativeException::class)
     external fun createSoftwareSigner(
         name: String,
         mnemonic: String,
@@ -85,6 +91,12 @@ internal class LibNunchukAndroid {
     ): Boolean
 
     @Throws(NCNativeException::class)
+    external fun importKeystoneWallet(
+        qrData: String,
+        description: String
+    ): Wallet
+
+    @Throws(NCNativeException::class)
     external fun getWallet(walletId: String): Wallet
 
     @Throws(NCNativeException::class)
@@ -92,6 +104,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun exportCoboWallet(walletId: String): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun exportKeystoneWallet(walletId: String): List<String>
 
     @Throws(NCNativeException::class)
     external fun generateMnemonic(): String
@@ -151,6 +166,12 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun exportCoboTransaction(walletId: String, txId: String): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun exportKeystoneTransaction(
+        walletId: String,
+        txId: String
+    ): List<String>
 
     @Throws(NCNativeException::class)
     external fun exportTransaction(walletId: String, txId: String, filePath: String): Boolean

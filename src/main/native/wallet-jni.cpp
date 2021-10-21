@@ -120,6 +120,44 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoboWallet(JNIEnv *en
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneWallet(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id
+) {
+    try {
+        auto values =  NunchukProvider::get()->nu->ExportKeystoneWallet(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JListString(env, values);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
+        JNIEnv *env,
+        jobject thiz,
+        jobject qr_data,
+        jstring description
+) {
+    try {
+        auto values =  NunchukProvider::get()->nu->ImportKeystoneWallet(
+                Serializer::convert2CListString(env, qr_data),
+                env->GetStringUTFChars(description, JNI_FALSE)
+        );
+        return Deserializer::convert2JWallet(env, values);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWallet(
         JNIEnv *env,
         jobject thiz,

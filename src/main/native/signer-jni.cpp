@@ -55,6 +55,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createCoboSigner(
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createKeystoneSigner(
+        JNIEnv *env,
+        jobject thiz,
+        jstring name,
+        jstring qr_data
+) {
+    try {
+        const SingleSigner &signer = NunchukProvider::get()->nu->CreateKeystoneSigner(
+                env->GetStringUTFChars(name, JNI_FALSE),
+                env->GetStringUTFChars(qr_data, JNI_FALSE)
+        );
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRemoteSigners(JNIEnv *env, jobject thiz) {
     try {
         auto signers = NunchukProvider::get()->nu->GetRemoteSigners();

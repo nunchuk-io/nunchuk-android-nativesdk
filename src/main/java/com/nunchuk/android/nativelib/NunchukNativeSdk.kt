@@ -55,6 +55,15 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun createKeystoneSigner(
+        name: String,
+        qrData: String
+    ) = nunchukAndroid.createKeystoneSigner(
+        name = name,
+        qrData = qrData
+    )
+
+    @Throws(NCNativeException::class)
     fun createSoftwareSigner(
         name: String,
         mnemonic: String,
@@ -130,6 +139,11 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun exportCoboWallet(walletId: String) = nunchukAndroid.exportCoboWallet(
+        walletId = walletId
+    )
+
+    @Throws(NCNativeException::class)
+    fun exportKeystoneWallet(walletId: String) = nunchukAndroid.exportKeystoneWallet(
         walletId = walletId
     )
 
@@ -221,6 +235,12 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun exportCoboTransaction(walletId: String, txId: String) = nunchukAndroid.exportCoboTransaction(
+        walletId = walletId,
+        txId = txId
+    )
+
+    @Throws(NCNativeException::class)
+    fun exportKeystoneTransaction(walletId: String, txId: String) = nunchukAndroid.exportKeystoneTransaction(
         walletId = walletId,
         txId = txId
     )
