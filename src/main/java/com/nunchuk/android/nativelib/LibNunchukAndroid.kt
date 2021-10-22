@@ -39,8 +39,7 @@ internal class LibNunchukAndroid {
     ): SingleSigner
 
     @Throws(NCNativeException::class)
-    external fun createKeystoneSigner(
-        name: String,
+    external fun parseKeystoneSigner(
         qrData: String
     ): SingleSigner
 

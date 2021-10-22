@@ -56,10 +56,8 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun createKeystoneSigner(
-        name: String,
         qrData: String
-    ) = nunchukAndroid.createKeystoneSigner(
-        name = name,
+    ) = nunchukAndroid.parseKeystoneSigner(
         qrData = qrData
     )
 

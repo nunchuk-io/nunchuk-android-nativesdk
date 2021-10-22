@@ -55,15 +55,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createCoboSigner(
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createKeystoneSigner(
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
         JNIEnv *env,
         jobject thiz,
-        jstring name,
         jstring qr_data
 ) {
     try {
-        const SingleSigner &signer = NunchukProvider::get()->nu->CreateKeystoneSigner(
-                env->GetStringUTFChars(name, JNI_FALSE),
+        const SingleSigner &signer = NunchukProvider::get()->nu->ParseKeystoneSigner(
                 env->GetStringUTFChars(qr_data, JNI_FALSE)
         );
         return Deserializer::convert2JSigner(env, signer);
