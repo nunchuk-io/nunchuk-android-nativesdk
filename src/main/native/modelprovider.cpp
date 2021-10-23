@@ -1,4 +1,3 @@
-#include <cstring>
 #include <jni.h>
 #include <nunchuk.h>
 #include "modelprovider.h"
@@ -32,14 +31,11 @@ jobject ModelProvider::createEmptyAmount(JNIEnv *env) {
 
 jobject ModelProvider::newObject(JNIEnv *env, jclass clazz) {
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
-    jobject instance = env->NewObject(clazz, constructor);
-    return instance;
+    return env->NewObject(clazz, constructor);
 }
 
 jobject ModelProvider::createEmptyList(JNIEnv *env) {
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
-    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
-    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
-    return arrayListInstance;
+    return env->NewObject(arrayListClass, constructor);
 }

@@ -1,6 +1,4 @@
 #include <cstring>
-#include <jni.h>
-#include <syslog.h>
 #include <nunchuk.h>
 #include <nunchukmatrix.h>
 #include "nunchukprovider.h"

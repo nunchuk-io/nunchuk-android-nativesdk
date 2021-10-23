@@ -1,0 +1,20 @@
+#include <jni.h>
+#include <iostream>
+#include <string>
+
+class Initializer {
+    static Initializer *_instance;
+
+private:
+    Initializer() {}
+
+public:
+    static Initializer *get();
+
+    JavaVM *jvm;
+    jclass sendEventClass;
+    jmethodID senEventMethod;
+
+    jclass sendFileClass;
+    jmethodID sendFileMethod;
+};

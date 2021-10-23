@@ -1,5 +1,6 @@
 package com.nunchuk.android.nativelib
 
+import com.nunchuk.android.callbacks.SyncProgress
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
@@ -470,4 +471,16 @@ class NunchukNativeSdk {
         eventId: String
     ) = nunchukAndroid.getTransactionId(eventId)
 
+    @Throws(NCNativeException::class)
+    fun consumeSyncEvent(event: NunchukMatrixEvent, syncProgress: SyncProgress) {
+        nunchukAndroid.consumeSyncEvent(
+            event = event,
+            progress = syncProgress
+        )
+    }
+
+    @Throws(NCNativeException::class)
+    fun enableAutoBackUp(
+        syncRoomId: String
+    ) = nunchukAndroid.enableAutoBackUp(syncRoomId)
 }
