@@ -17,6 +17,7 @@ message("ANDROID_ABI::${ANDROID_ABI},ANDROID_TARGET::${ANDROID_TARGET}")
 set(UR__DISABLE_TESTS ON)
 
 add_library(nunchuk-android SHARED
+        initializer.cpp
         deserializer.cpp
         serializer.cpp
         nunchukprovider.cpp
@@ -28,6 +29,7 @@ add_library(nunchuk-android SHARED
         transaction-jni.cpp
         util-jni.cpp
         modelprovider.cpp
+        sync-jni.cpp
 )
 
 set(UR__DISABLE_TESTS ON)

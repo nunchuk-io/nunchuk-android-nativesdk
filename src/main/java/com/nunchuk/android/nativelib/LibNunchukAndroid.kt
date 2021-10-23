@@ -1,5 +1,7 @@
 package com.nunchuk.android.nativelib
 
+import com.nunchuk.android.callbacks.SyncProgress
+import com.nunchuk.android.callbacks.UploadFileCallBack
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
@@ -311,6 +313,17 @@ internal class LibNunchukAndroid {
     external fun getTransactionId(
         eventId: String
     ): String
+
+    @Throws(NCNativeException::class)
+    external fun consumeSyncEvent(
+        event: NunchukMatrixEvent,
+        progress: SyncProgress
+    )
+
+    @Throws(NCNativeException::class)
+    external fun enableAutoBackUp(
+        syncRoomId: String
+    )
 
     companion object {
         init {

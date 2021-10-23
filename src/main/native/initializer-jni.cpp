@@ -3,27 +3,28 @@
 #include <nunchuk.h>
 #include "nunchukprovider.h"
 #include "serializer.h"
+#include "initializer.h"
 #include "deserializer.h"
 
 using namespace nunchuk;
-
-static JavaVM *jvm = nullptr;
-static jclass callbackClass;
-static jmethodID callbackMethod;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     syslog(LOG_DEBUG, "[JNI]JNI_OnLoad()");
     JNIEnv *env;
     vm->GetEnv((void **) &env, JNI_VERSION_1_6);
-    syslog(LOG_DEBUG, "[JNI]Init env");
-    jclass tmpClass = env->FindClass("com/nunchuk/android/model/SendEventHelper");
-    syslog(LOG_DEBUG, "[JNI]Init class");
-    jmethodID tmpMethod = env->GetStaticMethodID(tmpClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-    syslog(LOG_DEBUG, "[JNI]Init method");
-    callbackClass = (jclass) env->NewGlobalRef(tmpClass);
-    syslog(LOG_DEBUG, "[JNI]Store class");
-    callbackMethod = tmpMethod;
-    syslog(LOG_DEBUG, "[JNI]Store method");
+
+    // Store Send Event
+    jclass tmpSendEventClass = env->FindClass("com/nunchuk/android/model/SendEventHelper");
+    jmethodID tmpSendEventMethod = env->GetStaticMethodID(tmpSendEventClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    Initializer::get()->get()->sendEventClass = (jclass) env->NewGlobalRef(tmpSendEventClass);
+    Initializer::get()->senEventMethod = tmpSendEventMethod;
+
+    // Store Send File
+    jclass tmpSendFileClass = env->FindClass("com/nunchuk/android/model/SyncFileEventHelper");
+    jmethodID tmpSendFileMethod = env->GetStaticMethodID(tmpSendFileClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
+    Initializer::get()->sendFileClass = (jclass) env->NewGlobalRef(tmpSendFileClass);
+    Initializer::get()->sendFileMethod = tmpSendFileMethod;
+
     return JNI_VERSION_1_6;
 }
 
@@ -50,7 +51,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 
-        env->GetJavaVM(&jvm);
+        env->GetJavaVM(&Initializer::get()->jvm);
         NunchukProvider::get()->initNunchuk(
                 settings,
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
@@ -66,11 +67,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         args.version = JNI_VERSION_1_6;
                         args.name = nullptr;
                         args.group = nullptr;
-                        jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        int envState = jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         if (envState == JNI_EDETACHED) {
                             syslog(LOG_DEBUG, "[JNI]GetEnv: not attached\n");
-                            if (jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
                                 syslog(LOG_DEBUG, "[JNI]GetEnv: Failed to attach\n");
                             } else {
                                 syslog(LOG_DEBUG, "[JNI]GetEnv: Attached to current thread\n");
@@ -82,8 +83,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         }
                         syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod");
                         g_env->CallStaticVoidMethod(
-                                callbackClass,
-                                callbackMethod,
+                                Initializer::get()->sendEventClass,
+                                Initializer::get()->senEventMethod,
                                 g_env->NewStringUTF(room_id.c_str()),
                                 g_env->NewStringUTF(type.c_str()),
                                 g_env->NewStringUTF(content.c_str())
