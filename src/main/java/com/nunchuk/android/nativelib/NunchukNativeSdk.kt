@@ -472,10 +472,9 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.getTransactionId(eventId)
 
     @Throws(NCNativeException::class)
-    fun consumeSyncEvent(event: NunchukMatrixEvent, syncProgress: SyncProgress) {
+    fun consumeSyncEvent(event: NunchukMatrixEvent) {
         nunchukAndroid.consumeSyncEvent(
-            event = event,
-            progress = syncProgress
+            event = event
         )
     }
 
@@ -483,4 +482,21 @@ class NunchukNativeSdk {
     fun enableAutoBackUp(
         syncRoomId: String
     ) = nunchukAndroid.enableAutoBackUp(syncRoomId)
+
+    @Throws(NCNativeException::class)
+    fun backupFile(
+        syncRoomId: String,
+        fileJsonInfo: String,
+        fileUrl: String
+    ) = nunchukAndroid.backupFile(syncRoomId, fileJsonInfo, fileUrl)
+
+    @Throws(NCNativeException::class)
+    fun registerDownloadFileBackup(
+    ) = nunchukAndroid.registerDownloadFileBackup()
+
+    @Throws(NCNativeException::class)
+    fun consumeSyncFile(
+        fileJsonInfo: String,
+        fileData: ByteArray
+    ) = nunchukAndroid.consumeSyncFile(fileJsonInfo, fileData)
 }
