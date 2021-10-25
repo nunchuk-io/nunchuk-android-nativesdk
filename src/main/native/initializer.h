@@ -17,4 +17,10 @@ public:
 
     jclass sendFileClass;
     jmethodID sendFileMethod;
+
+    jclass downloadFileClass;
+    jmethodID downloadFileMethod;
+
+    jclass syncFileClass;
+    jmethodID syncFileMethod;
 };

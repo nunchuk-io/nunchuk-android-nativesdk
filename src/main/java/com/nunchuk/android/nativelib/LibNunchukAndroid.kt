@@ -316,13 +316,28 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun consumeSyncEvent(
-        event: NunchukMatrixEvent,
-        progress: SyncProgress
+        event: NunchukMatrixEvent
     )
 
     @Throws(NCNativeException::class)
     external fun enableAutoBackUp(
         syncRoomId: String
+    )
+
+    @Throws(NCNativeException::class)
+    external fun backupFile(
+        syncRoomId: String,
+        fileJsonInfo: String,
+        fileUrl: String
+    )
+
+    @Throws(NCNativeException::class)
+    external fun registerDownloadFileBackup()
+
+    @Throws(NCNativeException::class)
+    external fun consumeSyncFile(
+        fileJsonInfo: String,
+        fileData: ByteArray
     )
 
     companion object {
