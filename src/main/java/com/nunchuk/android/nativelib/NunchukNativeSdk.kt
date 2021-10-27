@@ -1,6 +1,5 @@
 package com.nunchuk.android.nativelib
 
-import com.nunchuk.android.callbacks.SyncProgress
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge

@@ -5,11 +5,10 @@ variables:
   ANDROID_SDK_TOOLS: "6514223"
 
 before_script:
-
   - echo "sdk.dir=${ANDROID_HOME}" >> local.properties
   - echo "ndk.dir=${ANDROID_NDK_HOME}" >> local.properties
   - chmod +x ./gradlew
-  
+
   # Add libnunchuk and build deps
   - pushd ${PWD}/src/main/native
   - git submodule add --force -b android_experimental https://gitlab.com/nunchuck/libnunchuk.git
@@ -18,9 +17,19 @@ before_script:
   - popd
   - echo ${PWD}
 
-buildAndPublishNativeSdk:
-  interruptible: true
+stages:
+  - build
+  - deploy
+
+build:
   stage: build
+  script:
+    - ./gradlew clean assembleArm64_v8aDebug --stacktrace
+
+deploy:
+  only:
+    - master
+  stage: deploy
   script:
     - ./gradlew clean assembleArm64_v8aDebug --stacktrace
     - ./gradlew publish

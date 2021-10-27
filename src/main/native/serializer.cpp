@@ -165,7 +165,14 @@ MasterSigner Serializer::convert2CMasterSigner(JNIEnv *env, jobject signer) {
     auto deviceVal = (jobject) env->GetObjectField(signer, fieldDevice);
     auto device = convert2CDevice(env, deviceVal);
 
-    MasterSigner masterSigner = MasterSigner(id, device, last_health_check, software);
+    SignerType signerType;
+    if (software) {
+        signerType = SignerType::SOFTWARE;
+    } else {
+        signerType = SignerType::AIRGAP;
+    }
+
+    MasterSigner masterSigner = MasterSigner(id, device, last_health_check, signerType);
     masterSigner.set_name(name);
     syslog(LOG_DEBUG, "[JNI][MasterSigner]id:: %s", masterSigner.get_id().c_str());
     syslog(LOG_DEBUG, "[JNI][MasterSigner]name:: %s", masterSigner.get_name().c_str());
