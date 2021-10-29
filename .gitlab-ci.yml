@@ -22,6 +22,8 @@ stages:
   - deploy
 
 build:
+  except:
+    - master
   stage: build
   script:
     - ./gradlew clean assembleArm64_v8aDebug --stacktrace
