@@ -25,19 +25,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftWallet(
         JNIEnv *env,
         jobject thiz,
         jstring name,
-        jint total_require_signs,
+        jint require_signs,
         jobject signers,
         jint address_type,
         jboolean is_escrow,
         jstring description
 ) {
+    syslog(LOG_DEBUG, "[JNI] draftWallet()");
+    syslog(LOG_DEBUG, "[JNI] name::%s", env->GetStringUTFChars(name, JNI_FALSE));
+    syslog(LOG_DEBUG, "[JNI] require_signs::%d", require_signs);
     try {
         const std::vector<SingleSigner> &singleSigners = Serializer::convert2CSigners(env, signers);
         AddressType type = Serializer::convert2CAddressType(address_type);
         auto filePath = NunchukProvider::get()->nu->DraftWallet(
                 env->GetStringUTFChars(name, JNI_FALSE),
+                require_signs,
                 singleSigners.size(),
-                total_require_signs,
                 singleSigners,
                 type,
                 is_escrow,
@@ -45,6 +48,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftWallet(
         );
         return env->NewStringUTF(filePath.c_str());
     } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] draftWallet error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
         return env->NewStringUTF("");
@@ -57,19 +61,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
         JNIEnv *env,
         jobject thiz,
         jstring name,
-        jint total_require_signs,
+        jint require_signs,
         jobject signers,
         jint address_type,
         jboolean is_escrow,
         jstring description
 ) {
+    syslog(LOG_DEBUG, "[JNI] createWallet()");
+    syslog(LOG_DEBUG, "[JNI] name::%s", env->GetStringUTFChars(name, JNI_FALSE));
+    syslog(LOG_DEBUG, "[JNI] require_signs::%d", require_signs);
     try {
         const std::vector<SingleSigner> &singleSigners = Serializer::convert2CSigners(env, signers);
         AddressType type = Serializer::convert2CAddressType(address_type);
         const Wallet &wallet = NunchukProvider::get()->nu->CreateWallet(
                 env->GetStringUTFChars(name, JNI_FALSE),
+                require_signs,
                 singleSigners.size(),
-                total_require_signs,
                 singleSigners,
                 type,
                 is_escrow,
@@ -77,6 +84,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
         );
         return Deserializer::convert2JWallet(env, wallet);
     } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] createWallet error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         return env->ExceptionOccurred();
     }
@@ -141,7 +149,7 @@ JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
         JNIEnv *env,
         jobject thiz,
-        jobject qr_data,
+        jstring qr_data,
         jstring description
 ) {
     try {

@@ -18,6 +18,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSigner(
         jstring derivation_path,
         jstring master_fingerprint
 ) {
+    syslog(LOG_DEBUG, "[JNI] createSigner()");
+    syslog(LOG_DEBUG, "[JNI] name::%s", env->GetStringUTFChars(name, JNI_FALSE));
+    syslog(LOG_DEBUG, "[JNI] xpub::%s", env->GetStringUTFChars(xpub, JNI_FALSE));
+    syslog(LOG_DEBUG, "[JNI] public_key::%s", env->GetStringUTFChars(public_key, JNI_FALSE));
+    syslog(LOG_DEBUG, "[JNI] derivation_path::%s", env->GetStringUTFChars(derivation_path, JNI_FALSE));
+    syslog(LOG_DEBUG, "[JNI] master_fingerprint::%s", env->GetStringUTFChars(master_fingerprint, JNI_FALSE));
     try {
         const SingleSigner &signer = NunchukProvider::get()->nu->CreateSigner(
                 env->GetStringUTFChars(name, JNI_FALSE),
@@ -28,6 +34,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSigner(
         );
         return Deserializer::convert2JSigner(env, signer);
     } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] createSigner error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         return env->ExceptionOccurred();
     }
@@ -60,12 +67,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
         jobject thiz,
         jstring qr_data
 ) {
+    syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner()");
+    syslog(LOG_DEBUG, "[JNI] qr_data::%s", env->GetStringUTFChars(qr_data, JNI_FALSE));
     try {
         const SingleSigner &signer = NunchukProvider::get()->nu->ParseKeystoneSigner(
                 env->GetStringUTFChars(qr_data, JNI_FALSE)
         );
         return Deserializer::convert2JSigner(env, signer);
     } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         return env->ExceptionOccurred();
     }
@@ -74,10 +84,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRemoteSigners(JNIEnv *env, jobject thiz) {
+    syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner()");
     try {
         auto signers = NunchukProvider::get()->nu->GetRemoteSigners();
         return Deserializer::convert2JSigners(env, signers);
     } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
         return env->ExceptionOccurred();
     }
