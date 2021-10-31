@@ -8,7 +8,7 @@ data class Transaction(
     var inputs: List<TxInput> = emptyList(),
     var outputs: List<TxOutput> = emptyList(),
     var userOutputs: List<TxOutput> = emptyList(),
-    var receiveOutput: List<TxOutput> = emptyList(),
+    var receiveOutputs: List<TxOutput> = emptyList(),
     var changeIndex: Int = 0,
     var m: Int = 0,
     var signers: Map<String, Boolean> = emptyMap(),
