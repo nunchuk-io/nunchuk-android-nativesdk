@@ -149,7 +149,7 @@ JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
         JNIEnv *env,
         jobject thiz,
-        jstring qr_data,
+        jobject qr_data,
         jstring description
 ) {
     try {

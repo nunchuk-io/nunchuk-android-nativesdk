@@ -46,15 +46,6 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun createCoboSigner(
-        name: String,
-        jsonInfo: String
-    ) = nunchukAndroid.createCoboSigner(
-        name = name,
-        jsonInfo = jsonInfo
-    )
-
-    @Throws(NCNativeException::class)
     fun createKeystoneSigner(
         qrData: String
     ) = nunchukAndroid.parseKeystoneSigner(
@@ -136,11 +127,6 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun exportCoboWallet(walletId: String) = nunchukAndroid.exportCoboWallet(
-        walletId = walletId
-    )
-
-    @Throws(NCNativeException::class)
     fun exportKeystoneWallet(walletId: String) = nunchukAndroid.exportKeystoneWallet(
         walletId = walletId
     )
@@ -150,6 +136,15 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun updateWallet(wallet: Wallet) = nunchukAndroid.updateWallet(wallet.toBridge())
+
+    @Throws(NCNativeException::class)
+    fun importKeystoneWallet(
+        qrData: List<String>,
+        description: String
+    ) = nunchukAndroid.importKeystoneWallet(
+        qrData = qrData,
+        description = description
+    )
 
     @Throws(NCNativeException::class)
     fun generateMnemonic() = nunchukAndroid.generateMnemonic()
@@ -194,7 +189,7 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun createTransactionUseCase(
+    fun createTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
         memo: String,
@@ -227,12 +222,6 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun deleteTransaction(walletId: String, txId: String) = nunchukAndroid.deleteTransaction(
-        walletId = walletId,
-        txId = txId
-    )
-
-    @Throws(NCNativeException::class)
-    fun exportCoboTransaction(walletId: String, txId: String) = nunchukAndroid.exportCoboTransaction(
         walletId = walletId,
         txId = txId
     )
@@ -285,7 +274,7 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun importCoboTransaction(walletId: String, qrData: List<String>) = nunchukAndroid.importCoboTransaction(
+    fun importKeystoneTransaction(walletId: String, qrData: List<String>) = nunchukAndroid.importKeystoneTransaction(
         walletId = walletId,
         qrData = qrData
     )

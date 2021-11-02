@@ -33,12 +33,6 @@ internal class LibNunchukAndroid {
     ): SingleSigner
 
     @Throws(NCNativeException::class)
-    external fun createCoboSigner(
-        name: String,
-        jsonInfo: String
-    ): SingleSigner
-
-    @Throws(NCNativeException::class)
     external fun parseKeystoneSigner(
         qrData: String
     ): SingleSigner
@@ -91,7 +85,7 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun importKeystoneWallet(
-        qrData: String,
+        qrData: List<String>,
         description: String
     ): Wallet
 
@@ -100,9 +94,6 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun updateWallet(wallet: WalletBridge): Boolean
-
-    @Throws(NCNativeException::class)
-    external fun exportCoboWallet(walletId: String): List<String>
 
     @Throws(NCNativeException::class)
     external fun exportKeystoneWallet(walletId: String): List<String>
@@ -164,9 +155,6 @@ internal class LibNunchukAndroid {
     external fun deleteTransaction(walletId: String, txId: String): Boolean
 
     @Throws(NCNativeException::class)
-    external fun exportCoboTransaction(walletId: String, txId: String): List<String>
-
-    @Throws(NCNativeException::class)
     external fun exportKeystoneTransaction(
         walletId: String,
         txId: String
@@ -188,7 +176,7 @@ internal class LibNunchukAndroid {
     external fun getTransactionHistory(walletId: String, count: Int, skip: Int): List<Transaction>
 
     @Throws(NCNativeException::class)
-    external fun importCoboTransaction(walletId: String, qrData: List<String>): Transaction
+    external fun importKeystoneTransaction(walletId: String, qrData: List<String>): Transaction
 
     @Throws(NCNativeException::class)
     external fun updateTransactionMemo(walletId: String, txId: String, newMemo: String): Boolean
