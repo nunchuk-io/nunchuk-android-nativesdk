@@ -84,8 +84,11 @@ ExportFormat Serializer::convert2CExportFormat(jint ordinal) {
         case 3:
             format = ExportFormat::COBO;
             break;
-        default:
+        case 4:
             format = ExportFormat::CSV;
+            break;
+        default:
+            format = ExportFormat::BSMS;
             break;
     }
     return format;
