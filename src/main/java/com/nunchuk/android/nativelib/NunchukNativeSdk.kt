@@ -18,6 +18,7 @@ class NunchukNativeSdk {
             hwiPath = appSettings.hwiPath,
             enableProxy = appSettings.enableProxy,
             testnetServers = appSettings.testnetServers,
+            mainnetServers = appSettings.mainnetServers,
             backendType = appSettings.backendType.ordinal,
             storagePath = appSettings.storagePath,
             passphrase = passphrase,

@@ -49,6 +49,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jstring hwi_path,
         jboolean enable_proxy,
         jobject testnet_servers,
+        jobject mainnet_servers,
         jint backend_type,
         jstring storage_path,
         jstring pass_phrase,
@@ -60,6 +61,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_hwi_path(env->GetStringUTFChars(hwi_path, JNI_FALSE));
         settings.enable_proxy(enable_proxy);
         settings.set_testnet_servers(Serializer::convert2CListString(env, testnet_servers));
+        settings.set_mainnet_servers(Serializer::convert2CListString(env, mainnet_servers));
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
 

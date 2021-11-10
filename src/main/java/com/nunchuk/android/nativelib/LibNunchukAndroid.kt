@@ -14,6 +14,7 @@ internal class LibNunchukAndroid {
         hwiPath: String,
         enableProxy: Boolean,
         testnetServers: List<String>,
+        mainnetServers: List<String>,
         backendType: Int,
         storagePath: String,
         passphrase: String,
