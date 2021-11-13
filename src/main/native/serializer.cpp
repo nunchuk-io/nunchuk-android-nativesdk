@@ -4,7 +4,6 @@
 #include <nunchuk.h>
 #include <nunchukmatrix.h>
 #include "serializer.h"
-#include "nunchukprovider.h"
 
 using namespace nunchuk;
 
@@ -42,7 +41,34 @@ AddressType Serializer::convert2CAddressType(jint ordinal) {
             type = AddressType::NATIVE_SEGWIT;
             break;
     }
-    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CAddressType]ordinal:: %d", type);
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CAddressType]type:: %d", type);
+    return type;
+}
+
+SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/SignerType");
+    jmethodID method = env->GetMethodID(clazz, "ordinal", "()I");
+    jint ordinal = env->CallIntMethod(singerType, method);
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerType]ordinal:: %d", ordinal);
+    SignerType type;
+    switch (ordinal) {
+        case 0:
+            type = SignerType::HARDWARE;
+            break;
+        case 1:
+            type = SignerType::AIRGAP;
+            break;
+        case 2:
+            type = SignerType::SOFTWARE;
+            break;
+        case 3:
+            type = SignerType::FOREIGN_SOFTWARE;
+            break;
+        default:
+            type = SignerType::AIRGAP;
+            break;
+    }
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerType]type:: %d", type);
     return type;
 }
 
@@ -94,16 +120,16 @@ ExportFormat Serializer::convert2CExportFormat(jint ordinal) {
     return format;
 }
 
-std::vector<std::string> Serializer::convert2CListString(JNIEnv *env, jobject signers) {
+std::vector<std::string> Serializer::convert2CListString(JNIEnv *env, jobject values) {
     jclass cList = env->FindClass("java/util/List");
 
     jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
     jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
 
-    jint size = env->CallIntMethod(signers, sizeMethod);
+    jint size = env->CallIntMethod(values, sizeMethod);
     std::vector<std::string> result;
     for (jint i = 0; i < size; i++) {
-        auto item = (jstring) env->CallObjectMethod(signers, getMethod, i);
+        auto item = (jstring) env->CallObjectMethod(values, getMethod, i);
         auto value = env->GetStringUTFChars(item, JNI_FALSE);
         result.emplace_back(value);
     }
@@ -133,11 +159,17 @@ SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     auto masterFingerprintVal = (jstring) env->GetObjectField(signer, fieldMasterFingerprint);
     const char *master_fingerprint = env->GetStringUTFChars(masterFingerprintVal, nullptr);
 
-    const SingleSigner &singleSigner = SingleSigner(name, xpub, public_key, derivation_path, master_fingerprint, 0);
+    jfieldID fieldSignerType = env->GetFieldID(clazz, "type", "Lcom/nunchuk/android/type/SignerType;");
+    jobject fieldSignerTypeVal = (jobject) env->GetObjectField(signer, fieldSignerType);
+    const SignerType &signer_type = convert2CSignerType(env, fieldSignerTypeVal);
+
+    auto singleSigner = SingleSigner(name, xpub, public_key, derivation_path, master_fingerprint, 0);
+    singleSigner.set_type(signer_type);
     syslog(LOG_DEBUG, "[JNI][SingleSigner]name:: %s", singleSigner.get_name().c_str());
     syslog(LOG_DEBUG, "[JNI][SingleSigner]xpub:: %s", singleSigner.get_xpub().c_str());
     syslog(LOG_DEBUG, "[JNI][SingleSigner]path:: %s", singleSigner.get_derivation_path().c_str());
     syslog(LOG_DEBUG, "[JNI][SingleSigner]fingerPrint:: %s", singleSigner.get_master_fingerprint().c_str());
+    syslog(LOG_DEBUG, "[JNI][SingleSigner]type:: %d", singleSigner.get_type());
 
     env->ReleaseStringUTFChars(nameVal, name);
     env->ReleaseStringUTFChars(xpubVal, xpub);
@@ -168,11 +200,13 @@ MasterSigner Serializer::convert2CMasterSigner(JNIEnv *env, jobject signer) {
     auto deviceVal = (jobject) env->GetObjectField(signer, fieldDevice);
     auto device = convert2CDevice(env, deviceVal);
 
+    jfieldID fieldSignerType = env->GetFieldID(clazz, "type", "Lcom/nunchuk/android/type/SignerType;");
+    jobject fieldSignerTypeVal = (jobject) env->GetObjectField(signer, fieldSignerType);
     SignerType signerType;
     if (software) {
         signerType = SignerType::SOFTWARE;
     } else {
-        signerType = SignerType::AIRGAP;
+        signerType = convert2CSignerType(env, fieldSignerTypeVal);
     }
 
     MasterSigner masterSigner = MasterSigner(id, device, last_health_check, signerType);

@@ -7,12 +7,10 @@ public final class TransactionStatusHelper {
     }
 
     public static TransactionStatus from(final int ordinal) {
-        for (final TransactionStatus value : TransactionStatus.values()) {
-            if (value.ordinal() == ordinal) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Invalid ordinal " + ordinal);
+        return CollectionUtil.fromOrdinal(TransactionStatus.values(),
+                ordinal,
+                TransactionStatus.PENDING_SIGNATURES
+        );
     }
 
 }

@@ -37,6 +37,8 @@ public:
 
     static jobject convert2JAddressType(JNIEnv *env, const AddressType &type);
 
+    static jobject convert2JSignerType(JNIEnv *env, const SignerType &type);
+
     static jobject convert2JTransactionStatus(JNIEnv *env, const TransactionStatus &status);
 
     static jobject convert2JMasterSigner(JNIEnv *env, const MasterSigner &signer);

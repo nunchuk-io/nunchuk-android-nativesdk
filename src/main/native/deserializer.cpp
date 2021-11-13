@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <syslog.h>
 #include <nunchuk.h>
+#include <iostream>
 #include "deserializer.h"
 
 using namespace nunchuk;
@@ -32,7 +33,7 @@ jobject Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::strin
     try {
         jmethodID putMethod = env->GetMethodID(clazz, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
         if (!signersMap.empty()) {
-            for (const auto &it : signersMap) {
+            for (const auto &it: signersMap) {
                 auto element = env->NewStringUTF(it.first.c_str());
                 env->CallObjectMethod(instance, putMethod, element, convert2JBoolean(env, it.second));
                 env->DeleteLocalRef(element);
@@ -159,6 +160,13 @@ jobject Deserializer::convert2JAddressType(JNIEnv *env, const AddressType &type)
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) type);
 }
 
+jobject Deserializer::convert2JSignerType(JNIEnv *env, const SignerType &type) {
+    syslog(LOG_DEBUG, "[JNI] convert2JSignerType()");
+    jclass clazz = env->FindClass("com/nunchuk/android/type/SignerTypeHelper");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/SignerType;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) type);
+}
+
 jobject Deserializer::convert2JTransactionStatus(JNIEnv *env, const TransactionStatus &status) {
     jclass clazz = env->FindClass("com/nunchuk/android/type/TransactionStatusHelper");
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/TransactionStatus;");
@@ -176,6 +184,7 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDevice", "(Lcom/nunchuk/android/model/Device;)V"), convert2JDevice(env, signer.get_device()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLastHealthCheck", "(J)V"), signer.get_last_health_check());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSoftware", "(Z)V"), signer.is_software());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Lcom/nunchuk/android/type/SignerType;)V"), convert2JSignerType(env, signer.get_type()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -196,6 +205,7 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"), env->NewStringUTF(signer.get_master_signer_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLastHealthCheck", "(J)V"), signer.get_last_health_check());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setUsed", "(Z)V"), signer.is_used());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Lcom/nunchuk/android/type/SignerType;)V"), convert2JSignerType(env, signer.get_type()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }

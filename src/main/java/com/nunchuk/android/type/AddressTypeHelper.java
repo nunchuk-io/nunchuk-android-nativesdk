@@ -7,12 +7,10 @@ public final class AddressTypeHelper {
     }
 
     public static AddressType from(final int ordinal) {
-        for (final AddressType value : AddressType.values()) {
-            if (value.ordinal() == ordinal) {
-                return value;
-            }
-        }
-        throw new IllegalArgumentException("Invalid ordinal " + ordinal);
+        return CollectionUtil.fromOrdinal(AddressType.values(),
+                ordinal,
+                AddressType.NATIVE_SEGWIT
+        );
     }
 
 }

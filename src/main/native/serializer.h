@@ -19,6 +19,8 @@ public:
 
     static AddressType convert2CAddressType(jint ordinal);
 
+    static SignerType convert2CSignerType(JNIEnv *env, jobject singerType);
+
     static Chain convert2CChain(jint ordinal);
 
     static BackendType convert2CBackendType(jint ordinal);
