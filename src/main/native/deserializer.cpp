@@ -289,6 +289,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
+        Amount total = (transaction.is_receive() ? transaction.get_sub_amount(): (transaction.get_sub_amount() + transaction.get_fee()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_txid().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"), transaction.get_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInputs", "(Ljava/util/List;)V"), convert2JTxInputs(env, transaction.get_inputs()));
@@ -306,6 +307,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSubtractFeeFromAmount", "(Z)V"), transaction.subtract_fee_from_amount());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceive", "(Z)V"), transaction.is_receive());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSubAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, transaction.get_sub_amount()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, total));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
