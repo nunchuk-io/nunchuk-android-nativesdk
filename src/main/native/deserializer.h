@@ -67,4 +67,5 @@ public:
 
     static jobject convert2JRoomTransactions(JNIEnv *env, const std::vector<RoomTransaction> &transactions);
 
+    static jobject convert2JConnectionStatus(JNIEnv *env, const ConnectionStatus &status);
 };

@@ -426,3 +426,9 @@ jobject Deserializer::convert2JRoomTransactions(JNIEnv *env, const std::vector<R
     }
     return arrayListInstance;
 }
+
+jobject Deserializer::convert2JConnectionStatus(JNIEnv *env, const ConnectionStatus &status) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/ConnectionStatusTypeHelper");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/ConnectionStatus;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
+}
