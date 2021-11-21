@@ -327,6 +327,9 @@ internal class LibNunchukAndroid {
         fileData: ByteArray
     )
 
+    @Throws(NCNativeException::class)
+    external fun addBlockchainConnectionListener()
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

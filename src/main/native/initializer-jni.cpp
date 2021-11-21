@@ -37,6 +37,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     Initializer::get()->syncFileClass = (jclass) env->NewGlobalRef(tmpSyncFileClass);
     Initializer::get()->syncFileMethod = tmpSyncFileMethod;
 
+    // Store ConnectStatus
+    jclass tmpConnectionClass = env->FindClass("com/nunchuk/android/model/ConnectionStatusHelper");
+    jmethodID tmpConnectionMethod = env->GetStaticMethodID(tmpConnectionClass, "addListener", "(II)V");
+    Initializer::get()->connectStatusClass = (jclass) env->NewGlobalRef(tmpConnectionClass);
+    Initializer::get()->connectStatusMethod = tmpConnectionMethod;
     return JNI_VERSION_1_6;
 }
 

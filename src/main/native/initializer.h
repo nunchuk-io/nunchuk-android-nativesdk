@@ -23,4 +23,7 @@ public:
 
     jclass syncFileClass;
     jmethodID syncFileMethod;
+
+    jclass connectStatusClass;
+    jmethodID connectStatusMethod;
 };

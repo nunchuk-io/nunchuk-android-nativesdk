@@ -488,4 +488,7 @@ class NunchukNativeSdk {
         fileJsonInfo: String,
         fileData: ByteArray
     ) = nunchukAndroid.consumeSyncFile(fileJsonInfo, fileData)
+
+    @Throws(NCNativeException::class)
+    fun addBlockchainConnectionListener() = nunchukAndroid.addBlockchainConnectionListener()
 }
