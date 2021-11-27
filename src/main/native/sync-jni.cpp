@@ -73,7 +73,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
     }
 }
 
-
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
@@ -88,22 +87,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
 
         env->GetJavaVM(&Initializer::get()->jvm);
 
-
         int len = env->GetArrayLength (file_data);
-        std::vector<unsigned char> data(len + 1, 0);
-        env->GetByteArrayRegion (file_data, 0, len, reinterpret_cast<jbyte*>(data.data()));
+        auto* buf = new unsigned char[len];
+        env->GetByteArrayRegion (file_data, 0, len, reinterpret_cast<jbyte*>(buf));
 
-
-//        std::vector<unsigned char> data;
-//        jbyte* b = env->GetByteArrayElements(file_data, JNI_FALSE);
-//        data.push_back((unsigned char)* b);
-        syslog(LOG_DEBUG, "[JNI]consumeSyncFile() file_json_info:%s", env->GetStringUTFChars(file_json_info, JNI_FALSE));
+        std::vector<unsigned char> data;
+        data.reserve(len);
+        for (int i = 0; i < len; i++) {
+            data.push_back(buf[i]);
+        }
 
         NunchukProvider::get()->nuMatrix->ConsumeSyncFile(
                 NunchukProvider::get()->nu,
                 env->GetStringUTFChars(file_json_info, JNI_FALSE),
                 data,
                 [&](int percent) {
+                    syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
 
                     JNIEnv *g_env;
                     try {
@@ -130,6 +129,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->syncFileClass,
                                 Initializer::get()->syncFileMethod,
+                                percent == 100,
                                 percent
                         );
                     } catch (const std::exception &t) {
@@ -139,7 +139,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
                     return percent == 100;
                 }
         );
-
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] consumeSyncFile error::%s", e.what());
         Deserializer::convert2JException(env, e.what());
