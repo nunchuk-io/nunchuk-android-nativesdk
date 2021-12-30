@@ -9,14 +9,13 @@
 using namespace nunchuk;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    syslog(LOG_DEBUG, "[JNI]JNI_OnLoad()");
     JNIEnv *env;
     vm->GetEnv((void **) &env, JNI_VERSION_1_6);
 
     // Store Send Event
     jclass tmpSendEventClass = env->FindClass("com/nunchuk/android/model/SendEventHelper");
     jmethodID tmpSendEventMethod = env->GetStaticMethodID(tmpSendEventClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-    Initializer::get()->get()->sendEventClass = (jclass) env->NewGlobalRef(tmpSendEventClass);
+    Initializer::get()->sendEventClass = (jclass) env->NewGlobalRef(tmpSendEventClass);
     Initializer::get()->senEventMethod = tmpSendEventMethod;
 
     // Store Upload File
@@ -76,10 +75,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
                 env->GetStringUTFChars(account_id, JNI_FALSE),
                 [](const std::string &room_id, const std::string &type, const std::string &content) {
-                    syslog(LOG_DEBUG, "[JNI]send_event_func()");
-                    syslog(LOG_DEBUG, "[JNI]room_id::%s", room_id.c_str());
-                    syslog(LOG_DEBUG, "[JNI]type::%s", type.c_str());
-                    syslog(LOG_DEBUG, "[JNI]content::%s", content.c_str());
                     JNIEnv *g_env;
                     try {
                         JavaVMAttachArgs args;
@@ -89,7 +84,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         if (envState == JNI_EDETACHED) {
-                            syslog(LOG_DEBUG, "[JNI]GetEnv: not attached\n");
                             if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
                                 syslog(LOG_DEBUG, "[JNI]GetEnv: Failed to attach\n");
                             } else {
@@ -100,7 +94,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI]GetEnv: version not supported\n");
                         }
-                        syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod");
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->sendEventClass,
                                 Initializer::get()->senEventMethod,
@@ -115,17 +108,51 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     return "";
                 }
         );
+        try {
+            NunchukProvider::get()->nu->AddBlockchainConnectionListener(
+                    [](ConnectionStatus connectionStatus, int percent) {
+                        syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener percent::%d", percent);
+                        JNIEnv *g_env;
+                        try {
+                            JavaVMAttachArgs args;
+                            args.version = JNI_VERSION_1_6;
+                            args.name = nullptr;
+                            args.group = nullptr;
+                            Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                            int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                            if (envState == JNI_EDETACHED) {
+                                if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                                    syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                                } else {
+                                    syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                                }
+                            } else if (envState == JNI_OK) {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+                            } else if (envState == JNI_EVERSION) {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+                            }
+
+                            g_env->CallStaticVoidMethod(
+                                    Initializer::get()->connectStatusClass,
+                                    Initializer::get()->connectStatusMethod,
+                                    (int) connectionStatus,
+                                    percent
+                            );
+                        } catch (const std::exception &t) {
+                            Deserializer::convert2JException(g_env, t.what());
+                            g_env->ExceptionOccurred();
+                        }
+                    }
+            );
+
+        } catch (std::exception &e) {
+            syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener error::%s", e.what());
+            Deserializer::convert2JException(env, e.what());
+            env->ExceptionOccurred();
+        }
         NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
     } catch (const std::exception &e) {
         Deserializer::convert2JException(env, e.what());
         env->ExceptionOccurred();
     }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableGenerateReceiveEvent(
-        JNIEnv *env,
-        jobject thiz
-) {
 }

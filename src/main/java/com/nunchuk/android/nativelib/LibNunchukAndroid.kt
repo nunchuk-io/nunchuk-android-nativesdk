@@ -22,9 +22,6 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
-    external fun enableGenerateReceiveEvent()
-
-    @Throws(NCNativeException::class)
     external fun createSigner(
         name: String,
         xpub: String,
@@ -326,9 +323,6 @@ internal class LibNunchukAndroid {
         fileJsonInfo: String,
         fileData: ByteArray
     )
-
-    @Throws(NCNativeException::class)
-    external fun addBlockchainConnectionListener()
 
     companion object {
         init {

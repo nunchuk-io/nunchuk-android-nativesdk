@@ -11,7 +11,7 @@ class NunchukProvider {
 
 private:
     NunchukProvider() {
-        syslog(LOG_CRIT, "[JNI]created NunchukProvider");
+        syslog(LOG_DEBUG, "[JNI] Created NunchukProvider");
     }
 
 public:

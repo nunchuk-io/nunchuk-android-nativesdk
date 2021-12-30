@@ -27,11 +27,6 @@ class NunchukNativeSdk {
     }
 
     @Throws(NCNativeException::class)
-    fun enableGenerateReceiveEvent() {
-        nunchukAndroid.enableGenerateReceiveEvent()
-    }
-
-    @Throws(NCNativeException::class)
     fun createSigner(
         name: String,
         xpub: String,
@@ -462,9 +457,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun consumeSyncEvent(event: NunchukMatrixEvent) {
-        nunchukAndroid.consumeSyncEvent(
-            event = event
-        )
+        nunchukAndroid.consumeSyncEvent(event = event)
     }
 
     @Throws(NCNativeException::class)
@@ -480,15 +473,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.backupFile(syncRoomId, fileJsonInfo, fileUrl)
 
     @Throws(NCNativeException::class)
-    fun registerDownloadFileBackup(
-    ) = nunchukAndroid.registerDownloadFileBackup()
+    fun registerDownloadFileBackup() = nunchukAndroid.registerDownloadFileBackup()
 
     @Throws(NCNativeException::class)
     fun consumeSyncFile(
         fileJsonInfo: String,
         fileData: ByteArray
     ) = nunchukAndroid.consumeSyncFile(fileJsonInfo, fileData)
-
-    @Throws(NCNativeException::class)
-    fun addBlockchainConnectionListener() = nunchukAndroid.addBlockchainConnectionListener()
 }

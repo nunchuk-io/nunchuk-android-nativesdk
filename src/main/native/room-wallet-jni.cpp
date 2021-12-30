@@ -191,7 +191,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAllRoomWallets(
         JNIEnv *env,
         jobject thiz
 ) {
-    syslog(LOG_DEBUG, "[JNI]getAllRoomWallets()");
     try {
         auto roomWallets = NunchukProvider::get()->nuMatrix->GetAllRoomWallets();
         return Deserializer::convert2JRoomWallets(env, roomWallets);

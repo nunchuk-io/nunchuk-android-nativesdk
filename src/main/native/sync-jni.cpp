@@ -9,7 +9,6 @@
 
 using namespace nunchuk;
 
-
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
@@ -17,13 +16,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
         jobject thiz,
         jobject event
 ) {
-    syslog(LOG_DEBUG, "[JNI]consumeSyncEvent()");
+    syslog(LOG_DEBUG, "[JNI] consumeSyncEvent()");
     auto matrixEvent = Serializer::convert2CMatrixEvent(env, event);
-
     try {
-
         env->GetJavaVM(&Initializer::get()->jvm);
-
 
         NunchukProvider::get()->nuMatrix->ConsumeSyncEvent(
                 NunchukProvider::get()->nu,
@@ -39,7 +35,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
                         Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         if (envState == JNI_EDETACHED) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: not attached\n");
                             if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
                                 syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
                             } else {
@@ -50,7 +45,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
-                        syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod consumeSyncEvent");
                         syslog(LOG_DEBUG, "[JNI]percent: %d", percent);
 
                         g_env->CallStaticVoidMethod(
@@ -81,7 +75,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
         jstring file_json_info,
         jbyteArray file_data
 ) {
-    syslog(LOG_DEBUG, "[JNI]consumeSyncFile()");
+    syslog(LOG_DEBUG, "[JNI] consumeSyncFile()");
 
     try {
 
@@ -103,7 +97,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
                 data,
                 [&](int percent) {
                     syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
-
                     JNIEnv *g_env;
                     try {
                         JavaVMAttachArgs args;
@@ -124,8 +117,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
-                        syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod");
-
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->syncFileClass,
                                 Initializer::get()->syncFileMethod,
@@ -177,7 +168,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
                         Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         if (envState == JNI_EDETACHED) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: not attached\n");
                             if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
                                 syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
                             } else {
@@ -188,7 +178,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
-                        syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod");
 
                         jbyteArray byteData = g_env->NewByteArray((int) data_length);
                         g_env->SetByteArrayRegion(byteData, 0, (int) data_length, (jbyte *) (data));
@@ -266,7 +255,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
                         Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
                         if (envState == JNI_EDETACHED) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: not attached\n");
                             if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
                                 syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
                             } else {
@@ -277,7 +265,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
-                        syslog(LOG_DEBUG, "[JNI]CallStaticVoidMethod");
 
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->downloadFileClass,
