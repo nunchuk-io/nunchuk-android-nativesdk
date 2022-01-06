@@ -480,4 +480,11 @@ class NunchukNativeSdk {
         fileJsonInfo: String,
         fileData: ByteArray
     ) = nunchukAndroid.consumeSyncFile(fileJsonInfo, fileData)
+
+    @Throws(NCNativeException::class)
+    fun importWallet(
+        filePath: String,
+        name: String,
+        description: String
+    ) = nunchukAndroid.importWallet(filePath, name, description)
 }
