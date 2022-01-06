@@ -324,6 +324,9 @@ internal class LibNunchukAndroid {
         fileData: ByteArray
     )
 
+    @Throws(NCNativeException::class)
+    external fun importWallet(filePath: String, name: String, description: String): Wallet
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

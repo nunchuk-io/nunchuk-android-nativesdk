@@ -213,3 +213,24 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteWallet(
     }
 }
 
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importWallet(
+        JNIEnv *env,
+        jobject thiz,
+        jstring file_path,
+        jstring name,
+        jstring description
+        ) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->ImportWalletDescriptor(
+                env->GetStringUTFChars(file_path, JNI_FALSE),
+                env->GetStringUTFChars(name, JNI_FALSE),
+                env->GetStringUTFChars(description, JNI_FALSE)
+                );
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
