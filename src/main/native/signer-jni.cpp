@@ -63,6 +63,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parsePassportSigners(
+        JNIEnv *env,
+        jobject thiz,
+        jobject qr_data
+) {
+    syslog(LOG_DEBUG, "[JNI] parsePassportSigners()");
+    try {
+        auto values =  NunchukProvider::get()->nu->ParsePassportSigners(
+                Serializer::convert2CListString(env, qr_data)
+        );
+        return Deserializer::convert2JSigners(env, values);
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] parsePassportSigners error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRemoteSigners(JNIEnv *env, jobject thiz) {
     syslog(LOG_DEBUG, "[JNI] getRemoteSigners()");
     try {
