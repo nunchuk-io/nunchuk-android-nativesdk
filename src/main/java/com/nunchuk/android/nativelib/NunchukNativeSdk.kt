@@ -49,6 +49,11 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun parsePassportSigners(
+        qrData: List<String>
+    ) = nunchukAndroid.parsePassportSigners(qrData)
+
+    @Throws(NCNativeException::class)
     fun createSoftwareSigner(
         name: String,
         mnemonic: String,
@@ -124,6 +129,11 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun exportKeystoneWallet(walletId: String) = nunchukAndroid.exportKeystoneWallet(
+        walletId = walletId
+    )
+
+    @Throws(NCNativeException::class)
+    fun exportPassportWallet(walletId: String) = nunchukAndroid.exportPassportWallet(
         walletId = walletId
     )
 
@@ -229,6 +239,12 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun exportPassportTransaction(walletId: String, txId: String) = nunchukAndroid.exportPassportTransaction(
+        walletId = walletId,
+        txId = txId
+    )
+
+    @Throws(NCNativeException::class)
     fun exportTransaction(
         walletId: String,
         txId: String,
@@ -271,6 +287,12 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun importKeystoneTransaction(walletId: String, qrData: List<String>) = nunchukAndroid.importKeystoneTransaction(
+        walletId = walletId,
+        qrData = qrData
+    )
+
+    @Throws(NCNativeException::class)
+    fun importPassportTransaction(walletId: String, qrData: List<String>) = nunchukAndroid.importPassportTransaction(
         walletId = walletId,
         qrData = qrData
     )
@@ -415,7 +437,14 @@ class NunchukNativeSdk {
         inputs: List<UnspentOutput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean
-    ) = nunchukAndroid.initRoomTransaction(roomId, outputs, memo, inputs, feeRate, subtractFeeFromAmount)
+    ) = nunchukAndroid.initRoomTransaction(
+        roomId = roomId,
+        outputs = outputs,
+        memo = memo,
+        inputs = inputs,
+        feeRate = feeRate,
+        subtractFeeFromAmount = subtractFeeFromAmount
+    )
 
     @Throws(NCNativeException::class)
     fun signRoomTransaction(
@@ -470,7 +499,7 @@ class NunchukNativeSdk {
         syncRoomId: String,
         fileJsonInfo: String,
         fileUrl: String
-    ) = nunchukAndroid.backupFile(syncRoomId, fileJsonInfo, fileUrl)
+    ) = nunchukAndroid.backupFile(syncRoomId = syncRoomId, fileJsonInfo = fileJsonInfo, fileUrl = fileUrl)
 
     @Throws(NCNativeException::class)
     fun registerDownloadFileBackup() = nunchukAndroid.registerDownloadFileBackup()
@@ -486,5 +515,6 @@ class NunchukNativeSdk {
         filePath: String,
         name: String,
         description: String
-    ) = nunchukAndroid.importWallet(filePath, name, description)
+    ) = nunchukAndroid.importWallet(filePath = filePath, name = name, description = description)
+
 }

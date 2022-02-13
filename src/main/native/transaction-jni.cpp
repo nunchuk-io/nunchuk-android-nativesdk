@@ -123,6 +123,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneTransaction(
 }
 
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring tx_id
+) {
+    try {
+        auto transaction = NunchukProvider::get()->nu->ExportPassportTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE)
+        );
+        return Deserializer::convert2JListString(env, transaction);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransaction(
         JNIEnv *env,
@@ -250,14 +270,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneTransaction(
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoboTransaction(
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importPassportTransaction(
         JNIEnv *env,
         jobject thiz,
         jstring wallet_id,
         jobject qr_data
 ) {
-    // TODO
-    return ModelProvider::createEmptyTransaction(env);
+    try {
+        auto values =  NunchukProvider::get()->nu->ImportPassportTransaction(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                Serializer::convert2CListString(env, qr_data)
+        );
+        return Deserializer::convert2JTransaction(env, values);
+    } catch (std::exception &e) {
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
 }
 
 extern "C"
