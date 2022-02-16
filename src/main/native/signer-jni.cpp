@@ -317,3 +317,29 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendSignerPassphrase(
         env->ExceptionOccurred();
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckMasterSigner(
+        JNIEnv *env,
+        jobject thiz,
+        jstring fingerprint,
+        jstring message,
+        jstring signature,
+        jstring path
+) {
+    syslog(LOG_DEBUG, "[JNI] healthCheckMasterSigner()");
+    try {
+        auto healthStatus = NunchukProvider::get()->nu->HealthCheckMasterSigner(
+                env->GetStringUTFChars(fingerprint, JNI_FALSE),
+                reinterpret_cast<std::string &>(message),
+                reinterpret_cast<std::string &>(signature),
+                reinterpret_cast<std::string &>(path)
+        );
+        return Deserializer::convert2JHealthStatus(env, healthStatus);
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] healthCheckMasterSigner error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        return env->ExceptionOccurred();
+    }
+}

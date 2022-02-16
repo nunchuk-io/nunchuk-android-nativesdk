@@ -517,4 +517,17 @@ class NunchukNativeSdk {
         description: String
     ) = nunchukAndroid.importWallet(filePath = filePath, name = name, description = description)
 
+    @Throws(NCNativeException::class)
+    fun healthCheckMasterSigner(
+        fingerprint: String,
+        message: String,
+        signature: String,
+        path: String
+    ) = nunchukAndroid.healthCheckMasterSigner(
+        fingerprint = fingerprint,
+        message = message,
+        signature = signature,
+        path = path
+    )
+
 }

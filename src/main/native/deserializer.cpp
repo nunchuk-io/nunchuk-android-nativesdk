@@ -432,3 +432,9 @@ jobject Deserializer::convert2JConnectionStatus(JNIEnv *env, const ConnectionSta
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/ConnectionStatus;");
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
 }
+
+jobject Deserializer::convert2JHealthStatus(JNIEnv *env, const HealthStatus &status) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/HealthStatusTypeHelper");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/HealthStatus;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
+}
