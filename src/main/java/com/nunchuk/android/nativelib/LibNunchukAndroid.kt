@@ -3,6 +3,7 @@ package com.nunchuk.android.nativelib
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
+import com.nunchuk.android.type.HealthStatus
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -341,6 +342,14 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun parsePassportSigners(qrData: List<String>): List<SingleSigner>
+
+    @Throws(NCNativeException::class)
+    external fun healthCheckMasterSigner(
+        fingerprint: String,
+        message: String,
+        signature: String,
+        path: String
+    ): HealthStatus
 
     companion object {
         init {
