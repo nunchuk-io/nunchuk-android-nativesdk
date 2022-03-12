@@ -37,6 +37,12 @@ AddressType Serializer::convert2CAddressType(jint ordinal) {
         case 2:
             type = AddressType::NESTED_SEGWIT;
             break;
+        case 3:
+            type = AddressType::NATIVE_SEGWIT;
+            break;
+        case 4:
+            type = AddressType::TAPROOT;
+            break;
         default:
             type = AddressType::NATIVE_SEGWIT;
             break;
