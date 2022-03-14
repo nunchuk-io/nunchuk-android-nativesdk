@@ -14,7 +14,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     // Store Send Event
     jclass tmpSendEventClass = env->FindClass("com/nunchuk/android/model/SendEventHelper");
-    jmethodID tmpSendEventMethod = env->GetStaticMethodID(tmpSendEventClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    jmethodID tmpSendEventMethod = env->GetStaticMethodID(tmpSendEventClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
     Initializer::get()->sendEventClass = (jclass) env->NewGlobalRef(tmpSendEventClass);
     Initializer::get()->senEventMethod = tmpSendEventMethod;
 
@@ -74,7 +74,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                 settings,
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
                 env->GetStringUTFChars(account_id, JNI_FALSE),
-                [](const std::string &room_id, const std::string &type, const std::string &content) {
+                [](const std::string &room_id, const std::string &type, const std::string &content, bool ignore_error) {
                     JNIEnv *g_env;
                     try {
                         JavaVMAttachArgs args;
@@ -99,7 +99,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                                 Initializer::get()->senEventMethod,
                                 g_env->NewStringUTF(room_id.c_str()),
                                 g_env->NewStringUTF(type.c_str()),
-                                g_env->NewStringUTF(content.c_str())
+                                g_env->NewStringUTF(content.c_str()),
+                                ignore_error
                         );
                     } catch (const std::exception &t) {
                         Deserializer::convert2JException(g_env, t.what());
