@@ -88,6 +88,9 @@ Chain Serializer::convert2CChain(jint ordinal) {
         case 1:
             chain = Chain::TESTNET;
             break;
+        case 2:
+            chain = Chain::SIGNET;
+            break;
         default:
             chain = Chain::REGTEST;
             break;

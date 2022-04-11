@@ -19,6 +19,7 @@ class NunchukNativeSdk {
             enableProxy = appSettings.enableProxy,
             testnetServers = appSettings.testnetServers,
             mainnetServers = appSettings.mainnetServers,
+            signetServers = appSettings.signetServers,
             backendType = appSettings.backendType.ordinal,
             storagePath = appSettings.storagePath,
             passphrase = passphrase,
