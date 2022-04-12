@@ -8,6 +8,7 @@ data class AppSettings(
         val backendType: BackendType = BackendType.ELECTRUM,
         val mainnetServers: List<String> = emptyList(),
         val testnetServers: List<String> = emptyList(),
+        val signetServers: List<String> = emptyList(),
         val hwiPath: String = "",
         val storagePath: String = "",
         val enableProxy: Boolean = false,

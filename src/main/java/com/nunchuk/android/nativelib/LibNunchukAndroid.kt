@@ -16,6 +16,7 @@ internal class LibNunchukAndroid {
         enableProxy: Boolean,
         testnetServers: List<String>,
         mainnetServers: List<String>,
+        signetServers: List<String>,
         backendType: Int,
         storagePath: String,
         passphrase: String,
