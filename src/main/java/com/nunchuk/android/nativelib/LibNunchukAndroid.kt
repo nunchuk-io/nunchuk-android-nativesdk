@@ -319,12 +319,12 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun enableAutoBackUp(
-        syncRoomId: String
+        syncRoomId: String,
+        accessToken: String
     )
 
     @Throws(NCNativeException::class)
-    external fun backupFile(
-        syncRoomId: String,
+    external fun uploadFileCallback(
         fileJsonInfo: String,
         fileUrl: String
     )
@@ -333,7 +333,7 @@ internal class LibNunchukAndroid {
     external fun registerDownloadFileBackup()
 
     @Throws(NCNativeException::class)
-    external fun consumeSyncFile(
+    external fun downloadFileCallback(
         fileJsonInfo: String,
         fileData: ByteArray
     )

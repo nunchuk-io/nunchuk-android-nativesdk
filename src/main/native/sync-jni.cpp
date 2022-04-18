@@ -69,13 +69,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
         JNIEnv *env,
         jobject thiz,
         jstring file_json_info,
         jbyteArray file_data
 ) {
-    syslog(LOG_DEBUG, "[JNI] consumeSyncFile()");
+    syslog(LOG_DEBUG, "[JNI] DownloadFileCallback()");
 
     try {
 
@@ -91,7 +91,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncFile(
             data.push_back(buf[i]);
         }
 
-        NunchukProvider::get()->nuMatrix->ConsumeSyncFile(
+        NunchukProvider::get()->nuMatrix->DownloadFileCallback(
                 NunchukProvider::get()->nu,
                 env->GetStringUTFChars(file_json_info, JNI_FALSE),
                 data,
@@ -142,7 +142,8 @@ JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
         JNIEnv *env,
         jobject thiz,
-        jstring sync_room_id
+        jstring sync_room_id,
+        jstring access_token
 ) {
     syslog(LOG_DEBUG, "[JNI] enableAutoBackUp()");
     try {
@@ -152,6 +153,50 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
         NunchukProvider::get()->nuMatrix->EnableAutoBackup(
                 NunchukProvider::get()->nu,
                 env->GetStringUTFChars(sync_room_id, JNI_FALSE),
+                env->GetStringUTFChars(access_token, JNI_FALSE)
+        );
+
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] enableAutoBackUp error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
+}
+
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_uploadFileCallback(
+        JNIEnv *env,
+        jobject thiz,
+        jstring file_json_info,
+        jstring file_url
+) {
+    syslog(LOG_DEBUG, "[JNI]UploadFileCallback()");
+    try {
+        NunchukProvider::get()->nuMatrix->UploadFileCallback(
+                env->GetStringUTFChars(file_json_info, JNI_FALSE),
+                env->GetStringUTFChars(file_url, JNI_FALSE)
+        );
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] UploadFileCallback error::%s", e.what());
+        Deserializer::convert2JException(env, e.what());
+        env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
+        JNIEnv *env,
+        jobject thiz
+) {
+    syslog(LOG_DEBUG, "[JNI] registerDownloadFileBackup()");
+    try {
+
+        env->GetJavaVM(&Initializer::get()->jvm);
+
+        NunchukProvider::get()->nuMatrix->RegisterFileFunc(
                 [&](const std::string &file_name, const std::string &mine_type, const std::string &file_json_info,
                     const char *data, size_t data_length) {
                     syslog(LOG_DEBUG, "[JNI] enableAutoBackUp file_name::%s", file_name.c_str());
@@ -197,54 +242,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
                         g_env->ExceptionOccurred();
                     }
                     return "";
-                }
-        );
-
-    } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] enableAutoBackUp error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-    }
-}
-
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_backupFile(
-        JNIEnv *env,
-        jobject thiz,
-        jstring sync_room_id,
-        jstring file_json_info,
-        jstring file_url
-) {
-    syslog(LOG_DEBUG, "[JNI]BackupFile()");
-    try {
-        NunchukProvider::get()->nuMatrix->BackupFile(
-                env->GetStringUTFChars(sync_room_id, JNI_FALSE),
-                env->GetStringUTFChars(file_json_info, JNI_FALSE),
-                env->GetStringUTFChars(file_url, JNI_FALSE)
-        );
-    } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] BackupFile error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
-        env->ExceptionOccurred();
-    }
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
-        JNIEnv *env,
-        jobject thiz
-) {
-    syslog(LOG_DEBUG, "[JNI] registerDownloadFileBackup()");
-    try {
-
-        env->GetJavaVM(&Initializer::get()->jvm);
-
-        NunchukProvider::get()->nuMatrix->RegisterDownloadFileFunc(
-                [&](const std::string &file_name, const std::string &mine_type, const std::string &file_json_info,
-                    const std::string &file_uri) {
+                },
+                [&](const std::string &file_name, const std::string &mine_type, const std::string &json_info,
+                    const std::string &mxc_uri) {
 
                     JNIEnv *g_env;
                     try {
@@ -271,8 +271,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
                                 Initializer::get()->downloadFileMethod,
                                 g_env->NewStringUTF(file_name.c_str()),
                                 g_env->NewStringUTF(mine_type.c_str()),
-                                g_env->NewStringUTF(file_json_info.c_str()),
-                                g_env->NewStringUTF(file_uri.c_str())
+                                g_env->NewStringUTF(json_info.c_str()),
+                                g_env->NewStringUTF(mxc_uri.c_str())
                         );
                     } catch (const std::exception &t) {
                         Deserializer::convert2JException(g_env, t.what());
