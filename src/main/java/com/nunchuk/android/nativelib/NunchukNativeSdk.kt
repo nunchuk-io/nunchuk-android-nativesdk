@@ -492,24 +492,25 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun enableAutoBackUp(
-        syncRoomId: String
-    ) = nunchukAndroid.enableAutoBackUp(syncRoomId)
+        syncRoomId: String,
+        accessToken: String
+    ) = nunchukAndroid.enableAutoBackUp(syncRoomId, accessToken)
 
     @Throws(NCNativeException::class)
-    fun backupFile(
+    fun uploadFileCallback(
         syncRoomId: String,
         fileJsonInfo: String,
         fileUrl: String
-    ) = nunchukAndroid.backupFile(syncRoomId = syncRoomId, fileJsonInfo = fileJsonInfo, fileUrl = fileUrl)
+    ) = nunchukAndroid.uploadFileCallback(fileJsonInfo = fileJsonInfo, fileUrl = fileUrl)
 
     @Throws(NCNativeException::class)
     fun registerDownloadFileBackup() = nunchukAndroid.registerDownloadFileBackup()
 
     @Throws(NCNativeException::class)
-    fun consumeSyncFile(
+    fun downloadFileCallback(
         fileJsonInfo: String,
         fileData: ByteArray
-    ) = nunchukAndroid.consumeSyncFile(fileJsonInfo, fileData)
+    ) = nunchukAndroid.downloadFileCallback(fileJsonInfo, fileData)
 
     @Throws(NCNativeException::class)
     fun importWallet(
