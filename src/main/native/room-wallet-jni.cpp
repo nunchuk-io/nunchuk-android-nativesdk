@@ -38,9 +38,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initSharedWallet(
                 is_escrow
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] initSharedWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -63,9 +66,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_joinSharedWallet(
                 singleSigner
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] joinSharedWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -90,9 +96,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_leaveSharedWallet(
                 env->GetStringUTFChars(reason, JNI_FALSE)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] leaveSharedWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -114,9 +123,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cancelSharedWallet(
                 env->GetStringUTFChars(reason, JNI_FALSE)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] cancelSharedWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -136,9 +148,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSharedWallet(
                 env->GetStringUTFChars(room_id, JNI_FALSE)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] createSharedWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -157,10 +172,33 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeEvent(
                 NunchukProvider::get()->nu,
                 matrixEvent
         );
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] consumeEvent error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hasRoomWallet(
+        JNIEnv *env,
+        jobject thiz,
+        jstring room_id
+) {
+    try {
+        return NunchukProvider::get()->nuMatrix->HasRoomWallet(
+                env->GetStringUTFChars(room_id, JNI_FALSE)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
     }
 }
 
@@ -178,9 +216,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRoomWallet(
                 env->GetStringUTFChars(room_id, JNI_FALSE)
         );
         return Deserializer::convert2JRoomWallet(env, roomWallet);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] getRoomWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -194,9 +235,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAllRoomWallets(
     try {
         auto roomWallets = NunchukProvider::get()->nuMatrix->GetAllRoomWallets();
         return Deserializer::convert2JRoomWallets(env, roomWallets);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] getAllRoomWallets error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }

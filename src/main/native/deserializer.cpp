@@ -3,6 +3,8 @@
 #include <syslog.h>
 #include <nunchuk.h>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include "deserializer.h"
 
 using namespace nunchuk;
@@ -45,12 +47,25 @@ jobject Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::strin
     return instance;
 }
 
-void Deserializer::convert2JException(JNIEnv *env, const char *msg) {
+void Deserializer::convert2JException(JNIEnv *env, const BaseException &e) {
     jclass clazz = env->FindClass("com/nunchuk/android/exception/NCNativeException");
     if (nullptr == clazz) {
         clazz = env->FindClass("java/lang/NullPointerException");
     }
+    syslog(LOG_DEBUG, "[JNI] convert2JException()");
+    std::stringstream message;
+    message << std::to_string(e.code()) << ":" << e.what();
+    const std::string &string = message.str();
+    const char *msg = string.c_str();
     env->ThrowNew(clazz, msg);
+}
+
+void Deserializer::convertStdException2JException(JNIEnv *env, std::exception e) {
+    jclass clazz = env->FindClass("com/nunchuk/android/exception/NCNativeException");
+    if (nullptr == clazz) {
+        clazz = env->FindClass("java/lang/NullPointerException");
+    }
+    env->ThrowNew(clazz, e.what());
 }
 
 jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
@@ -256,9 +271,8 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCreateDate", "(J)V"), wallet.get_create_date());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDescription", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_description().c_str()));
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s", Utils::ValueFromAmount(wallet.get_balance()).c_str());
-    } catch (const std::exception &e) {
+    } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JWallet error::%s", e.what());
-        convert2JException(env, e.what());
     }
     return instance;
 }
@@ -289,7 +303,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        Amount total = (transaction.is_receive() ? transaction.get_sub_amount(): (transaction.get_sub_amount() + transaction.get_fee()));
+        Amount total = (transaction.is_receive() ? transaction.get_sub_amount() : (transaction.get_sub_amount() + transaction.get_fee()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_txid().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"), transaction.get_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInputs", "(Ljava/util/List;)V"), convert2JTxInputs(env, transaction.get_inputs()));
@@ -308,7 +322,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceive", "(Z)V"), transaction.is_receive());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSubAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, transaction.get_sub_amount()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, total));
-    } catch (const std::exception &e) {
+    } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
     return instance;

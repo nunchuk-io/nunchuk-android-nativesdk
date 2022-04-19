@@ -17,8 +17,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
         jobject event
 ) {
     syslog(LOG_DEBUG, "[JNI] consumeSyncEvent()");
-    auto matrixEvent = Serializer::convert2CMatrixEvent(env, event);
     try {
+        auto matrixEvent = Serializer::convert2CMatrixEvent(env, event);
         env->GetJavaVM(&Initializer::get()->jvm);
 
         NunchukProvider::get()->nuMatrix->ConsumeSyncEvent(
@@ -53,7 +53,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
                                 percent
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convert2JException(g_env, t.what());
+                        Deserializer::convertStdException2JException(g_env, t);
                         g_env->ExceptionOccurred();
                     }
                     return percent == 100;
@@ -62,7 +62,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
 
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] consumeSyncEvent error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }
@@ -124,7 +124,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
                                 percent
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convert2JException(g_env, t.what());
+                        Deserializer::convertStdException2JException(g_env, t);
                         g_env->ExceptionOccurred();
                     }
                     return percent == 100;
@@ -132,7 +132,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
         );
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] consumeSyncFile error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }
@@ -158,7 +158,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
 
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] enableAutoBackUp error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }
@@ -180,7 +180,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_uploadFileCallback(
         );
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] UploadFileCallback error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }
@@ -238,7 +238,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
                                 (int) data_length
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convert2JException(g_env, t.what());
+                        Deserializer::convertStdException2JException(g_env, t);
                         g_env->ExceptionOccurred();
                     }
                     return "";
@@ -275,7 +275,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
                                 g_env->NewStringUTF(mxc_uri.c_str())
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convert2JException(g_env, t.what());
+                        Deserializer::convertStdException2JException(g_env, t);
                         g_env->ExceptionOccurred();
                     }
 
@@ -287,7 +287,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
 
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] registerDownloadFileBackup error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }

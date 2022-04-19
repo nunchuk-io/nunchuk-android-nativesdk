@@ -18,12 +18,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastTransaction(
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->BroadcastTransaction(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(tx_id, JNI_FALSE)
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(tx_id, JNI_FALSE)
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -50,8 +53,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
                 subtract_fee_from_amount
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -76,8 +82,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 subtract_fee_from_amount
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -95,8 +104,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 env->GetStringUTFChars(tx_id, JNI_FALSE)
         );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -116,8 +129,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneTransaction(
                 env->GetStringUTFChars(tx_id, JNI_FALSE)
         );
         return Deserializer::convert2JListString(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -136,8 +152,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportTransaction(
                 env->GetStringUTFChars(tx_id, JNI_FALSE)
         );
         return Deserializer::convert2JListString(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -157,8 +176,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransaction(
                 env->GetStringUTFChars(tx_id, JNI_FALSE),
                 env->GetStringUTFChars(file_path, JNI_FALSE)
         );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -178,8 +201,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransaction(
                 env->GetStringUTFChars(tx_id, JNI_FALSE)
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -200,8 +226,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransaction(
                 Serializer::convert2CAmount(env, new_fee_rate)
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -220,8 +249,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTransaction(
                 env->GetStringUTFChars(file_path, JNI_FALSE)
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -242,8 +274,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransactionHistory(
                 skip
         );
         return Deserializer::convert2JTransactions(env, transactions);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -257,13 +292,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneTransaction(
         jobject qr_data
 ) {
     try {
-        auto values =  NunchukProvider::get()->nu->ImportKeystoneTransaction(
+        auto values = NunchukProvider::get()->nu->ImportKeystoneTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CListString(env, qr_data)
         );
         return Deserializer::convert2JTransaction(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -277,13 +315,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importPassportTransaction(
         jobject qr_data
 ) {
     try {
-        auto values =  NunchukProvider::get()->nu->ImportPassportTransaction(
+        auto values = NunchukProvider::get()->nu->ImportPassportTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CListString(env, qr_data)
         );
         return Deserializer::convert2JTransaction(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -303,8 +344,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransactionMemo(
                 env->GetStringUTFChars(tx_id, JNI_FALSE),
                 env->GetStringUTFChars(new_memo, JNI_FALSE)
         );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -320,14 +365,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransaction(
         jobject device
 ) {
     try {
-        auto transaction =  NunchukProvider::get()->nu->SignTransaction(
+        auto transaction = NunchukProvider::get()->nu->SignTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 env->GetStringUTFChars(tx_id, JNI_FALSE),
                 Serializer::convert2CDevice(env, device)
         );
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -343,12 +391,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransactionHistory(
 ) {
     try {
         NunchukProvider::get()->nu->ExportTransactionHistory(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            env->GetStringUTFChars(file_path, JNI_FALSE),
-            Serializer::convert2CExportFormat(format)
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                env->GetStringUTFChars(file_path, JNI_FALSE),
+                Serializer::convert2CExportFormat(format)
         );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }
@@ -364,13 +415,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddresses(
 ) {
     try {
         auto values = NunchukProvider::get()->nu->GetAddresses(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE),
-            used,
-            internal
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                used,
+                internal
         );
         return Deserializer::convert2JListString(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -388,8 +442,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressBalance(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 env->GetStringUTFChars(address, JNI_FALSE));
         return Deserializer::convert2JAmount(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -417,6 +474,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_newAddress(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 internal);
         return env->NewStringUTF(value.c_str());
+    } catch (BaseException &e) {
+        return env->NewStringUTF("");
     } catch (std::exception &e) {
         return env->NewStringUTF("");
     }
@@ -432,8 +491,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFee(
     try {
         auto value = NunchukProvider::get()->nu->EstimateFee(type);
         return Deserializer::convert2JAmount(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 
