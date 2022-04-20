@@ -105,7 +105,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                                 ignore_error
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convert2JException(g_env, t.what());
+                        Deserializer::convertStdException2JException(g_env, t);
                         g_env->ExceptionOccurred();
                     }
                     return "";
@@ -142,20 +142,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                                     percent
                             );
                         } catch (const std::exception &t) {
-                            Deserializer::convert2JException(g_env, t.what());
+                            Deserializer::convertStdException2JException(g_env, t);
                             g_env->ExceptionOccurred();
                         }
                     }
             );
 
-        } catch (std::exception &e) {
+        } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener error::%s", e.what());
-            Deserializer::convert2JException(env, e.what());
+            Deserializer::convert2JException(env, e);
             env->ExceptionOccurred();
         }
         NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
     } catch (const std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }

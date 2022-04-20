@@ -425,6 +425,9 @@ class NunchukNativeSdk {
     }
 
     @Throws(NCNativeException::class)
+    fun hasRoomWallet(roomId: String) = nunchukAndroid.hasRoomWallet(roomId = roomId)
+
+    @Throws(NCNativeException::class)
     fun getRoomWallet(roomId: String) = nunchukAndroid.getRoomWallet(roomId = roomId)
 
     @Throws(NCNativeException::class)
@@ -530,6 +533,19 @@ class NunchukNativeSdk {
         message = message,
         signature = signature,
         path = path
+    )
+
+    @Throws(NCNativeException::class)
+    fun sendErrorEvent(
+        roomId: String,
+        platform: String,
+        code: String,
+        message: String
+    ) = nunchukAndroid.sendErrorEvent(
+        roomId = roomId,
+        platform = platform,
+        code = code,
+        message = message
     )
 
 }

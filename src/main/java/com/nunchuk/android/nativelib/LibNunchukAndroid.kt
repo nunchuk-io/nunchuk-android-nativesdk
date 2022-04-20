@@ -259,6 +259,9 @@ internal class LibNunchukAndroid {
     external fun consumeEvent(event: NunchukMatrixEvent)
 
     @Throws(NCNativeException::class)
+    external fun hasRoomWallet(roomId: String): Boolean
+
+    @Throws(NCNativeException::class)
     external fun getRoomWallet(roomId: String): RoomWallet
 
     @Throws(NCNativeException::class)
@@ -351,6 +354,14 @@ internal class LibNunchukAndroid {
         signature: String,
         path: String
     ): HealthStatus
+
+    @Throws(NCNativeException::class)
+    external fun sendErrorEvent(
+        roomId: String,
+        platform: String,
+        code: String,
+        message: String
+    )
 
     companion object {
         init {

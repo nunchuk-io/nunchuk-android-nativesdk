@@ -25,6 +25,7 @@ add_library(nunchuk-android SHARED
         wallet-jni.cpp
         signer-jni.cpp
         room-wallet-jni.cpp
+        room-jni.cpp
         room-transaction-jni.cpp
         transaction-jni.cpp
         util-jni.cpp

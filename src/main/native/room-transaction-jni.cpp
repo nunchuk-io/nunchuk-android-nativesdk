@@ -32,9 +32,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initRoomTransaction(
                 subtract_fee_from_amount
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] initRoomTransaction error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -55,9 +58,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signRoomTransaction(
                 Serializer::convert2CDevice(env, device)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] signRoomTransaction error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -77,9 +83,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_rejectRoomTransaction(
                 env->GetStringUTFChars(reason, JNI_FALSE)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] rejectRoomTransaction error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -99,9 +108,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cancelRoomTransaction(
                 env->GetStringUTFChars(reason, JNI_FALSE)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] cancelRoomTransaction error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -120,9 +132,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastRoomTransaction(
                 env->GetStringUTFChars(init_event_id, JNI_FALSE)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] broadcastRoomTransaction error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -141,9 +156,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRoomTransaction(
                 env->GetStringUTFChars(init_event_id, JNI_FALSE)
         );
         return Deserializer::convert2JRoomTransaction(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] getRoomTransaction error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -162,9 +180,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getPendingTransactions(
                 env->GetStringUTFChars(room_id, JNI_FALSE)
         );
         return Deserializer::convert2JRoomTransactions(env, result);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] getPendingTransactions error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -183,6 +204,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransactionId(
                 env->GetStringUTFChars(event_id, JNI_FALSE)
         );
         return env->NewStringUTF(result.c_str());
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] getTransactionId error::%s", e.what());
+        return env->NewStringUTF("");
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] getTransactionId error::%s", e.what());
         return env->NewStringUTF("");

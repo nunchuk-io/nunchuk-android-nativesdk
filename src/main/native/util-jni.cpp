@@ -20,9 +20,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_valueFromAmount(
         Amount _amount = Serializer::convert2CAmount(env, amount);
         auto value = Utils::ValueFromAmount(_amount);
         return env->NewStringUTF(value.c_str());
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] valueFromAmount error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return env->NewStringUTF("");
     }
@@ -38,8 +42,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidAddress(
     try {
         Utils::AddressToScriptPubKey(env->GetStringUTFChars(address, JNI_FALSE));
         return JNI_TRUE;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -63,8 +71,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getChainTip(
 ) {
     try {
         return NunchukProvider::get()->nu->GetChainTip();
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return -1;
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return -1;
     }
@@ -113,7 +125,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addBlockchainConnectionList
                                 percent
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convert2JException(g_env, t.what());
+                        Deserializer::convertStdException2JException(g_env, t);
                         g_env->ExceptionOccurred();
                     }
                 }
@@ -121,7 +133,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addBlockchainConnectionList
 
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }

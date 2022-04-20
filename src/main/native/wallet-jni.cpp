@@ -13,8 +13,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWallets(JNIEnv *env, job
     try {
         auto wallets = NunchukProvider::get()->nu->GetWallets();
         return Deserializer::convert2JWallets(env, wallets);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -47,9 +50,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftWallet(
                 env->GetStringUTFChars(description, JNI_FALSE)
         );
         return env->NewStringUTF(filePath.c_str());
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] draftWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return env->NewStringUTF("");
     }
@@ -83,9 +90,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
                 env->GetStringUTFChars(description, JNI_FALSE)
         );
         return Deserializer::convert2JWallet(env, wallet);
-    } catch (std::exception &e) {
+    } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] createWallet error::%s", e.what());
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -105,8 +115,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWallet(
                 env->GetStringUTFChars(file_path, JNI_FALSE),
                 Serializer::convert2CExportFormat(format)
         );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -116,12 +130,15 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoboWallet(JNIEnv *env, jobject thiz, jstring wallet_id) {
     try {
-        auto values =  NunchukProvider::get()->nu->ExportCoboWallet(
-            env->GetStringUTFChars(wallet_id, JNI_FALSE)
+        auto values = NunchukProvider::get()->nu->ExportCoboWallet(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE)
         );
         return Deserializer::convert2JListString(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -134,12 +151,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneWallet(
         jstring wallet_id
 ) {
     try {
-        auto values =  NunchukProvider::get()->nu->ExportKeystoneWallet(
+        auto values = NunchukProvider::get()->nu->ExportKeystoneWallet(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE)
         );
         return Deserializer::convert2JListString(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -152,12 +172,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportWallet(
         jstring wallet_id
 ) {
     try {
-        auto values =  NunchukProvider::get()->nu->ExportPassportWallet(
+        auto values = NunchukProvider::get()->nu->ExportPassportWallet(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE)
         );
         return Deserializer::convert2JListString(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -171,13 +194,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
         jstring description
 ) {
     try {
-        auto values =  NunchukProvider::get()->nu->ImportKeystoneWallet(
+        auto values = NunchukProvider::get()->nu->ImportKeystoneWallet(
                 Serializer::convert2CListString(env, qr_data),
                 env->GetStringUTFChars(description, JNI_FALSE)
         );
         return Deserializer::convert2JWallet(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -192,8 +218,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWallet(
     try {
         const auto &wallet = NunchukProvider::get()->nu->GetWallet(env->GetStringUTFChars(wallet_id, JNI_FALSE));
         return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -208,8 +237,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateWallet(
     try {
         auto updateWallet = Serializer::convert2CWallet(env, wallet);
         return NunchukProvider::get()->nu->UpdateWallet(updateWallet);
-    }   catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -224,8 +257,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteWallet(
 ) {
     try {
         return NunchukProvider::get()->nu->DeleteWallet(env->GetStringUTFChars(wallet_id, JNI_FALSE));
-    }   catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
     }
@@ -239,16 +276,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importWallet(
         jstring file_path,
         jstring name,
         jstring description
-        ) {
+) {
     try {
         auto wallet = NunchukProvider::get()->nu->ImportWalletDescriptor(
                 env->GetStringUTFChars(file_path, JNI_FALSE),
                 env->GetStringUTFChars(name, JNI_FALSE),
                 env->GetStringUTFChars(description, JNI_FALSE)
-                );
+        );
         return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
-        Deserializer::convert2JException(env, e.what());
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
