@@ -501,7 +501,6 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun uploadFileCallback(
-        syncRoomId: String,
         fileJsonInfo: String,
         fileUrl: String
     ) = nunchukAndroid.uploadFileCallback(fileJsonInfo = fileJsonInfo, fileUrl = fileUrl)
