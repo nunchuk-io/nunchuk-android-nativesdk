@@ -50,6 +50,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->syncFileClass,
                                 Initializer::get()->syncFileMethod,
+                                percent == 100,
                                 percent
                         );
                     } catch (const std::exception &t) {
