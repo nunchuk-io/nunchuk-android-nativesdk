@@ -367,11 +367,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckMasterSigner(
 ) {
     syslog(LOG_DEBUG, "[JNI] healthCheckMasterSigner()");
     try {
+        std::string _message = (env)->GetStringUTFChars(message, JNI_FALSE);
+        std::string _signature = (env)->GetStringUTFChars(signature, JNI_FALSE);
+        std::string _path = (env)->GetStringUTFChars(path, JNI_FALSE);
         auto healthStatus = NunchukProvider::get()->nu->HealthCheckMasterSigner(
                 env->GetStringUTFChars(fingerprint, JNI_FALSE),
-                reinterpret_cast<std::string &>(message),
-                reinterpret_cast<std::string &>(signature),
-                reinterpret_cast<std::string &>(path)
+                _message,
+                _signature,
+                _path
         );
         return Deserializer::convert2JHealthStatus(env, healthStatus);
     } catch (BaseException &e) {
