@@ -77,7 +77,7 @@ android {
 buildscript {
     apply from: 'configs/dependencies.gradle'
     ext {
-        kotlin_version = '1.4.31'
+        kotlin_version = '1.6.10'
     }
     repositories {
         google()
@@ -104,7 +104,7 @@ allprojects {
 def SUPPORTED_ARCH = "arm64_v8a"
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk-${SUPPORTED_ARCH}"
-def VERSION = "1.1.36"
+def VERSION = "1.1.37"
 
 publishing {
     publications {
