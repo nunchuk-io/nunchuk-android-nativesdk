@@ -18,8 +18,9 @@ void NunchukProvider::initNunchuk(
         const AppSettings &settings,
         const std::string &pass_phrase,
         const std::string &account_id,
+        const std::string &device_id,
         SendEventFunc send_event_func
 ) {
     nu = MakeNunchukForAccount(settings, pass_phrase, account_id);
-    nuMatrix = MakeNunchukMatrixForAccount(settings, pass_phrase, account_id, send_event_func);
+    nuMatrix = MakeNunchukMatrixForAccount(settings, pass_phrase, account_id, device_id, send_event_func);
 }

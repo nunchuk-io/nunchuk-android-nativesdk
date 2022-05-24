@@ -58,7 +58,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jint backend_type,
         jstring storage_path,
         jstring pass_phrase,
-        jstring account_id
+        jstring account_id,
+        jstring device_id
 ) {
     try {
         AppSettings settings;
@@ -76,6 +77,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                 settings,
                 env->GetStringUTFChars(pass_phrase, JNI_FALSE),
                 env->GetStringUTFChars(account_id, JNI_FALSE),
+                env->GetStringUTFChars(device_id, JNI_FALSE),
                 [](const std::string &room_id, const std::string &type, const std::string &content, bool ignore_error) {
                     JNIEnv *g_env;
                     try {

@@ -24,6 +24,7 @@ public:
             const AppSettings &settings,
             const std::string &pass_phrase,
             const std::string &account_id,
+            const std::string &device_id,
             SendEventFunc send_event_func
     );
 };

@@ -20,7 +20,8 @@ internal class LibNunchukAndroid {
         backendType: Int,
         storagePath: String,
         passphrase: String,
-        accountId: String
+        accountId: String,
+        deviceId: String
     )
 
     @Throws(NCNativeException::class)
