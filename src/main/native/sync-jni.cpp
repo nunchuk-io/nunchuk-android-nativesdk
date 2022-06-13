@@ -140,6 +140,66 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
 
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_writeFileCallback(
+        JNIEnv *env,
+        jobject thiz,
+        jstring file_json_info,
+        jstring file_path
+) {
+    syslog(LOG_DEBUG, "[JNI] WriteFileCallback()");
+
+    try {
+
+        env->GetJavaVM(&Initializer::get()->jvm);
+
+        NunchukProvider::get()->nuMatrix->WriteFileCallback(
+                NunchukProvider::get()->nu,
+                env->GetStringUTFChars(file_json_info, JNI_FALSE),
+                env->GetStringUTFChars(file_path, JNI_FALSE),
+                [&](int percent) {
+                    syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
+                    JNIEnv *g_env;
+                    try {
+                        JavaVMAttachArgs args;
+                        args.version = JNI_VERSION_1_6;
+                        args.name = nullptr;
+                        args.group = nullptr;
+                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        if (envState == JNI_EDETACHED) {
+                            syslog(LOG_DEBUG, "[JNI] GetEnv: not attached\n");
+                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                            } else {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                            }
+                        } else if (envState == JNI_OK) {
+                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+                        } else if (envState == JNI_EVERSION) {
+                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+                        }
+                        g_env->CallStaticVoidMethod(
+                                Initializer::get()->syncFileClass,
+                                Initializer::get()->syncFileMethod,
+                                percent == 100,
+                                percent
+                        );
+                    } catch (const std::exception &t) {
+                        Deserializer::convertStdException2JException(g_env, t);
+                        g_env->ExceptionOccurred();
+                    }
+                    return percent == 100;
+                }
+        );
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] consumeSyncFile error::%s", e.what());
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
         JNIEnv *env,
         jobject thiz,

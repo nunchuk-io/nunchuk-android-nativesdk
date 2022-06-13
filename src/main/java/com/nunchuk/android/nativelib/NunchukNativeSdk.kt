@@ -516,6 +516,12 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.downloadFileCallback(fileJsonInfo, fileData)
 
     @Throws(NCNativeException::class)
+    fun writeFileCallback(
+        fileJsonInfo: String,
+        fileData: String
+    ) = nunchukAndroid.writeFileCallback(fileJsonInfo, fileData)
+
+    @Throws(NCNativeException::class)
     fun importWallet(
         filePath: String,
         name: String,
