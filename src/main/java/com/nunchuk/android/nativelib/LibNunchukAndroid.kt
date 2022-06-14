@@ -343,6 +343,12 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun writeFileCallback(
+        fileJsonInfo: String,
+        fileData: String
+    )
+
+    @Throws(NCNativeException::class)
     external fun importWallet(filePath: String, name: String, description: String): Wallet
 
     @Throws(NCNativeException::class)
