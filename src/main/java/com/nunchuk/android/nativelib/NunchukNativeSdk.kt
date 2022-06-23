@@ -496,9 +496,14 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun enableAutoBackUp(
+        enable: Boolean
+    ) = nunchukAndroid.enableAutoBackUp(enable)
+
+    @Throws(NCNativeException::class)
+    fun registerAutoBackUp(
         syncRoomId: String,
         accessToken: String
-    ) = nunchukAndroid.enableAutoBackUp(syncRoomId, accessToken)
+    ) = nunchukAndroid.registerAutoBackUp(syncRoomId, accessToken)
 
     @Throws(NCNativeException::class)
     fun uploadFileCallback(

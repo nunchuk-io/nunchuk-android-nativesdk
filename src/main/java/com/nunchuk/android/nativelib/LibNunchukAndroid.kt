@@ -323,6 +323,11 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun enableAutoBackUp(
+        enable: Boolean
+    )
+
+    @Throws(NCNativeException::class)
+    external fun registerAutoBackUp(
         syncRoomId: String,
         accessToken: String
     )

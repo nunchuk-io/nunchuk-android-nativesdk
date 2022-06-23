@@ -203,22 +203,45 @@ JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableAutoBackUp(
         JNIEnv *env,
         jobject thiz,
+        jboolean enable
+
+) {
+    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp()");
+    try {
+        env->GetJavaVM(&Initializer::get()->jvm);
+
+        NunchukProvider::get()->nuMatrix->EnableAutoBackup(
+                enable
+        );
+
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] enableAutoBackUp error::%s", e.what());
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerAutoBackUp(
+        JNIEnv *env,
+        jobject thiz,
         jstring sync_room_id,
         jstring access_token
 ) {
-    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp()");
+    syslog(LOG_DEBUG, "[JNI] RegisterAutoBackup()");
     try {
 
         env->GetJavaVM(&Initializer::get()->jvm);
 
-        NunchukProvider::get()->nuMatrix->EnableAutoBackup(
+        NunchukProvider::get()->nuMatrix->RegisterAutoBackup(
                 NunchukProvider::get()->nu,
                 env->GetStringUTFChars(sync_room_id, JNI_FALSE),
                 env->GetStringUTFChars(access_token, JNI_FALSE)
         );
 
     } catch (std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] enableAutoBackUp error::%s", e.what());
+        syslog(LOG_DEBUG, "[JNI] RegisterAutoBackup error::%s", e.what());
         Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
