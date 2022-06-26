@@ -559,4 +559,6 @@ class NunchukNativeSdk {
         message = message
     )
 
+    @Throws(NCNativeException::class)
+    fun backup() = nunchukAndroid.backup()
 }

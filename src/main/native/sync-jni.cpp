@@ -250,6 +250,29 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerAutoBackUp(
 
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_backup(
+        JNIEnv *env,
+        jobject thiz
+) {
+    syslog(LOG_DEBUG, "[JNI] backUp()");
+    try {
+
+        env->GetJavaVM(&Initializer::get()->jvm);
+
+        NunchukProvider::get()->nuMatrix->Backup(
+                NunchukProvider::get()->nu
+        );
+
+    } catch (std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] backUp error::%s", e.what());
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
+
+
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_uploadFileCallback(
         JNIEnv *env,
         jobject thiz,
