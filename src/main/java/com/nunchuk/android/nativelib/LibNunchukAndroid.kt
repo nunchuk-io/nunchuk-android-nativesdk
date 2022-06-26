@@ -375,6 +375,9 @@ internal class LibNunchukAndroid {
         message: String
     )
 
+    @Throws(NCNativeException::class)
+    external fun backup()
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
