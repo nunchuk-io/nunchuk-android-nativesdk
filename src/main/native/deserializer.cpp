@@ -452,3 +452,17 @@ jobject Deserializer::convert2JHealthStatus(JNIEnv *env, const HealthStatus &sta
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/HealthStatus;");
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
 }
+
+jobject Deserializer::convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatus &status) {
+    syslog(LOG_DEBUG, "[JNI] convert2JTapSignerStatus()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/TapSignerStatus");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSetup", "(Z)V"), !status.need_setup());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCreateSigner", "(Z)V"), !status.is_master_signer());
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JTapSignerStatus error::%s", e.what());
+    }
+    return instance;
+}

@@ -4,6 +4,7 @@ import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
+import android.nfc.tech.IsoDep
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -377,6 +378,33 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun backup()
+
+    @Throws(NCNativeException::class)
+    external fun tapSignerStatus(
+        isoDep: IsoDep
+    ): TapSignerStatus
+
+    @Throws(NCNativeException::class)
+    external fun setupTapSigner(
+        isoDep: IsoDep,
+        oldCvc: String,
+        newCvc: String
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun createTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        name: String
+    ): MasterSigner
+
+    @Throws(NCNativeException::class)
+    external fun signTransactionByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        walletId: String,
+        txId: String
+    ): Transaction
 
     companion object {
         init {

@@ -6,13 +6,19 @@ import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
 import com.nunchuk.android.type.WalletType
+import android.nfc.tech.IsoDep
 
 class NunchukNativeSdk {
 
     private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
 
     @Throws(NCNativeException::class)
-    fun initNunchuk(appSettings: AppSettings, passphrase: String, accountId: String, deviceId: String) {
+    fun initNunchuk(
+        appSettings: AppSettings,
+        passphrase: String,
+        accountId: String,
+        deviceId: String
+    ) {
         nunchukAndroid.initNunchuk(
             chain = appSettings.chain.ordinal,
             hwiPath = appSettings.hwiPath,
@@ -67,7 +73,8 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun getRemoteSigner(id: String) = nunchukAndroid.getRemoteSigners().first { it.masterSignerId == id }
+    fun getRemoteSigner(id: String) =
+        nunchukAndroid.getRemoteSigners().first { it.masterSignerId == id }
 
     @Throws(NCNativeException::class)
     fun getRemoteSigners() = nunchukAndroid.getRemoteSigners()
@@ -123,11 +130,12 @@ class NunchukNativeSdk {
     fun getWallets() = nunchukAndroid.getWallets()
 
     @Throws(NCNativeException::class)
-    fun exportWallet(walletId: String, filePath: String, format: ExportFormat) = nunchukAndroid.exportWallet(
-        walletId = walletId,
-        filePath = filePath,
-        format = format.ordinal
-    )
+    fun exportWallet(walletId: String, filePath: String, format: ExportFormat) =
+        nunchukAndroid.exportWallet(
+            walletId = walletId,
+            filePath = filePath,
+            format = format.ordinal
+        )
 
     @Throws(NCNativeException::class)
     fun exportKeystoneWallet(walletId: String) = nunchukAndroid.exportKeystoneWallet(
@@ -171,13 +179,16 @@ class NunchukNativeSdk {
     fun getMasterSigners() = nunchukAndroid.getMasterSigners()
 
     @Throws(NCNativeException::class)
-    fun deleteMasterSigner(masterSignerId: String) = nunchukAndroid.deleteMasterSigner(masterSignerId)
+    fun deleteMasterSigner(masterSignerId: String) =
+        nunchukAndroid.deleteMasterSigner(masterSignerId)
 
     @Throws(NCNativeException::class)
-    fun getSignersFromMasterSigner(masterSignerId: String) = nunchukAndroid.getSignersFromMasterSigner(masterSignerId)
+    fun getSignersFromMasterSigner(masterSignerId: String) =
+        nunchukAndroid.getSignersFromMasterSigner(masterSignerId)
 
     @Throws(NCNativeException::class)
-    fun updateMasterSigner(masterSigner: MasterSigner) = nunchukAndroid.updateMasterSigner(masterSigner)
+    fun updateMasterSigner(masterSigner: MasterSigner) =
+        nunchukAndroid.updateMasterSigner(masterSigner)
 
     @Throws(NCNativeException::class)
     fun getUnusedSignerFromMasterSigner(
@@ -235,16 +246,18 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun exportKeystoneTransaction(walletId: String, txId: String) = nunchukAndroid.exportKeystoneTransaction(
-        walletId = walletId,
-        txId = txId
-    )
+    fun exportKeystoneTransaction(walletId: String, txId: String) =
+        nunchukAndroid.exportKeystoneTransaction(
+            walletId = walletId,
+            txId = txId
+        )
 
     @Throws(NCNativeException::class)
-    fun exportPassportTransaction(walletId: String, txId: String) = nunchukAndroid.exportPassportTransaction(
-        walletId = walletId,
-        txId = txId
-    )
+    fun exportPassportTransaction(walletId: String, txId: String) =
+        nunchukAndroid.exportPassportTransaction(
+            walletId = walletId,
+            txId = txId
+        )
 
     @Throws(NCNativeException::class)
     fun exportTransaction(
@@ -281,23 +294,26 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun getTransactionHistory(walletId: String, count: Int, skip: Int) = nunchukAndroid.getTransactionHistory(
-        walletId = walletId,
-        count = count,
-        skip = skip
-    )
+    fun getTransactionHistory(walletId: String, count: Int, skip: Int) =
+        nunchukAndroid.getTransactionHistory(
+            walletId = walletId,
+            count = count,
+            skip = skip
+        )
 
     @Throws(NCNativeException::class)
-    fun importKeystoneTransaction(walletId: String, qrData: List<String>) = nunchukAndroid.importKeystoneTransaction(
-        walletId = walletId,
-        qrData = qrData
-    )
+    fun importKeystoneTransaction(walletId: String, qrData: List<String>) =
+        nunchukAndroid.importKeystoneTransaction(
+            walletId = walletId,
+            qrData = qrData
+        )
 
     @Throws(NCNativeException::class)
-    fun importPassportTransaction(walletId: String, qrData: List<String>) = nunchukAndroid.importPassportTransaction(
-        walletId = walletId,
-        qrData = qrData
-    )
+    fun importPassportTransaction(walletId: String, qrData: List<String>) =
+        nunchukAndroid.importPassportTransaction(
+            walletId = walletId,
+            qrData = qrData
+        )
 
     @Throws(NCNativeException::class)
     fun updateTransactionMemo(
@@ -376,7 +392,8 @@ class NunchukNativeSdk {
     fun getChainTip() = nunchukAndroid.getChainTip()
 
     @Throws(NCNativeException::class)
-    fun sendSignerPassphrase(masterSignerId: String, passphrase: String) = nunchukAndroid.sendSignerPassphrase(masterSignerId, passphrase)
+    fun sendSignerPassphrase(masterSignerId: String, passphrase: String) =
+        nunchukAndroid.sendSignerPassphrase(masterSignerId, passphrase)
 
     @Throws(NCNativeException::class)
     fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
@@ -405,11 +422,12 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun leaveSharedWallet(roomId: String, joinEventId: String, reason: String) = nunchukAndroid.leaveSharedWallet(
-        roomId = roomId,
-        joinEventId = joinEventId,
-        reason = reason
-    )
+    fun leaveSharedWallet(roomId: String, joinEventId: String, reason: String) =
+        nunchukAndroid.leaveSharedWallet(
+            roomId = roomId,
+            joinEventId = joinEventId,
+            reason = reason
+        )
 
     @Throws(NCNativeException::class)
     fun cancelSharedWallet(roomId: String, reason: String) = nunchukAndroid.cancelSharedWallet(
@@ -561,4 +579,31 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun backup() = nunchukAndroid.backup()
+    @Throws(NCNativeException::class)
+    fun tapSignerStatus(
+        isoDep: IsoDep
+    ) = nunchukAndroid.tapSignerStatus(isoDep)
+
+    @Throws(NCNativeException::class)
+    fun setupTapSigner(
+        isoDep: IsoDep,
+        oldCvc: String,
+        newCvc: String
+    ) = nunchukAndroid.setupTapSigner(isoDep, oldCvc, newCvc)
+
+    @Throws(NCNativeException::class)
+    fun createTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        name: String
+    ) = nunchukAndroid.createTapSigner(isoDep, cvc, name)
+
+
+    @Throws(NCNativeException::class)
+    fun signTransactionByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        walletId: String,
+        txId: String
+    ) = nunchukAndroid.signTransactionByTapSigner(isoDep, cvc, walletId, txId)
 }

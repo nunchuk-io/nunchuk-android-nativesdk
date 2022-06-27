@@ -72,4 +72,6 @@ public:
     static jobject convert2JConnectionStatus(JNIEnv *env, const ConnectionStatus &status);
 
     static jobject convert2JHealthStatus(JNIEnv *env, const HealthStatus &status);
+
+    static jobject convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatus &status);
 };
