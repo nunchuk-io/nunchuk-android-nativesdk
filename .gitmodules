@@ -2,3 +2,4 @@
 	path = src/main/native/libnunchuk
 	url = https://gitlab.com/nunchuck/libnunchuk.git
 	branch = main
+	ignore = dirty
