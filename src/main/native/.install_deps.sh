@@ -100,8 +100,8 @@ installBitcoinCore() {
   export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
   export STRIP=$TOOLCHAIN/bin/$TARGET-strip
   sh ./autogen.sh
-  CFLAGS="-fPIC" CXXFLAGS="-fPIC" ./configure --prefix=$PWD/depends/$TARGET --without-gui --disable-zmq --with-miniupnpc=no --with-incompatible-bdb --disable-bench --disable-tests
-  make
+  CFLAGS="-fPIC" CXXFLAGS="-fPIC" ./configure --prefix=$PWD/depends/$TARGET --without-gui --disable-zmq --with-miniupnpc=no --with-incompatible-bdb --disable-bench --disable-tests --enable-module-ecdh
+  make -j8
 }
 
 pushd libnunchuk/contrib/bitcoin || exit
