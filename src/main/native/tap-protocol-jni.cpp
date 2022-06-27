@@ -39,7 +39,7 @@ std::unique_ptr<tap_protocol::Transport> makeTransport(JNIEnv *env, jobject iso_
         env->DeleteLocalRef(bytesToSend);
         if (jthrowable ex = env->ExceptionOccurred(); ex != NULL) {
             env->ExceptionClear();
-            jstring exMessage = static_cast<jstring>(env->CallObjectMethod(throwableClass,
+            jstring exMessage = static_cast<jstring>(env->CallObjectMethod(ex,
                                                                            toStringMethodID));
             const char *exMessageChar = env->GetStringUTFChars(exMessage, JNI_FALSE);
             std::string exMessageCpp(exMessageChar);
