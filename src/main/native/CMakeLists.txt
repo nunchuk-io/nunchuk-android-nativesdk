@@ -32,6 +32,7 @@ add_library(nunchuk-android SHARED
         util-jni.cpp
         modelprovider.cpp
         sync-jni.cpp
+        tap-protocol-jni.cpp
 )
 
 set(UR__DISABLE_TESTS ON)
