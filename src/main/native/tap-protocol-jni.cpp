@@ -11,27 +11,50 @@
 #define APPNAME "tap_protocol_native_sdk"
 
 std::unique_ptr<tap_protocol::Transport> makeTransport(JNIEnv *env, jobject iso_dep) {
+    static jclass isoDepCallerClass = NULL;
+    static jmethodID transceiveMethodID = NULL;
+    static jclass throwableClass = NULL;
+    static jmethodID toStringMethodID = NULL;
+
+    if (isoDepCallerClass == NULL) {
+        isoDepCallerClass = static_cast<jclass>(env->NewGlobalRef(
+                env->FindClass("com/nunchuk/android/nfc/IsoDepCaller")));
+        transceiveMethodID = env->GetStaticMethodID(
+                isoDepCallerClass, "transceive",
+                "(Landroid/nfc/tech/IsoDep;[B)[B");
+        throwableClass = static_cast<jclass>(env->NewGlobalRef(
+                env->FindClass("java/lang/Throwable")));
+        toStringMethodID = env->GetMethodID(throwableClass, "toString", "()Ljava/lang/String;");
+    }
+
     auto tp = tap_protocol::MakeDefaultTransport([=](const tap_protocol::Bytes &in) {
-        jclass isoDepClass = env->FindClass("com/nunchuk/android/nfc/IsoDepCaller");
-        jmethodID tranceiveMethodID = env->GetStaticMethodID(isoDepClass, "transceive",
-                                                             "(Landroid/nfc/tech/IsoDep;[B)[B");
         auto bytesToSend = env->NewByteArray(in.size());
         env->SetByteArrayRegion(bytesToSend, 0, in.size(), (jbyte *) in.data());
 
-        auto bytesReceive = (jbyteArray) env->CallStaticObjectMethod(isoDepClass, tranceiveMethodID,
-                                                                     iso_dep, bytesToSend);
-        if (env->ExceptionCheck()) {
+        auto bytesReceive = static_cast<jbyteArray> (env->CallStaticObjectMethod(isoDepCallerClass,
+                                                                                 transceiveMethodID,
+                                                                                 iso_dep,
+                                                                                 bytesToSend));
+
+        env->DeleteLocalRef(bytesToSend);
+        if (jthrowable ex = env->ExceptionOccurred(); ex != NULL) {
             env->ExceptionClear();
-            throw nunchuk::TapProtocolException(nunchuk::TapProtocolException::TAP_PROTOCOL_ERROR, "transive failed");
+            jstring exMessage = static_cast<jstring>(env->CallObjectMethod(ex,
+                                                                           toStringMethodID));
+            const char *exMessageChar = env->GetStringUTFChars(exMessage, JNI_FALSE);
+            std::string exMessageCpp(exMessageChar);
+
+            env->ReleaseStringUTFChars(exMessage, exMessageChar);
+            env->DeleteLocalRef(exMessage);
+            throw nunchuk::TapProtocolException(nunchuk::TapProtocolException::TAP_PROTOCOL_ERROR,
+                                                exMessageCpp);
         }
-        if (bytesReceive == nullptr) {
-            throw nunchuk::TapProtocolException(nunchuk::TapProtocolException::TAP_PROTOCOL_ERROR, "bytesReceive null");
-        }
-        auto firstByte = env->GetByteArrayElements(bytesReceive, 0);
+
+        auto firstByte = env->GetByteArrayElements(bytesReceive, JNI_FALSE);
         tap_protocol::Bytes result((char *) firstByte,
                                    (char *) firstByte + env->GetArrayLength(bytesReceive));
         env->ReleaseByteArrayElements(bytesReceive, firstByte, JNI_ABORT);
-        env->DeleteLocalRef(bytesToSend);
+        env->DeleteLocalRef(bytesReceive);
         return result;
     });
     return tp;
@@ -69,7 +92,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setupTapSigner(JNIEnv *env,
         );
         auto back_up_data = status.get_backup_data();
         back_up_data.push_back('\0');
-        return env->NewStringUTF((char *)back_up_data.data());
+        return env->NewStringUTF((char *) back_up_data.data());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return JNI_FALSE;
