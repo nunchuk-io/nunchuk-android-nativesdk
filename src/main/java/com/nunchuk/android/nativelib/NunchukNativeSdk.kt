@@ -1,12 +1,12 @@
 package com.nunchuk.android.nativelib
 
+import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
 import com.nunchuk.android.type.WalletType
-import android.nfc.tech.IsoDep
 
 class NunchukNativeSdk {
 
@@ -579,6 +579,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun backup() = nunchukAndroid.backup()
+
     @Throws(NCNativeException::class)
     fun tapSignerStatus(
         isoDep: IsoDep
@@ -588,8 +589,9 @@ class NunchukNativeSdk {
     fun setupTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String
-    ) = nunchukAndroid.setupTapSigner(isoDep, oldCvc, newCvc)
+        newCvc: String,
+        chainCode: String
+    ) = nunchukAndroid.setupTapSigner(isoDep, oldCvc, newCvc, chainCode)
 
     @Throws(NCNativeException::class)
     fun createTapSigner(
@@ -598,7 +600,6 @@ class NunchukNativeSdk {
         name: String
     ) = nunchukAndroid.createTapSigner(isoDep, cvc, name)
 
-
     @Throws(NCNativeException::class)
     fun signTransactionByTapSigner(
         isoDep: IsoDep,
@@ -606,4 +607,61 @@ class NunchukNativeSdk {
         walletId: String,
         txId: String
     ) = nunchukAndroid.signTransactionByTapSigner(isoDep, cvc, walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getBackupTapSignerKey(
+        isoDep: IsoDep,
+        cvc: String,
+    ) = nunchukAndroid.getBackupTapSignerKey(isoDep, cvc)
+
+    @Throws(NCNativeException::class)
+    fun changeCvcTapSigner(
+        isoDep: IsoDep,
+        oldCvc: String,
+        newCvc: String
+    ) = nunchukAndroid.changeCvcTapSigner(isoDep, oldCvc, newCvc)
+
+    @Throws(NCNativeException::class)
+    fun healthCheckTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        fingerprint: String,
+        message: String,
+        signature: String,
+        path: String
+    ) = nunchukAndroid.healthCheckTapSigner(isoDep, cvc, fingerprint, message, signature, path)
+
+    @Throws(NCNativeException::class)
+    fun waitTapSigner(
+        isoDep: IsoDep,
+    ) = nunchukAndroid.waitTapSigner(isoDep)
+
+    @Throws(NCNativeException::class)
+    fun generateRandomChainCode(): String = nunchukAndroid.generateRandomChainCode()
+
+    @Throws(NCNativeException::class)
+    fun tapSignerTopUpXpub(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String
+    ) = nunchukAndroid.tapSignerTopUpXpub(isoDep, cvc, masterSignerId)
+
+    @Throws(NCNativeException::class)
+    fun getTapSignerStatusFromMasterSigner(
+        masterSignerId: String
+    ) = nunchukAndroid.getTapSignerStatusFromMasterSigner(masterSignerId)
+
+    @Throws(NCNativeException::class)
+    fun signRoomTransactionByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        initEventId: String,
+    ) = nunchukAndroid.signRoomTransactionByTapSigner(isoDep, cvc, initEventId)
+
+    @Throws(NCNativeException::class)
+    fun decryptBackUpKey(
+        backUpKey: String,
+        decryptionKey: String,
+        rawName: String
+    ) = nunchukAndroid.decryptBackUpKey(backUpKey, decryptionKey, rawName)
 }

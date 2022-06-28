@@ -78,21 +78,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_tapSignerStatus(JNIEnv *env
 }
 
 extern "C"
-JNIEXPORT jstring JNICALL
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setupTapSigner(JNIEnv *env, jobject thiz,
                                                                     jobject iso_dep,
                                                                     jstring old_cvc,
-                                                                    jstring new_cvc) {
+                                                                    jstring new_cvc,
+                                                                    jstring chain_code) {
     try {
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
         auto status = NunchukProvider::get()->nu->SetupTapsigner(
                 ts.get(),
                 env->GetStringUTFChars(old_cvc, JNI_FALSE),
-                env->GetStringUTFChars(new_cvc, JNI_FALSE)
+                env->GetStringUTFChars(new_cvc, JNI_FALSE),
+                "",
+                env->GetStringUTFChars(chain_code, JNI_FALSE)
         );
-        auto back_up_data = status.get_backup_data();
-        back_up_data.push_back('\0');
-        return env->NewStringUTF((char *) back_up_data.data());
+        return Deserializer::convert2JTapSignerStatus(env, status);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return JNI_FALSE;
@@ -144,6 +145,189 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransactionByTapSigner(
         );
 
         return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBackupTapSignerKey(JNIEnv *env, jobject thiz, jobject iso_dep, jstring cvc) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
+        auto status = NunchukProvider::get()->nu->BackupTapsigner(
+                ts.get(),
+                env->GetStringUTFChars(cvc, JNI_FALSE)
+        );
+
+        return Deserializer::convert2JTapSignerStatus(env, status);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_changeCvcTapSigner(JNIEnv *env, jobject thiz, jobject iso_dep, jstring old_cvc,
+                                                                        jstring new_cvc) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
+        return NunchukProvider::get()->nu->ChangeTapsignerCVC(
+                ts.get(),
+                env->GetStringUTFChars(old_cvc, JNI_FALSE),
+                env->GetStringUTFChars(new_cvc, JNI_FALSE)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckTapSigner(JNIEnv *env, jobject thiz, jobject iso_dep, jstring cvc,
+                                                                          jstring fingerprint,
+                                                                          jstring message, jstring signature, jstring path) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
+        std::string _message = (env)->GetStringUTFChars(message, JNI_FALSE);
+        std::string _signature = (env)->GetStringUTFChars(signature, JNI_FALSE);
+        std::string _path = (env)->GetStringUTFChars(path, JNI_FALSE);
+        auto status = NunchukProvider::get()->nu->HealthCheckTapsignerMasterSigner(
+                ts.get(),
+                env->GetStringUTFChars(cvc, JNI_FALSE),
+                env->GetStringUTFChars(fingerprint, JNI_FALSE),
+                _message,
+                _signature,
+                _path
+        );
+
+        return Deserializer::convert2JHealthStatus(env, status);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_waitTapSigner(JNIEnv *env, jobject thiz, jobject iso_dep) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
+        auto status = NunchukProvider::get()->nu->WaitTapsigner(ts.get(), [](int percent) {
+            std::string s = "[JNI] tapsigner wait progress " + std::to_string(percent);
+            syslog(LOG_DEBUG, "%s", s.c_str());
+            return true;
+        });
+        return Deserializer::convert2JTapSignerStatus(env, status);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateRandomChainCode(JNIEnv *env, jobject thiz) {
+    try {
+        auto result = Utils::GenerateRandomChainCode();
+        return env->NewStringUTF(result.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_tapSignerTopUpXpub(JNIEnv *env, jobject thiz, jobject iso_dep, jstring cvc,
+                                                                        jstring master_signer_id) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
+        NunchukProvider::get()->nu->CacheTapsignerMasterSignerXPub(
+                ts.get(),
+                env->GetStringUTFChars(cvc, JNI_FALSE),
+                env->GetStringUTFChars(master_signer_id, JNI_FALSE),
+                [](int percent) { return true; }
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTapSignerStatusFromMasterSigner(JNIEnv *env, jobject thiz, jstring master_signer_id) {
+    try {
+        auto status = NunchukProvider::get()->nu->GetTapsignerStatusFromMasterSigner(
+                env->GetStringUTFChars(master_signer_id, JNI_FALSE)
+        );
+
+        return Deserializer::convert2JTapSignerStatus(env, status);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signRoomTransactionByTapSigner(JNIEnv *env, jobject thiz,
+                                                                                    jobject iso_dep,
+                                                                                    jstring cvc,
+                                                                                    jstring init_event_id) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
+        auto result = NunchukProvider::get()->nuMatrix->SignTapsignerTransaction(
+                NunchukProvider::get()->nu,
+                env->GetStringUTFChars(init_event_id, JNI_FALSE),
+                ts.get(),
+                env->GetStringUTFChars(cvc, JNI_FALSE)
+        );
+
+        return Deserializer::convert2JMatrixEvent(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decryptBackUpKey(JNIEnv *env, jobject thiz, jstring back_up_key, jstring decryption_key,
+                                                                      jstring raw_name) {
+    try {
+        auto signer = NunchukProvider::get()->nu->ImportTapsignerMasterSigner(
+                env->GetStringUTFChars(back_up_key, JNI_FALSE),
+                env->GetStringUTFChars(decryption_key, JNI_FALSE),
+                env->GetStringUTFChars(raw_name, JNI_FALSE),
+                [](int percent) { return true; }
+        );
+
+        return Deserializer::convert2JMasterSigner(env, signer);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return JNI_FALSE;
