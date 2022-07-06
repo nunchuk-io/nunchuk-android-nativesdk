@@ -346,6 +346,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendSignerPassphrase(
                 env->GetStringUTFChars(mastersigner_id, JNI_FALSE),
                 env->GetStringUTFChars(passphrase, JNI_FALSE)
         );
+        NunchukProvider::get()->nu->ClearSignerPassphrase(env->GetStringUTFChars(mastersigner_id, JNI_FALSE));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
