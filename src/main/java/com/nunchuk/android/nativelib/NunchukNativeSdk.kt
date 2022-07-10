@@ -379,6 +379,9 @@ class NunchukNativeSdk {
     fun sendSignerPassphrase(masterSignerId: String, passphrase: String) = nunchukAndroid.sendSignerPassphrase(masterSignerId, passphrase)
 
     @Throws(NCNativeException::class)
+    fun clearSignerPassphrase(masterSignerId: String) = nunchukAndroid.clearSignerPassphrase(masterSignerId)
+
+    @Throws(NCNativeException::class)
     fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
 
     @Throws(NCNativeException::class)
