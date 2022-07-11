@@ -386,3 +386,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckMasterSigner(
         return env->ExceptionOccurred();
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearSignerPassphrase(JNIEnv *env, jobject thiz, jstring master_signer_id) {
+    try {
+        NunchukProvider::get()->nu->ClearSignerPassphrase(env->GetStringUTFChars(master_signer_id, JNI_FALSE));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
