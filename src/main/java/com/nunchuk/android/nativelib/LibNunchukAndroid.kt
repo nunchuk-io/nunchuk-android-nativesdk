@@ -4,6 +4,7 @@ import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
+import android.nfc.tech.IsoDep
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -380,6 +381,91 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun backup()
+
+    @Throws(NCNativeException::class)
+    external fun tapSignerStatus(
+        isoDep: IsoDep
+    ): TapSignerStatus
+
+    @Throws(NCNativeException::class)
+    external fun setupTapSigner(
+        isoDep: IsoDep,
+        oldCvc: String,
+        newCvc: String,
+        chainCode: String
+    ): TapSignerStatus
+
+    @Throws(NCNativeException::class)
+    external fun createTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        name: String
+    ): MasterSigner
+
+    @Throws(NCNativeException::class)
+    external fun signTransactionByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        walletId: String,
+        txId: String
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun signRoomTransactionByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        initEventId: String,
+    ): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
+    external fun getBackupTapSignerKey(
+        isoDep: IsoDep,
+        cvc: String
+    ): TapSignerStatus
+
+    @Throws(NCNativeException::class)
+    external fun changeCvcTapSigner(
+        isoDep: IsoDep,
+        oldCvc: String,
+        newCvc: String
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun healthCheckTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        fingerprint: String,
+        message: String,
+        signature: String,
+        path: String
+    ): HealthStatus
+
+    @Throws(NCNativeException::class)
+    external fun waitTapSigner(
+        isoDep: IsoDep,
+    ): TapSignerStatus
+
+    @Throws(NCNativeException::class)
+    external fun generateRandomChainCode(): String
+
+    @Throws(NCNativeException::class)
+    external fun tapSignerTopUpXpub(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String
+    )
+
+    @Throws(NCNativeException::class)
+    external fun getTapSignerStatusFromMasterSigner(
+        masterSignerId: String
+    ): TapSignerStatus
+
+    @Throws(NCNativeException::class)
+    external fun decryptBackUpKey(
+        backUpKey: String,
+        decryptionKey: String,
+        rawName: String
+    ): MasterSigner
 
     companion object {
         init {

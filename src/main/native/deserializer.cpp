@@ -452,3 +452,23 @@ jobject Deserializer::convert2JHealthStatus(JNIEnv *env, const HealthStatus &sta
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/HealthStatus;");
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
 }
+
+jobject Deserializer::convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatus &status) {
+    syslog(LOG_DEBUG, "[JNI] convert2JTapSignerStatus()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/TapSignerStatus");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSetup", "(Z)V"), !status.need_setup());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCreateSigner", "(Z)V"), status.is_master_signer());
+        auto back_up_data = status.get_backup_data();
+        jbyteArray ret = env->NewByteArray(back_up_data.size());
+        env->SetByteArrayRegion (ret, 0, back_up_data.size(), (jbyte*)back_up_data.data());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBackupKey", "([B)V"), ret);
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAuthDelayInSecond", "(I)V"), status.get_auth_delay());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_card_ident().c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JTapSignerStatus error::%s", e.what());
+    }
+    return instance;
+}
