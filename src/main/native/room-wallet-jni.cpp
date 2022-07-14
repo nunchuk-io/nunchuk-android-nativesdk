@@ -18,7 +18,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initSharedWallet(
         jint require_signs,
         jint total_signs,
         jint address_type,
-        jboolean is_escrow
+        jboolean is_escrow,
+        jstring des,
+        jobject signers
 ) {
     syslog(LOG_DEBUG, "[JNI]initSharedWallet()");
     try {
@@ -35,7 +37,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initSharedWallet(
                 require_signs,
                 total_signs,
                 type,
-                is_escrow
+                is_escrow,
+                env->GetStringUTFChars(des, JNI_FALSE),
+                Serializer::convert2CSigners(env, signers)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {

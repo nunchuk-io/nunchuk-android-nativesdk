@@ -245,7 +245,9 @@ internal class LibNunchukAndroid {
         requireSigns: Int,
         totalSigns: Int,
         addressType: Int,
-        isEscrow: Boolean
+        isEscrow: Boolean,
+        des: String,
+        signers: List<SingleSigner>
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
@@ -468,6 +470,12 @@ internal class LibNunchukAndroid {
         decryptionKey: String,
         rawName: String
     ): MasterSigner
+
+    @Throws(NCNativeException::class)
+    external fun parseWalletDescriptor(content: String): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun hasSigner(signer: SingleSigner): Boolean
 
     companion object {
         init {

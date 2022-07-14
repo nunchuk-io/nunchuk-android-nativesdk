@@ -6,6 +6,7 @@ import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
+import com.nunchuk.android.type.SignerType
 import com.nunchuk.android.type.WalletType
 
 class NunchukNativeSdk {
@@ -408,14 +409,18 @@ class NunchukNativeSdk {
         totalSigns: Int,
         requireSigns: Int,
         addressType: AddressType,
-        isEscrow: Boolean
+        isEscrow: Boolean,
+        des: String,
+        signers: List<SingleSigner>
     ) = nunchukAndroid.initSharedWallet(
         roomId = roomId,
         name = name,
         totalSigns = totalSigns,
         requireSigns = requireSigns,
         addressType = addressType.ordinal,
-        isEscrow = isEscrow
+        isEscrow = isEscrow,
+        des = des,
+        signers = signers
     )
 
     @Throws(NCNativeException::class)
@@ -669,4 +674,10 @@ class NunchukNativeSdk {
         decryptionKey: String,
         rawName: String
     ) = nunchukAndroid.decryptBackUpKey(backUpKey, decryptionKey, rawName)
+
+    @Throws(NCNativeException::class)
+    fun parseWalletDescriptor(content: String) = nunchukAndroid.parseWalletDescriptor(content)
+
+    @Throws(NCNativeException::class)
+    fun hasSigner(signer: SingleSigner) = nunchukAndroid.hasSigner(signer)
 }
