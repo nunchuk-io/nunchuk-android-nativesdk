@@ -420,14 +420,16 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getBackupTapSignerKey(
         isoDep: IsoDep,
-        cvc: String
+        cvc: String,
+        masterSignerId: String
     ): TapSignerStatus
 
     @Throws(NCNativeException::class)
     external fun changeCvcTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String
+        newCvc: String,
+        masterSignerId: String
     ): Boolean
 
     @Throws(NCNativeException::class)

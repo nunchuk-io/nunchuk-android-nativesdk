@@ -615,14 +615,16 @@ class NunchukNativeSdk {
     fun getBackupTapSignerKey(
         isoDep: IsoDep,
         cvc: String,
-    ) = nunchukAndroid.getBackupTapSignerKey(isoDep, cvc)
+        masterSignerId: String
+    ) = nunchukAndroid.getBackupTapSignerKey(isoDep, cvc, masterSignerId)
 
     @Throws(NCNativeException::class)
     fun changeCvcTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String
-    ) = nunchukAndroid.changeCvcTapSigner(isoDep, oldCvc, newCvc)
+        newCvc: String,
+        masterSignerId: String
+    ) = nunchukAndroid.changeCvcTapSigner(isoDep, oldCvc, newCvc, masterSignerId)
 
     @Throws(NCNativeException::class)
     fun healthCheckTapSigner(

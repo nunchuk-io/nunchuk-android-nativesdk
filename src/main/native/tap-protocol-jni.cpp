@@ -156,12 +156,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransactionByTapSigner(
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBackupTapSignerKey(JNIEnv *env, jobject thiz, jobject iso_dep, jstring cvc) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBackupTapSignerKey(JNIEnv *env, jobject thiz, jobject iso_dep, jstring cvc,
+                                                                           jstring master_signer_id) {
     try {
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
         auto status = NunchukProvider::get()->nu->BackupTapsigner(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE)
+                env->GetStringUTFChars(cvc, JNI_FALSE),
+                env->GetStringUTFChars(master_signer_id, JNI_FALSE)
         );
 
         return Deserializer::convert2JTapSignerStatus(env, status);
@@ -176,13 +178,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBackupTapSignerKey(JNIEn
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_changeCvcTapSigner(JNIEnv *env, jobject thiz, jobject iso_dep, jstring old_cvc,
-                                                                        jstring new_cvc) {
+                                                                        jstring new_cvc, jstring master_signer_id) {
     try {
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(makeTransport(env, iso_dep));
         return NunchukProvider::get()->nu->ChangeTapsignerCVC(
                 ts.get(),
                 env->GetStringUTFChars(old_cvc, JNI_FALSE),
-                env->GetStringUTFChars(new_cvc, JNI_FALSE)
+                env->GetStringUTFChars(new_cvc, JNI_FALSE),
+                env->GetStringUTFChars(master_signer_id, JNI_FALSE)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
