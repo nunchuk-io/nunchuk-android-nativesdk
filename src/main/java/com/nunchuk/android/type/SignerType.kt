@@ -5,4 +5,5 @@ enum class SignerType {
     AIRGAP,
     SOFTWARE,
     FOREIGN_SOFTWARE,
+    NFC,
 }

@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
+project(nunchuk-android)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -31,6 +32,7 @@ add_library(nunchuk-android SHARED
         util-jni.cpp
         modelprovider.cpp
         sync-jni.cpp
+        tap-protocol-jni.cpp
 )
 
 set(UR__DISABLE_TESTS ON)
