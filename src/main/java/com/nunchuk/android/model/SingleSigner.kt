@@ -1,7 +1,10 @@
 package com.nunchuk.android.model
 
+import android.os.Parcelable
 import com.nunchuk.android.type.SignerType
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class SingleSigner(
     var name: String = "",
     var xpub: String = "",
@@ -12,7 +15,7 @@ data class SingleSigner(
     var masterSignerId: String = "",
     var used: Boolean = false,
     var type: SignerType = SignerType.AIRGAP
-)
+): Parcelable
 
 fun SingleSigner.toSpec(): String {
     val newPath = derivationPath.replace("m/", "")

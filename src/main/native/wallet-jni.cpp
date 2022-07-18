@@ -292,3 +292,44 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importWallet(
         return env->ExceptionOccurred();
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseWalletDescriptor(
+        JNIEnv *env,
+        jobject thiz,
+        jstring content
+) {
+    try {
+        auto wallet = NunchukProvider::get()->nuUtils->ParseWalletDescriptor(
+                env->GetStringUTFChars(content, JNI_FALSE)
+        );
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hasSigner(
+        JNIEnv *env,
+        jobject thiz,
+        jobject signer
+) {
+    try {
+        return NunchukProvider::get()->nu->HasSigner(Serializer::convert2CSigner(env, signer));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
+}

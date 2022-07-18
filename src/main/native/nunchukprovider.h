@@ -18,6 +18,7 @@ public:
     static NunchukProvider *get();
 
     std::unique_ptr<Nunchuk> nu;
+    std::unique_ptr<Utils> nuUtils;
     std::unique_ptr<NunchukMatrix> nuMatrix;
 
     void initNunchuk(
