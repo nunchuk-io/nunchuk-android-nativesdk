@@ -58,6 +58,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
         syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner error::%s", e.what());
         Deserializer::convert2JException(env, e);
         return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -78,6 +81,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parsePassportSigners(
         syslog(LOG_DEBUG, "[JNI] parsePassportSigners error::%s", e.what());
         Deserializer::convert2JException(env, e);
         return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
     }
 }
 
@@ -94,6 +100,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRemoteSigners(
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] getRemoteSigners error::%s", e.what());
         Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
 }
@@ -114,6 +123,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteRemoteSigner(
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
     }
 }
 
@@ -129,6 +141,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateRemoteSigner(
         NunchukProvider::get()->nu->UpdateRemoteSigner(singleSigner);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
     }
 }
@@ -146,6 +161,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateMasterSigner(
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
     }
 }
@@ -165,6 +183,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateMnemonic(
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
         return env->NewStringUTF("");
     }
 }
