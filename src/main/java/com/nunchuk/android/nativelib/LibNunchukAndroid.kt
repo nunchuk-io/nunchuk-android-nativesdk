@@ -382,6 +382,11 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun getMatrixEvent(
+        eventId: String,
+    ) : NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
     external fun backup()
 
     @Throws(NCNativeException::class)
