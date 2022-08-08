@@ -680,4 +680,9 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun hasSigner(signer: SingleSigner) = nunchukAndroid.hasSigner(signer)
+
+    @Throws(NCNativeException::class)
+    fun getMatrixEvent(
+        eventId: String,
+    ) = nunchukAndroid.getMatrixEvent(eventId)
 }

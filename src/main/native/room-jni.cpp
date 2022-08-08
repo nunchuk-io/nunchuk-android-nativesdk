@@ -33,3 +33,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendErrorEvent(
         env->ExceptionOccurred();
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMatrixEvent(JNIEnv *env, jobject thiz, jstring event_id) {
+    try {
+        auto result = NunchukProvider::get()->nuMatrix->GetEvent(env->GetStringUTFChars(event_id, JNI_FALSE));
+
+        return Deserializer::convert2JMatrixEvent(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}
