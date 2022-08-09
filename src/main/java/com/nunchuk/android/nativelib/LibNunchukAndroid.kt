@@ -482,6 +482,56 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun hasSigner(signer: SingleSigner): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun getSatsCardStatus(
+        isoDep: IsoDep
+    ): SatsCardStatus
+
+    @Throws(NCNativeException::class)
+    external fun setupSatsCard(
+        isoDep: IsoDep,
+        cvc: String,
+        chainCode: String
+    ): SatsCardStatus
+
+    @Throws(NCNativeException::class)
+    external fun loadSatsCardSlotsBalance(
+        slots: List<SatsCardSlot>
+    ) : List<SatsCardSlot>
+
+    @Throws(NCNativeException::class)
+    external fun unsealSatsCard(
+        isoDep: IsoDep,
+        cvc: String,
+        slot: SatsCardSlot
+    ) : SatsCardSlot
+
+    @Throws(NCNativeException::class)
+    external fun sweepBalance(
+        slots: List<SatsCardSlot>,
+        address: String,
+        feeRate: Int
+    ) : Transaction
+
+    @Throws(NCNativeException::class)
+    external fun draftSatscardTransaction(
+        slots: List<SatsCardSlot>,
+        address: String,
+        feeRate: Int
+    ) : Transaction
+
+    @Throws(NCNativeException::class)
+    external fun getSlotKeys(
+        isoDep: IsoDep,
+        cvc: String,
+        slots: List<SatsCardSlot>
+    ) : List<SatsCardSlot>
+
+    @Throws(NCNativeException::class)
+    external fun getAutoCardStatus(
+        isoDep: IsoDep
+    ) : CardStatus
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

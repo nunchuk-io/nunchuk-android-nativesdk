@@ -21,6 +21,8 @@ public:
 
     static SignerType convert2CSignerType(JNIEnv *env, jobject singerType);
 
+    static SatscardSlot::Status convert2CSatsCardSlotStatus(JNIEnv *env, jobject satsCardSlotStatus);
+
     static Chain convert2CChain(jint ordinal);
 
     static BackendType convert2CBackendType(jint ordinal);
@@ -54,4 +56,8 @@ public:
     static Amount convert2CAmount(JNIEnv *env, jobject amount);
 
     static NunchukMatrixEvent convert2CMatrixEvent(JNIEnv *env, jobject event);
+
+    static SatscardSlot convert2CSatsCardSlot(JNIEnv *env, jobject slot);
+
+    static std::vector<SatscardSlot> convert2CSatsCardSlots(JNIEnv *env, jobject slots);
 };
