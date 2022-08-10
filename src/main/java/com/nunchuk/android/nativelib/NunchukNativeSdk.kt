@@ -735,4 +735,9 @@ class NunchukNativeSdk {
         address: String,
         feeRate: Int
     ) = nunchukAndroid.draftSatscardTransaction(slots, address, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun waitAutoCard(
+        isoDep: IsoDep
+    ) = nunchukAndroid.waitAutoCard(isoDep)
 }

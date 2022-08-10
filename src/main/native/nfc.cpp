@@ -83,3 +83,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAutoCardStatus(JNIEnv *e
         return JNI_FALSE;
     }
 }
+
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_waitAutoCard(JNIEnv *env, jobject thiz, jobject iso_dep) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateCKTapCard(NFC::makeTransport(env, iso_dep));
+        NunchukProvider::get()->nu->WaitCKTapCard(
+                ts.get(),
+                [](int percent) { return true; }
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+    }
+}

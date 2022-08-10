@@ -532,6 +532,11 @@ internal class LibNunchukAndroid {
         isoDep: IsoDep
     ) : CardStatus
 
+    @Throws(NCNativeException::class)
+    external fun waitAutoCard(
+        isoDep: IsoDep
+    )
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
