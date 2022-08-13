@@ -229,7 +229,7 @@ class NunchukNativeSdk {
     fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
-        inputs: List<UnspentOutput>,
+        inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean
     ) = nunchukAndroid.draftTransaction(

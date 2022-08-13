@@ -315,6 +315,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_memo().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus", "(Lcom/nunchuk/android/type/TransactionStatus;)V"), convert2JTransactionStatus(env, transaction.get_status()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReplacedByTxid", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_replaced_by_txid().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReplacedTxid", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_replace_txid().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFee", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, transaction.get_fee()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFeeRate", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, transaction.get_fee_rate()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBlockTime", "(J)V"), transaction.get_blocktime());

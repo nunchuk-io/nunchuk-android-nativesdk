@@ -18,6 +18,7 @@ data class Transaction(
     var memo: String = "",
     var status: TransactionStatus = TransactionStatus.PENDING_SIGNATURES,
     var replacedByTxid: String = "",
+    var replacedTxid: String = "",
     var fee: Amount = Amount.ZER0,
     var feeRate: Amount = Amount.ZER0,
     var blockTime: Long = 0L,
