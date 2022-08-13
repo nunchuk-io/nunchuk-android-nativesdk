@@ -229,7 +229,7 @@ class NunchukNativeSdk {
     fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
-        inputs: List<UnspentOutput>,
+        inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean
     ) = nunchukAndroid.draftTransaction(
@@ -685,4 +685,59 @@ class NunchukNativeSdk {
     fun getMatrixEvent(
         eventId: String,
     ) = nunchukAndroid.getMatrixEvent(eventId)
+
+    @Throws(NCNativeException::class)
+    fun getSatsCardStatus(
+        isoDep: IsoDep
+    ) = nunchukAndroid.getSatsCardStatus(isoDep)
+
+    @Throws(NCNativeException::class)
+    fun setupSatsCard(
+        isoDep: IsoDep,
+        cvc: String,
+        chainCode: String
+    ) = nunchukAndroid.setupSatsCard(isoDep, cvc, chainCode)
+
+    @Throws(NCNativeException::class)
+    fun loadSatsCardSlotsBalance(
+        slots: List<SatsCardSlot>
+    ) = nunchukAndroid.loadSatsCardSlotsBalance(slots)
+
+    @Throws(NCNativeException::class)
+    fun unsealSatsCard(
+        isoDep: IsoDep,
+        cvc: String,
+        slot: SatsCardSlot
+    ) = nunchukAndroid.unsealSatsCard(isoDep, cvc, slot)
+
+    @Throws(NCNativeException::class)
+    fun sweepBalance(
+        slots: List<SatsCardSlot>,
+        walletId: String,
+        feeRate: Int
+    ) = nunchukAndroid.sweepBalance(slots, walletId, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun getSlotKeys(
+        isoDep: IsoDep,
+        cvc: String,
+        slots: List<SatsCardSlot>
+    ) = nunchukAndroid.getSlotKeys(isoDep, cvc, slots)
+
+    @Throws(NCNativeException::class)
+    fun getAutoCardStatus(
+        isoDep: IsoDep
+    ) = nunchukAndroid.getAutoCardStatus(isoDep)
+
+    @Throws(NCNativeException::class)
+    fun draftSatscardTransaction(
+        slots: List<SatsCardSlot>,
+        address: String,
+        feeRate: Int
+    ) = nunchukAndroid.draftSatscardTransaction(slots, address, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun waitAutoCard(
+        isoDep: IsoDep
+    ) = nunchukAndroid.waitAutoCard(isoDep)
 }

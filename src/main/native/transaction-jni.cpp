@@ -74,10 +74,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jboolean subtract_fee_from_amount
 ) {
     try {
+        auto txInputs = Serializer::convert2CTxInputs(env, inputs);
+        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(env->GetStringUTFChars(wallet_id, JNI_FALSE), txInputs);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CAmountsMap(env, outputs),
-                Serializer::convert2CUnspentOutputs(env, inputs),
+                txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount
         );

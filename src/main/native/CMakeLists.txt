@@ -21,6 +21,7 @@ add_library(nunchuk-android SHARED
         initializer.cpp
         deserializer.cpp
         serializer.cpp
+        nfc.cpp
         nunchukprovider.cpp
         initializer-jni.cpp
         wallet-jni.cpp
@@ -33,6 +34,8 @@ add_library(nunchuk-android SHARED
         modelprovider.cpp
         sync-jni.cpp
         tap-protocol-jni.cpp
+        satscard-jni.cpp
+        string-wrapper.h
 )
 
 set(UR__DISABLE_TESTS ON)

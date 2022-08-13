@@ -1,7 +1,10 @@
 package com.nunchuk.android.model
 
+import android.os.Parcelable
 import com.nunchuk.android.type.TransactionStatus
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Transaction(
     var txId: String = "",
     var height: Int = 0,
@@ -15,6 +18,7 @@ data class Transaction(
     var memo: String = "",
     var status: TransactionStatus = TransactionStatus.PENDING_SIGNATURES,
     var replacedByTxid: String = "",
+    var replacedTxid: String = "",
     var fee: Amount = Amount.ZER0,
     var feeRate: Amount = Amount.ZER0,
     var blockTime: Long = 0L,
@@ -22,4 +26,4 @@ data class Transaction(
     var isReceive: Boolean = false,
     var subAmount: Amount = Amount.ZER0,
     var totalAmount: Amount = Amount.ZER0
-)
+) : Parcelable

@@ -520,3 +520,102 @@ NunchukMatrixEvent Serializer::convert2CMatrixEvent(JNIEnv *env, jobject event) 
 
     return matrixEvent;
 }
+
+SatscardSlot::Status Serializer::convert2CSatsCardSlotStatus(JNIEnv *env, jobject satsCardSlotStatus) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/SatsCardSlotStatus");
+    jmethodID method = env->GetMethodID(clazz, "ordinal", "()I");
+    jint ordinal = env->CallIntMethod(satsCardSlotStatus, method);
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSatsCardSlotStatus]ordinal:: %d", ordinal);
+    switch (ordinal) {
+        case 0:
+            return SatscardSlot::Status::UNUSED;
+        case 1:
+            return SatscardSlot::Status::SEALED;
+        default:
+            return SatscardSlot::Status::UNSEALED;
+    }
+}
+
+SatscardSlot Serializer::convert2CSatsCardSlot(JNIEnv *env, jobject slot) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/SatsCardSlot");
+
+    jfieldID fieldStatus = env->GetFieldID(clazz, "status", "Lcom/nunchuk/android/type/SatsCardSlotStatus;");
+    auto statusVal = (jobject) env->GetObjectField(slot, fieldStatus);
+    auto status = convert2CSatsCardSlotStatus(env, statusVal);
+
+    jfieldID fieldAddress = env->GetFieldID(clazz, "address", "Ljava/lang/String;");
+    auto addressVal = (jstring) env->GetObjectField(slot, fieldAddress);
+    auto address = env->GetStringUTFChars(addressVal, JNI_FALSE);
+
+    jfieldID fieldIndex = env->GetFieldID(clazz, "index", "I");
+    auto index = env->GetIntField(slot, fieldIndex);
+
+    jfieldID fieldBalance = env->GetFieldID(clazz, "balance", "Lcom/nunchuk/android/model/Amount;");
+    auto balanceVal = (jobject) env->GetObjectField(slot, fieldBalance);
+    auto balance = convert2CAmount(env, balanceVal);
+
+    jfieldID fieldConfirmed = env->GetFieldID(clazz, "isConfirmed", "Z");
+    auto isConfirmed = env->GetBooleanField(slot, fieldConfirmed);
+
+    jfieldID fieldOutputs = env->GetFieldID(clazz, "outputs", "Ljava/util/List;");
+    auto outputsVal = (jobject) env->GetObjectField(slot, fieldOutputs);
+    auto outputs = Serializer::convert2CUnspentOutputs(env, outputsVal);
+
+    auto publicKeyFieldID = env->GetFieldID(clazz, "publicKey", "[B");
+    auto publicKeyByteArray =  (jbyteArray) env->GetObjectField(slot, publicKeyFieldID);
+    auto firstBytePublicKey = env->GetByteArrayElements(publicKeyByteArray, JNI_FALSE);
+    std::vector<unsigned char> publicKeyVal((char *) firstBytePublicKey,
+                                             (char *) firstBytePublicKey + env->GetArrayLength(publicKeyByteArray));
+    env->ReleaseByteArrayElements(publicKeyByteArray, firstBytePublicKey, JNI_ABORT);
+
+    auto privateKeyFieldID = env->GetFieldID(clazz, "privateKey", "[B");
+    auto privateKeyByteArray =  (jbyteArray) env->GetObjectField(slot, privateKeyFieldID);
+    auto firstBytePrivateKey = env->GetByteArrayElements(privateKeyByteArray, JNI_FALSE);
+    std::vector<unsigned char> privateKeyVal((char *) firstBytePrivateKey,
+                               (char *) firstBytePrivateKey + env->GetArrayLength(privateKeyByteArray));
+    env->ReleaseByteArrayElements(privateKeyByteArray, firstBytePrivateKey, JNI_ABORT);
+
+    auto chainCodeFieldID = env->GetFieldID(clazz, "chainCode", "[B");
+    auto chainCodeArray =  (jbyteArray) env->GetObjectField(slot, chainCodeFieldID);
+    auto firstByteChainCode = env->GetByteArrayElements(chainCodeArray, JNI_FALSE);
+    std::vector<unsigned char> chainCodeVal((char *) firstByteChainCode,
+                                             (char *) firstByteChainCode + env->GetArrayLength(chainCodeArray));
+    env->ReleaseByteArrayElements(chainCodeArray, firstByteChainCode, JNI_ABORT);
+
+    auto masterPrivateKeyFieldID = env->GetFieldID(clazz, "masterPrivateKey", "[B");
+    auto masterPrivateKeyArray =  (jbyteArray) env->GetObjectField(slot, masterPrivateKeyFieldID);
+    auto firstByteMasterPrivateKey = env->GetByteArrayElements(masterPrivateKeyArray, JNI_FALSE);
+    std::vector<unsigned char> masterPrivateKeyVal((char *) firstByteMasterPrivateKey,
+                                            (char *) firstByteMasterPrivateKey + env->GetArrayLength(masterPrivateKeyArray));
+    env->ReleaseByteArrayElements(masterPrivateKeyArray, firstByteMasterPrivateKey, JNI_ABORT);
+
+    auto satsCardSlot = SatscardSlot();
+    satsCardSlot.set_status(status);
+    satsCardSlot.set_address(address);
+    satsCardSlot.set_index(index);
+    satsCardSlot.set_balance(balance);
+    satsCardSlot.set_confirmed(isConfirmed);
+    satsCardSlot.set_utxos(outputs);
+    satsCardSlot.set_pubkey(publicKeyVal);
+    satsCardSlot.set_privkey(privateKeyVal);
+    satsCardSlot.set_chain_code(chainCodeVal);
+    satsCardSlot.set_master_privkey(masterPrivateKeyVal);
+
+    return satsCardSlot;
+}
+
+std::vector<SatscardSlot> Serializer::convert2CSatsCardSlots(JNIEnv *env, jobject slots) {
+    jclass cList = env->FindClass("java/util/List");
+
+    jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
+
+    jint size = env->CallIntMethod(slots, sizeMethod);
+    std::vector<SatscardSlot> result;
+    for (jint i = 0; i < size; i++) {
+        auto _item = (jobject) env->CallObjectMethod(slots, getMethod, i);
+        auto item = Serializer::convert2CSatsCardSlot(env, _item);
+        result.push_back(item);
+    }
+    return result;
+}
