@@ -309,6 +309,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInputs", "(Ljava/util/List;)V"), convert2JTxInputs(env, transaction.get_inputs()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setOutputs", "(Ljava/util/List;)V"), convert2JTxOutputs(env, transaction.get_outputs()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceiveOutputs", "(Ljava/util/List;)V"), convert2JTxOutputs(env, transaction.get_receive_outputs()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setUserOutputs", "(Ljava/util/List;)V"), convert2JTxOutputs(env, transaction.get_user_outputs()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChangeIndex", "(I)V"), transaction.get_change_index());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setM", "(I)V"), transaction.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/Map;)V"), convert2JSignersMap(env, transaction.get_signers()));
