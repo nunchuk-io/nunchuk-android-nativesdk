@@ -4,8 +4,10 @@
 #include <nunchuk.h>
 #include <nunchukmatrix.h>
 #include "serializer.h"
+#include "utils/ndef.hpp"
 
 using namespace nunchuk;
+using namespace nunchuk::ndef;
 
 WalletType Serializer::convert2CWalletType(jint ordinal) {
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CWalletType]ordinal:: %d", ordinal);
@@ -69,6 +71,12 @@ SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
             break;
         case 3:
             type = SignerType::FOREIGN_SOFTWARE;
+            break;
+        case 4:
+            type = SignerType::NFC;
+            break;
+        case 5:
+            type = SignerType::COLDCARD_NFC;
             break;
         default:
             type = SignerType::AIRGAP;
@@ -312,7 +320,7 @@ Wallet Serializer::convert2CWallet(JNIEnv *env, jobject wallet) {
     jfieldID fieldEscrow = env->GetFieldID(clazz, "escrow", "Z");
     auto escrow = env->GetBooleanField(wallet, fieldEscrow);
 
-    Wallet updateWallet = Wallet(id, signers.size(), total_required_signs, signers, address_type, escrow, 0);
+    Wallet updateWallet = Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, 0);
     updateWallet.set_name(name);
 
     env->ReleaseStringUTFChars(nameVal, name);
@@ -562,31 +570,28 @@ SatscardSlot Serializer::convert2CSatsCardSlot(JNIEnv *env, jobject slot) {
     auto outputs = Serializer::convert2CUnspentOutputs(env, outputsVal);
 
     auto publicKeyFieldID = env->GetFieldID(clazz, "publicKey", "[B");
-    auto publicKeyByteArray =  (jbyteArray) env->GetObjectField(slot, publicKeyFieldID);
-    auto firstBytePublicKey = env->GetByteArrayElements(publicKeyByteArray, JNI_FALSE);
-    std::vector<unsigned char> publicKeyVal((char *) firstBytePublicKey,
-                                             (char *) firstBytePublicKey + env->GetArrayLength(publicKeyByteArray));
-    env->ReleaseByteArrayElements(publicKeyByteArray, firstBytePublicKey, JNI_ABORT);
+    auto publicKeyByteArray = (jbyteArray) env->GetObjectField(slot, publicKeyFieldID);
+    auto publicKeyVal = convert2CByteArray(env, publicKeyByteArray);
 
     auto privateKeyFieldID = env->GetFieldID(clazz, "privateKey", "[B");
-    auto privateKeyByteArray =  (jbyteArray) env->GetObjectField(slot, privateKeyFieldID);
+    auto privateKeyByteArray = (jbyteArray) env->GetObjectField(slot, privateKeyFieldID);
     auto firstBytePrivateKey = env->GetByteArrayElements(privateKeyByteArray, JNI_FALSE);
     std::vector<unsigned char> privateKeyVal((char *) firstBytePrivateKey,
-                               (char *) firstBytePrivateKey + env->GetArrayLength(privateKeyByteArray));
+                                             (char *) firstBytePrivateKey + env->GetArrayLength(privateKeyByteArray));
     env->ReleaseByteArrayElements(privateKeyByteArray, firstBytePrivateKey, JNI_ABORT);
 
     auto chainCodeFieldID = env->GetFieldID(clazz, "chainCode", "[B");
-    auto chainCodeArray =  (jbyteArray) env->GetObjectField(slot, chainCodeFieldID);
+    auto chainCodeArray = (jbyteArray) env->GetObjectField(slot, chainCodeFieldID);
     auto firstByteChainCode = env->GetByteArrayElements(chainCodeArray, JNI_FALSE);
     std::vector<unsigned char> chainCodeVal((char *) firstByteChainCode,
-                                             (char *) firstByteChainCode + env->GetArrayLength(chainCodeArray));
+                                            (char *) firstByteChainCode + env->GetArrayLength(chainCodeArray));
     env->ReleaseByteArrayElements(chainCodeArray, firstByteChainCode, JNI_ABORT);
 
     auto masterPrivateKeyFieldID = env->GetFieldID(clazz, "masterPrivateKey", "[B");
-    auto masterPrivateKeyArray =  (jbyteArray) env->GetObjectField(slot, masterPrivateKeyFieldID);
+    auto masterPrivateKeyArray = (jbyteArray) env->GetObjectField(slot, masterPrivateKeyFieldID);
     auto firstByteMasterPrivateKey = env->GetByteArrayElements(masterPrivateKeyArray, JNI_FALSE);
     std::vector<unsigned char> masterPrivateKeyVal((char *) firstByteMasterPrivateKey,
-                                            (char *) firstByteMasterPrivateKey + env->GetArrayLength(masterPrivateKeyArray));
+                                                   (char *) firstByteMasterPrivateKey + env->GetArrayLength(masterPrivateKeyArray));
     env->ReleaseByteArrayElements(masterPrivateKeyArray, firstByteMasterPrivateKey, JNI_ABORT);
 
     auto satsCardSlot = SatscardSlot();
@@ -618,4 +623,47 @@ std::vector<SatscardSlot> Serializer::convert2CSatsCardSlots(JNIEnv *env, jobjec
         result.push_back(item);
     }
     return result;
+}
+
+std::vector<unsigned char> Serializer::convert2CByteArray(JNIEnv *env, jbyteArray byteArray) {
+    auto element = env->GetByteArrayElements(byteArray, nullptr);
+    std::vector<unsigned char> ret(element, element + env->GetArrayLength(byteArray));
+    env->ReleaseByteArrayElements(byteArray, element, JNI_ABORT);
+    return ret;
+}
+
+std::vector<NDEFRecord> Serializer::convert2CRecords(JNIEnv *env, jobjectArray records) {
+    static auto NdefRecordClass = (jclass) env->NewGlobalRef(
+            env->FindClass("android/nfc/NdefRecord"));
+    int length = env->GetArrayLength(records);
+    std::vector<NDEFRecord> ret;
+    ret.reserve(length);
+
+    for (int i = 0; i < length; ++i) {
+        auto record = env->GetObjectArrayElement(records, i);
+        auto id = (jbyteArray) env->CallObjectMethod(
+                record,
+                env->GetMethodID(NdefRecordClass, "getId", "()[B")
+        );
+        auto payload = (jbyteArray) env->CallObjectMethod(
+                record,
+                env->GetMethodID(NdefRecordClass,
+                                 "getPayload", "()[B")
+        );
+        auto tnf = env->CallShortMethod(
+                record,
+                env->GetMethodID(NdefRecordClass, "getTnf", "()S")
+        );
+        auto type = (jbyteArray) env->CallObjectMethod(
+                record,
+                env->GetMethodID(NdefRecordClass, "getType", "()[B")
+        );
+        ret.push_back(NDEFRecord{
+                static_cast<unsigned char>(tnf),
+                convert2CByteArray(env, type),
+                convert2CByteArray(env, id),
+                convert2CByteArray(env, payload),
+        });
+    }
+    return ret;
 }

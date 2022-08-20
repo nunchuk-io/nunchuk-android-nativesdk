@@ -1,5 +1,9 @@
 package com.nunchuk.android.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Device(
     var type: String = "",
     var model: String = "",
@@ -9,6 +13,6 @@ data class Device(
     var needPassPhraseSent: Boolean = false,
     var needPinSet: Boolean = false,
     var initialized: Boolean = true
-)
+) : Parcelable
 
 
