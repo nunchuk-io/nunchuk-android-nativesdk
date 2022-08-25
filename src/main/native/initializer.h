@@ -26,4 +26,7 @@ public:
 
     jclass connectStatusClass;
     jmethodID connectStatusMethod;
+
+    jclass blockListenerClass;
+    jmethodID blockListenerMethod;
 };
