@@ -48,7 +48,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     auto tmpBlockListenerClass = env->FindClass("com/nunchuk/android/model/BlockListener");
     auto tmpBlockListenerMethod = env->GetStaticMethodID(tmpBlockListenerClass, "onBlockUpdate", "(ILjava/lang/String;)V");
-    Initializer::get()->blockListenerClass = tmpBlockListenerClass;
+    Initializer::get()->blockListenerClass = (jclass) env->NewGlobalRef(tmpBlockListenerClass);
     Initializer::get()->blockListenerMethod = tmpBlockListenerMethod;
 
     return JNI_VERSION_1_6;
@@ -124,7 +124,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                 }
         );
         try {
-            env->GetJavaVM(&Initializer::get()->jvm);
             NunchukProvider::get()->nu->AddBlockchainConnectionListener(
                     [](ConnectionStatus connectionStatus, int percent) {
                         syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener percent::%d", percent);
@@ -162,6 +161,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
             );
 
             NunchukProvider::get()->nu->AddBlockListener([](int height, const std::string &hex_header) {
+                syslog(LOG_DEBUG, "[JNI] Block listener call\n");
                 JNIEnv *g_env;
                 JavaVMAttachArgs args;
                 args.version = JNI_VERSION_1_6;
