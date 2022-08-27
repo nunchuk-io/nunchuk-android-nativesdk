@@ -66,11 +66,13 @@ class NunchukNativeSdk {
     fun createSoftwareSigner(
         name: String,
         mnemonic: String,
-        passphrase: String
+        passphrase: String,
+        isPrimary: Boolean
     ) = nunchukAndroid.createSoftwareSigner(
         name = name,
         mnemonic = mnemonic,
-        passphrase = passphrase
+        passphrase = passphrase,
+        isPrimary = isPrimary
     )
 
     @Throws(NCNativeException::class)
@@ -786,6 +788,42 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.importWalletFromMk4(chain, records)
 
     @Throws(NCNativeException::class)
+    fun getPrimaryKeyAddress(mnemonic: String, passphrase: String) =
+        nunchukAndroid.getPrimaryKeyAddress(
+            mnemonic = mnemonic,
+            passphrase = passphrase
+        )
+
+    @Throws(NCNativeException::class)
+    fun signLoginMessage(mnemonic: String, passphrase: String, message: String) =
+        nunchukAndroid.signLoginMessage(
+            mnemonic = mnemonic,
+            passphrase = passphrase,
+            message = message
+        )
+
+    @Throws(NCNativeException::class)
+    fun signLoginMessageImpl(masterSignerId: String, message: String) =
+        nunchukAndroid.signLoginMessageImpl(
+            masterSignerId = masterSignerId,
+            message = message
+        )
+
+    @Throws(NCNativeException::class)
+    fun getMasterFingerprint(mnemonic: String, passphrase: String) =
+        nunchukAndroid.getMasterFingerprint(
+            mnemonic = mnemonic,
+            passphrase = passphrase,
+        )
+
+    @Throws(NCNativeException::class)
+    fun getPrimaryKeys(chain: Int, storagePath: String) =
+        nunchukAndroid.getPrimaryKeys(
+            chain = chain,
+            storagePath = storagePath,
+        )
+
+    @Throws(NCNativeException::class)
     fun parseBtcUri(
         uri: String
     ) = nunchukAndroid.parseBtcUri(uri)
@@ -798,4 +836,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
      fun createWallet2(wallet: Wallet) : Wallet = nunchukAndroid.createWallet2(wallet.toBridge())
+
+    @Throws(NCNativeException::class)
+    fun deletePrimaryKey(): Boolean = nunchukAndroid.deletePrimaryKey()
 }

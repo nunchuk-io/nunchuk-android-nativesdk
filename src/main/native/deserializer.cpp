@@ -619,6 +619,36 @@ jobjectArray Deserializer::convert2JRecords(JNIEnv *env, const std::vector<NDEFR
     return ret;
 }
 
+jobject Deserializer::convert2JPrimaryKeys(JNIEnv *env, const std::vector<PrimaryKey> &keys) {
+    syslog(LOG_DEBUG, "[JNI] convert2JPrimaryKeys()");
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const PrimaryKey &s: keys) {
+        jobject element = convert2JPrimaryKey(env, s);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}
+
+jobject Deserializer::convert2JPrimaryKey(JNIEnv *env, const PrimaryKey &key) {
+    syslog(LOG_DEBUG, "[JNI] convert2JPrimaryKey()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/PrimaryKey");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"), env->NewStringUTF(key.get_name().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterFingerprint", "(Ljava/lang/String;)V"), env->NewStringUTF(key.get_master_fingerprint().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAccount", "(Ljava/lang/String;)V"), env->NewStringUTF(key.get_account().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"), env->NewStringUTF(key.get_address().c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
+    }
+    return instance;
+}
+
 jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
     syslog(LOG_DEBUG, "[JNI] convert2JBtcUri()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/BtcUri");
