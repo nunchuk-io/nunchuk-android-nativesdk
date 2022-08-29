@@ -46,7 +46,7 @@ std::unique_ptr<tap_protocol::Transport> NFC::makeTransport(JNIEnv *env, jobject
 
             env->ReleaseStringUTFChars(exMessage, exMessageChar);
             env->DeleteLocalRef(exMessage);
-            throw nunchuk::TapProtocolException(nunchuk::TapProtocolException::TAP_PROTOCOL_ERROR,
+            throw nunchuk::TapProtocolException(nunchuk::TapProtocolException::TAG_LOST,
                                                 exMessageCpp);
         }
         env->DeleteLocalRef(bytesToSend);
