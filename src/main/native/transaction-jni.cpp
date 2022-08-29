@@ -520,3 +520,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_loadTransaction(JNIEnv *env
         return env->ExceptionOccurred();
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signAirgapTransaction(JNIEnv *env, jobject thiz, jstring init_event_id,
+                                                                           jstring master_signer_id) {
+    try {
+        auto value = NunchukProvider::get()->nuMatrix->SignAirgapTransaction(
+                NunchukProvider::get()->nu,
+                StringWrapper(env, init_event_id),
+                StringWrapper(env, master_signer_id)
+        );
+        return Deserializer::convert2JMatrixEvent(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
