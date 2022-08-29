@@ -740,4 +740,9 @@ class NunchukNativeSdk {
     fun waitAutoCard(
         isoDep: IsoDep
     ) = nunchukAndroid.waitAutoCard(isoDep)
+
+    @Throws(NCNativeException::class)
+    fun loadTransaction(
+        txId: String
+    ) = nunchukAndroid.loadTransaction(txId)
 }

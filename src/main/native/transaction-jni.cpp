@@ -5,6 +5,7 @@
 #include "serializer.h"
 #include "deserializer.h"
 #include "modelprovider.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -75,7 +76,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
-        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(env->GetStringUTFChars(wallet_id, JNI_FALSE), txInputs);
+        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(StringWrapper(env, wallet_id),
+                                                                                               txInputs);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CAmountsMap(env, outputs),
@@ -501,4 +503,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFee(
         return env->ExceptionOccurred();
     }
 
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_loadTransaction(JNIEnv *env, jobject thiz, jstring tx_id) {
+    try {
+        auto transaction = NunchukProvider::get()->nu->FetchTransaction(
+                StringWrapper(env, tx_id)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
 }

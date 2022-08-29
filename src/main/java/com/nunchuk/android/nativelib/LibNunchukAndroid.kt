@@ -384,7 +384,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getMatrixEvent(
         eventId: String,
-    ) : NunchukMatrixEvent
+    ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun backup()
@@ -497,45 +497,50 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun loadSatsCardSlotsBalance(
         slots: List<SatsCardSlot>
-    ) : List<SatsCardSlot>
+    ): List<SatsCardSlot>
 
     @Throws(NCNativeException::class)
     external fun unsealSatsCard(
         isoDep: IsoDep,
         cvc: String,
         slot: SatsCardSlot
-    ) : SatsCardSlot
+    ): SatsCardSlot
 
     @Throws(NCNativeException::class)
     external fun sweepBalance(
         slots: List<SatsCardSlot>,
         address: String,
         feeRate: Int
-    ) : Transaction
+    ): Transaction
 
     @Throws(NCNativeException::class)
     external fun draftSatscardTransaction(
         slots: List<SatsCardSlot>,
         address: String,
         feeRate: Int
-    ) : Transaction
+    ): Transaction
 
     @Throws(NCNativeException::class)
     external fun getSlotKeys(
         isoDep: IsoDep,
         cvc: String,
         slots: List<SatsCardSlot>
-    ) : List<SatsCardSlot>
+    ): List<SatsCardSlot>
 
     @Throws(NCNativeException::class)
     external fun getAutoCardStatus(
         isoDep: IsoDep
-    ) : CardStatus
+    ): CardStatus
 
     @Throws(NCNativeException::class)
     external fun waitAutoCard(
         isoDep: IsoDep
     )
+
+    @Throws(NCNativeException::class)
+    external fun loadTransaction(
+        txId: String
+    ): Transaction
 
     companion object {
         init {

@@ -5,6 +5,7 @@
 #include "serializer.h"
 #include "initializer.h"
 #include "deserializer.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -14,19 +15,22 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     // Store Send Event
     jclass tmpSendEventClass = env->FindClass("com/nunchuk/android/model/SendEventHelper");
-    jmethodID tmpSendEventMethod = env->GetStaticMethodID(tmpSendEventClass, "sendEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+    jmethodID tmpSendEventMethod = env->GetStaticMethodID(tmpSendEventClass, "sendEvent",
+                                                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
     Initializer::get()->sendEventClass = (jclass) env->NewGlobalRef(tmpSendEventClass);
     Initializer::get()->senEventMethod = tmpSendEventMethod;
 
     // Store Upload File
     jclass tmpSendFileClass = env->FindClass("com/nunchuk/android/model/SyncFileEventHelper");
-    jmethodID tmpSendFileMethod = env->GetStaticMethodID(tmpSendFileClass, "uploadFileEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[BI)V");
+    jmethodID tmpSendFileMethod = env->GetStaticMethodID(tmpSendFileClass, "uploadFileEvent",
+                                                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[BI)V");
     Initializer::get()->sendFileClass = (jclass) env->NewGlobalRef(tmpSendFileClass);
     Initializer::get()->sendFileMethod = tmpSendFileMethod;
 
     // Store RegisterDownloadFile
     jclass tmpDownloadFileClass = env->FindClass("com/nunchuk/android/model/SyncFileEventHelper");
-    jmethodID tmpDownloadFileMethod = env->GetStaticMethodID(tmpDownloadFileClass, "downloadFileEvent", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+    jmethodID tmpDownloadFileMethod = env->GetStaticMethodID(tmpDownloadFileClass, "downloadFileEvent",
+                                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     Initializer::get()->downloadFileClass = (jclass) env->NewGlobalRef(tmpDownloadFileClass);
     Initializer::get()->downloadFileMethod = tmpDownloadFileMethod;
 
@@ -41,6 +45,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     jmethodID tmpConnectionMethod = env->GetStaticMethodID(tmpConnectionClass, "addListener", "(II)V");
     Initializer::get()->connectStatusClass = (jclass) env->NewGlobalRef(tmpConnectionClass);
     Initializer::get()->connectStatusMethod = tmpConnectionMethod;
+
+    auto tmpBlockListenerClass = env->FindClass("com/nunchuk/android/model/BlockListener");
+    auto tmpBlockListenerMethod = env->GetStaticMethodID(tmpBlockListenerClass, "onBlockUpdate", "(ILjava/lang/String;)V");
+    Initializer::get()->blockListenerClass = (jclass) env->NewGlobalRef(tmpBlockListenerClass);
+    Initializer::get()->blockListenerMethod = tmpBlockListenerMethod;
+
     return JNI_VERSION_1_6;
 }
 
@@ -108,7 +118,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         );
                     } catch (const std::exception &t) {
                         Deserializer::convertStdException2JException(g_env, t);
-                        g_env->ExceptionOccurred();
                     }
                     return "";
                 }
@@ -145,19 +154,44 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                             );
                         } catch (const std::exception &t) {
                             Deserializer::convertStdException2JException(g_env, t);
-                            g_env->ExceptionOccurred();
                         }
                     }
             );
 
+            NunchukProvider::get()->nu->AddBlockListener([](int height, const std::string &hex_header) {
+                syslog(LOG_DEBUG, "[JNI] Block listener call\n");
+                JNIEnv *g_env;
+                JavaVMAttachArgs args;
+                args.version = JNI_VERSION_1_6;
+                args.name = nullptr;
+                args.group = nullptr;
+                Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                if (envState == JNI_EDETACHED) {
+                    if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                        syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                    } else {
+                        syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                    }
+                } else if (envState == JNI_OK) {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+                } else if (envState == JNI_EVERSION) {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+                }
+                g_env->CallStaticVoidMethod(
+                        Initializer::get()->blockListenerClass,
+                        Initializer::get()->blockListenerMethod,
+                        height,
+                        StringWrapper(hex_header).toJString(g_env)
+                );
+            });
+
         } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener error::%s", e.what());
             Deserializer::convert2JException(env, e);
-            env->ExceptionOccurred();
         }
         NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
     } catch (const std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
-        env->ExceptionOccurred();
     }
 }
