@@ -76,7 +76,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
-        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(env->GetStringUTFChars(wallet_id, JNI_FALSE),
+        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(StringWrapper(env, wallet_id),
                                                                                                txInputs);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
