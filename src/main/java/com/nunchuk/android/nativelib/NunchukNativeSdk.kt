@@ -339,6 +339,9 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun signAirgapTransaction(initEventId: String, masterSignerId: String) = nunchukAndroid.signAirgapTransaction(initEventId, masterSignerId)
+
+    @Throws(NCNativeException::class)
     fun exportTransactionHistory(
         walletId: String,
         filePath: String,

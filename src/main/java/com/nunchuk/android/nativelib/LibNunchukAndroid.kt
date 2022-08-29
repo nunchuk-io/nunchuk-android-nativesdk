@@ -199,6 +199,9 @@ internal class LibNunchukAndroid {
     external fun signTransaction(walletId: String, txId: String, device: Device): Transaction
 
     @Throws(NCNativeException::class)
+    external fun signAirgapTransaction(initEventId: String, masterSignerId: String): NunchukMatrixEvent
+
+    @Throws(NCNativeException::class)
     external fun exportTransactionHistory(walletId: String, filePath: String, format: Int)
 
     @Throws(NCNativeException::class)
