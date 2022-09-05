@@ -1,5 +1,6 @@
 package com.nunchuk.android.nativelib
 
+import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
@@ -74,8 +75,8 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun getRemoteSigner(id: String) =
-        nunchukAndroid.getRemoteSigners().first { it.masterSignerId == id }
+    fun getRemoteSigner(id: String, derivationPath: String) =
+        nunchukAndroid.getRemoteSigners().first { it.masterSignerId == id && it.derivationPath == derivationPath }
 
     @Throws(NCNativeException::class)
     fun getRemoteSigners() = nunchukAndroid.getRemoteSigners()
@@ -748,4 +749,37 @@ class NunchukNativeSdk {
     fun loadTransaction(
         txId: String
     ) = nunchukAndroid.loadTransaction(txId)
+
+    @Throws(NCNativeException::class)
+    fun getMk4Signers(
+        records: Array<NdefRecord>
+    ) = nunchukAndroid.getMk4Signers(records)
+
+    @Throws(NCNativeException::class)
+    fun createMk4Signer(
+        signer: SingleSigner
+    ) = nunchukAndroid.createMk4Signer(signer)
+
+    @Throws(NCNativeException::class)
+    fun exportWalletToMk4(
+        walletId: String
+    ) = nunchukAndroid.exportWalletToMk4(walletId)
+
+    @Throws(NCNativeException::class)
+    fun exportPsbtToMk4(
+        walletId: String,
+        txId: String
+    ) = nunchukAndroid.exportPsbtToMk4(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun importTransactionFromMk4(
+        walletId: String,
+        records: Array<NdefRecord>
+    ) = nunchukAndroid.importTransactionFromMk4(walletId, records)
+
+    @Throws(NCNativeException::class)
+    fun importWalletFromMk4(
+        chain: Int,
+        records: Array<NdefRecord>
+    ) = nunchukAndroid.importWalletFromMk4(chain, records)
 }

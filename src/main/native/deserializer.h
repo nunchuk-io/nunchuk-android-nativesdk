@@ -3,8 +3,10 @@
 #include <syslog.h>
 #include <nunchuk.h>
 #include <nunchukmatrix.h>
+#include "utils/ndef.hpp"
 
 using namespace nunchuk;
+using namespace nunchuk::ndef;
 
 /**
  * Used to convert C++ Classes into Java models
@@ -86,4 +88,10 @@ public:
     static jobject convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &output);
 
     static jobject convert2JUnspentOutputs(JNIEnv *env, const std::vector<UnspentOutput> &outputs);
+
+    static jbyteArray convert2JByteArray(JNIEnv *env, const std::vector<unsigned char> &bytes);
+
+    static jobject convert2JRecord(JNIEnv *env, const NDEFRecord &record);
+
+    static jobjectArray convert2JRecords(JNIEnv *env, const std::vector<NDEFRecord> &records);
 };

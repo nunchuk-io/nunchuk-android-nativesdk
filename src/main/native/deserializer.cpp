@@ -6,8 +6,10 @@
 #include <sstream>
 #include <string>
 #include "deserializer.h"
+#include "utils/ndef.hpp"
 
 using namespace nunchuk;
+using namespace nunchuk::ndef;
 
 jobject Deserializer::convert2JBoolean(JNIEnv *env, const bool value) {
     jclass clazz = env->FindClass("java/lang/Boolean");
@@ -585,6 +587,35 @@ jobject Deserializer::convert2JUnspentOutputs(JNIEnv *env, const std::vector<Uns
         env->DeleteLocalRef(element);
     }
     return arrayListInstance;
+}
+
+jbyteArray Deserializer::convert2JByteArray(JNIEnv *env, const std::vector<unsigned char> &bytes) {
+    jbyteArray ret = env->NewByteArray(bytes.size());
+    env->SetByteArrayRegion(ret, 0, bytes.size(), reinterpret_cast<const jbyte *>(bytes.data()));
+    return ret;
+}
+
+jobject Deserializer::convert2JRecord(JNIEnv *env, const NDEFRecord &record) {
+    static auto NdefRecordClass = (jclass) env->NewGlobalRef(
+            env->FindClass("android/nfc/NdefRecord"));
+    jmethodID constructor = env->GetMethodID(NdefRecordClass, "<init>", "(S[B[B[B)V");
+    jobject ret = env->NewObject(NdefRecordClass, constructor,
+                                 record.typeNameFormat,
+                                 convert2JByteArray(env, record.type),
+                                 convert2JByteArray(env, record.id),
+                                 convert2JByteArray(env, record.payload)
+    );
+    return ret;
+}
+
+jobjectArray Deserializer::convert2JRecords(JNIEnv *env, const std::vector<NDEFRecord> &records) {
+    static auto NdefRecordClass = (jclass) env->NewGlobalRef(
+            env->FindClass("android/nfc/NdefRecord"));
+    jobjectArray ret = env->NewObjectArray(records.size(), NdefRecordClass, nullptr);
+    for (int i = 0; i < records.size(); ++i) {
+        env->SetObjectArrayElement(ret, i, convert2JRecord(env, records[i]));
+    }
+    return ret;
 }
 
 

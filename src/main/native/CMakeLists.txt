@@ -35,6 +35,7 @@ add_library(nunchuk-android SHARED
         sync-jni.cpp
         tap-protocol-jni.cpp
         satscard-jni.cpp
+        mk4.cpp
         string-wrapper.h
 )
 

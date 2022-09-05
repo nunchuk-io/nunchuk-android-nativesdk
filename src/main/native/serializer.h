@@ -3,8 +3,10 @@
 #include <syslog.h>
 #include <nunchuk.h>
 #include <nunchukmatrix.h>
+#include "utils/ndef.hpp"
 
 using namespace nunchuk;
+using namespace nunchuk::ndef;
 
 /**
  * Used to translate Java properties into C++ equivalents
@@ -60,4 +62,8 @@ public:
     static SatscardSlot convert2CSatsCardSlot(JNIEnv *env, jobject slot);
 
     static std::vector<SatscardSlot> convert2CSatsCardSlots(JNIEnv *env, jobject slots);
+
+    static std::vector<unsigned char> convert2CByteArray(JNIEnv *env, jbyteArray byteArray);
+
+    static std::vector<NDEFRecord> convert2CRecords(JNIEnv *env, jobjectArray records);
 };

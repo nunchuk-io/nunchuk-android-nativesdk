@@ -1,5 +1,6 @@
 package com.nunchuk.android.nativelib
 
+import android.nfc.NdefRecord
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
@@ -544,6 +545,39 @@ internal class LibNunchukAndroid {
     external fun loadTransaction(
         txId: String
     ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun getMk4Signers(
+        records: Array<NdefRecord>
+    ) : List<SingleSigner>
+
+    @Throws(NCNativeException::class)
+    external fun createMk4Signer(
+        signer: SingleSigner
+    ) : SingleSigner
+
+    @Throws(NCNativeException::class)
+    external fun exportWalletToMk4(
+        walletId: String
+    ) : Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
+    external fun exportPsbtToMk4(
+        walletId: String,
+        txId: String
+    ) : Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
+    external fun importTransactionFromMk4(
+        walletId: String,
+        records: Array<NdefRecord>
+    ) : Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun importWalletFromMk4(
+        chain: Int,
+        records: Array<NdefRecord>
+    ) : Wallet?
 
     companion object {
         init {
