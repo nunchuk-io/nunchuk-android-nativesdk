@@ -539,3 +539,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signAirgapTransaction(JNIEn
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseBtcUri(JNIEnv *env, jobject thiz, jstring uri) {
+    try {
+        auto value = Utils::ParseBtcUri(StringWrapper(env, uri));
+        return Deserializer::convert2JBtcUri(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}

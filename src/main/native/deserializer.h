@@ -94,4 +94,6 @@ public:
     static jobject convert2JRecord(JNIEnv *env, const NDEFRecord &record);
 
     static jobjectArray convert2JRecords(JNIEnv *env, const std::vector<NDEFRecord> &records);
+
+    static jobject convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri);
 };

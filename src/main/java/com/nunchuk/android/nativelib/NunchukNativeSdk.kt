@@ -782,4 +782,9 @@ class NunchukNativeSdk {
         chain: Int,
         records: Array<NdefRecord>
     ) = nunchukAndroid.importWalletFromMk4(chain, records)
+
+    @Throws(NCNativeException::class)
+    fun parseBtcUri(
+        uri: String
+    ) = nunchukAndroid.parseBtcUri(uri)
 }

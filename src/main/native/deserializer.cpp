@@ -618,5 +618,21 @@ jobjectArray Deserializer::convert2JRecords(JNIEnv *env, const std::vector<NDEFR
     return ret;
 }
 
+jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
+    syslog(LOG_DEBUG, "[JNI] convert2JBtcUri()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/BtcUri");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, btcUri.amount));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),  env->NewStringUTF(btcUri.address.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLabel", "(Ljava/lang/String;)V"),  env->NewStringUTF(btcUri.label.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMessage", "(Ljava/lang/String;)V"),  env->NewStringUTF(btcUri.message.c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JBtcUri error::%s", e.what());
+    }
+    return instance;
+}
+
 
 

@@ -579,6 +579,11 @@ internal class LibNunchukAndroid {
         records: Array<NdefRecord>
     ) : Wallet?
 
+    @Throws(NCNativeException::class)
+    external fun parseBtcUri(
+        uri: String
+    ) : BtcUri
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
