@@ -4,6 +4,8 @@
 #include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "descriptor.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -50,9 +52,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
     syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner()");
     syslog(LOG_DEBUG, "[JNI] qr_data::%s", env->GetStringUTFChars(qr_data, JNI_FALSE));
     try {
-        const SingleSigner &signer = NunchukProvider::get()->nu->ParseKeystoneSigner(
-                env->GetStringUTFChars(qr_data, JNI_FALSE)
-        );
+        auto c_qr_data = StringWrapper(env, qr_data);
+        SingleSigner signer;
+        bool has_error = false;
+        try {
+            signer = ParseSignerString(c_qr_data);
+        } catch (BaseException &e) {
+            has_error = true;
+        }
+        if (has_error) {
+            signer = NunchukProvider::get()->nu->ParseKeystoneSigner(c_qr_data);
+        }
         return Deserializer::convert2JSigner(env, signer);
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner error::%s", e.what());
