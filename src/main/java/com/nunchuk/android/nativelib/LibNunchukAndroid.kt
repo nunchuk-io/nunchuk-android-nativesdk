@@ -584,6 +584,9 @@ internal class LibNunchukAndroid {
         uri: String
     ) : BtcUri
 
+    @Throws(NCNativeException::class)
+    external fun setSelectedWallet(walletId: String) : Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

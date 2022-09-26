@@ -76,7 +76,8 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getRemoteSigner(id: String, derivationPath: String) =
-        nunchukAndroid.getRemoteSigners().first { it.masterSignerId == id && it.derivationPath == derivationPath }
+        nunchukAndroid.getRemoteSigners()
+            .first { it.masterSignerId == id && it.derivationPath == derivationPath }
 
     @Throws(NCNativeException::class)
     fun getRemoteSigners() = nunchukAndroid.getRemoteSigners()
@@ -340,7 +341,8 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun signAirgapTransaction(initEventId: String, masterSignerId: String) = nunchukAndroid.signAirgapTransaction(initEventId, masterSignerId)
+    fun signAirgapTransaction(initEventId: String, masterSignerId: String) =
+        nunchukAndroid.signAirgapTransaction(initEventId, masterSignerId)
 
     @Throws(NCNativeException::class)
     fun exportTransactionHistory(
@@ -401,7 +403,8 @@ class NunchukNativeSdk {
         nunchukAndroid.sendSignerPassphrase(masterSignerId, passphrase)
 
     @Throws(NCNativeException::class)
-    fun clearSignerPassphrase(masterSignerId: String) = nunchukAndroid.clearSignerPassphrase(masterSignerId)
+    fun clearSignerPassphrase(masterSignerId: String) =
+        nunchukAndroid.clearSignerPassphrase(masterSignerId)
 
     @Throws(NCNativeException::class)
     fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
@@ -787,4 +790,7 @@ class NunchukNativeSdk {
     fun parseBtcUri(
         uri: String
     ) = nunchukAndroid.parseBtcUri(uri)
+
+    @Throws(NCNativeException::class)
+    fun setSelectedWallet(walletId: String) = nunchukAndroid.setSelectedWallet(walletId)
 }
