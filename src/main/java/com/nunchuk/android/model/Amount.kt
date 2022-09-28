@@ -1,7 +1,7 @@
 package com.nunchuk.android.model
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Amount(var value: Long = 0, var formattedValue: String = "0.00") : Parcelable {

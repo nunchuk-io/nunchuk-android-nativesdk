@@ -200,7 +200,10 @@ internal class LibNunchukAndroid {
     external fun signTransaction(walletId: String, txId: String, device: Device): Transaction
 
     @Throws(NCNativeException::class)
-    external fun signAirgapTransaction(initEventId: String, masterSignerId: String): NunchukMatrixEvent
+    external fun signAirgapTransaction(
+        initEventId: String,
+        masterSignerId: String
+    ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun exportTransactionHistory(walletId: String, filePath: String, format: Int)
@@ -258,7 +261,11 @@ internal class LibNunchukAndroid {
     external fun joinSharedWallet(roomId: String, signer: SingleSigner): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
-    external fun leaveSharedWallet(roomId: String, joinEventId: String, reason: String): NunchukMatrixEvent
+    external fun leaveSharedWallet(
+        roomId: String,
+        joinEventId: String,
+        reason: String
+    ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun cancelSharedWallet(roomId: String, reason: String): NunchukMatrixEvent
@@ -549,43 +556,49 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getMk4Signers(
         records: Array<NdefRecord>
-    ) : List<SingleSigner>
+    ): List<SingleSigner>
 
     @Throws(NCNativeException::class)
     external fun createMk4Signer(
         signer: SingleSigner
-    ) : SingleSigner
+    ): SingleSigner
 
     @Throws(NCNativeException::class)
     external fun exportWalletToMk4(
         walletId: String
-    ) : Array<NdefRecord>
+    ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun exportPsbtToMk4(
         walletId: String,
         txId: String
-    ) : Array<NdefRecord>
+    ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun importTransactionFromMk4(
         walletId: String,
         records: Array<NdefRecord>
-    ) : Transaction?
+    ): Transaction?
 
     @Throws(NCNativeException::class)
     external fun importWalletFromMk4(
         chain: Int,
         records: Array<NdefRecord>
-    ) : Wallet?
+    ): Wallet?
+
+    @Throws(NCNativeException::class)
+    external fun getColdCardWallets(records: Array<NdefRecord>): List<Wallet>?
+
+    @Throws(NCNativeException::class)
+    external fun createWallet2(wallet: WalletBridge): Wallet
 
     @Throws(NCNativeException::class)
     external fun parseBtcUri(
         uri: String
-    ) : BtcUri
+    ): BtcUri
 
     @Throws(NCNativeException::class)
-    external fun setSelectedWallet(walletId: String) : Boolean
+    external fun setSelectedWallet(walletId: String): Boolean
 
     companion object {
         init {
