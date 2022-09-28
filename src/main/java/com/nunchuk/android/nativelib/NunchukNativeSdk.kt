@@ -793,4 +793,10 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun setSelectedWallet(walletId: String) = nunchukAndroid.setSelectedWallet(walletId)
+
+    @Throws(NCNativeException::class)
+     fun getColdCardWallets(records: Array<NdefRecord>) = nunchukAndroid.getColdCardWallets(records)
+
+    @Throws(NCNativeException::class)
+     fun createWallet2(wallet: Wallet) : Wallet = nunchukAndroid.createWallet2(wallet.toBridge())
 }
