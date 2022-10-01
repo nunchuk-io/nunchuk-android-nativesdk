@@ -53,17 +53,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneSigner(
     syslog(LOG_DEBUG, "[JNI] qr_data::%s", env->GetStringUTFChars(qr_data, JNI_FALSE));
     try {
         auto c_qr_data = StringWrapper(env, qr_data);
-        SingleSigner signer;
-        bool has_error = false;
-        try {
-            signer = ParseSignerString(c_qr_data);
-        } catch (BaseException &e) {
-            has_error = true;
-        }
-        if (has_error) {
-            signer = NunchukProvider::get()->nu->ParseKeystoneSigner(c_qr_data);
-        }
-        return Deserializer::convert2JSigner(env, signer);
+        auto signers = NunchukProvider::get()->nu->ParseQRSigners({c_qr_data});
+        return Deserializer::convert2JSigner(env, signers[0]);
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] parseKeystoneSigner error::%s", e.what());
         Deserializer::convert2JException(env, e);
@@ -83,7 +74,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parsePassportSigners(
 ) {
     syslog(LOG_DEBUG, "[JNI] parsePassportSigners()");
     try {
-        auto values = NunchukProvider::get()->nu->ParsePassportSigners(
+        auto values = NunchukProvider::get()->nu->ParseQRSigners(
                 Serializer::convert2CListString(env, qr_data)
         );
         return Deserializer::convert2JSigners(env, values);
