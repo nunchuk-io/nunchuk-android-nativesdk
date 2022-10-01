@@ -7,7 +7,6 @@ import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
-import com.nunchuk.android.type.SignerType
 import com.nunchuk.android.type.WalletType
 
 class NunchukNativeSdk {
@@ -75,9 +74,9 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun getRemoteSigner(id: String, derivationPath: String) =
+    fun getRemoteSigner(masterFingerprint: String, derivationPath: String) =
         nunchukAndroid.getRemoteSigners()
-            .first { it.masterSignerId == id && it.derivationPath == derivationPath }
+            .first { it.masterFingerprint == masterFingerprint && it.derivationPath == derivationPath }
 
     @Throws(NCNativeException::class)
     fun getRemoteSigners() = nunchukAndroid.getRemoteSigners()
