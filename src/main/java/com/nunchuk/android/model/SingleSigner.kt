@@ -14,8 +14,9 @@ data class SingleSigner(
     var lastHealthCheck: Long = 0L,
     var masterSignerId: String = "",
     var used: Boolean = false,
-    var type: SignerType = SignerType.AIRGAP
-): Parcelable
+    var type: SignerType = SignerType.AIRGAP,
+    var hasMasterSigner: Boolean = false,
+) : Parcelable
 
 fun SingleSigner.toSpec(): String {
     val newPath = derivationPath.replace("m/", "")
