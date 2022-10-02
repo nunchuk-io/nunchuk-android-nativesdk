@@ -687,6 +687,13 @@ internal class LibNunchukAndroid {
         type: SignerType
     ): List<SingleSigner>
 
+    @Throws(NCNativeException::class)
+    external fun verifyTapSignerBackup(
+        backUpKey: String,
+        decryptionKey: String,
+        masterSignerId: String
+    ): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
