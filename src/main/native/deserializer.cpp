@@ -181,7 +181,7 @@ jobject Deserializer::convert2JSignerType(JNIEnv *env, const SignerType &type) {
     syslog(LOG_DEBUG, "[JNI] convert2JSignerType()");
     jclass clazz = env->FindClass("com/nunchuk/android/type/SignerTypeHelper");
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/SignerType;");
-    return env->CallStaticObjectMethod(clazz, staticMethod, (int) type);
+    return env->CallStaticObjectMethod(clazz, staticMethod, ((int) type) + 1);
 }
 
 jobject Deserializer::convert2JTransactionStatus(JNIEnv *env, const TransactionStatus &status) {

@@ -1,6 +1,7 @@
 package com.nunchuk.android.type
 
 enum class SignerType {
+    UNKNOWN,
     HARDWARE,
     AIRGAP,
     SOFTWARE,

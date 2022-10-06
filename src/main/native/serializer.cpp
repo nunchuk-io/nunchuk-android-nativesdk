@@ -60,26 +60,26 @@ SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerType]ordinal:: %d", ordinal);
     SignerType type;
     switch (ordinal) {
-        case 0:
+        case 1:
             type = SignerType::HARDWARE;
             break;
-        case 1:
+        case 2:
             type = SignerType::AIRGAP;
             break;
-        case 2:
+        case 3:
             type = SignerType::SOFTWARE;
             break;
-        case 3:
+        case 4:
             type = SignerType::FOREIGN_SOFTWARE;
             break;
-        case 4:
+        case 5:
             type = SignerType::NFC;
             break;
-        case 5:
+        case 6:
             type = SignerType::COLDCARD_NFC;
             break;
         default:
-            type = SignerType::AIRGAP;
+            type = SignerType::UNKNOWN;
             break;
     }
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerType]type:: %d", type);
