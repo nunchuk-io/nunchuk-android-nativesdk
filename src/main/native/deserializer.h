@@ -95,5 +95,9 @@ public:
 
     static jobjectArray convert2JRecords(JNIEnv *env, const std::vector<NDEFRecord> &records);
 
+    static jobject convert2JPrimaryKeys(JNIEnv *env, const std::vector<PrimaryKey> &signers);
+
+    static jobject convert2JPrimaryKey(JNIEnv *env, const PrimaryKey &key);
+
     static jobject convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri);
 };

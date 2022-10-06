@@ -44,7 +44,8 @@ internal class LibNunchukAndroid {
     external fun createSoftwareSigner(
         name: String,
         mnemonic: String,
-        passphrase: String = ""
+        passphrase: String = "",
+        isPrimary: Boolean
     ): MasterSigner
 
     @Throws(NCNativeException::class)
@@ -593,12 +594,43 @@ internal class LibNunchukAndroid {
     external fun createWallet2(wallet: WalletBridge): Wallet
 
     @Throws(NCNativeException::class)
+    external fun getPrimaryKeyAddress(
+        mnemonic: String,
+        passphrase: String
+    ): String?
+
+    @Throws(NCNativeException::class)
+    external fun signLoginMessage(
+        mnemonic: String,
+        passphrase: String,
+        message: String
+    ): String?
+
+    @Throws(NCNativeException::class)
+    external fun signLoginMessageImpl(
+        masterSignerId: String,
+        message: String
+    ): String?
+
+    @Throws(NCNativeException::class)
+    external fun getMasterFingerprint(
+        mnemonic: String,
+        passphrase: String
+    ): String?
+
+    @Throws(NCNativeException::class)
+    external fun getPrimaryKeys(chain: Int,storagePath: String): List<PrimaryKey>
+
+    @Throws(NCNativeException::class)
     external fun parseBtcUri(
         uri: String
     ): BtcUri
 
     @Throws(NCNativeException::class)
     external fun setSelectedWallet(walletId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun deletePrimaryKey() : Boolean
 
     companion object {
         init {
