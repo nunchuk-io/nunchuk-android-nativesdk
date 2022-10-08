@@ -29,4 +29,7 @@ public:
 
     jclass blockListenerClass;
     jmethodID blockListenerMethod;
+
+    jclass transactionListenerClass;
+    jmethodID transactionListenerMethod;
 };

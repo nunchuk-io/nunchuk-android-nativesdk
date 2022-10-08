@@ -1,4 +1,4 @@
-package com.nunchuk.android.model
+package com.nunchuk.android.listener
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
