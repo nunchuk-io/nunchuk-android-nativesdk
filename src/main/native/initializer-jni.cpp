@@ -52,7 +52,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     Initializer::get()->blockListenerMethod = tmpBlockListenerMethod;
 
     auto tmpTransactionListenerClass = env->FindClass("com/nunchuk/android/listener/TransactionListener");
-    auto tmpTransactionListenerMethod = env->GetStaticMethodID(tmpTransactionListenerClass, "onTransactionUpdate", "(Ljava/lang/String;Lcom/nunchuk/android/type/TransactionStatus;Ljava/lang/String;)V");
+    auto tmpTransactionListenerMethod = env->GetStaticMethodID(tmpTransactionListenerClass, "onTransactionUpdate", "(Ljava/lang/String;Ljava/lang/String;)V");
     Initializer::get()->transactionListenerClass = (jclass) env->NewGlobalRef(tmpTransactionListenerClass);
     Initializer::get()->transactionListenerMethod = tmpTransactionListenerMethod;
 
@@ -215,7 +215,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         Initializer::get()->transactionListenerClass,
                         Initializer::get()->transactionListenerMethod,
                         StringWrapper(tx_id).toJString(g_env),
-                        Deserializer::convert2JTransactionStatus(g_env, status),
                         StringWrapper(wallet_id).toJString(g_env)
                 );
             });
