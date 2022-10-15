@@ -7,6 +7,7 @@ import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
+import com.nunchuk.android.type.HealthStatus
 import com.nunchuk.android.type.WalletType
 
 class NunchukNativeSdk {
@@ -832,11 +833,19 @@ class NunchukNativeSdk {
     fun setSelectedWallet(walletId: String) = nunchukAndroid.setSelectedWallet(walletId)
 
     @Throws(NCNativeException::class)
-     fun getColdCardWallets(records: Array<NdefRecord>) = nunchukAndroid.getColdCardWallets(records)
+    fun getColdCardWallets(records: Array<NdefRecord>) = nunchukAndroid.getColdCardWallets(records)
 
     @Throws(NCNativeException::class)
-     fun createWallet2(wallet: Wallet) : Wallet = nunchukAndroid.createWallet2(wallet.toBridge())
+    fun createWallet2(wallet: Wallet): Wallet = nunchukAndroid.createWallet2(wallet.toBridge())
 
     @Throws(NCNativeException::class)
     fun deletePrimaryKey(): Boolean = nunchukAndroid.deletePrimaryKey()
+
+    @Throws(NCNativeException::class)
+    fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord> =
+        nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath)
+
+    @Throws(NCNativeException::class)
+    fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): HealthStatus? =
+        nunchukAndroid.healthCheckColdCard(signer, records)
 }

@@ -4,6 +4,7 @@
 #include "nunchukprovider.h"
 #include "utils/ndef.hpp"
 #include "string-wrapper.h"
+#include "utils/coldcard.hpp"
 
 using namespace nunchuk::ndef;
 using namespace nunchuk;
@@ -169,6 +170,47 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet2(JNIEnv *env, 
         auto cWallet = Serializer::convert2CWallet(env, wallet);
         auto result = NunchukProvider::get()->nu->CreateWallet(cWallet, true);
         return Deserializer::convert2JWallet(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobjectArray JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateColdCardHealthCheckMessage(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jstring derivation_path) {
+    try {
+        auto data = GenerateColdCardHealthCheckMessage(StringWrapper(env, derivation_path));
+        auto cRecords = NDEFRecordsFromStr(data);
+        return Deserializer::convert2JRecords(env, cRecords);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckColdCard(JNIEnv *env, jobject thiz,
+                                                                         jobject signer,
+                                                                         jobjectArray records) {
+    try {
+        auto cRecords = Serializer::convert2CRecords(env, records);
+        NDEFMessageType type = DetectNDEFMessageType(cRecords);
+        if (type == NDEFMessageType::TEXT) {
+            std::string text = NDEFRecordToStr(cRecords[0]);
+            BitcoinSignedMessage signed_message = ParseBitcoinSignedMessage(text);
+            SingleSigner cSinger = Serializer::convert2CSigner(env, signer);
+            HealthStatus status = NunchukProvider::get()->nu->HealthCheckSingleSigner(cSinger, signed_message.message, signed_message.signature);
+            return Deserializer::convert2JHealthStatus(env, status);
+        }
+        return nullptr;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;
