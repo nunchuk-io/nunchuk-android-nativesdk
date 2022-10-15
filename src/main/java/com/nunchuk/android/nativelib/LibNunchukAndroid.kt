@@ -619,7 +619,7 @@ internal class LibNunchukAndroid {
     ): String?
 
     @Throws(NCNativeException::class)
-    external fun getPrimaryKeys(chain: Int,storagePath: String): List<PrimaryKey>
+    external fun getPrimaryKeys(chain: Int, storagePath: String): List<PrimaryKey>
 
     @Throws(NCNativeException::class)
     external fun parseBtcUri(
@@ -630,7 +630,13 @@ internal class LibNunchukAndroid {
     external fun setSelectedWallet(walletId: String): Boolean
 
     @Throws(NCNativeException::class)
-    external fun deletePrimaryKey() : Boolean
+    external fun deletePrimaryKey(): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
+    external fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): HealthStatus?
 
     companion object {
         init {
