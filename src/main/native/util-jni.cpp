@@ -6,6 +6,7 @@
 #include "serializer.h"
 #include "deserializer.h"
 #include "initializer.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -82,3 +83,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getChainTip(
     }
 }
 
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidDerivationPath(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring path) {
+    try {
+        return Utils::IsValidDerivationPath(StringWrapper(env, path));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}

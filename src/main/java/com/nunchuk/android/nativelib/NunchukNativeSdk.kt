@@ -848,4 +848,18 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): HealthStatus? =
         nunchukAndroid.healthCheckColdCard(signer, records)
+
+    @Throws(NCNativeException::class)
+    fun isValidDerivationPath(path: String): Boolean = nunchukAndroid.isValidDerivationPath(path)
+
+    @Throws(NCNativeException::class)
+    fun getSignerFromMasterSigner(masterSignerId: String, path: String): SingleSigner =
+        nunchukAndroid.getSignerFromMasterSigner(masterSignerId, path)
+
+    @Throws(NCNativeException::class)
+    fun getDefaultSignerFromMasterSigner(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int
+    ): SingleSigner = nunchukAndroid.getDefaultSignerFromMasterSigner(masterSignerId, walletType, addressType)
 }

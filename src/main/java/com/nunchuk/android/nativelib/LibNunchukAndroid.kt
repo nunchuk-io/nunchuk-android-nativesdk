@@ -137,6 +137,13 @@ internal class LibNunchukAndroid {
     ): SingleSigner
 
     @Throws(NCNativeException::class)
+    external fun getDefaultSignerFromMasterSigner(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int
+    ): SingleSigner
+
+    @Throws(NCNativeException::class)
     external fun broadcastTransaction(walletId: String, txId: String): Transaction
 
     @Throws(NCNativeException::class)
@@ -636,7 +643,16 @@ internal class LibNunchukAndroid {
     external fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
-    external fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): HealthStatus?
+    external fun healthCheckColdCard(
+        signer: SingleSigner,
+        records: Array<NdefRecord>
+    ): HealthStatus?
+
+    @Throws(NCNativeException::class)
+    external fun isValidDerivationPath(path: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getSignerFromMasterSigner(masterSignerId: String, path: String): SingleSigner
 
     companion object {
         init {
