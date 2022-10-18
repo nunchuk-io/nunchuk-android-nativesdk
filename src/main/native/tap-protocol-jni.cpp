@@ -8,6 +8,7 @@
 #include "deserializer.h"
 #include "nunchukprovider.h"
 #include "nfc.h"
+#include "string-wrapper.h"
 
 #define APPNAME "tap_protocol_native_sdk"
 
@@ -288,5 +289,23 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decryptBackUpKey(JNIEnv *en
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cacheDefaultTapsignerMasterSignerXPub(
+        JNIEnv *env, jobject thiz, jobject iso_dep, jstring cvc, jstring master_signer_id) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        NunchukProvider::get()->nu->CacheDefaultTapsignerMasterSignerXPub(
+                ts.get(),
+                StringWrapper(env, cvc),
+                StringWrapper(env, master_signer_id),
+                [](int percent) { return true; }
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
     }
 }
