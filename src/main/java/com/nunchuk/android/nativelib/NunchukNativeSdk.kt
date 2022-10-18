@@ -666,6 +666,13 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.tapSignerTopUpXpub(isoDep, cvc, masterSignerId)
 
     @Throws(NCNativeException::class)
+    fun cacheDefaultTapsignerMasterSignerXPub(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String
+    ) = nunchukAndroid.cacheDefaultTapsignerMasterSignerXPub(isoDep, cvc, masterSignerId)
+
+    @Throws(NCNativeException::class)
     fun getTapSignerStatusFromMasterSigner(
         masterSignerId: String
     ) = nunchukAndroid.getTapSignerStatusFromMasterSigner(masterSignerId)

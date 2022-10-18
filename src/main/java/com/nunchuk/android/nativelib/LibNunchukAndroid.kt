@@ -484,6 +484,13 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun cacheDefaultTapsignerMasterSignerXPub(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String
+    )
+
+    @Throws(NCNativeException::class)
     external fun getTapSignerStatusFromMasterSigner(
         masterSignerId: String
     ): TapSignerStatus
