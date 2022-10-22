@@ -6,6 +6,7 @@ import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
 import android.nfc.tech.IsoDep
+import com.nunchuk.android.type.SignerType
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -660,6 +661,12 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getSignerFromMasterSigner(masterSignerId: String, path: String): SingleSigner
+
+    @Throws(NCNativeException::class)
+    external fun parseJsonSigners(
+        str: String,
+        type: SignerType
+    ): List<SingleSigner>
 
     companion object {
         init {

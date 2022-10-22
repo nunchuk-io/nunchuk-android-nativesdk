@@ -5,10 +5,7 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
-import com.nunchuk.android.type.AddressType
-import com.nunchuk.android.type.ExportFormat
-import com.nunchuk.android.type.HealthStatus
-import com.nunchuk.android.type.WalletType
+import com.nunchuk.android.type.*
 
 class NunchukNativeSdk {
 
@@ -869,4 +866,10 @@ class NunchukNativeSdk {
         walletType: Int,
         addressType: Int
     ): SingleSigner = nunchukAndroid.getDefaultSignerFromMasterSigner(masterSignerId, walletType, addressType)
+
+    @Throws(NCNativeException::class)
+    fun parseJsonSigners(
+        str: String,
+        type: SignerType
+    ): List<SingleSigner> = nunchukAndroid.parseJsonSigners(str, type)
 }
