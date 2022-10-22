@@ -224,6 +224,7 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setUsed", "(Z)V"), signer.is_used());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHasMasterSigner", "(Z)V"), signer.has_master_signer());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Lcom/nunchuk/android/type/SignerType;)V"), convert2JSignerType(env, signer.get_type()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDescriptor","(Ljava/lang/String;)V"), env->NewStringUTF(signer.get_descriptor().c_str()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }

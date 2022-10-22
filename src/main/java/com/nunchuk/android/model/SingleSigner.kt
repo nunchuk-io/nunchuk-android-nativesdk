@@ -16,9 +16,5 @@ data class SingleSigner(
     var used: Boolean = false,
     var type: SignerType = SignerType.AIRGAP,
     var hasMasterSigner: Boolean = false,
+    var descriptor: String = ""
 ) : Parcelable
-
-fun SingleSigner.toSpec(): String {
-    val newPath = derivationPath.replace("m/", "")
-    return "[$masterFingerprint/$newPath]$xpub"
-}
