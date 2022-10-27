@@ -117,7 +117,7 @@ publishing {
             groupId "${GROUP_ID}"
             artifactId "$ARTIFACT_ID"
             version "${VERSION}"
-            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_ARCH}-debug.aar")
+            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_ARCH}-release.aar")
         }
     }
 
