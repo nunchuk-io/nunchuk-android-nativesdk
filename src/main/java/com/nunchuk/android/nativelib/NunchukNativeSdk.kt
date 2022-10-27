@@ -872,4 +872,11 @@ class NunchukNativeSdk {
         str: String,
         type: SignerType
     ): List<SingleSigner> = nunchukAndroid.parseJsonSigners(str, type)
+
+    @Throws(NCNativeException::class)
+    fun verifyTapSignerBackup(
+        backUpKey: String,
+        decryptionKey: String,
+        masterSignerId: String
+    ): Boolean = nunchukAndroid.verifyTapSignerBackup(backUpKey, decryptionKey, masterSignerId)
 }

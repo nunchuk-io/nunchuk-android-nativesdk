@@ -309,3 +309,25 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cacheDefaultTapsignerMaster
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_verifyTapSignerBackup(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring back_up_key,
+                                                                           jstring decryption_key,
+                                                                           jstring master_signer_id) {
+    try {
+        NunchukProvider::get()->nu->VerifyTapsignerBackup(
+                StringWrapper(env, back_up_key),
+                StringWrapper(env, decryption_key),
+                StringWrapper(env, master_signer_id)
+        );
+        return JNI_TRUE;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
