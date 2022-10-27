@@ -27,12 +27,12 @@ build:
     - master
   stage: build
   script:
-    - ./gradlew clean assembleArm64_v8aDebug --stacktrace
+    - ./gradlew clean assembleArm64_v8a --stacktrace
 
 deploy:
   only:
     - master
   stage: deploy
   script:
-    - ./gradlew clean assembleArm64_v8aDebug --stacktrace
+    - ./gradlew clean assembleArm64_v8a --stacktrace
     - ./gradlew publish
