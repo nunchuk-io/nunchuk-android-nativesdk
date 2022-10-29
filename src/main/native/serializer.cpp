@@ -78,6 +78,9 @@ SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
         case 6:
             type = SignerType::COLDCARD_NFC;
             break;
+        case 7:
+            type = SignerType::SERVER;
+            break;
         default:
             type = SignerType::UNKNOWN;
             break;
