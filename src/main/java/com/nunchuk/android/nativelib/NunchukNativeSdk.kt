@@ -39,13 +39,15 @@ class NunchukNativeSdk {
         xpub: String,
         publicKey: String,
         derivationPath: String,
-        masterFingerprint: String
+        masterFingerprint: String,
+        type: SignerType
     ) = nunchukAndroid.createSigner(
         name = name,
         xpub = xpub,
         publicKey = publicKey,
         derivationPath = derivationPath,
-        masterFingerprint = masterFingerprint
+        masterFingerprint = masterFingerprint,
+        type = type,
     )
 
     @Throws(NCNativeException::class)
@@ -865,7 +867,8 @@ class NunchukNativeSdk {
         masterSignerId: String,
         walletType: Int,
         addressType: Int
-    ): SingleSigner = nunchukAndroid.getDefaultSignerFromMasterSigner(masterSignerId, walletType, addressType)
+    ): SingleSigner =
+        nunchukAndroid.getDefaultSignerFromMasterSigner(masterSignerId, walletType, addressType)
 
     @Throws(NCNativeException::class)
     fun parseJsonSigners(

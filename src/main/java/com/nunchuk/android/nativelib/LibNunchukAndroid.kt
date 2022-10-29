@@ -33,7 +33,8 @@ internal class LibNunchukAndroid {
         xpub: String,
         publicKey: String,
         derivationPath: String,
-        masterFingerprint: String
+        masterFingerprint: String,
+        type: SignerType
     ): SingleSigner
 
     @Throws(NCNativeException::class)
