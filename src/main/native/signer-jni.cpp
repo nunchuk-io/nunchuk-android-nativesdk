@@ -18,7 +18,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSigner(
         jstring xpub,
         jstring public_key,
         jstring derivation_path,
-        jstring master_fingerprint
+        jstring master_fingerprint,
+        jobject type
 ) {
     syslog(LOG_DEBUG, "[JNI] createSigner()");
     syslog(LOG_DEBUG, "[JNI] name::%s", env->GetStringUTFChars(name, JNI_FALSE));
@@ -34,7 +35,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSigner(
                 env->GetStringUTFChars(xpub, JNI_FALSE),
                 env->GetStringUTFChars(public_key, JNI_FALSE),
                 env->GetStringUTFChars(derivation_path, JNI_FALSE),
-                env->GetStringUTFChars(master_fingerprint, JNI_FALSE)
+                env->GetStringUTFChars(master_fingerprint, JNI_FALSE),
+                Serializer::convert2CSignerType(env, type)
         );
         return Deserializer::convert2JSigner(env, signer);
     } catch (BaseException &e) {
