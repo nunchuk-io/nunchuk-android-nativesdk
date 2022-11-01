@@ -605,6 +605,11 @@ internal class LibNunchukAndroid {
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
+    external fun exportWalletToBsms(
+        walletId: String
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun exportPsbtToMk4(
         walletId: String,
         txId: String

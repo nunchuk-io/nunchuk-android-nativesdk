@@ -796,6 +796,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.exportWalletToMk4(walletId)
 
     @Throws(NCNativeException::class)
+    fun exportWalletToBsms(
+        walletId: String
+    ) = nunchukAndroid.exportWalletToBsms(walletId)
+
+    @Throws(NCNativeException::class)
     fun exportPsbtToMk4(
         walletId: String,
         txId: String
