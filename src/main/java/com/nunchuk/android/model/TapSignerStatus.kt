@@ -9,6 +9,8 @@ data class TapSignerStatus(
     var isCreateSigner: Boolean = false,
     var backupKey: ByteArray? = null,
     var masterSignerId: String? = null,
+    var version: String? = null,
+    var birthHeight: Int = 0,
     override var ident: String? = null,
     override var authDelayInSecond: Int = 0
 ) : CardStatus(), Parcelable {
