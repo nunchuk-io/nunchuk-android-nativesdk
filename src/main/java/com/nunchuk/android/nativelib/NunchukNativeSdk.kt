@@ -887,4 +887,19 @@ class NunchukNativeSdk {
         decryptionKey: String,
         masterSignerId: String
     ): Boolean = nunchukAndroid.verifyTapSignerBackup(backUpKey, decryptionKey, masterSignerId)
+
+    @Throws(NCNativeException::class)
+    fun hasWallet(
+        walletId: String
+    ) = nunchukAndroid.hasWallet(walletId)
+
+    @Throws(NCNativeException::class)
+    fun addTapSigner(
+        cardId: String,
+        xfp: String,
+        name: String,
+        version: String,
+        brithHeight: Int,
+        isTestNet: Boolean
+    ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet)
 }
