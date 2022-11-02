@@ -700,6 +700,21 @@ internal class LibNunchukAndroid {
         masterSignerId: String
     ): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun hasWallet(
+        walletId: String
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun addTapSigner(
+        cardId: String,
+        xfp: String,
+        name: String,
+        version: String,
+        brithHeight: Int,
+        isTestNet: Boolean
+    )
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

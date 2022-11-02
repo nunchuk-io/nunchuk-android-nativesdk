@@ -331,3 +331,25 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_verifyTapSignerBackup(JNIEn
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addTapSigner(JNIEnv *env, jobject thiz,
+                                                                  jstring card_id, jstring xfp,
+                                                                  jstring name, jstring version,
+                                                                  jint brith_height,
+                                                                  jboolean is_test_net) {
+    try {
+        NunchukProvider::get()->nu->AddTapsigner(
+                StringWrapper(env, card_id),
+                StringWrapper(env, xfp),
+                StringWrapper(env, name),
+                StringWrapper(env, version),
+                brith_height,
+                is_test_net
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}

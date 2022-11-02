@@ -384,3 +384,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToBsms(JNIEnv *
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hasWallet(JNIEnv *env, jobject thiz,
+                                                               jstring wallet_id) {
+    try {
+        return NunchukProvider::get()->nu->HasWallet(StringWrapper(env, wallet_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
