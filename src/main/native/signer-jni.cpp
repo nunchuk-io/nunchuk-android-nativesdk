@@ -6,6 +6,7 @@
 #include "deserializer.h"
 #include "descriptor.h"
 #include "string-wrapper.h"
+#include "utils/enumconverter.hpp"
 
 using namespace nunchuk;
 
@@ -590,5 +591,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseJsonSigners(JNIEnv *en
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signerTypeFromStr(JNIEnv *env, jobject thiz,
+                                                                       jstring signer_type) {
+    try {
+        auto signerType = SignerTypeFromStr(
+                StringWrapper(env, signer_type)
+        );
+        return Deserializer::convert2JSignerType(env, signerType);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return Deserializer::convert2JSignerType(env, SignerType::UNKNOWN);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return Deserializer::convert2JSignerType(env, SignerType::UNKNOWN);
     }
 }

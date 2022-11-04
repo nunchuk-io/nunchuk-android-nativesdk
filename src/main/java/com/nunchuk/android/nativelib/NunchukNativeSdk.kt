@@ -921,4 +921,7 @@ class NunchukNativeSdk {
         brithHeight: Int,
         isTestNet: Boolean
     ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet)
+
+    @Throws(NCNativeException::class)
+    fun signerTypeFromStr(signerType: String): SignerType = nunchukAndroid.signerTypeFromStr(signerType)
 }
