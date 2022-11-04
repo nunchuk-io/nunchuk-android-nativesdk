@@ -696,6 +696,9 @@ internal class LibNunchukAndroid {
         isTestNet: Boolean
     )
 
+    @Throws(NCNativeException::class)
+    external fun signerTypeFromStr(signerType: String): SignerType
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
