@@ -25,5 +25,6 @@ data class Transaction(
     var subtractFeeFromAmount: Boolean = false,
     var isReceive: Boolean = false,
     var subAmount: Amount = Amount.ZER0,
-    var totalAmount: Amount = Amount.ZER0
+    var totalAmount: Amount = Amount.ZER0,
+    var psbt: String = "",
 ) : Parcelable

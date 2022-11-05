@@ -553,3 +553,21 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseBtcUri(JNIEnv *env, jo
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importPsbt(JNIEnv *env, jobject thiz,
+                                                                jstring wallet_id, jstring psbt) {
+    try {
+        auto transaction = NunchukProvider::get()->nu->ImportPsbt(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, psbt)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
