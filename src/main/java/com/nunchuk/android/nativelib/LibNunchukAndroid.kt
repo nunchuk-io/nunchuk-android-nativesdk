@@ -718,6 +718,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun signerTypeFromStr(signerType: String): SignerType
 
+    @Throws(NCNativeException::class)
+    external fun importPsbt(walletId: String, psbt: String): Transaction
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

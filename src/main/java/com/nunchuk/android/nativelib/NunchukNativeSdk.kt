@@ -924,4 +924,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun signerTypeFromStr(signerType: String): SignerType = nunchukAndroid.signerTypeFromStr(signerType)
+
+    @Throws(NCNativeException::class)
+    fun importPsbt(walletId: String, psbt: String): Transaction = nunchukAndroid.importPsbt(walletId, psbt)
 }
