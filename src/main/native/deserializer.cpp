@@ -477,6 +477,7 @@ jobject Deserializer::convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatu
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_card_ident().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_master_signer_id().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_version().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTestNet", "(Z)V"), status.is_testnet());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTapSignerStatus error::%s", e.what());
     }
