@@ -331,6 +331,21 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun updateTransaction(
+        walletId: String,
+        txId: String,
+        newTxId: String,
+        rawTx: String,
+        rejectMsg: String
+    ) = nunchukAndroid.updateTransaction(
+        walletId = walletId,
+        txId = txId,
+        newTxId = newTxId,
+        rawTx = rawTx,
+        rejectMsg = rejectMsg
+    )
+
+    @Throws(NCNativeException::class)
     fun signTransaction(
         walletId: String,
         txId: String,
@@ -904,8 +919,10 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet)
 
     @Throws(NCNativeException::class)
-    fun signerTypeFromStr(signerType: String): SignerType = nunchukAndroid.signerTypeFromStr(signerType)
+    fun signerTypeFromStr(signerType: String): SignerType =
+        nunchukAndroid.signerTypeFromStr(signerType)
 
     @Throws(NCNativeException::class)
-    fun importPsbt(walletId: String, psbt: String): Transaction = nunchukAndroid.importPsbt(walletId, psbt)
+    fun importPsbt(walletId: String, psbt: String): Transaction =
+        nunchukAndroid.importPsbt(walletId, psbt)
 }

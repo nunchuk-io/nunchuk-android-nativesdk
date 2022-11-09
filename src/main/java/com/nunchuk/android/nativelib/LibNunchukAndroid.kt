@@ -207,6 +207,9 @@ internal class LibNunchukAndroid {
     external fun updateTransactionMemo(walletId: String, txId: String, newMemo: String): Boolean
 
     @Throws(NCNativeException::class)
+    external fun updateTransaction(walletId: String, txId: String, newTxId: String, rawTx: String, rejectMsg: String)
+
+    @Throws(NCNativeException::class)
     external fun signTransaction(walletId: String, txId: String, device: Device): Transaction
 
     @Throws(NCNativeException::class)
