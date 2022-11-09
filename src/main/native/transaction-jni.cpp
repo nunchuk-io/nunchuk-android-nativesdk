@@ -577,7 +577,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importPsbt(JNIEnv *env, job
     }
 }
 extern "C"
-JNIEXPORT void JNICALL
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransaction(JNIEnv *env, jobject thiz,
                                                                        jstring wallet_id,
                                                                        jstring tx_id,
@@ -585,13 +585,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransaction(JNIEnv *e
                                                                        jstring raw_tx,
                                                                        jstring reject_msg) {
     try {
-        NunchukProvider::get()->nu->UpdateTransaction(
+        auto tx = NunchukProvider::get()->nu->UpdateTransaction(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, tx_id),
                 StringWrapper(env, new_tx_id),
                 StringWrapper(env, raw_tx),
                 StringWrapper(env, reject_msg)
         );
+        return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {
