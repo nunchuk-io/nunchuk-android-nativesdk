@@ -608,8 +608,13 @@ internal class LibNunchukAndroid {
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
-    external fun exportWalletToBsms(
+    external fun exportWalletToBsmsById(
         walletId: String
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun exportWalletToBsms(
+        wallet: WalletBridge
     ): String
 
     @Throws(NCNativeException::class)
