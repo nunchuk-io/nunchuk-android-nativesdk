@@ -99,3 +99,35 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidDerivationPath(JNIEn
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRequestToken(JNIEnv *env, jobject thiz,
+                                                                        jstring signature,
+                                                                        jstring fingerprint) {
+    try {
+        auto token = Utils::CreateRequestToken(StringWrapper(env, signature), StringWrapper(env, fingerprint));
+        return env->NewStringUTF(token.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getHealthCheckMessage(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring body) {
+    try {
+        auto messages_to_sign = Utils::GetHealthCheckMessage(StringWrapper(env, body));
+        return env->NewStringUTF(messages_to_sign.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
