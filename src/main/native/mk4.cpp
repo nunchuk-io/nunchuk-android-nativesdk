@@ -219,3 +219,23 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckColdCard(JNIEnv 
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageColdCard(JNIEnv *env, jobject thiz,
+                                                                         jstring derivation_path,
+                                                                         jstring messages_to_sign) {
+    try {
+        std::string generate_msg = GenerateColdCardHealthCheckMessage(
+                StringWrapper(env, derivation_path), StringWrapper(env, messages_to_sign));
+        auto records = NDEFRecordsFromStr(generate_msg);
+        std::string str = NDEFRecordToStr(records[0]);
+        BitcoinSignedMessage signed_message = ParseBitcoinSignedMessage(str);
+        return env->NewStringUTF(signed_message.signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
