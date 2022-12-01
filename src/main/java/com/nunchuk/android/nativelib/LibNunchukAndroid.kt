@@ -694,13 +694,13 @@ internal class LibNunchukAndroid {
     external fun deletePrimaryKey(): Boolean
 
     @Throws(NCNativeException::class)
-    external fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord>
+    external fun generateColdCardHealthCheckMessage(derivationPath: String, message: String?): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun healthCheckColdCard(
         signer: SingleSigner,
         records: Array<NdefRecord>
-    ): HealthStatus?
+    ): ColdCardHealth
 
     @Throws(NCNativeException::class)
     external fun isValidDerivationPath(path: String): Boolean

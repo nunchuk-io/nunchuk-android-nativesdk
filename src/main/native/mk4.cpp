@@ -182,9 +182,15 @@ extern "C"
 JNIEXPORT jobjectArray JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateColdCardHealthCheckMessage(JNIEnv *env,
                                                                                         jobject thiz,
-                                                                                        jstring derivation_path) {
+                                                                                        jstring derivation_path,
+                                                                                        jstring message) {
     try {
-        auto data = GenerateColdCardHealthCheckMessage(StringWrapper(env, derivation_path));
+        auto cMessage = message != nullptr ? StringWrapper(env, derivation_path)
+                                           : Utils::GenerateHealthCheckMessage();
+        auto data = GenerateColdCardHealthCheckMessage(
+                StringWrapper(env, derivation_path),
+                cMessage
+        );
         auto cRecords = NDEFRecordsFromStr(data);
         return Deserializer::convert2JRecords(env, cRecords);
     } catch (BaseException &e) {
@@ -207,8 +213,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckColdCard(JNIEnv 
             std::string text = NDEFRecordToStr(cRecords[0]);
             BitcoinSignedMessage signed_message = ParseBitcoinSignedMessage(text);
             SingleSigner cSinger = Serializer::convert2CSigner(env, signer);
-            HealthStatus status = NunchukProvider::get()->nu->HealthCheckSingleSigner(cSinger, signed_message.message, signed_message.signature);
-            return Deserializer::convert2JHealthStatus(env, status);
+            HealthStatus status = NunchukProvider::get()->nu->HealthCheckSingleSigner(cSinger,
+                                                                                      signed_message.message,
+                                                                                      signed_message.signature);
+            return Deserializer::convert2JColdCardHealth(env, status, signed_message.signature);
         }
         return nullptr;
     } catch (BaseException &e) {
