@@ -671,5 +671,23 @@ jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
     return instance;
 }
 
+jobject Deserializer::convert2JColdCardHealth(JNIEnv *env, const HealthStatus &status,
+                                              const std::string signature) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/ColdCardHealth");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setSignature", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(signature.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
+                                                       "(Lcom/nunchuk/android/type/HealthStatus;)V"),
+                            convert2JHealthStatus(env, status));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JColdCardHealth error::%s", e.what());
+    }
+    return instance;
+}
+
 
 

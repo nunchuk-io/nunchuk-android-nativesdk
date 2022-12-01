@@ -873,11 +873,11 @@ class NunchukNativeSdk {
     fun deletePrimaryKey(): Boolean = nunchukAndroid.deletePrimaryKey()
 
     @Throws(NCNativeException::class)
-    fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord> =
-        nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath)
+    fun generateColdCardHealthCheckMessage(derivationPath: String, message: String? = null): Array<NdefRecord> =
+        nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath, message)
 
     @Throws(NCNativeException::class)
-    fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): HealthStatus? =
+    fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): ColdCardHealth =
         nunchukAndroid.healthCheckColdCard(signer, records)
 
     @Throws(NCNativeException::class)

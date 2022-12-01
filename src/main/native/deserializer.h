@@ -75,6 +75,8 @@ public:
 
     static jobject convert2JHealthStatus(JNIEnv *env, const HealthStatus &status);
 
+    static jobject convert2JColdCardHealth(JNIEnv *env, const HealthStatus &status, const std::string signature);
+
     static jobject convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatus &status);
 
     static jobject convert2JSatsCardSlotStatus(JNIEnv *env, const SatscardSlot::Status &status);
