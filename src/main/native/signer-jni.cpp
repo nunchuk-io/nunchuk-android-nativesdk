@@ -7,6 +7,7 @@
 #include "descriptor.h"
 #include "string-wrapper.h"
 #include "utils/enumconverter.hpp"
+#include "nfc.h"
 
 using namespace nunchuk;
 
@@ -608,5 +609,51 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signerTypeFromStr(JNIEnv *e
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return Deserializer::convert2JSignerType(env, SignerType::UNKNOWN);
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signHealthCheckMessageTapSigner(JNIEnv *env,
+                                                                                     jobject thiz,
+                                                                                     jobject iso_dep,
+                                                                                     jstring cvc,
+                                                                                     jobject signer,
+                                                                                     jstring messages_to_sign) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        std::string signature = NunchukProvider::get()->nu->SignHealthCheckMessage(ts.get(),
+                                                                                   StringWrapper(env, cvc),
+                                                                                   singleSigner,
+                                                                                   StringWrapper(env,messages_to_sign));
+        return env->NewStringUTF(signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signHealthCheckMessage(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jobject signer,
+                                                                            jstring messages_to_sign) {
+    try {
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        std::string signature = NunchukProvider::get()->nu->SignHealthCheckMessage(singleSigner,
+                                                                                   StringWrapper(
+                                                                                           env,
+                                                                                           messages_to_sign));
+        return env->NewStringUTF(signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
     }
 }

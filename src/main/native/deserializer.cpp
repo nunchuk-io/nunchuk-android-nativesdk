@@ -84,6 +84,7 @@ jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedPassPhraseSent", "(Z)V"), device.needs_pass_phrase_sent());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedPinSet", "(Z)V"), device.needs_pin_sent());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInitialized", "(Z)V"), device.initialized());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTapsigner", "(Z)V"), device.is_tapsigner());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JDevice error::%s", e.what());
     }
