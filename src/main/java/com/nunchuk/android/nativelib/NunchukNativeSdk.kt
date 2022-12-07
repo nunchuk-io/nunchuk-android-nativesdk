@@ -873,7 +873,10 @@ class NunchukNativeSdk {
     fun deletePrimaryKey(): Boolean = nunchukAndroid.deletePrimaryKey()
 
     @Throws(NCNativeException::class)
-    fun generateColdCardHealthCheckMessage(derivationPath: String, message: String? = null): Array<NdefRecord> =
+    fun generateColdCardHealthCheckMessage(
+        derivationPath: String,
+        message: String? = null
+    ): Array<NdefRecord> =
         nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath, message)
 
     @Throws(NCNativeException::class)
@@ -946,7 +949,8 @@ class NunchukNativeSdk {
         nunchukAndroid.importPsbt(walletId, psbt)
 
     @Throws(NCNativeException::class)
-    fun signHealthCheckMessage(signer: SingleSigner, messagesToSign: String) = nunchukAndroid.signHealthCheckMessage(signer, messagesToSign)
+    fun signHealthCheckMessage(signer: SingleSigner, messagesToSign: String) =
+        nunchukAndroid.signHealthCheckMessage(signer, messagesToSign)
 
     @Throws(NCNativeException::class)
     fun signHealthCheckMessageTapSigner(
@@ -957,11 +961,36 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.signHealthCheckMessageTapSigner(isoDep, cvc, signer, messagesToSign)
 
     @Throws(NCNativeException::class)
-    fun signMessageColdCard(derivationPath: String, messagesToSign: String) = nunchukAndroid.signMessageColdCard(derivationPath, messagesToSign)
+    fun signMessageColdCard(derivationPath: String, messagesToSign: String) =
+        nunchukAndroid.signMessageColdCard(derivationPath, messagesToSign)
 
     @Throws(NCNativeException::class)
-    fun createRequestToken(signature: String, fingerprint: String) = nunchukAndroid.createRequestToken(signature, fingerprint)
+    fun createRequestToken(signature: String, fingerprint: String) =
+        nunchukAndroid.createRequestToken(signature, fingerprint)
 
     @Throws(NCNativeException::class)
     fun getHealthCheckMessage(body: String): String = nunchukAndroid.getHealthCheckMessage(body)
+
+    @Throws(NCNativeException::class)
+    fun getHealthCheckDummyTxMessage(walletId: String, body: String) =
+        nunchukAndroid.getHealthCheckDummyTxMessage(walletId, body)
+
+    @Throws(NCNativeException::class)
+    fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
+
+    @Throws(NCNativeException::class)
+    fun exportKeystoneDummyTransaction(txToSign: String) =
+        nunchukAndroid.exportKeystoneDummyTransaction(txToSign)
+
+    @Throws(NCNativeException::class)
+    fun exportPassportDummyTransaction(txToSign: String) =
+        nunchukAndroid.exportPassportDummyTransaction(txToSign)
+
+    @Throws(NCNativeException::class)
+    fun parseKeystoneDummyTransaction(signer: SingleSigner, qrs: List<String>) =
+        nunchukAndroid.parseKeystoneDummyTransaction(signer, qrs)
+
+    @Throws(NCNativeException::class)
+    fun parsePassportDummyTransaction(signer: SingleSigner, qrs: List<String>) =
+        nunchukAndroid.parsePassportDummyTransaction(signer, qrs)
 }
