@@ -694,7 +694,10 @@ internal class LibNunchukAndroid {
     external fun deletePrimaryKey(): Boolean
 
     @Throws(NCNativeException::class)
-    external fun generateColdCardHealthCheckMessage(derivationPath: String, message: String?): Array<NdefRecord>
+    external fun generateColdCardHealthCheckMessage(
+        derivationPath: String,
+        message: String?
+    ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun healthCheckColdCard(
@@ -768,6 +771,24 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getHealthCheckMessage(body: String): String
+
+    @Throws(NCNativeException::class)
+    external fun getHealthCheckDummyTxMessage(walletId: String, body: String): String
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTx(walletId: String, message: String): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun exportKeystoneDummyTransaction(txToSign: String): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun exportPassportDummyTransaction(txToSign: String): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun parseKeystoneDummyTransaction(signer: SingleSigner, qrs: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun parsePassportDummyTransaction(signer: SingleSigner, qrs: List<String>): String
 
     companion object {
         init {
