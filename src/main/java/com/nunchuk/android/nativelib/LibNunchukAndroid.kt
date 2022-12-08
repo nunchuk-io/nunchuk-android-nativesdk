@@ -785,10 +785,13 @@ internal class LibNunchukAndroid {
     external fun exportPassportDummyTransaction(txToSign: String): List<String>
 
     @Throws(NCNativeException::class)
-    external fun parseKeystoneDummyTransaction(signer: SingleSigner, qrs: List<String>): String
+    external fun parseKeystoneDummyTransaction(qrs: List<String>): String
 
     @Throws(NCNativeException::class)
-    external fun parsePassportDummyTransaction(signer: SingleSigner, qrs: List<String>): String
+    external fun parsePassportDummyTransaction(qrs: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String
 
     companion object {
         init {
