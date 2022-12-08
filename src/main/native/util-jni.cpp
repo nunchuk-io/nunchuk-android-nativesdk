@@ -203,14 +203,11 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneDummyTransaction(JNIEnv *env,
                                                                                    jobject thiz,
-                                                                                   jobject signer,
                                                                                    jobject qrs) {
     try {
         std::string psbt = Utils::ParseKeystoneTransaction(
                 Serializer::convert2CListString(env, qrs));
-        auto singleSigner = Serializer::convert2CSigner(env, signer);
-        auto signature = Utils::GetPartialSignature(singleSigner, psbt);
-        return env->NewStringUTF(signature.c_str());
+        return env->NewStringUTF(psbt.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {
@@ -222,13 +219,27 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parsePassportDummyTransaction(JNIEnv *env,
                                                                                    jobject thiz,
-                                                                                   jobject signer,
                                                                                    jobject qrs) {
     try {
         std::string psbt = Utils::ParsePassportTransaction(
                 Serializer::convert2CListString(env, qrs));
+        return env->NewStringUTF(psbt.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTransactionSignature(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jobject signer,
+                                                                                  jstring psbt) {
+    try {
         auto singleSigner = Serializer::convert2CSigner(env, signer);
-        auto signature = Utils::GetPartialSignature(singleSigner, psbt);
+        auto signature = Utils::GetPartialSignature(singleSigner, StringWrapper(env, psbt));
         return env->NewStringUTF(signature.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);

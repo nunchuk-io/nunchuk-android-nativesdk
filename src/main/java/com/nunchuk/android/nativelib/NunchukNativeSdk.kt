@@ -987,10 +987,14 @@ class NunchukNativeSdk {
         nunchukAndroid.exportPassportDummyTransaction(txToSign)
 
     @Throws(NCNativeException::class)
-    fun parseKeystoneDummyTransaction(signer: SingleSigner, qrs: List<String>) =
-        nunchukAndroid.parseKeystoneDummyTransaction(signer, qrs)
+    fun parseKeystoneDummyTransaction(qrs: List<String>) =
+        nunchukAndroid.parseKeystoneDummyTransaction(qrs)
 
     @Throws(NCNativeException::class)
-    fun parsePassportDummyTransaction(signer: SingleSigner, qrs: List<String>) =
-        nunchukAndroid.parsePassportDummyTransaction(signer, qrs)
+    fun parsePassportDummyTransaction(qrs: List<String>) =
+        nunchukAndroid.parsePassportDummyTransaction(qrs)
+
+    @Throws(NCNativeException::class)
+    fun getDummyTransactionSignature(signer: SingleSigner, psbt: String) =
+        nunchukAndroid.getDummyTransactionSignature(signer, psbt)
 }
