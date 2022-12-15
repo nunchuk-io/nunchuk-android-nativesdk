@@ -827,6 +827,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.exportPsbtToMk4(walletId, txId)
 
     @Throws(NCNativeException::class)
+    fun exportRawPsbtToMk4(
+        psbt: String
+    ) = nunchukAndroid.exportRawPsbtToMk4(psbt)
+
+    @Throws(NCNativeException::class)
     fun importTransactionFromMk4(
         walletId: String,
         records: Array<NdefRecord>

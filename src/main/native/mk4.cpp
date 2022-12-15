@@ -89,6 +89,21 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPsbtToMk4(JNIEnv *env
     }
 }
 extern "C"
+JNIEXPORT jobjectArray JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportRawPsbtToMk4(JNIEnv *env, jobject thiz,
+                                                                     jstring psbt) {
+    try {
+        auto cRecords = NDEFRecordsFromPSBT(StringWrapper(env, psbt));
+        return Deserializer::convert2JRecords(env, cRecords);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTransactionFromMk4(JNIEnv *env,
                                                                               jobject thiz,
