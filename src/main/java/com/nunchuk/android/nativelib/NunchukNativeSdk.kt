@@ -1021,4 +1021,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTransactionSignature(signer: SingleSigner, psbt: String) =
         nunchukAndroid.getDummyTransactionSignature(signer, psbt)
+
+    @Throws(NCNativeException::class)
+    fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>) =
+        nunchukAndroid.getColdcardSignatureFromPsbt(signer, records)
 }

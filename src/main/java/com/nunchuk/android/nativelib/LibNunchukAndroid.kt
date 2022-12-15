@@ -798,6 +798,8 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String
 
+    external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
