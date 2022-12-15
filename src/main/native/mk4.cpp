@@ -262,3 +262,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageColdCard(JNIEnv 
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getColdcardSignatureFromPsbt(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jobject signer,
+                                                                                  jobjectArray records) {
+    try {
+        auto cRecords = Serializer::convert2CRecords(env, records);
+        NDEFMessageType type = DetectNDEFMessageType(cRecords);
+        if (type == NDEFMessageType::PSBT) {
+            auto psbt = NDEFRecordsToPSBT(cRecords);
+            auto singleSigner = Serializer::convert2CSigner(env, signer);
+            auto signature = Utils::GetPartialSignature(singleSigner, psbt);
+            return env->NewStringUTF(signature.c_str());
+        }
+        return nullptr;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
