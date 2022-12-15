@@ -618,6 +618,11 @@ internal class LibNunchukAndroid {
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
+    external fun exportRawPsbtToMk4(
+        psbt: String
+    ): Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
     external fun importTransactionFromMk4(
         walletId: String,
         records: Array<NdefRecord>
