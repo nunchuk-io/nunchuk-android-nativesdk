@@ -229,6 +229,21 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun createTransaction(
+        signer: SingleSigner,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String
+    ) = nunchukAndroid.createTransactionWallet(
+        signer = signer,
+        psbt = psbt,
+        subAmount = subAmount,
+        feeRate = feeRate,
+        fee = fee
+    )
+
+    @Throws(NCNativeException::class)
     fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
