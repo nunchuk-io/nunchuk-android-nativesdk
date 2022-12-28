@@ -1040,4 +1040,7 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>) =
         nunchukAndroid.getColdcardSignatureFromPsbt(signer, records)
+
+    fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long) =
+        nunchukAndroid.updateTransactionSchedule(walletId, txId, broadcastTime)
 }

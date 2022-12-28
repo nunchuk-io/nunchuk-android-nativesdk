@@ -809,6 +809,8 @@ internal class LibNunchukAndroid {
 
     external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String
 
+    external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
