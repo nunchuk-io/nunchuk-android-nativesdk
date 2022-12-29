@@ -12,7 +12,8 @@ data class Device(
     var connected: Boolean = false,
     var needPassPhraseSent: Boolean = false,
     var needPinSet: Boolean = false,
-    var initialized: Boolean = true
+    var initialized: Boolean = true,
+    var isTapsigner: Boolean = false
 ) : Parcelable
 
 

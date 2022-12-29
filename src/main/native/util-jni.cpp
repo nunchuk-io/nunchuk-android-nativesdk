@@ -99,3 +99,152 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidDerivationPath(JNIEn
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRequestToken(JNIEnv *env, jobject thiz,
+                                                                        jstring signature,
+                                                                        jstring fingerprint) {
+    try {
+        auto token = Utils::CreateRequestToken(StringWrapper(env, signature),
+                                               StringWrapper(env, fingerprint));
+        return env->NewStringUTF(token.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getHealthCheckMessage(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring body) {
+    try {
+        auto messages_to_sign = Utils::GetHealthCheckMessage(StringWrapper(env, body));
+        return env->NewStringUTF(messages_to_sign.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getHealthCheckDummyTxMessage(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jstring wallet_id,
+                                                                                  jstring body) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->GetWallet(
+                StringWrapper(env, wallet_id)
+        );
+        std::string tx_to_sign = Utils::GetHealthCheckDummyTx(wallet, StringWrapper(env,
+                                                                                    body)); // user_data in json string
+        return env->NewStringUTF(tx_to_sign.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTx(JNIEnv *env, jobject thiz,
+                                                                jstring wallet_id,
+                                                                jstring message) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->GetWallet(
+                StringWrapper(env, wallet_id)
+        );
+        auto tx = Utils::DecodeDummyTx(wallet, StringWrapper(env, message));
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneDummyTransaction(JNIEnv *env,
+                                                                                    jobject thiz,
+                                                                                    jstring tx_to_sign) {
+    try {
+        auto qrs = Utils::ExportKeystoneTransaction(StringWrapper(env, tx_to_sign));
+        return Deserializer::convert2JListString(env, qrs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportDummyTransaction(JNIEnv *env,
+                                                                                    jobject thiz,
+                                                                                    jstring tx_to_sign) {
+    try {
+        auto qrs = Utils::ExportPassportTransaction(StringWrapper(env, tx_to_sign));
+        return Deserializer::convert2JListString(env, qrs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneDummyTransaction(JNIEnv *env,
+                                                                                   jobject thiz,
+                                                                                   jobject qrs) {
+    try {
+        std::string psbt = Utils::ParseKeystoneTransaction(
+                Serializer::convert2CListString(env, qrs));
+        return env->NewStringUTF(psbt.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parsePassportDummyTransaction(JNIEnv *env,
+                                                                                   jobject thiz,
+                                                                                   jobject qrs) {
+    try {
+        std::string psbt = Utils::ParsePassportTransaction(
+                Serializer::convert2CListString(env, qrs));
+        return env->NewStringUTF(psbt.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTransactionSignature(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jobject signer,
+                                                                                  jstring psbt) {
+    try {
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        auto signature = Utils::GetPartialSignature(singleSigner, StringWrapper(env, psbt));
+        return env->NewStringUTF(signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}

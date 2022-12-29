@@ -1,11 +1,11 @@
 package com.nunchuk.android.nativelib
 
 import android.nfc.NdefRecord
+import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
-import android.nfc.tech.IsoDep
 import com.nunchuk.android.type.SignerType
 
 internal const val LIB_NAME = "nunchuk-android"
@@ -159,6 +159,15 @@ internal class LibNunchukAndroid {
     ): Transaction
 
     @Throws(NCNativeException::class)
+    external fun createTransactionWallet(
+        signer: SingleSigner,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String
+    ): Transaction
+
+    @Throws(NCNativeException::class)
     external fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
@@ -207,7 +216,13 @@ internal class LibNunchukAndroid {
     external fun updateTransactionMemo(walletId: String, txId: String, newMemo: String): Boolean
 
     @Throws(NCNativeException::class)
-    external fun updateTransaction(walletId: String, txId: String, newTxId: String, rawTx: String, rejectMsg: String): Transaction
+    external fun updateTransaction(
+        walletId: String,
+        txId: String,
+        newTxId: String,
+        rawTx: String,
+        rejectMsg: String
+    ): Transaction
 
     @Throws(NCNativeException::class)
     external fun signTransaction(walletId: String, txId: String, device: Device): Transaction
@@ -508,6 +523,13 @@ internal class LibNunchukAndroid {
     ): MasterSigner
 
     @Throws(NCNativeException::class)
+    external fun importTapsignerMasterSignerContent(
+        content: ByteArray,
+        backUpKey: String,
+        rawName: String
+    ): MasterSigner
+
+    @Throws(NCNativeException::class)
     external fun parseWalletDescriptor(content: String): Wallet
 
     @Throws(NCNativeException::class)
@@ -589,14 +611,24 @@ internal class LibNunchukAndroid {
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
-    external fun exportWalletToBsms(
+    external fun exportWalletToBsmsById(
         walletId: String
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun exportWalletToBsms(
+        wallet: WalletBridge
     ): String
 
     @Throws(NCNativeException::class)
     external fun exportPsbtToMk4(
         walletId: String,
         txId: String
+    ): Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
+    external fun exportRawPsbtToMk4(
+        psbt: String
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
@@ -657,13 +689,16 @@ internal class LibNunchukAndroid {
     external fun deletePrimaryKey(): Boolean
 
     @Throws(NCNativeException::class)
-    external fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord>
+    external fun generateColdCardHealthCheckMessage(
+        derivationPath: String,
+        message: String?
+    ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun healthCheckColdCard(
         signer: SingleSigner,
         records: Array<NdefRecord>
-    ): HealthStatus?
+    ): ColdCardHealth
 
     @Throws(NCNativeException::class)
     external fun isValidDerivationPath(path: String): Boolean
@@ -681,6 +716,13 @@ internal class LibNunchukAndroid {
     external fun verifyTapSignerBackup(
         backUpKey: String,
         decryptionKey: String,
+        masterSignerId: String
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun verifyTapSignerBackupContent(
+        content: ByteArray,
+        backUpKey: String,
         masterSignerId: String
     ): Boolean
 
@@ -704,6 +746,51 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun importPsbt(walletId: String, psbt: String): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun signHealthCheckMessage(signer: SingleSigner, messagesToSign: String): String
+
+    @Throws(NCNativeException::class)
+    external fun signHealthCheckMessageTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        signer: SingleSigner,
+        messagesToSign: String
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun signMessageColdCard(derivationPath: String, messagesToSign: String): String
+
+    @Throws(NCNativeException::class)
+    external fun createRequestToken(signature: String, fingerprint: String): String
+
+    @Throws(NCNativeException::class)
+    external fun getHealthCheckMessage(body: String): String
+
+    @Throws(NCNativeException::class)
+    external fun getHealthCheckDummyTxMessage(walletId: String, body: String): String
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTx(walletId: String, message: String): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun exportKeystoneDummyTransaction(txToSign: String): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun exportPassportDummyTransaction(txToSign: String): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun parseKeystoneDummyTransaction(qrs: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun parsePassportDummyTransaction(qrs: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String
+
+    external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String
+
+    external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
 
     companion object {
         init {
