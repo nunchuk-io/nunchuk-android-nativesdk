@@ -45,7 +45,7 @@ brew install automake libtool boost pkg-config libevent
 
 ```
 pushd ${PWD}/src/main/native
-git submodule add --force -b main https://gitlab.com/nunchuck/libnunchuk.git
+git submodule add --force -b main https://github.com/nunchuk-io/libnunchuk.git
 git submodule update --init --recursive
 sh .install_deps.sh arm64-v8a
 popd
