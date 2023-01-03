@@ -84,6 +84,7 @@ jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedPassPhraseSent", "(Z)V"), device.needs_pass_phrase_sent());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedPinSet", "(Z)V"), device.needs_pin_sent());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInitialized", "(Z)V"), device.initialized());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTapsigner", "(Z)V"), device.is_tapsigner());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JDevice error::%s", e.what());
     }
@@ -328,6 +329,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceive", "(Z)V"), transaction.is_receive());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSubAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, transaction.get_sub_amount()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalAmount", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, total));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPsbt", "(Ljava/lang/String;)V"), env->NewStringUTF(transaction.get_psbt().c_str()));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
@@ -472,8 +474,11 @@ jobject Deserializer::convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatu
         env->SetByteArrayRegion (ret, 0, back_up_data.size(), (jbyte*)back_up_data.data());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBackupKey", "([B)V"), ret);
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAuthDelayInSecond", "(I)V"), status.get_auth_delay());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBirthHeight", "(I)V"), status.get_birth_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_card_ident().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_master_signer_id().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V"), env->NewStringUTF(status.get_version().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTestNet", "(Z)V"), status.is_testnet());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTapSignerStatus error::%s", e.what());
     }
@@ -662,6 +667,24 @@ jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMessage", "(Ljava/lang/String;)V"),  env->NewStringUTF(btcUri.message.c_str()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JBtcUri error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JColdCardHealth(JNIEnv *env, const HealthStatus &status,
+                                              const std::string signature) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/ColdCardHealth");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setSignature", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(signature.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
+                                                       "(Lcom/nunchuk/android/type/HealthStatus;)V"),
+                            convert2JHealthStatus(env, status));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JColdCardHealth error::%s", e.what());
     }
     return instance;
 }

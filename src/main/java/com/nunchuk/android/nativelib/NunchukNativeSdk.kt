@@ -58,13 +58,15 @@ class NunchukNativeSdk {
         xpub: String,
         publicKey: String,
         derivationPath: String,
-        masterFingerprint: String
+        masterFingerprint: String,
+        type: SignerType
     ) = nunchukAndroid.createSigner(
         name = name,
         xpub = xpub,
         publicKey = publicKey,
         derivationPath = derivationPath,
-        masterFingerprint = masterFingerprint
+        masterFingerprint = masterFingerprint,
+        type = type,
     )
 
     @Throws(NCNativeException::class)
@@ -246,6 +248,21 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun createTransaction(
+        signer: SingleSigner,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String
+    ) = nunchukAndroid.createTransactionWallet(
+        signer = signer,
+        psbt = psbt,
+        subAmount = subAmount,
+        feeRate = feeRate,
+        fee = fee
+    )
+
+    @Throws(NCNativeException::class)
     fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
@@ -345,6 +362,21 @@ class NunchukNativeSdk {
         walletId = walletId,
         txId = txId,
         newMemo = newMemo
+    )
+
+    @Throws(NCNativeException::class)
+    fun updateTransaction(
+        walletId: String,
+        txId: String,
+        newTxId: String,
+        rawTx: String,
+        rejectMsg: String
+    ) = nunchukAndroid.updateTransaction(
+        walletId = walletId,
+        txId = txId,
+        newTxId = newTxId,
+        rawTx = rawTx,
+        rejectMsg = rejectMsg
     )
 
     @Throws(NCNativeException::class)
@@ -794,10 +826,25 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.exportWalletToMk4(walletId)
 
     @Throws(NCNativeException::class)
+    fun exportWalletToBsmsById(
+        walletId: String
+    ) = nunchukAndroid.exportWalletToBsmsById(walletId)
+
+    @Throws(NCNativeException::class)
+    fun exportWalletToBsms(
+        wallet: Wallet
+    ) = nunchukAndroid.exportWalletToBsms(wallet.toBridge())
+
+    @Throws(NCNativeException::class)
     fun exportPsbtToMk4(
         walletId: String,
         txId: String
     ) = nunchukAndroid.exportPsbtToMk4(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun exportRawPsbtToMk4(
+        psbt: String
+    ) = nunchukAndroid.exportRawPsbtToMk4(psbt)
 
     @Throws(NCNativeException::class)
     fun importTransactionFromMk4(
@@ -865,11 +912,14 @@ class NunchukNativeSdk {
     fun deletePrimaryKey(): Boolean = nunchukAndroid.deletePrimaryKey()
 
     @Throws(NCNativeException::class)
-    fun generateColdCardHealthCheckMessage(derivationPath: String): Array<NdefRecord> =
-        nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath)
+    fun generateColdCardHealthCheckMessage(
+        derivationPath: String,
+        message: String? = null
+    ): Array<NdefRecord> =
+        nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath, message)
 
     @Throws(NCNativeException::class)
-    fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): HealthStatus? =
+    fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): ColdCardHealth =
         nunchukAndroid.healthCheckColdCard(signer, records)
 
     @Throws(NCNativeException::class)
@@ -884,11 +934,113 @@ class NunchukNativeSdk {
         masterSignerId: String,
         walletType: Int,
         addressType: Int
-    ): SingleSigner = nunchukAndroid.getDefaultSignerFromMasterSigner(masterSignerId, walletType, addressType)
+    ): SingleSigner =
+        nunchukAndroid.getDefaultSignerFromMasterSigner(masterSignerId, walletType, addressType)
 
     @Throws(NCNativeException::class)
     fun parseJsonSigners(
         str: String,
         type: SignerType
     ): List<SingleSigner> = nunchukAndroid.parseJsonSigners(str, type)
+
+    @Throws(NCNativeException::class)
+    fun verifyTapSignerBackup(
+        backUpKey: String,
+        decryptionKey: String,
+        masterSignerId: String
+    ): Boolean = nunchukAndroid.verifyTapSignerBackup(backUpKey, decryptionKey, masterSignerId)
+
+    @Throws(NCNativeException::class)
+    fun verifyTapSignerBackupContent(
+        content: ByteArray,
+        backUpKey: String,
+        masterSignerId: String
+    ): Boolean = nunchukAndroid.verifyTapSignerBackupContent(content, backUpKey, masterSignerId)
+
+    @Throws(NCNativeException::class)
+    fun importTapsignerMasterSignerContent(
+        content: ByteArray,
+        backUpKey: String,
+        rawName: String
+    ): MasterSigner = nunchukAndroid.importTapsignerMasterSignerContent(content, backUpKey, rawName)
+
+    @Throws(NCNativeException::class)
+    fun hasWallet(
+        walletId: String
+    ) = nunchukAndroid.hasWallet(walletId)
+
+    @Throws(NCNativeException::class)
+    fun addTapSigner(
+        cardId: String,
+        xfp: String,
+        name: String,
+        version: String,
+        brithHeight: Int,
+        isTestNet: Boolean
+    ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet)
+
+    @Throws(NCNativeException::class)
+    fun signerTypeFromStr(signerType: String): SignerType =
+        nunchukAndroid.signerTypeFromStr(signerType)
+
+    @Throws(NCNativeException::class)
+    fun importPsbt(walletId: String, psbt: String): Transaction =
+        nunchukAndroid.importPsbt(walletId, psbt)
+
+    @Throws(NCNativeException::class)
+    fun signHealthCheckMessage(signer: SingleSigner, messagesToSign: String) =
+        nunchukAndroid.signHealthCheckMessage(signer, messagesToSign)
+
+    @Throws(NCNativeException::class)
+    fun signHealthCheckMessageTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        signer: SingleSigner,
+        messagesToSign: String
+    ) = nunchukAndroid.signHealthCheckMessageTapSigner(isoDep, cvc, signer, messagesToSign)
+
+    @Throws(NCNativeException::class)
+    fun signMessageColdCard(derivationPath: String, messagesToSign: String) =
+        nunchukAndroid.signMessageColdCard(derivationPath, messagesToSign)
+
+    @Throws(NCNativeException::class)
+    fun createRequestToken(signature: String, fingerprint: String) =
+        nunchukAndroid.createRequestToken(signature, fingerprint)
+
+    @Throws(NCNativeException::class)
+    fun getHealthCheckMessage(body: String): String = nunchukAndroid.getHealthCheckMessage(body)
+
+    @Throws(NCNativeException::class)
+    fun getHealthCheckDummyTxMessage(walletId: String, body: String) =
+        nunchukAndroid.getHealthCheckDummyTxMessage(walletId, body)
+
+    @Throws(NCNativeException::class)
+    fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
+
+    @Throws(NCNativeException::class)
+    fun exportKeystoneDummyTransaction(txToSign: String) =
+        nunchukAndroid.exportKeystoneDummyTransaction(txToSign)
+
+    @Throws(NCNativeException::class)
+    fun exportPassportDummyTransaction(txToSign: String) =
+        nunchukAndroid.exportPassportDummyTransaction(txToSign)
+
+    @Throws(NCNativeException::class)
+    fun parseKeystoneDummyTransaction(qrs: List<String>) =
+        nunchukAndroid.parseKeystoneDummyTransaction(qrs)
+
+    @Throws(NCNativeException::class)
+    fun parsePassportDummyTransaction(qrs: List<String>) =
+        nunchukAndroid.parsePassportDummyTransaction(qrs)
+
+    @Throws(NCNativeException::class)
+    fun getDummyTransactionSignature(signer: SingleSigner, psbt: String) =
+        nunchukAndroid.getDummyTransactionSignature(signer, psbt)
+
+    @Throws(NCNativeException::class)
+    fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>) =
+        nunchukAndroid.getColdcardSignatureFromPsbt(signer, records)
+
+    fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long) =
+        nunchukAndroid.updateTransactionSchedule(walletId, txId, broadcastTime)
 }

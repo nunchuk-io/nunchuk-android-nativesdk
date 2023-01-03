@@ -76,8 +76,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
-        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(StringWrapper(env, wallet_id),
-                                                                                               txInputs);
+        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
+                StringWrapper(env, wallet_id),
+                txInputs);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CAmountsMap(env, outputs),
@@ -506,7 +507,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFee(
 }
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_loadTransaction(JNIEnv *env, jobject thiz, jstring tx_id) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_loadTransaction(JNIEnv *env, jobject thiz,
+                                                                     jstring tx_id) {
     try {
         auto transaction = NunchukProvider::get()->nu->FetchTransaction(
                 StringWrapper(env, tx_id)
@@ -522,7 +524,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_loadTransaction(JNIEnv *env
 }
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signAirgapTransaction(JNIEnv *env, jobject thiz, jstring init_event_id,
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signAirgapTransaction(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring init_event_id,
                                                                            jstring master_signer_id) {
     try {
         auto value = NunchukProvider::get()->nuMatrix->SignAirgapTransaction(
@@ -541,7 +545,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signAirgapTransaction(JNIEn
 }
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseBtcUri(JNIEnv *env, jobject thiz, jstring uri) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseBtcUri(JNIEnv *env, jobject thiz,
+                                                                 jstring uri) {
     try {
         auto value = Utils::ParseBtcUri(StringWrapper(env, uri));
         return Deserializer::convert2JBtcUri(env, value);
@@ -551,5 +556,91 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseBtcUri(JNIEnv *env, jo
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importPsbt(JNIEnv *env, jobject thiz,
+                                                                jstring wallet_id, jstring psbt) {
+    try {
+        auto transaction = NunchukProvider::get()->nu->ImportPsbt(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, psbt)
+        );
+        return Deserializer::convert2JTransaction(env, transaction);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransaction(JNIEnv *env, jobject thiz,
+                                                                       jstring wallet_id,
+                                                                       jstring tx_id,
+                                                                       jstring new_tx_id,
+                                                                       jstring raw_tx,
+                                                                       jstring reject_msg) {
+    try {
+        auto tx = NunchukProvider::get()->nu->UpdateTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                StringWrapper(env, new_tx_id),
+                StringWrapper(env, raw_tx),
+                StringWrapper(env, reject_msg)
+        );
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransactionWallet(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jobject signer,
+                                                                             jstring psbt,
+                                                                             jstring sub_amount,
+                                                                             jstring fee_rate,
+                                                                             jstring fee) {
+    try {
+        Wallet dummy_wallet = Wallet(false);
+        SingleSigner singleSigner = Serializer::convert2CSigner(env, signer);
+        dummy_wallet.set_signers({singleSigner});
+        Transaction tx = Utils::DecodeTx(dummy_wallet, StringWrapper(env, psbt),
+                                         Utils::AmountFromValue(StringWrapper(env, sub_amount)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee_rate)));
+        auto signed_tx = NunchukProvider::get()->nu->SignTransaction(dummy_wallet, tx,
+                                                                     Device(singleSigner.get_master_fingerprint()));
+        return Deserializer::convert2JTransaction(env, signed_tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransactionSchedule(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jstring wallet_id,
+                                                                               jstring tx_id,
+                                                                               jlong broadcast_time) {
+    try {
+        NunchukProvider::get()->nu->UpdateTransactionSchedule(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                broadcast_time);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
     }
 }

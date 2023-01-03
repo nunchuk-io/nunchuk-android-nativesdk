@@ -89,6 +89,21 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPsbtToMk4(JNIEnv *env
     }
 }
 extern "C"
+JNIEXPORT jobjectArray JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportRawPsbtToMk4(JNIEnv *env, jobject thiz,
+                                                                     jstring psbt) {
+    try {
+        auto cRecords = NDEFRecordsFromPSBT(StringWrapper(env, psbt));
+        return Deserializer::convert2JRecords(env, cRecords);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTransactionFromMk4(JNIEnv *env,
                                                                               jobject thiz,
@@ -182,9 +197,15 @@ extern "C"
 JNIEXPORT jobjectArray JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateColdCardHealthCheckMessage(JNIEnv *env,
                                                                                         jobject thiz,
-                                                                                        jstring derivation_path) {
+                                                                                        jstring derivation_path,
+                                                                                        jstring message) {
     try {
-        auto data = GenerateColdCardHealthCheckMessage(StringWrapper(env, derivation_path));
+        auto cMessage = message != nullptr ? StringWrapper(env, derivation_path)
+                                           : Utils::GenerateHealthCheckMessage();
+        auto data = GenerateColdCardHealthCheckMessage(
+                StringWrapper(env, derivation_path),
+                cMessage
+        );
         auto cRecords = NDEFRecordsFromStr(data);
         return Deserializer::convert2JRecords(env, cRecords);
     } catch (BaseException &e) {
@@ -207,8 +228,54 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckColdCard(JNIEnv 
             std::string text = NDEFRecordToStr(cRecords[0]);
             BitcoinSignedMessage signed_message = ParseBitcoinSignedMessage(text);
             SingleSigner cSinger = Serializer::convert2CSigner(env, signer);
-            HealthStatus status = NunchukProvider::get()->nu->HealthCheckSingleSigner(cSinger, signed_message.message, signed_message.signature);
-            return Deserializer::convert2JHealthStatus(env, status);
+            HealthStatus status = NunchukProvider::get()->nu->HealthCheckSingleSigner(cSinger,
+                                                                                      signed_message.message,
+                                                                                      signed_message.signature);
+            return Deserializer::convert2JColdCardHealth(env, status, signed_message.signature);
+        }
+        return nullptr;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageColdCard(JNIEnv *env, jobject thiz,
+                                                                         jstring derivation_path,
+                                                                         jstring messages_to_sign) {
+    try {
+        std::string generate_msg = GenerateColdCardHealthCheckMessage(
+                StringWrapper(env, derivation_path), StringWrapper(env, messages_to_sign));
+        auto records = NDEFRecordsFromStr(generate_msg);
+        std::string str = NDEFRecordToStr(records[0]);
+        BitcoinSignedMessage signed_message = ParseBitcoinSignedMessage(str);
+        return env->NewStringUTF(signed_message.signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getColdcardSignatureFromPsbt(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jobject signer,
+                                                                                  jobjectArray records) {
+    try {
+        auto cRecords = Serializer::convert2CRecords(env, records);
+        NDEFMessageType type = DetectNDEFMessageType(cRecords);
+        if (type == NDEFMessageType::PSBT) {
+            auto psbt = NDEFRecordsToPSBT(cRecords);
+            auto singleSigner = Serializer::convert2CSigner(env, signer);
+            auto signature = Utils::GetPartialSignature(singleSigner, psbt);
+            return env->NewStringUTF(signature.c_str());
         }
         return nullptr;
     } catch (BaseException &e) {

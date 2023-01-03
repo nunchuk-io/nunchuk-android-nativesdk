@@ -95,6 +95,7 @@ buildscript {
 
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation "androidx.annotation:annotation:1.5.0"
 }
 
 allprojects {
@@ -109,7 +110,7 @@ allprojects {
 def SUPPORTED_ARCH = "arm64_v8a"
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk-${SUPPORTED_ARCH}"
-def VERSION = "1.1.54"
+def VERSION = "1.1.55"
 
 publishing {
     publications {
@@ -117,7 +118,7 @@ publishing {
             groupId "${GROUP_ID}"
             artifactId "$ARTIFACT_ID"
             version "${VERSION}"
-            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_ARCH}-debug.aar")
+            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_ARCH}-release.aar")
         }
     }
 
