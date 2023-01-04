@@ -6,6 +6,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'kotlin-parcelize'
 
 android {
+    ndkVersion "21.4.7075529"
     compileSdkVersion androidConfig.compileSdkVersion
     defaultConfig {
         minSdkVersion androidConfig.minSdkVersion
