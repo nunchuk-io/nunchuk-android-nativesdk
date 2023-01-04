@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 if [ -z "$ANDROID_SDK" ]; then
