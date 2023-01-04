@@ -7,7 +7,7 @@ For more info on our products, please visit [our website](https://nunchuk.io/).
 ## Build requirements
 Java: 11
 
-NDK: 21.0.6113669
+NDK: 21.4.7075529
 
 minSdkVersion: 21
 
@@ -60,7 +60,7 @@ export ANDROID_SDK_HOME=/Users/${USER}/Library/Android/sdk
 export ANDROID_SDK_ROOT=/Users/${USER}/Library/Android/sdk
 export ANDROID_HOME=/Users/${USER}/Library/Android/sdk 
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-export ANDROID_NDK_HOME=/Users/${USER}/Library/Android/sdk/ndk/21.0.6113669
+export ANDROID_NDK_HOME=/Users/${USER}/Library/Android/sdk/ndk/21.4.7075529
 ```
 
 ## Building
