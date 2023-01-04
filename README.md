@@ -65,6 +65,6 @@ export ANDROID_NDK_HOME=/Users/${USER}/Library/Android/sdk/ndk/21.0.6113669
 
 ## Building
 ```
-./gradlew clean assembleArm64_v8aDebug --stacktrace
+./gradlew clean assembleArm64_v8aRelease --stacktrace
 ./gradlew publish
 ```
