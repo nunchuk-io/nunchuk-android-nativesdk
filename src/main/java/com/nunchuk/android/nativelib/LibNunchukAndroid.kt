@@ -792,6 +792,9 @@ internal class LibNunchukAndroid {
 
     external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
 
+    @Throws(NCNativeException::class)
+    external fun forceRefreshWallet(walletId: String)
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

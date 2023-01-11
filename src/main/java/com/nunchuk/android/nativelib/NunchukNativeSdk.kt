@@ -1024,4 +1024,8 @@ class NunchukNativeSdk {
 
     fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long) =
         nunchukAndroid.updateTransactionSchedule(walletId, txId, broadcastTime)
+
+    @Throws(NCNativeException::class)
+    fun forceRefreshWallet(walletId: String) =
+        nunchukAndroid.forceRefreshWallet(walletId)
 }
