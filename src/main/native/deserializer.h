@@ -102,4 +102,8 @@ public:
     static jobject convert2JPrimaryKey(JNIEnv *env, const PrimaryKey &key);
 
     static jobject convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri);
+
+    static jobject convert2JSignerTag(JNIEnv *env, const SignerTag &tag);
+
+    static jobject convert2JSignerTags(JNIEnv *env, const std::vector<SignerTag> &tags);
 };

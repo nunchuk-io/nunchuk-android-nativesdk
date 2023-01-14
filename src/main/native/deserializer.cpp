@@ -203,6 +203,7 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLastHealthCheck", "(J)V"), signer.get_last_health_check());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSoftware", "(Z)V"), signer.is_software());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Lcom/nunchuk/android/type/SignerType;)V"), convert2JSignerType(env, signer.get_type()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V"), convert2JSignerTags(env, signer.get_tags()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -689,5 +690,24 @@ jobject Deserializer::convert2JColdCardHealth(JNIEnv *env, const HealthStatus &s
     return instance;
 }
 
+jobject Deserializer::convert2JSignerTag(JNIEnv *env, const SignerTag &tag) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/SignerTagHelper");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/SignerTag;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) tag);
+}
+
+jobject Deserializer::convert2JSignerTags(JNIEnv *env, const std::vector<SignerTag> &tags) {
+    syslog(LOG_DEBUG, "[JNI] convert2JSignerTags()");
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const SignerTag &s: tags) {
+        jobject element = convert2JSignerTag(env, s);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}
 
 

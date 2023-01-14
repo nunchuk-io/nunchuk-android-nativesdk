@@ -66,4 +66,8 @@ public:
     static std::vector<unsigned char> convert2CByteArray(JNIEnv *env, jbyteArray byteArray);
 
     static std::vector<NDEFRecord> convert2CRecords(JNIEnv *env, jobjectArray records);
+
+    static SignerTag convert2CSignerTag(JNIEnv *env, jobject tag);
+
+    static std::vector<SignerTag> convert2CSignerTags(JNIEnv *env, jobject tags);
 };

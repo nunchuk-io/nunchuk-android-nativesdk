@@ -20,6 +20,7 @@
 package com.nunchuk.android.model
 
 import android.os.Parcelable
+import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 import kotlinx.parcelize.Parcelize
 
@@ -30,5 +31,6 @@ data class MasterSigner(
     var device: Device = Device(),
     var lastHealthCheck: Long = 0,
     var software: Boolean = false,
-    var type: SignerType = SignerType.AIRGAP
+    var type: SignerType = SignerType.AIRGAP,
+    var tags: List<SignerTag> = emptyList()
 ) : Parcelable
