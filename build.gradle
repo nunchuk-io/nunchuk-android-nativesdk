@@ -111,7 +111,7 @@ allprojects {
 def SUPPORTED_ARCH = "arm64_v8a"
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk-${SUPPORTED_ARCH}"
-def VERSION = "1.1.55"
+def VERSION = "1.1.56"
 
 publishing {
     publications {
