@@ -89,6 +89,37 @@ SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
     return type;
 }
 
+SignerTag Serializer::convert2CSignerTag(JNIEnv *env, jobject tag) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/SignerTag");
+    jmethodID method = env->GetMethodID(clazz, "ordinal", "()I");
+    jint ordinal = env->CallIntMethod(tag, method);
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerTag]ordinal:: %d", ordinal);
+    SignerTag type;
+    switch (ordinal) {
+        default:
+            type = SignerTag::INHERITANCE;
+            break;
+    }
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerTag]type:: %d", type);
+    return type;
+}
+
+std::vector<SignerTag> Serializer::convert2CSignerTags(JNIEnv *env, jobject tags) {
+    jclass cList = env->FindClass("java/util/List");
+
+    jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
+
+    jint size = env->CallIntMethod(tags, sizeMethod);
+    std::vector<SignerTag> result;
+    for (jint i = 0; i < size; i++) {
+        auto item = (jobject) env->CallObjectMethod(tags, getMethod, i);
+        const SignerTag singleSigner = Serializer::convert2CSignerTag(env, item);
+        result.push_back(singleSigner);
+    }
+    return result;
+}
+
 Chain Serializer::convert2CChain(jint ordinal) {
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CChain]ordinal:: %d", ordinal);
     Chain chain;
@@ -231,6 +262,9 @@ MasterSigner Serializer::convert2CMasterSigner(JNIEnv *env, jobject signer) {
 
     MasterSigner masterSigner = MasterSigner(id, device, last_health_check, signerType);
     masterSigner.set_name(name);
+    jfieldID fieldTagsId = env->GetFieldID(clazz, "tags", "Ljava/util/List;");
+    auto tags = (jobject) env->GetObjectField(signer, fieldTagsId);
+    masterSigner.set_tags(Serializer::convert2CSignerTags(env, tags));
     syslog(LOG_DEBUG, "[JNI][MasterSigner]id:: %s", masterSigner.get_id().c_str());
     syslog(LOG_DEBUG, "[JNI][MasterSigner]name:: %s", masterSigner.get_name().c_str());
     syslog(LOG_DEBUG, "[JNI][MasterSigner]path:: %s", masterSigner.get_device().get_path().c_str());
