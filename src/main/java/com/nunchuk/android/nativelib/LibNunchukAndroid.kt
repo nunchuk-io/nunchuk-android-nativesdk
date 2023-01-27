@@ -807,7 +807,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String
 
-    external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String
+    external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String?
 
     external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
 

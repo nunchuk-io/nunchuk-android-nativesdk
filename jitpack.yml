@@ -1,2 +1,0 @@
-install:
-  mvn install:install-file -Dfile=build/outputs/aar/nunchuk-android-nativesdk-arm64_v8a-release.aar -DgroupId=io.nunchuk.android -DartifactId=nativesdk-arm64_v8a -Dversion=1.1.55 -Dpackaging=aar -DpomFile=pom.xml
