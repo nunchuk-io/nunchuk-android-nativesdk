@@ -248,3 +248,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTransactionSignatur
     }
     return nullptr;
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTxByByteArray(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring wallet_id,
+                                                                           jbyteArray file_data) {
+    try {
+        auto first = env->GetByteArrayElements(file_data, nullptr);
+        auto len = env->GetArrayLength(file_data);
+        std::string psbt = std::string(first, first + len);
+        env->ReleaseByteArrayElements(file_data, first, JNI_ABORT);
+        auto wallet = NunchukProvider::get()->nu->GetWallet(
+                StringWrapper(env, wallet_id)
+        );
+        auto tx = Utils::DecodeDummyTx(wallet, psbt);
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
