@@ -998,6 +998,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
 
+    fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) = nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
+
     @Throws(NCNativeException::class)
     fun exportKeystoneDummyTransaction(txToSign: String) =
         nunchukAndroid.exportKeystoneDummyTransaction(txToSign)

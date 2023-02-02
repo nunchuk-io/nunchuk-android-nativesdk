@@ -793,6 +793,9 @@ internal class LibNunchukAndroid {
     external fun getDummyTx(walletId: String, message: String): Transaction
 
     @Throws(NCNativeException::class)
+    external fun getDummyTxByByteArray(walletId: String, fileData: ByteArray): Transaction?
+
+    @Throws(NCNativeException::class)
     external fun exportKeystoneDummyTransaction(txToSign: String): List<String>
 
     @Throws(NCNativeException::class)
