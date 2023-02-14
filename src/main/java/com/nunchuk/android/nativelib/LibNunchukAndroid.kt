@@ -121,10 +121,10 @@ internal class LibNunchukAndroid {
     external fun updateWallet(wallet: WalletBridge): Boolean
 
     @Throws(NCNativeException::class)
-    external fun exportKeystoneWallet(walletId: String): List<String>
+    external fun exportKeystoneWallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportWallet(walletId: String): List<String>
+    external fun exportPassportWallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
     external fun generateMnemonic(): String
@@ -201,13 +201,15 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun exportKeystoneTransaction(
         walletId: String,
-        txId: String
+        txId: String,
+        density: Int,
     ): List<String>
 
     @Throws(NCNativeException::class)
     external fun exportPassportTransaction(
         walletId: String,
-        txId: String
+        txId: String,
+        density: Int,
     ): List<String>
 
     @Throws(NCNativeException::class)
@@ -796,10 +798,10 @@ internal class LibNunchukAndroid {
     external fun getDummyTxByByteArray(walletId: String, fileData: ByteArray): Transaction?
 
     @Throws(NCNativeException::class)
-    external fun exportKeystoneDummyTransaction(txToSign: String): List<String>
+    external fun exportKeystoneDummyTransaction(txToSign: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportDummyTransaction(txToSign: String): List<String>
+    external fun exportPassportDummyTransaction(txToSign: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
     external fun parseKeystoneDummyTransaction(qrs: List<String>): String

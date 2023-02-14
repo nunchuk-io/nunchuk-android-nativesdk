@@ -126,12 +126,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneTransaction(
         JNIEnv *env,
         jobject thiz,
         jstring wallet_id,
-        jstring tx_id
+        jstring tx_id,
+        jint density
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->ExportKeystoneTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE)
+                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                density
         );
         return Deserializer::convert2JListString(env, transaction);
     } catch (BaseException &e) {
@@ -149,12 +151,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportTransaction(
         JNIEnv *env,
         jobject thiz,
         jstring wallet_id,
-        jstring tx_id
+        jstring tx_id,
+        jint density
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->ExportPassportTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE)
+                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                density
         );
         return Deserializer::convert2JListString(env, transaction);
     } catch (BaseException &e) {
