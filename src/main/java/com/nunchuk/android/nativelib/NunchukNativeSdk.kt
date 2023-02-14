@@ -2,6 +2,7 @@ package com.nunchuk.android.nativelib
 
 import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
+import android.renderscript.Int4
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
@@ -142,13 +143,15 @@ class NunchukNativeSdk {
         )
 
     @Throws(NCNativeException::class)
-    fun exportKeystoneWallet(walletId: String) = nunchukAndroid.exportKeystoneWallet(
-        walletId = walletId
+    fun exportKeystoneWallet(walletId: String, density: Int) = nunchukAndroid.exportKeystoneWallet(
+        walletId = walletId,
+        density = density
     )
 
     @Throws(NCNativeException::class)
-    fun exportPassportWallet(walletId: String) = nunchukAndroid.exportPassportWallet(
-        walletId = walletId
+    fun exportPassportWallet(walletId: String, density: Int) = nunchukAndroid.exportPassportWallet(
+        walletId = walletId,
+        density = density
     )
 
     @Throws(NCNativeException::class)
@@ -265,17 +268,19 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun exportKeystoneTransaction(walletId: String, txId: String) =
+    fun exportKeystoneTransaction(walletId: String, txId: String, density: Int) =
         nunchukAndroid.exportKeystoneTransaction(
             walletId = walletId,
-            txId = txId
+            txId = txId,
+            density =density
         )
 
     @Throws(NCNativeException::class)
-    fun exportPassportTransaction(walletId: String, txId: String) =
+    fun exportPassportTransaction(walletId: String, txId: String, density: Int) =
         nunchukAndroid.exportPassportTransaction(
             walletId = walletId,
-            txId = txId
+            txId = txId,
+            density = density,
         )
 
     @Throws(NCNativeException::class)
@@ -1001,12 +1006,12 @@ class NunchukNativeSdk {
     fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) = nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
 
     @Throws(NCNativeException::class)
-    fun exportKeystoneDummyTransaction(txToSign: String) =
-        nunchukAndroid.exportKeystoneDummyTransaction(txToSign)
+    fun exportKeystoneDummyTransaction(txToSign: String, density: Int) =
+        nunchukAndroid.exportKeystoneDummyTransaction(txToSign, density)
 
     @Throws(NCNativeException::class)
-    fun exportPassportDummyTransaction(txToSign: String) =
-        nunchukAndroid.exportPassportDummyTransaction(txToSign)
+    fun exportPassportDummyTransaction(txToSign: String, density: Int) =
+        nunchukAndroid.exportPassportDummyTransaction(txToSign, density)
 
     @Throws(NCNativeException::class)
     fun parseKeystoneDummyTransaction(qrs: List<String>) =

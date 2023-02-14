@@ -173,9 +173,10 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneDummyTransaction(JNIEnv *env,
                                                                                     jobject thiz,
-                                                                                    jstring tx_to_sign) {
+                                                                                    jstring tx_to_sign,
+                                                                                    jint density) {
     try {
-        auto qrs = Utils::ExportKeystoneTransaction(StringWrapper(env, tx_to_sign));
+        auto qrs = Utils::ExportKeystoneTransaction(StringWrapper(env, tx_to_sign), density);
         return Deserializer::convert2JListString(env, qrs);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -188,9 +189,10 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportDummyTransaction(JNIEnv *env,
                                                                                     jobject thiz,
-                                                                                    jstring tx_to_sign) {
+                                                                                    jstring tx_to_sign,
+                                                                                    jint density) {
     try {
-        auto qrs = Utils::ExportPassportTransaction(StringWrapper(env, tx_to_sign));
+        auto qrs = Utils::ExportPassportTransaction(StringWrapper(env, tx_to_sign), density);
         return Deserializer::convert2JListString(env, qrs);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
