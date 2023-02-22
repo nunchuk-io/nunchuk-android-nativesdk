@@ -1054,4 +1054,7 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun forceRefreshWallet(walletId: String) =
         nunchukAndroid.forceRefreshWallet(walletId)
+
+    @Throws(NCNativeException::class)
+    fun analyzeQr(qrs: List<String>) : Double = nunchukAndroid.analyzeQr(qrs)
 }

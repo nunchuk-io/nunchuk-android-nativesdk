@@ -819,6 +819,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun forceRefreshWallet(walletId: String)
 
+    @Throws(NCNativeException::class)
+    external fun analyzeQr(qrs: List<String>) : Double
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
