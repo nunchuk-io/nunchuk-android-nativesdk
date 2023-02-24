@@ -5,4 +5,9 @@ import androidx.annotation.Keep
 @Keep
 enum class SignerTag {
     INHERITANCE,
+    KEYSTONE,
+    JADE,
+    PASSPORT,
+    SEEDSIGNER,
+    COLDCARD,
 }
