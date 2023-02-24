@@ -455,12 +455,11 @@ internal class LibNunchukAndroid {
     ): TapSignerStatus
 
     @Throws(NCNativeException::class)
-    external fun setupTapSigner(
+    external fun initTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String,
         chainCode: String
-    ): TapSignerStatus
+    )
 
     @Throws(NCNativeException::class)
     external fun createTapSigner(
