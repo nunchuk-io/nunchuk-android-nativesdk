@@ -59,7 +59,8 @@ class NunchukNativeSdk {
         publicKey: String,
         derivationPath: String,
         masterFingerprint: String,
-        type: SignerType
+        type: SignerType,
+        tags: List<SignerTag>
     ) = nunchukAndroid.createSigner(
         name = name,
         xpub = xpub,
@@ -67,6 +68,7 @@ class NunchukNativeSdk {
         derivationPath = derivationPath,
         masterFingerprint = masterFingerprint,
         type = type,
+        tags = tags,
     )
 
     @Throws(NCNativeException::class)
