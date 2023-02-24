@@ -216,6 +216,9 @@ SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
 
     auto singleSigner = SingleSigner(name, xpub, public_key, derivation_path, master_fingerprint, 0);
     singleSigner.set_type(signer_type);
+    jfieldID fieldTagsId = env->GetFieldID(clazz, "tags", "Ljava/util/List;");
+    auto tags = (jobject) env->GetObjectField(signer, fieldTagsId);
+    singleSigner.set_tags(Serializer::convert2CSignerTags(env, tags));
     syslog(LOG_DEBUG, "[JNI][SingleSigner]name:: %s", singleSigner.get_name().c_str());
     syslog(LOG_DEBUG, "[JNI][SingleSigner]xpub:: %s", singleSigner.get_xpub().c_str());
     syslog(LOG_DEBUG, "[JNI][SingleSigner]path:: %s", singleSigner.get_derivation_path().c_str());
