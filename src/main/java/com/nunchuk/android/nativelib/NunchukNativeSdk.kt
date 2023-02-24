@@ -2,7 +2,6 @@ package com.nunchuk.android.nativelib
 
 import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
-import android.renderscript.Int4
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
@@ -637,12 +636,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.tapSignerStatus(isoDep)
 
     @Throws(NCNativeException::class)
-    fun setupTapSigner(
+    fun initTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String,
         chainCode: String
-    ) = nunchukAndroid.setupTapSigner(isoDep, oldCvc, newCvc, chainCode)
+    ) = nunchukAndroid.initTapSigner(isoDep, oldCvc, chainCode)
 
     @Throws(NCNativeException::class)
     fun createTapSigner(
