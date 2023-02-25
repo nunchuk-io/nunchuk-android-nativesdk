@@ -96,6 +96,24 @@ SignerTag Serializer::convert2CSignerTag(JNIEnv *env, jobject tag) {
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CSignerTag]ordinal:: %d", ordinal);
     SignerTag type;
     switch (ordinal) {
+        case 0:
+            type = SignerTag::INHERITANCE;
+            break;
+        case 1:
+            type = SignerTag::KEYSTONE;
+            break;
+        case 2:
+            type = SignerTag::JADE;
+            break;
+        case 3:
+            type = SignerTag::PASSPORT;
+            break;
+        case 4:
+            type = SignerTag::SEEDSIGNER;
+            break;
+        case 5:
+            type = SignerTag::COLDCARD;
+            break;
         default:
             type = SignerTag::INHERITANCE;
             break;
