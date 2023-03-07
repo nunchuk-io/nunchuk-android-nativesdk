@@ -1038,4 +1038,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun analyzeQr(qrs: List<String>) : Double = nunchukAndroid.analyzeQr(qrs)
+
+    @Throws(NCNativeException::class)
+    fun hashSHA256(data: String) : String = nunchukAndroid.hashSHA256(data)
 }

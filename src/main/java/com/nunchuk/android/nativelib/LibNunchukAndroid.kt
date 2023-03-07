@@ -823,6 +823,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun analyzeQr(qrs: List<String>) : Double
 
+    @Throws(NCNativeException::class)
+    external fun hashSHA256(data: String): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
