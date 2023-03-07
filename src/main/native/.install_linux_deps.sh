@@ -70,13 +70,13 @@ installBitcoinDeps() {
 
   export TARGET=$target
 
-  export AR=$TOOLCHAIN/bin/$TARGET-ar
-  export AS=$TOOLCHAIN/bin/$TARGET-as
+  export AR=$TOOLCHAIN/bin/llvm-ar
   export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export AS=$CC
   export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/$TARGET-ld
-  export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
-  export STRIP=$TOOLCHAIN/bin/$TARGET-strip
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
 
   ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$TARGET ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1 -j $num_jobs
 }
@@ -97,13 +97,13 @@ installBitcoinCore() {
 
   export TARGET=$target
 
-  export AR=$TOOLCHAIN/bin/$TARGET-ar
-  export AS=$TOOLCHAIN/bin/$TARGET-as
+  export AR=$TOOLCHAIN/bin/llvm-ar
   export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export AS=$CC
   export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/$TARGET-ld
-  export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
-  export STRIP=$TOOLCHAIN/bin/$TARGET-strip
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
   sh ./autogen.sh
   CONFIG_SITE="$PWD/depends/$ANDROID_TARGET/share/config.site" CFLAGS="-fPIC" CXXFLAGS="-fPIC" ./configure --prefix=$PWD/depends/$TARGET --without-gui --disable-zmq --with-miniupnpc=no --with-incompatible-bdb --disable-bench --disable-tests --enable-module-ecdh
   make -j $num_jobs
@@ -134,13 +134,13 @@ installOpenSSL() {
 
   export TARGET=$target
 
-  export AR=$TOOLCHAIN/bin/$TARGET-ar
-  export AS=$TOOLCHAIN/bin/$TARGET-as
+  export AR=$TOOLCHAIN/bin/llvm-ar
   export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export AS=$CC
   export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/$TARGET-ld
-  export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
-  export STRIP=$TOOLCHAIN/bin/$TARGET-strip
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
   PATH=$TOOLCHAIN/bin:$PATH
   ./Configure android-$abi -D__ANDROID_API__=$API
   make -j $num_jobs
