@@ -31,28 +31,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_tapSignerStatus(JNIEnv *env
 }
 
 extern "C"
-JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setupTapSigner(JNIEnv *env, jobject thiz,
-                                                                    jobject iso_dep,
-                                                                    jstring old_cvc,
-                                                                    jstring new_cvc,
-                                                                    jstring chain_code) {
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initTapSigner(JNIEnv *env, jobject thiz,
+                                                                   jobject iso_dep,
+                                                                   jstring old_cvc,
+                                                                   jstring chain_code) {
     try {
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
-        auto status = NunchukProvider::get()->nu->SetupTapsigner(
+        NunchukProvider::get()->nu->InitTapsigner(
                 ts.get(),
-                env->GetStringUTFChars(old_cvc, JNI_FALSE),
-                env->GetStringUTFChars(new_cvc, JNI_FALSE),
-                "",
-                env->GetStringUTFChars(chain_code, JNI_FALSE)
+                std::string(StringWrapper(env, old_cvc)),
+                std::string(StringWrapper(env, chain_code))
         );
-        return Deserializer::convert2JTapSignerStatus(env, status);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
-        return JNI_FALSE;
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
-        return JNI_FALSE;
     }
 }
 

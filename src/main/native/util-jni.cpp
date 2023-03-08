@@ -273,3 +273,30 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTxByByteArray(JNIEn
     }
     return nullptr;
 }
+extern "C"
+JNIEXPORT jdouble JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_analyzeQr(JNIEnv *env, jobject thiz,
+                                                               jobject qrs) {
+    try {
+        return Utils::AnalyzeQR(Serializer::convert2CListString(env, qrs)).estimated_percent_complete;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return 0.0;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return 0.0;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hashSHA256(JNIEnv *env, jobject thiz,
+                                                                jstring data) {
+    try {
+        std::string hashedData = Utils::SHA256(StringWrapper(env, data));
+        return env->NewStringUTF(hashedData.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}

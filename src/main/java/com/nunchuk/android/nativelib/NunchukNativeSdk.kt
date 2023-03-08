@@ -21,7 +21,6 @@ package com.nunchuk.android.nativelib
 
 import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
-import android.renderscript.Int4
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
@@ -60,7 +59,8 @@ class NunchukNativeSdk {
         publicKey: String,
         derivationPath: String,
         masterFingerprint: String,
-        type: SignerType
+        type: SignerType,
+        tags: List<SignerTag>
     ) = nunchukAndroid.createSigner(
         name = name,
         xpub = xpub,
@@ -68,6 +68,7 @@ class NunchukNativeSdk {
         derivationPath = derivationPath,
         masterFingerprint = masterFingerprint,
         type = type,
+        tags = tags,
     )
 
     @Throws(NCNativeException::class)
@@ -656,12 +657,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.tapSignerStatus(isoDep)
 
     @Throws(NCNativeException::class)
-    fun setupTapSigner(
+    fun initTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String,
         chainCode: String
-    ) = nunchukAndroid.setupTapSigner(isoDep, oldCvc, newCvc, chainCode)
+    ) = nunchukAndroid.initTapSigner(isoDep, oldCvc, chainCode)
 
     @Throws(NCNativeException::class)
     fun createTapSigner(
@@ -1054,4 +1054,10 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun forceRefreshWallet(walletId: String) =
         nunchukAndroid.forceRefreshWallet(walletId)
+
+    @Throws(NCNativeException::class)
+    fun analyzeQr(qrs: List<String>) : Double = nunchukAndroid.analyzeQr(qrs)
+
+    @Throws(NCNativeException::class)
+    fun hashSHA256(data: String) : String = nunchukAndroid.hashSHA256(data)
 }

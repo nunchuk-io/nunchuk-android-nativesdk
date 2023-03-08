@@ -25,6 +25,7 @@ import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
+import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 
 internal const val LIB_NAME = "nunchuk-android"
@@ -53,7 +54,8 @@ internal class LibNunchukAndroid {
         publicKey: String,
         derivationPath: String,
         masterFingerprint: String,
-        type: SignerType
+        type: SignerType,
+        tags: List<SignerTag>
     ): SingleSigner
 
     @Throws(NCNativeException::class)
@@ -455,12 +457,11 @@ internal class LibNunchukAndroid {
     ): TapSignerStatus
 
     @Throws(NCNativeException::class)
-    external fun setupTapSigner(
+    external fun initTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        newCvc: String,
         chainCode: String
-    ): TapSignerStatus
+    )
 
     @Throws(NCNativeException::class)
     external fun createTapSigner(
@@ -818,6 +819,12 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun forceRefreshWallet(walletId: String)
+
+    @Throws(NCNativeException::class)
+    external fun analyzeQr(qrs: List<String>) : Double
+
+    @Throws(NCNativeException::class)
+    external fun hashSHA256(data: String): String
 
     companion object {
         init {

@@ -227,6 +227,7 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHasMasterSigner", "(Z)V"), signer.has_master_signer());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Lcom/nunchuk/android/type/SignerType;)V"), convert2JSignerType(env, signer.get_type()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDescriptor","(Ljava/lang/String;)V"), env->NewStringUTF(signer.get_descriptor().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V"), convert2JSignerTags(env, signer.get_tags()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -272,7 +273,7 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalRequireSigns", "(I)V"), wallet.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/List;)V"), signers);
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setEscrow", "(Z)V"), wallet.is_escrow());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBalance", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, wallet.get_balance()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBalance", "(Lcom/nunchuk/android/model/Amount;)V"), convert2JAmount(env, wallet.get_unconfirmed_balance()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddressType", "(Lcom/nunchuk/android/type/AddressType;)V"), convert2JAddressType(env, wallet.get_address_type()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCreateDate", "(J)V"), wallet.get_create_date());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDescription", "(Ljava/lang/String;)V"), env->NewStringUTF(wallet.get_description().c_str()));
