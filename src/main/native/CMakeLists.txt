@@ -5,10 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(BITCOIN_FOLDER "contrib/bitcoin")
 if (${ANDROID_ABI} STREQUAL "arm64-v8a")
     set(ANDROID_TARGET "aarch64-linux-android")
 elseif (${ANDROID_ABI} STREQUAL "armeabi-v7a")
     set(ANDROID_TARGET "armv7a-linux-androideabi")
+    set(BITCOIN_FOLDER "contrib/bitcoin-arm8")
 else ()
     set(ANDROID_TARGET "${ANDROID_ABI}-linux-android")
 endif ()
@@ -48,7 +50,7 @@ target_link_libraries(nunchuk-android
 target_include_directories(nunchuk-android PUBLIC
         "${PROJECT_SOURCE_DIR}"
         "${PROJECT_SOURCE_DIR}/libnunchuk/include"
-        "${PROJECT_SOURCE_DIR}/contrib/bitcoin/src"
-        "${PROJECT_SOURCE_DIR}/contrib/bitcoin/src/univalue/include"
-        "${PROJECT_SOURCE_DIR}/contrib/bitcoin/src/leveldb/include"
-        "${PROJECT_SOURCE_DIR}/contrib/bitcoin/depends/${ANDROID_TARGET}/include")
+        "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/src"
+        "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/src/univalue/include"
+        "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/src/leveldb/include"
+        "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/depends/${ANDROID_TARGET}/include")
