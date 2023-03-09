@@ -81,7 +81,7 @@ installBitcoinDeps() {
   ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$TARGET ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1 -j $num_jobs
 }
 #
-pushd libnunchuk/contrib/bitcoin/depends || exit
+pushd libnunchuk/contrib/bitcoin-arm8/depends || exit
 installBitcoinDeps
 popd || exit
 
@@ -104,13 +104,12 @@ installBitcoinCore() {
   export LD=$TOOLCHAIN/bin/ld
   export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
   export STRIP=$TOOLCHAIN/bin/llvm-strip
-  make clean
   sh ./autogen.sh
   CONFIG_SITE="$PWD/depends/$ANDROID_TARGET/share/config.site" CFLAGS="-fPIC" CXXFLAGS="-fPIC" ./configure --prefix=$PWD/depends/$TARGET --without-gui --disable-zmq --with-miniupnpc=no --with-incompatible-bdb --disable-bench --disable-tests --enable-module-ecdh
   make -j $num_jobs
 }
 
-pushd libnunchuk/contrib/bitcoin || exit
+pushd libnunchuk/contrib/bitcoin-arm8 || exit
 installBitcoinCore
 popd || exit
 
@@ -143,12 +142,11 @@ installOpenSSL() {
   export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
   export STRIP=$TOOLCHAIN/bin/llvm-strip
   PATH=$TOOLCHAIN/bin:$PATH
-  make clean
   ./Configure android-$abi -D__ANDROID_API__=$API
   make -j $num_jobs
 }
 
-pushd libnunchuk/contrib/openssl || exit
+pushd libnunchuk/contrib/openssl-arm8 || exit
 installOpenSSL
 popd || exit
 

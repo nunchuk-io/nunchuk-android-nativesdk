@@ -6,7 +6,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    ndkVersion "25.1.8937393"
+    ndkVersion "21.4.7075529"
     compileSdkVersion androidConfig.compileSdkVersion
     defaultConfig {
         minSdkVersion androidConfig.minSdkVersion
@@ -14,9 +14,6 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -stdlib=libc++"
-                ndk {
-                    'armeabi-v7a'
-                }
             }
         }
         javaCompileOptions {
