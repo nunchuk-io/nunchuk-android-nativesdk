@@ -28,6 +28,7 @@ build:
   stage: build
   script:
     - ./gradlew clean assembleArm64_v8aRelease --stacktrace
+#    - ./gradlew clean assembleArm8Release --stacktrace
 
 deploy:
   only:
