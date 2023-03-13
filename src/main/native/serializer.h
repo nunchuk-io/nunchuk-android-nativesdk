@@ -70,4 +70,6 @@ public:
     static SignerTag convert2CSignerTag(JNIEnv *env, jobject tag);
 
     static std::vector<SignerTag> convert2CSignerTags(JNIEnv *env, jobject tags);
+
+    static CoinTag convert2CCoinTag(JNIEnv *env, jobject tag);
 };

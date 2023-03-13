@@ -725,3 +725,23 @@ std::vector<NDEFRecord> Serializer::convert2CRecords(JNIEnv *env, jobjectArray r
     }
     return ret;
 }
+
+CoinTag Serializer::convert2CCoinTag(JNIEnv *env, jobject tag) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/CoinTag");
+
+    jfieldID fieldId = env->GetFieldID(clazz, "id", "I");
+    auto id = env->GetIntField(tag, fieldId);
+
+    jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
+    auto nameVal = (jstring) env->GetObjectField(tag, fieldName);
+    auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
+
+    jfieldID fieldColor = env->GetFieldID(clazz, "color", "Ljava/lang/String;");
+    auto colorVal = (jstring) env->GetObjectField(tag, fieldColor);
+    auto color = env->GetStringUTFChars(colorVal, JNI_FALSE);
+
+    env->ReleaseStringUTFChars(nameVal, name);
+    env->ReleaseStringUTFChars(colorVal, color);
+
+    return CoinTag(id, name, color);
+}
