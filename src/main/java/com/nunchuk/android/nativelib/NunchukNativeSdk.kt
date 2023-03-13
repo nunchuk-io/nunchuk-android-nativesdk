@@ -80,6 +80,11 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun parsePassportSigners(
+        qrData: List<String>
+    ) = nunchukAndroid.parsePassportSigners(qrData)
+
+    @Throws(NCNativeException::class)
     fun createSoftwareSigner(
         name: String,
         mnemonic: String,
