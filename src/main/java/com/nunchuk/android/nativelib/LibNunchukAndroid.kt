@@ -412,6 +412,9 @@ internal class LibNunchukAndroid {
     external fun importWallet(filePath: String, name: String, description: String): Wallet
 
     @Throws(NCNativeException::class)
+    external fun parsePassportSigners(qrData: List<String>): List<SingleSigner>
+
+    @Throws(NCNativeException::class)
     external fun healthCheckMasterSigner(
         fingerprint: String,
         message: String,
