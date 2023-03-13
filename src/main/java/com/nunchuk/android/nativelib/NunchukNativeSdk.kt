@@ -1041,4 +1041,35 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun hashSHA256(data: String) : String = nunchukAndroid.hashSHA256(data)
+
+    @Throws(NCNativeException::class)
+    fun lockCoin(walletId: String, txId: String, vout: Int): Boolean = nunchukAndroid.lockCoin(walletId, txId, vout)
+
+    @Throws(NCNativeException::class)
+    fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean = nunchukAndroid.addToCoinTag(walletId, txId, tagId, vout)
+
+    @Throws(NCNativeException::class)
+    fun removeFromCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean = nunchukAndroid.removeFromCoinTag(walletId, txId, tagId, vout)
+
+    @Throws(NCNativeException::class)
+    fun addToCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean = nunchukAndroid.addToCoinCollection(walletId, txId, collectionId, vout)
+
+    @Throws(NCNativeException::class)
+    fun removeFromCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean = nunchukAndroid.removeFromCoinCollection(walletId, txId, collectionId, vout)
+
+    @Throws(NCNativeException::class)
+    fun getCoinByTag(walletId: String, tagId: Int): List<UnspentOutput> = nunchukAndroid.getCoinByTag(walletId, tagId)
+
+    @Throws(NCNativeException::class)
+    fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput> = nunchukAndroid.getCoinInCollection(walletId, collectionId)
 }

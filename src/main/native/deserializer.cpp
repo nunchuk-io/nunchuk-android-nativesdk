@@ -577,6 +577,13 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVout", "(I)V"), output.get_vout());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"), output.get_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"), env->NewStringUTF(output.get_memo().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChange", "(Z)V"), output.is_change());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLocked", "(Z)V"), output.is_locked());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceive", "(Z)V"), output.is_receive());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/Set;)V"),
+                            convert2JInts(env, output.get_tags()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCollection", "(Ljava/util/Set;)V"),
+                            convert2JInts(env, output.get_collections()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAmount", "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, output.get_amount()));
     } catch (const std::exception &e) {
@@ -709,6 +716,24 @@ jobject Deserializer::convert2JSignerTags(JNIEnv *env, const std::vector<SignerT
         env->DeleteLocalRef(element);
     }
     return arrayListInstance;
+}
+
+jobject Deserializer::convert2JInt(JNIEnv *env, const int value) {
+    jclass clazz = env->FindClass("java/lang/Integer");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "valueOf", "(I)Ljava/lang/Integer;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, value);
+}
+
+jobject Deserializer::convert2JInts(JNIEnv *env, const std::vector<int> &value) {
+    syslog(LOG_DEBUG, "[JNI] convert2JSignerTags()");
+    static auto setClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/Set")));
+    static jmethodID constructor = env->GetMethodID(setClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(setClass, "add", "(Ljava/lang/Object;)Z");
+    jobject setInstance = env->NewObject(setClass, constructor);
+    for (auto i: value) {
+        env->CallBooleanMethod(setInstance, addMethod, convert2JInt(env, i));
+    }
+    return setInstance;
 }
 
 
