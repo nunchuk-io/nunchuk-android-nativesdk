@@ -841,6 +841,18 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput>
 
+    @Throws(NCNativeException::class)
+    external fun getCoinTags(walletId: String): List<CoinTag>
+
+    @Throws(NCNativeException::class)
+    external fun createCoinTag(walletId: String, name:String, color:String): CoinTag
+
+    @Throws(NCNativeException::class)
+    external fun updateCoinTag(walletId: String, coinTag: CoinTag): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun deleteCoinTag(walletId: String, tagId: Int): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

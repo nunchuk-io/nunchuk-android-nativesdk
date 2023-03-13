@@ -753,3 +753,67 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinInCollection(JNIEnv 
         return env->ExceptionOccurred();
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinTags(JNIEnv *env, jobject thiz,
+                                                                 jstring wallet_id) {
+    try {
+        auto value = NunchukProvider::get()->nu->GetCoinTags(StringWrapper(env, wallet_id));
+        return Deserializer::convert2JCoinTags(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createCoinTag(JNIEnv *env, jobject thiz,
+                                                                   jstring wallet_id, jstring name,
+                                                                   jstring color) {
+    try {
+        auto value =  NunchukProvider::get()->nu->CreateCoinTag(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, name),
+                StringWrapper(env, color));
+        return Deserializer::convert2JCoinTag(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateCoinTag(JNIEnv *env, jobject thiz,
+                                                                   jstring wallet_id,
+                                                                   jobject coin_tag) {
+    try {
+        CoinTag coinTag = Serializer::convert2CCoinTag(env, coin_tag);
+        return NunchukProvider::get()->nu->UpdateCoinTag(
+                StringWrapper(env, wallet_id),
+                coinTag);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return false;
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteCoinTag(JNIEnv *env, jobject thiz,
+                                                                   jstring wallet_id, jint tag_id) {
+    try {
+        return NunchukProvider::get()->nu->DeleteCoinTag(StringWrapper(env, wallet_id), tag_id);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return false;
+}
