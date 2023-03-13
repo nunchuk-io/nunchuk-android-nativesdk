@@ -813,7 +813,10 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String
 
-    external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String?
+    external fun getColdcardSignatureFromPsbt(
+        signer: SingleSigner,
+        records: Array<NdefRecord>
+    ): String?
 
     external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
 
@@ -821,10 +824,41 @@ internal class LibNunchukAndroid {
     external fun forceRefreshWallet(walletId: String)
 
     @Throws(NCNativeException::class)
-    external fun analyzeQr(qrs: List<String>) : Double
+    external fun analyzeQr(qrs: List<String>): Double
 
     @Throws(NCNativeException::class)
     external fun hashSHA256(data: String): String
+
+    @Throws(NCNativeException::class)
+    external fun lockCoin(walletId: String, txId: String, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun removeFromCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun addToCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun removeFromCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getCoinByTag(walletId: String, tagId: Int): List<UnspentOutput>
+
+    @Throws(NCNativeException::class)
+    external fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput>
 
     companion object {
         init {

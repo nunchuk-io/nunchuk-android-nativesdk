@@ -106,4 +106,8 @@ public:
     static jobject convert2JSignerTag(JNIEnv *env, const SignerTag &tag);
 
     static jobject convert2JSignerTags(JNIEnv *env, const std::vector<SignerTag> &tags);
+
+    static jobject convert2JInt(JNIEnv *env, const int value);
+
+    static jobject convert2JInts(JNIEnv *env, const std::vector<int> &tags);
 };
