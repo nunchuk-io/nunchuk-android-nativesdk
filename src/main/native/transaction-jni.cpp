@@ -146,31 +146,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneTransaction(
 }
 
 extern "C"
-JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportTransaction(
-        JNIEnv *env,
-        jobject thiz,
-        jstring wallet_id,
-        jstring tx_id,
-        jint density
-) {
-    try {
-        auto transaction = NunchukProvider::get()->nu->ExportPassportTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE),
-                density
-        );
-        return Deserializer::convert2JListString(env, transaction);
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-        return env->ExceptionOccurred();
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-        return env->ExceptionOccurred();
-    }
-}
-
-extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransaction(
         JNIEnv *env,
@@ -302,29 +277,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneTransaction(
 ) {
     try {
         auto values = NunchukProvider::get()->nu->ImportKeystoneTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                Serializer::convert2CListString(env, qr_data)
-        );
-        return Deserializer::convert2JTransaction(env, values);
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-        return env->ExceptionOccurred();
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-        return env->ExceptionOccurred();
-    }
-}
-
-extern "C"
-JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importPassportTransaction(
-        JNIEnv *env,
-        jobject thiz,
-        jstring wallet_id,
-        jobject qr_data
-) {
-    try {
-        auto values = NunchukProvider::get()->nu->ImportPassportTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CListString(env, qr_data)
         );
