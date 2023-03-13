@@ -126,9 +126,6 @@ internal class LibNunchukAndroid {
     external fun exportKeystoneWallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportWallet(walletId: String, density: Int): List<String>
-
-    @Throws(NCNativeException::class)
     external fun generateMnemonic(): String
 
     @Throws(NCNativeException::class)
@@ -208,13 +205,6 @@ internal class LibNunchukAndroid {
     ): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportTransaction(
-        walletId: String,
-        txId: String,
-        density: Int,
-    ): List<String>
-
-    @Throws(NCNativeException::class)
     external fun exportTransaction(walletId: String, txId: String, filePath: String): Boolean
 
     @Throws(NCNativeException::class)
@@ -231,9 +221,6 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun importKeystoneTransaction(walletId: String, qrData: List<String>): Transaction
-
-    @Throws(NCNativeException::class)
-    external fun importPassportTransaction(walletId: String, qrData: List<String>): Transaction
 
     @Throws(NCNativeException::class)
     external fun updateTransactionMemo(walletId: String, txId: String, newMemo: String): Boolean
@@ -423,9 +410,6 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun importWallet(filePath: String, name: String, description: String): Wallet
-
-    @Throws(NCNativeException::class)
-    external fun parsePassportSigners(qrData: List<String>): List<SingleSigner>
 
     @Throws(NCNativeException::class)
     external fun healthCheckMasterSigner(
@@ -802,13 +786,7 @@ internal class LibNunchukAndroid {
     external fun exportKeystoneDummyTransaction(txToSign: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportDummyTransaction(txToSign: String, density: Int): List<String>
-
-    @Throws(NCNativeException::class)
     external fun parseKeystoneDummyTransaction(qrs: List<String>): String
-
-    @Throws(NCNativeException::class)
-    external fun parsePassportDummyTransaction(qrs: List<String>): String
 
     @Throws(NCNativeException::class)
     external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String

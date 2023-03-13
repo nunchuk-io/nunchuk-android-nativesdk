@@ -7,6 +7,7 @@ import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.*
 
+@Suppress("Unused")
 class NunchukNativeSdk {
 
     private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
@@ -58,11 +59,6 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.parseKeystoneSigner(
         qrData = qrData
     )
-
-    @Throws(NCNativeException::class)
-    fun parsePassportSigners(
-        qrData: List<String>
-    ) = nunchukAndroid.parsePassportSigners(qrData)
 
     @Throws(NCNativeException::class)
     fun createSoftwareSigner(
@@ -145,12 +141,6 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun exportKeystoneWallet(walletId: String, density: Int) = nunchukAndroid.exportKeystoneWallet(
-        walletId = walletId,
-        density = density
-    )
-
-    @Throws(NCNativeException::class)
-    fun exportPassportWallet(walletId: String, density: Int) = nunchukAndroid.exportPassportWallet(
         walletId = walletId,
         density = density
     )
@@ -277,14 +267,6 @@ class NunchukNativeSdk {
         )
 
     @Throws(NCNativeException::class)
-    fun exportPassportTransaction(walletId: String, txId: String, density: Int) =
-        nunchukAndroid.exportPassportTransaction(
-            walletId = walletId,
-            txId = txId,
-            density = density,
-        )
-
-    @Throws(NCNativeException::class)
     fun exportTransaction(
         walletId: String,
         txId: String,
@@ -329,13 +311,6 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun importKeystoneTransaction(walletId: String, qrData: List<String>) =
         nunchukAndroid.importKeystoneTransaction(
-            walletId = walletId,
-            qrData = qrData
-        )
-
-    @Throws(NCNativeException::class)
-    fun importPassportTransaction(walletId: String, qrData: List<String>) =
-        nunchukAndroid.importPassportTransaction(
             walletId = walletId,
             qrData = qrData
         )
@@ -1010,16 +985,8 @@ class NunchukNativeSdk {
         nunchukAndroid.exportKeystoneDummyTransaction(txToSign, density)
 
     @Throws(NCNativeException::class)
-    fun exportPassportDummyTransaction(txToSign: String, density: Int) =
-        nunchukAndroid.exportPassportDummyTransaction(txToSign, density)
-
-    @Throws(NCNativeException::class)
     fun parseKeystoneDummyTransaction(qrs: List<String>) =
         nunchukAndroid.parseKeystoneDummyTransaction(qrs)
-
-    @Throws(NCNativeException::class)
-    fun parsePassportDummyTransaction(qrs: List<String>) =
-        nunchukAndroid.parsePassportDummyTransaction(qrs)
 
     @Throws(NCNativeException::class)
     fun getDummyTransactionSignature(signer: SingleSigner, psbt: String) =

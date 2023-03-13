@@ -186,44 +186,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneDummyTransact
     return nullptr;
 }
 extern "C"
-JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportDummyTransaction(JNIEnv *env,
-                                                                                    jobject thiz,
-                                                                                    jstring tx_to_sign,
-                                                                                    jint density) {
-    try {
-        auto qrs = Utils::ExportPassportTransaction(StringWrapper(env, tx_to_sign), density);
-        return Deserializer::convert2JListString(env, qrs);
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-    }
-    return nullptr;
-}
-extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneDummyTransaction(JNIEnv *env,
                                                                                    jobject thiz,
                                                                                    jobject qrs) {
     try {
         std::string psbt = Utils::ParseKeystoneTransaction(
-                Serializer::convert2CListString(env, qrs));
-        return env->NewStringUTF(psbt.c_str());
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-    }
-    return nullptr;
-}
-extern "C"
-JNIEXPORT jstring JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parsePassportDummyTransaction(JNIEnv *env,
-                                                                                   jobject thiz,
-                                                                                   jobject qrs) {
-    try {
-        std::string psbt = Utils::ParsePassportTransaction(
                 Serializer::convert2CListString(env, qrs));
         return env->NewStringUTF(psbt.c_str());
     } catch (BaseException &e) {

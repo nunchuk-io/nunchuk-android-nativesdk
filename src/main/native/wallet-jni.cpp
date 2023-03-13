@@ -170,29 +170,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneWallet(
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportWallet(
-        JNIEnv *env,
-        jobject thiz,
-        jstring wallet_id,
-        jint density
-) {
-    try {
-        auto values = NunchukProvider::get()->nu->ExportPassportWallet(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                density
-        );
-        return Deserializer::convert2JListString(env, values);
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-        return env->ExceptionOccurred();
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-        return env->ExceptionOccurred();
-    }
-}
-
-extern "C"
-JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
         JNIEnv *env,
         jobject thiz,
