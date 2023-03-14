@@ -814,6 +814,9 @@ internal class LibNunchukAndroid {
     external fun lockCoin(walletId: String, txId: String, vout: Int): Boolean
 
     @Throws(NCNativeException::class)
+    external fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
     external fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean
 
     @Throws(NCNativeException::class)
