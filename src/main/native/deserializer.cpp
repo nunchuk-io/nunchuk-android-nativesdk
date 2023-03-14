@@ -580,6 +580,8 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChange", "(Z)V"), output.is_change());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLocked", "(Z)V"), output.is_locked());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setReceive", "(Z)V"), output.is_receive());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTime", "(J)V"), output.get_blocktime());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setScheduleTime", "(J)V"), output.get_schedule_time());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/Set;)V"),
                             convert2JInts(env, output.get_tags()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCollection", "(Ljava/util/Set;)V"),
@@ -726,7 +728,7 @@ jobject Deserializer::convert2JInt(JNIEnv *env, const int value) {
 
 jobject Deserializer::convert2JInts(JNIEnv *env, const std::vector<int> &value) {
     syslog(LOG_DEBUG, "[JNI] convert2JSignerTags()");
-    static auto setClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/Set")));
+    static auto setClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/HashSet")));
     static jmethodID constructor = env->GetMethodID(setClass, "<init>", "()V");
     jmethodID addMethod = env->GetMethodID(setClass, "add", "(Ljava/lang/Object;)Z");
     jobject setInstance = env->NewObject(setClass, constructor);
