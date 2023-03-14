@@ -34,4 +34,6 @@ data class UnspentOutput(
     var isReceive: Boolean = false,
     var tags: Set<Int> = emptySet(),
     var collection: Set<Int> = emptySet(),
+    var time: Long = 0L,
+    var scheduleTime: Long = 0L,
 ) : Parcelable
