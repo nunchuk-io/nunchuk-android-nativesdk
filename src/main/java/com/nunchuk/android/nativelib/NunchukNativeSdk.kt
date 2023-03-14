@@ -1036,7 +1036,7 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun lockCoin(walletId: String, txId: String, vout: Int): Boolean = nunchukAndroid.lockCoin(walletId, txId, vout)
 
-    fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean = nunchukAndroid.lockCoin(walletId, txId, vout)
+    fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean = nunchukAndroid.unlockCoin(walletId, txId, vout)
 
     @Throws(NCNativeException::class)
     fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean = nunchukAndroid.addToCoinTag(walletId, txId, tagId, vout)
