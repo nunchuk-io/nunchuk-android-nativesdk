@@ -856,6 +856,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun deleteCoinTag(walletId: String, tagId: Int): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun isMyAddress(walletId: String, address: String): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
