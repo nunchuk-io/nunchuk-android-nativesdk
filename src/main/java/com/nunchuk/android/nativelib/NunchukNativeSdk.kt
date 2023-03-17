@@ -287,7 +287,7 @@ class NunchukNativeSdk {
         nunchukAndroid.exportKeystoneTransaction(
             walletId = walletId,
             txId = txId,
-            density =density
+            density = density
         )
 
     @Throws(NCNativeException::class)
@@ -1002,7 +1002,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
 
-    fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) = nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
+    fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) =
+        nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
 
     @Throws(NCNativeException::class)
     fun exportKeystoneDummyTransaction(txToSign: String, density: Int) =
@@ -1028,21 +1029,25 @@ class NunchukNativeSdk {
         nunchukAndroid.forceRefreshWallet(walletId)
 
     @Throws(NCNativeException::class)
-    fun analyzeQr(qrs: List<String>) : Double = nunchukAndroid.analyzeQr(qrs)
+    fun analyzeQr(qrs: List<String>): Double = nunchukAndroid.analyzeQr(qrs)
 
     @Throws(NCNativeException::class)
-    fun hashSHA256(data: String) : String = nunchukAndroid.hashSHA256(data)
+    fun hashSHA256(data: String): String = nunchukAndroid.hashSHA256(data)
 
     @Throws(NCNativeException::class)
-    fun lockCoin(walletId: String, txId: String, vout: Int): Boolean = nunchukAndroid.lockCoin(walletId, txId, vout)
+    fun lockCoin(walletId: String, txId: String, vout: Int): Boolean =
+        nunchukAndroid.lockCoin(walletId, txId, vout)
 
-    fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean = nunchukAndroid.unlockCoin(walletId, txId, vout)
+    fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean =
+        nunchukAndroid.unlockCoin(walletId, txId, vout)
 
     @Throws(NCNativeException::class)
-    fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean = nunchukAndroid.addToCoinTag(walletId, txId, tagId, vout)
+    fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean =
+        nunchukAndroid.addToCoinTag(walletId, txId, tagId, vout)
 
     @Throws(NCNativeException::class)
-    fun removeFromCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean = nunchukAndroid.removeFromCoinTag(walletId, txId, tagId, vout)
+    fun removeFromCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean =
+        nunchukAndroid.removeFromCoinTag(walletId, txId, tagId, vout)
 
     @Throws(NCNativeException::class)
     fun addToCoinCollection(
@@ -1061,20 +1066,29 @@ class NunchukNativeSdk {
     ): Boolean = nunchukAndroid.removeFromCoinCollection(walletId, txId, collectionId, vout)
 
     @Throws(NCNativeException::class)
-    fun getCoinByTag(walletId: String, tagId: Int): List<UnspentOutput> = nunchukAndroid.getCoinByTag(walletId, tagId)
+    fun getCoinByTag(walletId: String, tagId: Int): List<UnspentOutput> =
+        nunchukAndroid.getCoinByTag(walletId, tagId)
 
     @Throws(NCNativeException::class)
-    fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput> = nunchukAndroid.getCoinInCollection(walletId, collectionId)
+    fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput> =
+        nunchukAndroid.getCoinInCollection(walletId, collectionId)
 
     @Throws(NCNativeException::class)
     fun getCoinTags(walletId: String): List<CoinTag> = nunchukAndroid.getCoinTags(walletId)
 
     @Throws(NCNativeException::class)
-    fun createCoinTag(walletId: String, name: String, color: String): CoinTag = nunchukAndroid.createCoinTag(walletId, name, color)
+    fun createCoinTag(walletId: String, name: String, color: String): CoinTag =
+        nunchukAndroid.createCoinTag(walletId, name, color)
 
     @Throws(NCNativeException::class)
-    fun updateCoinTag(walletId: String, coinTag: CoinTag): Boolean = nunchukAndroid.updateCoinTag(walletId, coinTag)
+    fun updateCoinTag(walletId: String, coinTag: CoinTag): Boolean =
+        nunchukAndroid.updateCoinTag(walletId, coinTag)
 
     @Throws(NCNativeException::class)
-    fun deleteCoinTag(walletId: String, tagId: Int): Boolean = nunchukAndroid.deleteCoinTag(walletId, tagId)
+    fun deleteCoinTag(walletId: String, tagId: Int): Boolean =
+        nunchukAndroid.deleteCoinTag(walletId, tagId)
+
+    @Throws(NCNativeException::class)
+    fun isMyAddress(walletId: String, address: String): Boolean =
+        nunchukAndroid.isMyAddress(walletId, address)
 }
