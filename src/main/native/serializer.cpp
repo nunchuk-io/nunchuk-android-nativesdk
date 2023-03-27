@@ -745,3 +745,18 @@ CoinTag Serializer::convert2CCoinTag(JNIEnv *env, jobject tag) {
 
     return CoinTag(id, name, color);
 }
+
+CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collection) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/CoinCollection");
+
+    jfieldID fieldId = env->GetFieldID(clazz, "id", "I");
+    auto id = env->GetIntField(collection, fieldId);
+
+    jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
+    auto nameVal = (jstring) env->GetObjectField(collection, fieldName);
+    auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
+
+    env->ReleaseStringUTFChars(nameVal, name);
+
+    return CoinCollection(id, name);
+}

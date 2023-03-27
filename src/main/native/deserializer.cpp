@@ -964,7 +964,7 @@ jobject Deserializer::convert2JCoinTag(JNIEnv *env, const CoinTag &tag) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setColor", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(tag.get_color().c_str()));
     } catch (const std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
+        syslog(LOG_DEBUG, "[JNI] convert2JCoinTag error::%s", e.what());
     }
     return instance;
 }
@@ -984,4 +984,33 @@ jobject Deserializer::convert2JCoinTags(JNIEnv *env, const std::vector<CoinTag> 
     return arrayListInstance;
 }
 
+jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection &tag) {
+    syslog(LOG_DEBUG, "[JNI] convert2JCoinCollection()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/CoinCollection");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"), tag.get_id());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(tag.get_name().c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &tags) {
+    syslog(LOG_DEBUG, "[JNI] convert2JCoinCollections()");
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
+            env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const CoinCollection &s: tags) {
+        jobject element = convert2JCoinCollection(env, s);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}
 

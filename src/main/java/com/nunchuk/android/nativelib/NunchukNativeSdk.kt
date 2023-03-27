@@ -1089,6 +1089,21 @@ class NunchukNativeSdk {
         nunchukAndroid.deleteCoinTag(walletId, tagId)
 
     @Throws(NCNativeException::class)
+    fun getCoinCollections(walletId: String): List<CoinCollection> = nunchukAndroid.getCoinCollections(walletId)
+
+    @Throws(NCNativeException::class)
+    fun createCoinCollection(walletId: String, name: String): CoinCollection =
+        nunchukAndroid.createCoinCollection(walletId, name)
+
+    @Throws(NCNativeException::class)
+    fun updateCoinCollection(walletId: String, coinCollection: CoinCollection): Boolean =
+        nunchukAndroid.updateCoinCollection(walletId, coinCollection)
+
+    @Throws(NCNativeException::class)
+    fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean =
+        nunchukAndroid.deleteCoinCollection(walletId, collectionId)
+
+    @Throws(NCNativeException::class)
     fun isMyAddress(walletId: String, address: String): Boolean =
         nunchukAndroid.isMyAddress(walletId, address)
 }
