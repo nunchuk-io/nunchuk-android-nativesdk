@@ -114,4 +114,8 @@ public:
     static jobject convert2JCoinTag(JNIEnv *env, const CoinTag &tag);
 
     static jobject convert2JCoinTags(JNIEnv *env, const std::vector<CoinTag> &tags);
+
+    static jobject convert2JCoinCollection(JNIEnv *env, const CoinCollection &tag);
+
+    static jobject convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &tags);
 };

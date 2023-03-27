@@ -848,13 +848,25 @@ internal class LibNunchukAndroid {
     external fun getCoinTags(walletId: String): List<CoinTag>
 
     @Throws(NCNativeException::class)
-    external fun createCoinTag(walletId: String, name:String, color:String): CoinTag
+    external fun createCoinTag(walletId: String, name: String, color: String): CoinTag
 
     @Throws(NCNativeException::class)
     external fun updateCoinTag(walletId: String, coinTag: CoinTag): Boolean
 
     @Throws(NCNativeException::class)
     external fun deleteCoinTag(walletId: String, tagId: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getCoinCollections(walletId: String): List<CoinCollection>
+
+    @Throws(NCNativeException::class)
+    external fun createCoinCollection(walletId: String, name: String): CoinCollection
+
+    @Throws(NCNativeException::class)
+    external fun updateCoinCollection(walletId: String, coinCollection: CoinCollection): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean
 
     @Throws(NCNativeException::class)
     external fun isMyAddress(walletId: String, address: String): Boolean
