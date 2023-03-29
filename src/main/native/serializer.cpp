@@ -755,8 +755,13 @@ CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collecti
     jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
     auto nameVal = (jstring) env->GetObjectField(collection, fieldName);
     auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
-
+    jfieldID fieldAddNewCoin = env->GetFieldID(clazz, "isAddNewCoin", "Z");
+    auto isAddNewCoin = env->GetBooleanField(collection, fieldAddNewCoin);
+    jfieldID fieldAutoLock = env->GetFieldID(clazz, "isAutoLock", "Z");
+    auto isAutoLock = env->GetBooleanField(collection, fieldAutoLock);
     env->ReleaseStringUTFChars(nameVal, name);
-
-    return CoinCollection(id, name);
+    CoinCollection coinCollection = CoinCollection(id, name);
+    coinCollection.set_add_new_coin(isAddNewCoin);
+    coinCollection.set_auto_lock(isAutoLock);
+    return coinCollection;
 }

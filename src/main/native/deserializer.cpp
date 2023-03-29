@@ -984,29 +984,33 @@ jobject Deserializer::convert2JCoinTags(JNIEnv *env, const std::vector<CoinTag> 
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection &tag) {
+jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection &collection) {
     syslog(LOG_DEBUG, "[JNI] convert2JCoinCollection()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/CoinCollection");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"), tag.get_id());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"), collection.get_id());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(tag.get_name().c_str()));
+                            env->NewStringUTF(collection.get_name().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddNewCoin", "(Z)V"),
+                            collection.is_add_new_coin());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAutoLock", "(Z)V"),
+                            collection.is_auto_lock());
     } catch (const std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
+        syslog(LOG_DEBUG, "[JNI] convert2JCoinCollection error::%s", e.what());
     }
     return instance;
 }
 
-jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &tags) {
+jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &collections) {
     syslog(LOG_DEBUG, "[JNI] convert2JCoinCollections()");
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
             env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
     jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
-    for (const CoinCollection &s: tags) {
+    for (const CoinCollection &s: collections) {
         jobject element = convert2JCoinCollection(env, s);
         env->CallBooleanMethod(arrayListInstance, addMethod, element);
         env->DeleteLocalRef(element);
