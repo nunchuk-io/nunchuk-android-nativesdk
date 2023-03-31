@@ -20,6 +20,7 @@
 package com.nunchuk.android.model
 
 import android.os.Parcelable
+import com.nunchuk.android.type.CoinStatus
 import com.nunchuk.android.type.TransactionStatus
 import kotlinx.parcelize.Parcelize
 
@@ -37,5 +38,5 @@ data class UnspentOutput(
     var collection: Set<Int> = emptySet(),
     var time: Long = 0L,
     var scheduleTime: Long = 0L,
-    var status: TransactionStatus = TransactionStatus.PENDING_SIGNATURES,
+    var status: CoinStatus = CoinStatus.SPENT,
 ) : Parcelable

@@ -1,0 +1,10 @@
+package com.nunchuk.android.type
+
+enum class CoinStatus {
+    INCOMING_PENDING_CONFIRMATION,
+    CONFIRMED,
+    OUTGOING_PENDING_SIGNATURES,
+    OUTGOING_PENDING_BROADCAST,
+    OUTGOING_PENDING_CONFIRMATION,
+    SPENT,
+}

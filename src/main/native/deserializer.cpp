@@ -217,6 +217,13 @@ jobject Deserializer::convert2JTransactionStatus(JNIEnv *env, const TransactionS
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
 }
 
+jobject Deserializer::convert2JCoinStatus(JNIEnv *env, const CoinStatus &status) {
+    jclass clazz = env->FindClass("com/nunchuk/android/type/CoinStatusHelper");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
+                                                    "(I)Lcom/nunchuk/android/type/CoinStatus;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
+}
+
 jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &signer) {
     syslog(LOG_DEBUG, "[JNI] convert2JMasterSigner()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/MasterSigner");
@@ -772,11 +779,12 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setScheduleTime", "(J)V"),
                             output.get_schedule_time());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
-                                                       "(Lcom/nunchuk/android/type/TransactionStatus;)V"),
-                            convert2JTransactionStatus(env, output.get_status()));
+                                                       "(Lcom/nunchuk/android/type/CoinStatus;)V"),
+                            convert2JCoinStatus(env, output.get_status()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/Set;)V"),
                             convert2JInts(env, output.get_tags()));
         env->CallVoidMethod(instance,
+
                             env->GetMethodID(clazz, "setCollection", "(Ljava/util/Set;)V"),
                             convert2JInts(env, output.get_collections()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAmount",

@@ -118,4 +118,6 @@ public:
     static jobject convert2JCoinCollection(JNIEnv *env, const CoinCollection &tag);
 
     static jobject convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &tags);
+
+    static jobject convert2JCoinStatus(JNIEnv *env, const CoinStatus &status);
 };
