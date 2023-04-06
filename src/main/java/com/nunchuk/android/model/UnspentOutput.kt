@@ -2,7 +2,6 @@ package com.nunchuk.android.model
 
 import android.os.Parcelable
 import com.nunchuk.android.type.CoinStatus
-import com.nunchuk.android.type.TransactionStatus
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -14,7 +13,6 @@ data class UnspentOutput(
     var memo: String = "",
     var isChange: Boolean = false,
     var isLocked: Boolean = false,
-    var isReceive: Boolean = false,
     var tags: Set<Int> = emptySet(),
     var collection: Set<Int> = emptySet(),
     var time: Long = 0L,
