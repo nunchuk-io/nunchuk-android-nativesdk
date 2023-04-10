@@ -871,6 +871,12 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun isMyAddress(walletId: String, address: String): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun exportCoinControlData(walletId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun importCoinControlData(walletId: String, data: String)
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

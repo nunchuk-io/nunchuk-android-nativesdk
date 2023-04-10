@@ -1087,4 +1087,11 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun isMyAddress(walletId: String, address: String): Boolean =
         nunchukAndroid.isMyAddress(walletId, address)
+
+    @Throws(NCNativeException::class)
+    fun exportCoinControlData(walletId: String): String = nunchukAndroid.exportCoinControlData(walletId)
+
+    @Throws(NCNativeException::class)
+    fun importCoinControlData(walletId: String, data: String) =
+        nunchukAndroid.importCoinControlData(walletId, data)
 }
