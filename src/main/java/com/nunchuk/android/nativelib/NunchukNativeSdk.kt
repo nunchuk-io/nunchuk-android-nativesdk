@@ -1070,7 +1070,8 @@ class NunchukNativeSdk {
         nunchukAndroid.deleteCoinTag(walletId, tagId)
 
     @Throws(NCNativeException::class)
-    fun getCoinCollections(walletId: String): List<CoinCollection> = nunchukAndroid.getCoinCollections(walletId)
+    fun getCoinCollections(walletId: String): List<CoinCollection> =
+        nunchukAndroid.getCoinCollections(walletId)
 
     @Throws(NCNativeException::class)
     fun createCoinCollection(walletId: String, name: String): CoinCollection =
@@ -1089,9 +1090,18 @@ class NunchukNativeSdk {
         nunchukAndroid.isMyAddress(walletId, address)
 
     @Throws(NCNativeException::class)
-    fun exportCoinControlData(walletId: String): String = nunchukAndroid.exportCoinControlData(walletId)
+    fun exportCoinControlData(walletId: String): String =
+        nunchukAndroid.exportCoinControlData(walletId)
 
     @Throws(NCNativeException::class)
-    fun importCoinControlData(walletId: String, data: String) =
-        nunchukAndroid.importCoinControlData(walletId, data)
+    fun importCoinControlData(walletId: String, data: String, force: Boolean) =
+        nunchukAndroid.importCoinControlData(walletId, data, force)
+
+    @Throws(NCNativeException::class)
+    fun exportCoinControlBIP329(walletId: String): String =
+        nunchukAndroid.exportCoinControlBIP329(walletId)
+
+    @Throws(NCNativeException::class)
+    fun importCoinControlBIP329(walletId: String, data: String) =
+        nunchukAndroid.importCoinControlBIP329(walletId, data)
 }
