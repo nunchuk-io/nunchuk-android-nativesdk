@@ -455,6 +455,10 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
     auto txIdVal = (jstring) env->GetObjectField(unspentOutput, fieldTxId);
     auto txId = env->GetStringUTFChars(txIdVal, JNI_FALSE);
 
+    jfieldID fieldAddress = env->GetFieldID(clazz, "address", "Ljava/lang/String;");
+    auto addressVal = (jstring) env->GetObjectField(unspentOutput, fieldAddress);
+    auto address = env->GetStringUTFChars(addressVal, JNI_FALSE);
+
     jfieldID fieldVOut = env->GetFieldID(clazz, "vout", "I");
     auto vout = env->GetIntField(unspentOutput, fieldVOut);
 
@@ -474,6 +478,7 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
     UnspentOutput output = UnspentOutput();
     output.set_txid(txId);
     output.set_vout(vout);
+    output.set_address(address);
     output.set_amount(Serializer::convert2CAmount(env, amountVal));
     output.set_height(height);
     output.set_memo(memo);

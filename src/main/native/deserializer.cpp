@@ -762,6 +762,8 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxid", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(output.get_txid().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(output.get_address().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVout", "(I)V"),
                             output.get_vout());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"),
