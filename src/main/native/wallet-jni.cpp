@@ -424,14 +424,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoinControlData(JNIEn
     }
 }
 extern "C"
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoinControlData(JNIEnv *env,
                                                                            jobject thiz,
                                                                            jstring wallet_id,
                                                                            jstring data,
                                                                            jboolean force) {
     try {
-        NunchukProvider::get()->nu->ImportCoinControlData(StringWrapper(env, wallet_id), StringWrapper(env, data), force);
+       return NunchukProvider::get()->nu->ImportCoinControlData(StringWrapper(env, wallet_id), StringWrapper(env, data), force);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {
