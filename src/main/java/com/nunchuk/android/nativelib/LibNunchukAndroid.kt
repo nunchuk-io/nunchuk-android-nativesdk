@@ -875,7 +875,7 @@ internal class LibNunchukAndroid {
     external fun exportCoinControlData(walletId: String): String
 
     @Throws(NCNativeException::class)
-    external fun importCoinControlData(walletId: String, data: String, force: Boolean)
+    external fun importCoinControlData(walletId: String, data: String, force: Boolean) : Boolean
 
     @Throws(NCNativeException::class)
     external fun exportCoinControlBIP329(walletId: String): String
