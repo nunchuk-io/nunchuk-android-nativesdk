@@ -126,9 +126,6 @@ internal class LibNunchukAndroid {
     external fun exportKeystoneWallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportWallet(walletId: String, density: Int): List<String>
-
-    @Throws(NCNativeException::class)
     external fun generateMnemonic(): String
 
     @Throws(NCNativeException::class)
@@ -208,13 +205,6 @@ internal class LibNunchukAndroid {
     ): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportTransaction(
-        walletId: String,
-        txId: String,
-        density: Int,
-    ): List<String>
-
-    @Throws(NCNativeException::class)
     external fun exportTransaction(walletId: String, txId: String, filePath: String): Boolean
 
     @Throws(NCNativeException::class)
@@ -231,9 +221,6 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun importKeystoneTransaction(walletId: String, qrData: List<String>): Transaction
-
-    @Throws(NCNativeException::class)
-    external fun importPassportTransaction(walletId: String, qrData: List<String>): Transaction
 
     @Throws(NCNativeException::class)
     external fun updateTransactionMemo(walletId: String, txId: String, newMemo: String): Boolean
@@ -802,18 +789,15 @@ internal class LibNunchukAndroid {
     external fun exportKeystoneDummyTransaction(txToSign: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun exportPassportDummyTransaction(txToSign: String, density: Int): List<String>
-
-    @Throws(NCNativeException::class)
     external fun parseKeystoneDummyTransaction(qrs: List<String>): String
-
-    @Throws(NCNativeException::class)
-    external fun parsePassportDummyTransaction(qrs: List<String>): String
 
     @Throws(NCNativeException::class)
     external fun getDummyTransactionSignature(signer: SingleSigner, psbt: String): String
 
-    external fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>): String?
+    external fun getColdcardSignatureFromPsbt(
+        signer: SingleSigner,
+        records: Array<NdefRecord>
+    ): String?
 
     external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
 
@@ -821,10 +805,83 @@ internal class LibNunchukAndroid {
     external fun forceRefreshWallet(walletId: String)
 
     @Throws(NCNativeException::class)
-    external fun analyzeQr(qrs: List<String>) : Double
+    external fun analyzeQr(qrs: List<String>): Double
 
     @Throws(NCNativeException::class)
     external fun hashSHA256(data: String): String
+
+    @Throws(NCNativeException::class)
+    external fun lockCoin(walletId: String, txId: String, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun removeFromCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun addToCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun removeFromCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getCoinByTag(walletId: String, tagId: Int): List<UnspentOutput>
+
+    @Throws(NCNativeException::class)
+    external fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput>
+
+    @Throws(NCNativeException::class)
+    external fun getCoinTags(walletId: String): List<CoinTag>
+
+    @Throws(NCNativeException::class)
+    external fun createCoinTag(walletId: String, name: String, color: String): CoinTag
+
+    @Throws(NCNativeException::class)
+    external fun updateCoinTag(walletId: String, coinTag: CoinTag): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun deleteCoinTag(walletId: String, tagId: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getCoinCollections(walletId: String): List<CoinCollection>
+
+    @Throws(NCNativeException::class)
+    external fun createCoinCollection(walletId: String, name: String): CoinCollection
+
+    @Throws(NCNativeException::class)
+    external fun updateCoinCollection(walletId: String, coinCollection: CoinCollection): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun isMyAddress(walletId: String, address: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun exportCoinControlData(walletId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun importCoinControlData(walletId: String, data: String, force: Boolean) : Boolean
+
+    @Throws(NCNativeException::class)
+    external fun exportCoinControlBIP329(walletId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun importCoinControlBIP329(walletId: String, data: String)
 
     companion object {
         init {

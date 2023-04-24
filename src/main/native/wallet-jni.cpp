@@ -170,29 +170,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneWallet(
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportPassportWallet(
-        JNIEnv *env,
-        jobject thiz,
-        jstring wallet_id,
-        jint density
-) {
-    try {
-        auto values = NunchukProvider::get()->nu->ExportPassportWallet(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                density
-        );
-        return Deserializer::convert2JListString(env, values);
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-        return env->ExceptionOccurred();
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-        return env->ExceptionOccurred();
-    }
-}
-
-extern "C"
-JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
         JNIEnv *env,
         jobject thiz,
@@ -424,6 +401,67 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_forceRefreshWallet(JNIEnv *
                                                                         jstring wallet_id) {
     try {
         NunchukProvider::get()->nu->ForceRefreshWallet(StringWrapper(env, wallet_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoinControlData(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring wallet_id) {
+    try {
+        auto data = NunchukProvider::get()->nu->ExportCoinControlData(StringWrapper(env, wallet_id));
+        return env->NewStringUTF(data.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoinControlData(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring wallet_id,
+                                                                           jstring data,
+                                                                           jboolean force) {
+    try {
+       return NunchukProvider::get()->nu->ImportCoinControlData(StringWrapper(env, wallet_id), StringWrapper(env, data), force);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportCoinControlBIP329(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jstring wallet_id) {
+    try {
+        auto data = NunchukProvider::get()->nu->ExportBIP329(StringWrapper(env, wallet_id));
+        return env->NewStringUTF(data.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoinControlBIP329(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jstring wallet_id,
+                                                                             jstring data) {
+    try {
+        NunchukProvider::get()->nu->ImportBIP329(StringWrapper(env, wallet_id), StringWrapper(env, data));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {

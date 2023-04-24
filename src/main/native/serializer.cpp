@@ -455,6 +455,10 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
     auto txIdVal = (jstring) env->GetObjectField(unspentOutput, fieldTxId);
     auto txId = env->GetStringUTFChars(txIdVal, JNI_FALSE);
 
+    jfieldID fieldAddress = env->GetFieldID(clazz, "address", "Ljava/lang/String;");
+    auto addressVal = (jstring) env->GetObjectField(unspentOutput, fieldAddress);
+    auto address = env->GetStringUTFChars(addressVal, JNI_FALSE);
+
     jfieldID fieldVOut = env->GetFieldID(clazz, "vout", "I");
     auto vout = env->GetIntField(unspentOutput, fieldVOut);
 
@@ -474,6 +478,7 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
     UnspentOutput output = UnspentOutput();
     output.set_txid(txId);
     output.set_vout(vout);
+    output.set_address(address);
     output.set_amount(Serializer::convert2CAmount(env, amountVal));
     output.set_height(height);
     output.set_memo(memo);
@@ -724,4 +729,44 @@ std::vector<NDEFRecord> Serializer::convert2CRecords(JNIEnv *env, jobjectArray r
         });
     }
     return ret;
+}
+
+CoinTag Serializer::convert2CCoinTag(JNIEnv *env, jobject tag) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/CoinTag");
+
+    jfieldID fieldId = env->GetFieldID(clazz, "id", "I");
+    auto id = env->GetIntField(tag, fieldId);
+
+    jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
+    auto nameVal = (jstring) env->GetObjectField(tag, fieldName);
+    auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
+
+    jfieldID fieldColor = env->GetFieldID(clazz, "color", "Ljava/lang/String;");
+    auto colorVal = (jstring) env->GetObjectField(tag, fieldColor);
+    auto color = env->GetStringUTFChars(colorVal, JNI_FALSE);
+
+    env->ReleaseStringUTFChars(nameVal, name);
+    env->ReleaseStringUTFChars(colorVal, color);
+
+    return CoinTag(id, name, color);
+}
+
+CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collection) {
+    jclass clazz = env->FindClass("com/nunchuk/android/model/CoinCollection");
+
+    jfieldID fieldId = env->GetFieldID(clazz, "id", "I");
+    auto id = env->GetIntField(collection, fieldId);
+
+    jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
+    auto nameVal = (jstring) env->GetObjectField(collection, fieldName);
+    auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
+    jfieldID fieldAddNewCoin = env->GetFieldID(clazz, "isAddNewCoin", "Z");
+    auto isAddNewCoin = env->GetBooleanField(collection, fieldAddNewCoin);
+    jfieldID fieldAutoLock = env->GetFieldID(clazz, "isAutoLock", "Z");
+    auto isAutoLock = env->GetBooleanField(collection, fieldAutoLock);
+    env->ReleaseStringUTFChars(nameVal, name);
+    CoinCollection coinCollection = CoinCollection(id, name);
+    coinCollection.set_add_new_coin(isAddNewCoin);
+    coinCollection.set_auto_lock(isAutoLock);
+    return coinCollection;
 }
