@@ -883,6 +883,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun importCoinControlBIP329(walletId: String, data: String)
 
+    @Throws(NCNativeException::class)
+    external fun getCoinAncestry(walletId: String, txId: String, vout: Int) : List<List<UnspentOutput>>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

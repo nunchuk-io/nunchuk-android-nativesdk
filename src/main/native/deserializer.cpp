@@ -1026,3 +1026,18 @@ jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<Co
     return arrayListInstance;
 }
 
+jobject
+Deserializer::convert2JCollectionUnspentOutputs(JNIEnv *env, const std::vector<std::vector<UnspentOutput>> &outputs) {
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
+            env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const std::vector<UnspentOutput> &output: outputs) {
+        jobject element = convert2JUnspentOutputs(env, output);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}
+

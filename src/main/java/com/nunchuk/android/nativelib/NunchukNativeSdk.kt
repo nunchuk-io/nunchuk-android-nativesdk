@@ -1123,4 +1123,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun importCoinControlBIP329(walletId: String, data: String) =
         nunchukAndroid.importCoinControlBIP329(walletId, data)
+
+    @Throws(NCNativeException::class)
+    fun getCoinAncestry(walletId: String, txId: String, vout: Int) =
+        nunchukAndroid.getCoinAncestry(walletId, txId, vout)
 }
