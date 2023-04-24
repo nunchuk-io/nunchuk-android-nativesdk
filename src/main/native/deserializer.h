@@ -120,4 +120,6 @@ public:
     static jobject convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &tags);
 
     static jobject convert2JCoinStatus(JNIEnv *env, const CoinStatus &status);
+
+    static jobject convert2JCollectionUnspentOutputs(JNIEnv *env, const std::vector<std::vector<UnspentOutput>> &outputs);
 };
