@@ -110,7 +110,7 @@ properties.load(project.rootProject.file("local.properties").newDataInputStream(
 def SUPPORTED_ARCH = properties.getProperty("arch.processor", "arm64_v8a")
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk"
-def VERSION = "1.1.58-coin"
+def VERSION = "1.1.58"
 
 publishing {
     publications {
