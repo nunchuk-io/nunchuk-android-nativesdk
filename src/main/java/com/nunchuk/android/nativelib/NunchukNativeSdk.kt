@@ -26,6 +26,7 @@ import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.*
 
+@Suppress("Unused")
 class NunchukNativeSdk {
 
     private val nunchukAndroid: LibNunchukAndroid = LibNunchukAndroid()
@@ -169,12 +170,6 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun exportPassportWallet(walletId: String, density: Int) = nunchukAndroid.exportPassportWallet(
-        walletId = walletId,
-        density = density
-    )
-
-    @Throws(NCNativeException::class)
     fun getWallet(walletId: String) = nunchukAndroid.getWallet(walletId)
 
     @Throws(NCNativeException::class)
@@ -292,15 +287,7 @@ class NunchukNativeSdk {
         nunchukAndroid.exportKeystoneTransaction(
             walletId = walletId,
             txId = txId,
-            density =density
-        )
-
-    @Throws(NCNativeException::class)
-    fun exportPassportTransaction(walletId: String, txId: String, density: Int) =
-        nunchukAndroid.exportPassportTransaction(
-            walletId = walletId,
-            txId = txId,
-            density = density,
+            density = density
         )
 
     @Throws(NCNativeException::class)
@@ -348,13 +335,6 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun importKeystoneTransaction(walletId: String, qrData: List<String>) =
         nunchukAndroid.importKeystoneTransaction(
-            walletId = walletId,
-            qrData = qrData
-        )
-
-    @Throws(NCNativeException::class)
-    fun importPassportTransaction(walletId: String, qrData: List<String>) =
-        nunchukAndroid.importPassportTransaction(
             walletId = walletId,
             qrData = qrData
         )
@@ -1022,23 +1002,16 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
 
-    fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) = nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
+    fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) =
+        nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
 
     @Throws(NCNativeException::class)
     fun exportKeystoneDummyTransaction(txToSign: String, density: Int) =
         nunchukAndroid.exportKeystoneDummyTransaction(txToSign, density)
 
     @Throws(NCNativeException::class)
-    fun exportPassportDummyTransaction(txToSign: String, density: Int) =
-        nunchukAndroid.exportPassportDummyTransaction(txToSign, density)
-
-    @Throws(NCNativeException::class)
     fun parseKeystoneDummyTransaction(qrs: List<String>) =
         nunchukAndroid.parseKeystoneDummyTransaction(qrs)
-
-    @Throws(NCNativeException::class)
-    fun parsePassportDummyTransaction(qrs: List<String>) =
-        nunchukAndroid.parsePassportDummyTransaction(qrs)
 
     @Throws(NCNativeException::class)
     fun getDummyTransactionSignature(signer: SingleSigner, psbt: String) =
@@ -1056,8 +1029,98 @@ class NunchukNativeSdk {
         nunchukAndroid.forceRefreshWallet(walletId)
 
     @Throws(NCNativeException::class)
-    fun analyzeQr(qrs: List<String>) : Double = nunchukAndroid.analyzeQr(qrs)
+    fun analyzeQr(qrs: List<String>): Double = nunchukAndroid.analyzeQr(qrs)
 
     @Throws(NCNativeException::class)
-    fun hashSHA256(data: String) : String = nunchukAndroid.hashSHA256(data)
+    fun hashSHA256(data: String): String = nunchukAndroid.hashSHA256(data)
+
+    @Throws(NCNativeException::class)
+    fun lockCoin(walletId: String, txId: String, vout: Int): Boolean =
+        nunchukAndroid.lockCoin(walletId, txId, vout)
+
+    fun unlockCoin(walletId: String, txId: String, vout: Int): Boolean =
+        nunchukAndroid.unlockCoin(walletId, txId, vout)
+
+    @Throws(NCNativeException::class)
+    fun addToCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean =
+        nunchukAndroid.addToCoinTag(walletId, txId, tagId, vout)
+
+    @Throws(NCNativeException::class)
+    fun removeFromCoinTag(walletId: String, txId: String, tagId: Int, vout: Int): Boolean =
+        nunchukAndroid.removeFromCoinTag(walletId, txId, tagId, vout)
+
+    @Throws(NCNativeException::class)
+    fun addToCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean = nunchukAndroid.addToCoinCollection(walletId, txId, collectionId, vout)
+
+    @Throws(NCNativeException::class)
+    fun removeFromCoinCollection(
+        walletId: String,
+        txId: String,
+        collectionId: Int,
+        vout: Int
+    ): Boolean = nunchukAndroid.removeFromCoinCollection(walletId, txId, collectionId, vout)
+
+    @Throws(NCNativeException::class)
+    fun getCoinByTag(walletId: String, tagId: Int): List<UnspentOutput> =
+        nunchukAndroid.getCoinByTag(walletId, tagId)
+
+    @Throws(NCNativeException::class)
+    fun getCoinInCollection(walletId: String, collectionId: Int): List<UnspentOutput> =
+        nunchukAndroid.getCoinInCollection(walletId, collectionId)
+
+    @Throws(NCNativeException::class)
+    fun getCoinTags(walletId: String): List<CoinTag> = nunchukAndroid.getCoinTags(walletId)
+
+    @Throws(NCNativeException::class)
+    fun createCoinTag(walletId: String, name: String, color: String): CoinTag =
+        nunchukAndroid.createCoinTag(walletId, name, color)
+
+    @Throws(NCNativeException::class)
+    fun updateCoinTag(walletId: String, coinTag: CoinTag): Boolean =
+        nunchukAndroid.updateCoinTag(walletId, coinTag)
+
+    @Throws(NCNativeException::class)
+    fun deleteCoinTag(walletId: String, tagId: Int): Boolean =
+        nunchukAndroid.deleteCoinTag(walletId, tagId)
+
+    @Throws(NCNativeException::class)
+    fun getCoinCollections(walletId: String): List<CoinCollection> =
+        nunchukAndroid.getCoinCollections(walletId)
+
+    @Throws(NCNativeException::class)
+    fun createCoinCollection(walletId: String, name: String): CoinCollection =
+        nunchukAndroid.createCoinCollection(walletId, name)
+
+    @Throws(NCNativeException::class)
+    fun updateCoinCollection(walletId: String, coinCollection: CoinCollection): Boolean =
+        nunchukAndroid.updateCoinCollection(walletId, coinCollection)
+
+    @Throws(NCNativeException::class)
+    fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean =
+        nunchukAndroid.deleteCoinCollection(walletId, collectionId)
+
+    @Throws(NCNativeException::class)
+    fun isMyAddress(walletId: String, address: String): Boolean =
+        nunchukAndroid.isMyAddress(walletId, address)
+
+    @Throws(NCNativeException::class)
+    fun exportCoinControlData(walletId: String): String =
+        nunchukAndroid.exportCoinControlData(walletId)
+
+    @Throws(NCNativeException::class)
+    fun importCoinControlData(walletId: String, data: String, force: Boolean) =
+        nunchukAndroid.importCoinControlData(walletId, data, force)
+
+    @Throws(NCNativeException::class)
+    fun exportCoinControlBIP329(walletId: String): String =
+        nunchukAndroid.exportCoinControlBIP329(walletId)
+
+    @Throws(NCNativeException::class)
+    fun importCoinControlBIP329(walletId: String, data: String) =
+        nunchukAndroid.importCoinControlBIP329(walletId, data)
 }
