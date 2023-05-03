@@ -1125,4 +1125,6 @@ class NunchukNativeSdk {
         masterSignerId: String
     ) = nunchukAndroid.signMessageBySoftwareKey(message, path, masterSignerId)
 
+    @Throws(NCNativeException::class)
+    fun getHealthCheckPath() = nunchukAndroid.getHealthCheckPath()
 }
