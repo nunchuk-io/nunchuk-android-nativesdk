@@ -902,6 +902,9 @@ internal class LibNunchukAndroid {
         masterSignerId: String
     ): String?
 
+    @Throws(NCNativeException::class)
+    external fun getHealthCheckPath(): String?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

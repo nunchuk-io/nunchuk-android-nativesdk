@@ -686,3 +686,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageBySoftwareKey(JN
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getHealthCheckPath(JNIEnv *env, jobject thiz) {
+    try {
+        std::string default_path = NunchukProvider::get()->nu->GetHealthCheckPath();
+        return env->NewStringUTF(default_path.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
