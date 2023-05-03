@@ -10,6 +10,7 @@
 #include "nfc.h"
 #include "string-wrapper.h"
 #include "serializer.h"
+#include "utils/rfc2440.hpp"
 
 #define APPNAME "tap_protocol_native_sdk"
 
@@ -411,5 +412,42 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTapsignerMasterSigner
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageByTapSigner(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jobject iso_dep,
+                                                                            jstring cvc,
+                                                                            jstring message,
+                                                                            jstring path,
+                                                                            jstring master_signer_id) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        SingleSigner signer = NunchukProvider::get()->nu->GetSignerFromTapsignerMasterSigner(
+                ts.get(),
+                StringWrapper(env, cvc),
+                StringWrapper(env, master_signer_id),
+                StringWrapper(env, path)
+        );
+        std::string signature = NunchukProvider::get()->nu->SignTapsignerMessage(
+                ts.get(),
+                StringWrapper(env, cvc),
+                signer,
+                StringWrapper(env, message)
+        );
+        std::string address = NunchukProvider::get()->nu->GetSignerAddress(signer);
+        std::string rfc2440 = ExportBitcoinSignedMessage(
+                BitcoinSignedMessage{StringWrapper(env, message), address, signature});
+        return env->NewStringUTF(rfc2440.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return nullptr;
     }
 }

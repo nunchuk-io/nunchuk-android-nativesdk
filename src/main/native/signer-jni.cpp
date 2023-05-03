@@ -8,6 +8,7 @@
 #include "string-wrapper.h"
 #include "utils/enumconverter.hpp"
 #include "nfc.h"
+#include "utils/rfc2440.hpp"
 
 using namespace nunchuk;
 
@@ -652,6 +653,31 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signHealthCheckMessage(JNIE
                                                                                            env,
                                                                                            messages_to_sign));
         return env->NewStringUTF(signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageBySoftwareKey(JNIEnv *env,
+                                                                              jobject thiz,
+                                                                              jstring message,
+                                                                              jstring path,
+                                                                              jstring master_signer_id) {
+    try {
+        SingleSigner signer = NunchukProvider::get()->nu->GetSignerFromMasterSigner(
+                StringWrapper(env, master_signer_id),
+                StringWrapper(env, path)
+                );
+        std::string signature = NunchukProvider::get()->nu->SignMessage(signer, StringWrapper(env, message));
+        std::string address = NunchukProvider::get()->nu->GetSignerAddress(signer);
+        std::string rfc2440 = ExportBitcoinSignedMessage(
+                BitcoinSignedMessage{StringWrapper(env, message), address, signature});
+        return env->NewStringUTF(rfc2440.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;

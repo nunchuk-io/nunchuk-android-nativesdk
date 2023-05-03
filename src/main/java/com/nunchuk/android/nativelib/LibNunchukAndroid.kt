@@ -886,6 +886,22 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getCoinAncestry(walletId: String, txId: String, vout: Int) : List<List<UnspentOutput>>
 
+    @Throws(NCNativeException::class)
+    external fun signMessageByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        message: String,
+        path: String,
+        masterSignerId: String
+    ): String?
+
+    @Throws(NCNativeException::class)
+    external fun signMessageBySoftwareKey(
+        message: String,
+        path: String,
+        masterSignerId: String
+    ): String?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
