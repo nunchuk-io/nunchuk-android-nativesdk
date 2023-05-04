@@ -415,7 +415,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTapsignerMasterSigner
     }
 }
 extern "C"
-JNIEXPORT jstring JNICALL
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageByTapSigner(JNIEnv *env,
                                                                             jobject thiz,
                                                                             jobject iso_dep,
@@ -440,7 +440,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageByTapSigner(JNIE
         std::string address = NunchukProvider::get()->nu->GetSignerAddress(signer);
         std::string rfc2440 = ExportBitcoinSignedMessage(
                 BitcoinSignedMessage{StringWrapper(env, message), address, signature});
-        return env->NewStringUTF(rfc2440.c_str());
+        return Deserializer::convert2JSignedMessage(env, address, signature, rfc2440);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
