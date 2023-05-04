@@ -893,14 +893,14 @@ internal class LibNunchukAndroid {
         message: String,
         path: String,
         masterSignerId: String
-    ): String?
+    ): SignedMessage?
 
     @Throws(NCNativeException::class)
     external fun signMessageBySoftwareKey(
         message: String,
         path: String,
         masterSignerId: String
-    ): String?
+    ): SignedMessage?
 
     @Throws(NCNativeException::class)
     external fun getHealthCheckPath(): String?
