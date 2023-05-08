@@ -468,3 +468,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoinControlBIP329(JNI
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinAncestry(JNIEnv *env, jobject thiz,
+                                                                     jstring wallet_id,
+                                                                     jstring tx_id, jint vout) {
+    try {
+       auto outputs = NunchukProvider::get()->nu->GetCoinAncestry(StringWrapper(env, wallet_id), StringWrapper(env, tx_id), vout);
+        return Deserializer::convert2JCollectionUnspentOutputs(env, outputs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}

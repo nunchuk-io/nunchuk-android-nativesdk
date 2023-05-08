@@ -883,6 +883,28 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun importCoinControlBIP329(walletId: String, data: String)
 
+    @Throws(NCNativeException::class)
+    external fun getCoinAncestry(walletId: String, txId: String, vout: Int) : List<List<UnspentOutput>>
+
+    @Throws(NCNativeException::class)
+    external fun signMessageByTapSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        message: String,
+        path: String,
+        masterSignerId: String
+    ): SignedMessage?
+
+    @Throws(NCNativeException::class)
+    external fun signMessageBySoftwareKey(
+        message: String,
+        path: String,
+        masterSignerId: String
+    ): SignedMessage?
+
+    @Throws(NCNativeException::class)
+    external fun getHealthCheckPath(): String?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

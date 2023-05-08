@@ -103,6 +103,8 @@ public:
 
     static jobject convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri);
 
+    static jobject convert2JSignedMessage(JNIEnv *env, const std::string &address, const std::string &signature, const std::string &rfc2440);
+
     static jobject convert2JSignerTag(JNIEnv *env, const SignerTag &tag);
 
     static jobject convert2JSignerTags(JNIEnv *env, const std::vector<SignerTag> &tags);
@@ -120,4 +122,6 @@ public:
     static jobject convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &tags);
 
     static jobject convert2JCoinStatus(JNIEnv *env, const CoinStatus &status);
+
+    static jobject convert2JCollectionUnspentOutputs(JNIEnv *env, const std::vector<std::vector<UnspentOutput>> &outputs);
 };

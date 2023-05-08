@@ -125,7 +125,7 @@ jobject Deserializer::convert2JAmount(JNIEnv *env, const Amount amount) {
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setValue", "(J)V"), (long) amount);
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setValue", "(J)V"), (int64_t) amount);
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setFormattedValue", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(Utils::ValueFromAmount(amount).c_str()));
@@ -901,6 +901,27 @@ jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
     return instance;
 }
 
+jobject Deserializer::convert2JSignedMessage(JNIEnv *env, const std::string &address, const std::string &signature, const std::string &rfc2440) {
+    syslog(LOG_DEBUG, "[JNI] convert2JSignedMessage()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/SignedMessage");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddress",
+                                                       "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(address.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSignature",
+                                                       "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(signature.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRfc2440",
+                                                       "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(rfc2440.c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JSignedMessage error::%s", e.what());
+    }
+    return instance;
+}
+
 jobject Deserializer::convert2JColdCardHealth(JNIEnv *env, const HealthStatus &status,
                                               const std::string signature) {
     jclass clazz = env->FindClass("com/nunchuk/android/model/ColdCardHealth");
@@ -1020,6 +1041,21 @@ jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<Co
     jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
     for (const CoinCollection &s: collections) {
         jobject element = convert2JCoinCollection(env, s);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+    return arrayListInstance;
+}
+
+jobject
+Deserializer::convert2JCollectionUnspentOutputs(JNIEnv *env, const std::vector<std::vector<UnspentOutput>> &outputs) {
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
+            env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const std::vector<UnspentOutput> &output: outputs) {
+        jobject element = convert2JUnspentOutputs(env, output);
         env->CallBooleanMethod(arrayListInstance, addMethod, element);
         env->DeleteLocalRef(element);
     }
