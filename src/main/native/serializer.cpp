@@ -378,8 +378,12 @@ Wallet Serializer::convert2CWallet(JNIEnv *env, jobject wallet) {
     jfieldID fieldEscrow = env->GetFieldID(clazz, "escrow", "Z");
     auto escrow = env->GetBooleanField(wallet, fieldEscrow);
 
+    jfieldID fieldGapLimit = env->GetFieldID(clazz, "gapLimit", "I");
+    auto gap_limit = (jint) env->GetIntField(wallet, fieldGapLimit);
+
     Wallet updateWallet = Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, 0);
     updateWallet.set_name(name);
+    updateWallet.set_gap_limit(gap_limit);
 
     env->ReleaseStringUTFChars(nameVal, name);
     env->ReleaseStringUTFChars(idVal, id);
