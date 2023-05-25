@@ -59,6 +59,8 @@ public:
 
     static jobject convert2JTransaction(JNIEnv *env, const Transaction &transaction);
 
+    static jobject convert2JTransaction(JNIEnv *env, const Transaction &transaction, const Amount amount);
+
     static jobject convert2JTransactions(JNIEnv *env, const std::vector<Transaction> &transactions);
 
     static jobject convert2JMatrixEvent(JNIEnv *env, const NunchukMatrixEvent &event);

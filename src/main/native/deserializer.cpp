@@ -382,7 +382,7 @@ jobject Deserializer::convert2JWallets(JNIEnv *env, const std::vector<Wallet> &w
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction) {
+jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction, const Amount amount) {
     syslog(LOG_DEBUG, "[JNI] convert2JTransaction()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/Transaction");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
@@ -444,6 +444,10 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
     return instance;
+}
+
+jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction) {
+    return convert2JTransaction(env, transaction, 0);
 }
 
 jobject
