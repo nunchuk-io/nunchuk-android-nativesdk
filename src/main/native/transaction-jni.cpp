@@ -86,7 +86,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount
         );
-        return Deserializer::convert2JTransaction(env, transaction);
+        Amount packageFeeRate{0};
+        if (NunchukProvider::get()->nu->IsCPFP(StringWrapper(env, wallet_id), transaction, packageFeeRate)) {
+            return Deserializer::convert2JTransaction(env, transaction, packageFeeRate);
+        } else {
+            return Deserializer::convert2JTransaction(env, transaction);
+        }
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return env->ExceptionOccurred();
