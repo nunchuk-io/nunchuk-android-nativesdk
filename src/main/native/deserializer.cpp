@@ -440,6 +440,9 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             convert2JAmount(env, total));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPsbt", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(transaction.get_psbt().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCpfpFee",
+                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
+                            convert2JAmount(env, amount));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
