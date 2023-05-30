@@ -10,4 +10,6 @@ enum class SignerTag {
     PASSPORT,
     SEEDSIGNER,
     COLDCARD,
+    TREZOR,
+    LEDGER,
 }
