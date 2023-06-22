@@ -382,7 +382,7 @@ jobject Deserializer::convert2JWallets(JNIEnv *env, const std::vector<Wallet> &w
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction) {
+jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction, const Amount amount) {
     syslog(LOG_DEBUG, "[JNI] convert2JTransaction()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/Transaction");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
@@ -440,10 +440,17 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             convert2JAmount(env, total));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPsbt", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(transaction.get_psbt().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCpfpFee",
+                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
+                            convert2JAmount(env, amount));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
     return instance;
+}
+
+jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction) {
+    return convert2JTransaction(env, transaction, 0);
 }
 
 jobject
