@@ -903,3 +903,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteCoinCollection(JNIEnv
     }
     return false;
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRawTransaction(JNIEnv *env, jobject thiz,
+                                                                       jstring wallet_id,
+                                                                       jstring tx_id) {
+    try {
+        auto value = NunchukProvider::get()->nu->GetRawTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id));
+        return env->NewStringUTF(value.c_str());
+    } catch (BaseException &e) {
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        return env->NewStringUTF("");
+    }
+}

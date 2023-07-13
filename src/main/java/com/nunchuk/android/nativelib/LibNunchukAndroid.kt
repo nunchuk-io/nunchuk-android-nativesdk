@@ -905,6 +905,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getHealthCheckPath(): String?
 
+    @Throws(NCNativeException::class)
+    external fun getRawTransaction(walletId: String, txId: String): String?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
