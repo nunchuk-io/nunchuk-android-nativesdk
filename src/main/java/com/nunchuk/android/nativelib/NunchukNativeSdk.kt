@@ -1127,4 +1127,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getHealthCheckPath() = nunchukAndroid.getHealthCheckPath()
+
+    @Throws(NCNativeException::class)
+    fun getRawTransaction(walletId: String, txId: String) = nunchukAndroid.getRawTransaction(walletId, txId)
 }
