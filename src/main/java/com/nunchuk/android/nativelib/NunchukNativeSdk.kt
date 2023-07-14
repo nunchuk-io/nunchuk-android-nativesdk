@@ -215,7 +215,7 @@ class NunchukNativeSdk {
         walletId: String,
         outputs: Map<String, Amount>,
         memo: String,
-        inputs: List<UnspentOutput>,
+        inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean
     ) = nunchukAndroid.createTransaction(
