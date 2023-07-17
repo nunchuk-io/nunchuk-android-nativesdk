@@ -234,7 +234,7 @@ class NunchukNativeSdk {
         walletId: String,
         outputs: Map<String, Amount>,
         memo: String,
-        inputs: List<UnspentOutput>,
+        inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean
     ) = nunchukAndroid.createTransaction(
@@ -1146,4 +1146,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getHealthCheckPath() = nunchukAndroid.getHealthCheckPath()
+
+    @Throws(NCNativeException::class)
+    fun getRawTransaction(walletId: String, txId: String) = nunchukAndroid.getRawTransaction(walletId, txId)
 }

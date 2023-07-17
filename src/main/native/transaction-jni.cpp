@@ -45,11 +45,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
         jboolean subtract_fee_from_amount
 ) {
     try {
+        auto txInputs = Serializer::convert2CTxInputs(env, inputs);
+        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
+                StringWrapper(env, wallet_id),
+                txInputs);
         auto transaction = NunchukProvider::get()->nu->CreateTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CAmountsMap(env, outputs),
                 env->GetStringUTFChars(memo, JNI_FALSE),
-                Serializer::convert2CUnspentOutputs(env, inputs),
+                txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount
         );
@@ -902,4 +906,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteCoinCollection(JNIEnv
         Deserializer::convertStdException2JException(env, e);
     }
     return false;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRawTransaction(JNIEnv *env, jobject thiz,
+                                                                       jstring wallet_id,
+                                                                       jstring tx_id) {
+    try {
+        auto value = NunchukProvider::get()->nu->GetRawTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id));
+        return env->NewStringUTF(value.c_str());
+    } catch (BaseException &e) {
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        return env->NewStringUTF("");
+    }
 }

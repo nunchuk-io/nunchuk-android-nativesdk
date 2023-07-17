@@ -171,7 +171,7 @@ internal class LibNunchukAndroid {
         walletId: String,
         outputs: Map<String, Amount>,
         memo: String,
-        inputs: List<UnspentOutput>,
+        inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean
     ): Transaction
@@ -904,6 +904,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getHealthCheckPath(): String?
+
+    @Throws(NCNativeException::class)
+    external fun getRawTransaction(walletId: String, txId: String): String?
 
     companion object {
         init {
