@@ -120,6 +120,9 @@ SignerTag Serializer::convert2CSignerTag(JNIEnv *env, jobject tag) {
         case 7:
             type = SignerTag::LEDGER;
             break;
+        case 8:
+            type = SignerTag::BITBOX;
+            break;
         default:
             type = SignerTag::INHERITANCE;
             break;
