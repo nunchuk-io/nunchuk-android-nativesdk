@@ -12,4 +12,5 @@ enum class SignerTag {
     COLDCARD,
     TREZOR,
     LEDGER,
+    BITBOX,
 }
