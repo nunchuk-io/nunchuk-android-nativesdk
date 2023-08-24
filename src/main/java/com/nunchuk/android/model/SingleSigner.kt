@@ -18,5 +18,6 @@ data class SingleSigner(
     var type: SignerType = SignerType.AIRGAP,
     var hasMasterSigner: Boolean = false,
     var descriptor: String = "",
-    var tags: List<SignerTag> = emptyList()
+    var tags: List<SignerTag> = emptyList(),
+    var isVisible: Boolean = false
 ) : Parcelable
