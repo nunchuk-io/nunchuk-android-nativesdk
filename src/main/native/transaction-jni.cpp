@@ -923,3 +923,77 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRawTransaction(JNIEnv *e
         return env->NewStringUTF("");
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importDummyTx(JNIEnv *env, jobject thiz,
+                                                                   jstring dummy_transaction_json) {
+    try {
+        auto pair = NunchukProvider::get()->nu->ImportDummyTx(
+                StringWrapper(env, dummy_transaction_json));
+        pair.second.set_txid(pair.first);
+        return Deserializer::convert2JTransaction(env, pair.second);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteDummyTx(JNIEnv *env, jobject thiz,
+                                                                   jstring wallet_id,
+                                                                   jstring tx_id) {
+    try {
+        return NunchukProvider::get()->nu->DeleteDummyTx(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_saveDummyTxRequestToken(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jstring wallet_id,
+                                                                             jstring tx_id,
+                                                                             jstring request_token) {
+    try {
+        auto value = NunchukProvider::get()->nu->SaveDummyTxRequestToken(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                StringWrapper(env, request_token));
+        return Deserializer::convert2JStringBooleanMap(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTxRequestToken(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring wallet_id,
+                                                                            jstring tx_id) {
+    try {
+        auto value = NunchukProvider::get()->nu->GetDummyTxRequestToken(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id));
+        return Deserializer::convert2JStringBooleanMap(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

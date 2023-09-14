@@ -1149,4 +1149,23 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getRawTransaction(walletId: String, txId: String) = nunchukAndroid.getRawTransaction(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun importDummyTx(dummyTransactionJson: String): Transaction? = nunchukAndroid.importDummyTx(dummyTransactionJson)
+
+    @Throws(NCNativeException::class)
+    fun deleteDummyTx(walletId: String, txId: String): Boolean = nunchukAndroid.deleteDummyTx(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun saveDummyTxRequestToken(
+        walletId: String,
+        txId: String,
+        requestToken: String
+    ): RequestTokens? = nunchukAndroid.saveDummyTxRequestToken(walletId, txId, requestToken)
+
+    @Throws(NCNativeException::class)
+    fun getDummyTxRequestToken(
+        walletId: String,
+        txId: String
+    ): RequestTokens? = nunchukAndroid.getDummyTxRequestToken(walletId, txId)
 }

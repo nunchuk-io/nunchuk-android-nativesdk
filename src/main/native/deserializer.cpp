@@ -32,7 +32,7 @@ jobject Deserializer::convert2JListString(JNIEnv *env, const std::vector<std::st
 }
 
 jobject
-Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool> &signersMap) {
+Deserializer::convert2JStringBooleanMap(JNIEnv *env, const std::map<std::string, bool> &signersMap) {
     jclass clazz = env->FindClass("java/util/HashMap");
     jmethodID init = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, init);
@@ -48,7 +48,7 @@ Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool>
             }
         }
     } catch (const std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] convert2JSignersMap error::%s", e.what());
+        syslog(LOG_DEBUG, "[JNI] convert2JStringBooleanMap error::%s", e.what());
     }
     return instance;
 }
@@ -414,7 +414,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             transaction.get_change_index());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setM", "(I)V"), transaction.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/Map;)V"),
-                            convert2JSignersMap(env, transaction.get_signers()));
+                            convert2JStringBooleanMap(env, transaction.get_signers()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(transaction.get_memo().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
