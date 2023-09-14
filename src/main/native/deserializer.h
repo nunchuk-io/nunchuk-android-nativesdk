@@ -19,7 +19,7 @@ public:
 
     static jobject convert2JListString(JNIEnv *env, const std::vector<std::string> &values);
 
-    static jobject convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool> &signersMap);
+    static jobject convert2JStringBooleanMap(JNIEnv *env, const std::map<std::string, bool> &signersMap);
 
     static void convert2JException(JNIEnv *env, const BaseException &e);
 

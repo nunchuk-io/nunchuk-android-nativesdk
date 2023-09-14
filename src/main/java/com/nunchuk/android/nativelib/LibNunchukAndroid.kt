@@ -908,6 +908,25 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getRawTransaction(walletId: String, txId: String): String?
 
+    @Throws(NCNativeException::class)
+    external fun importDummyTx(dummyTransactionJson: String): Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun deleteDummyTx(walletId: String, txId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun saveDummyTxRequestToken(
+        walletId: String,
+        txId: String,
+        requestToken: String
+    ): RequestTokens?
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTxRequestToken(
+        walletId: String,
+        txId: String
+    ): RequestTokens?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
