@@ -927,6 +927,17 @@ internal class LibNunchukAndroid {
         txId: String
     ): RequestTokens?
 
+    @Throws(NCNativeException::class)
+    external fun getDummyTransactions(
+        walletId: String
+    ): List<Transaction>
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTransaction(
+        walletId: String,
+        txId: String
+    ): Transaction?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
