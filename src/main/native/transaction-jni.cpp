@@ -1026,6 +1026,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTransaction(JNIEnv 
         auto tx = NunchukProvider::get()->nu->GetDummyTx(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, tx_id));
+        tx.set_txid(StringWrapper(env, tx_id));
         return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
