@@ -33,6 +33,7 @@ jobject Deserializer::convert2JListString(JNIEnv *env, const std::vector<std::st
 
 jobject
 Deserializer::convert2JStringBooleanMap(JNIEnv *env, const std::map<std::string, bool> &signersMap) {
+    syslog(LOG_DEBUG, "[JNI] convert2JStringBooleanMap");
     jclass clazz = env->FindClass("java/util/HashMap");
     jmethodID init = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, init);

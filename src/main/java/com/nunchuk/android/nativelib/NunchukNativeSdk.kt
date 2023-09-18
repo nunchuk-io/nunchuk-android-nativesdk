@@ -1164,13 +1164,13 @@ class NunchukNativeSdk {
         walletId: String,
         txId: String,
         requestToken: String,
-    ): RequestTokens? = nunchukAndroid.saveDummyTxRequestToken(walletId, txId, requestToken)
+    ) = nunchukAndroid.saveDummyTxRequestToken(walletId, txId, requestToken)
 
     @Throws(NCNativeException::class)
     fun getDummyTxRequestToken(
         walletId: String,
         txId: String,
-    ): RequestTokens? = nunchukAndroid.getDummyTxRequestToken(walletId, txId)
+    ) = nunchukAndroid.getDummyTxRequestToken(walletId, txId)
 
     @Throws(NCNativeException::class)
     fun getDummyTransactions(walletId: String): List<Transaction> =

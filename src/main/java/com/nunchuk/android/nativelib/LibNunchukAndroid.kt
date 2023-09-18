@@ -919,13 +919,13 @@ internal class LibNunchukAndroid {
         walletId: String,
         txId: String,
         requestToken: String
-    ): RequestTokens?
+    ): Map<String, Boolean>
 
     @Throws(NCNativeException::class)
     external fun getDummyTxRequestToken(
         walletId: String,
         txId: String
-    ): RequestTokens?
+    ): Map<String, Boolean>
 
     @Throws(NCNativeException::class)
     external fun getDummyTransactions(
