@@ -247,18 +247,20 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun createTransaction(
+    fun createInheritanceClaimTransaction(
         signer: SingleSigner,
         psbt: String,
         subAmount: String,
         feeRate: String,
         fee: String,
-    ) = nunchukAndroid.createTransactionWallet(
+        isDraft: Boolean
+    ) = nunchukAndroid.createInheritanceClaimTransaction(
         signer = signer,
         psbt = psbt,
         subAmount = subAmount,
         feeRate = feeRate,
-        fee = fee
+        fee = fee,
+        isDraft = isDraft
     )
 
     @Throws(NCNativeException::class)
