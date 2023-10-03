@@ -177,12 +177,13 @@ internal class LibNunchukAndroid {
     ): Transaction
 
     @Throws(NCNativeException::class)
-    external fun createTransactionWallet(
+    external fun createInheritanceClaimTransaction(
         signer: SingleSigner,
         psbt: String,
         subAmount: String,
         feeRate: String,
-        fee: String
+        fee: String,
+        isDraft: Boolean
     ): Transaction
 
     @Throws(NCNativeException::class)
