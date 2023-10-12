@@ -1162,4 +1162,19 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTxByTxId(walletId: String, txId: String): Transaction? =
         nunchukAndroid.getDummyTransaction(walletId, txId)
+
+    @Throws
+    fun getCurrentIndexFromMasterSigner(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int
+    ) = nunchukAndroid.getCurrentIndexFromMasterSigner(masterSignerId, walletType, addressType)
+
+    @Throws
+    fun getSignerFromMasterSignerByIndex(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ) : SingleSigner? = nunchukAndroid.getSignerFromMasterSignerByIndex(masterSignerId, walletType, addressType, index)
 }
