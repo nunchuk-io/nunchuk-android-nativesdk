@@ -939,6 +939,21 @@ internal class LibNunchukAndroid {
         txId: String
     ): Transaction?
 
+    @Throws
+    external fun getCurrentIndexFromMasterSigner(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int
+    ): Int
+
+    @Throws
+    external fun getSignerFromMasterSignerByIndex(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ): SingleSigner?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
