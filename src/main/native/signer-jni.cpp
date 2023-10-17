@@ -702,14 +702,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getHealthCheckPath(JNIEnv *
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCurrentIndexFromMasterSigner(JNIEnv *env,
-                                                                                     jobject thiz,
-                                                                                     jstring master_signer_id,
-                                                                                     jint wallet_type,
-                                                                                     jint address_type) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCurrentSignerIndex(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring xfp,
+                                                                           jint wallet_type,
+                                                                           jint address_type) {
     try {
-        return NunchukProvider::get()->nu->GetCurrentIndexFromMasterSigner(
-                StringWrapper(env, master_signer_id),
+        return NunchukProvider::get()->nu->GetCurrentSignerIndex(
+                StringWrapper(env, xfp),
                 Serializer::convert2CWalletType(wallet_type),
                 Serializer::convert2CAddressType(address_type)
         );
@@ -723,15 +723,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCurrentIndexFromMasterSi
 }
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerFromMasterSignerByIndex(JNIEnv *env,
-                                                                                      jobject thiz,
-                                                                                      jstring master_signer_id,
-                                                                                      jint wallet_type,
-                                                                                      jint address_type,
-                                                                                      jint index) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerByIndex(JNIEnv *env,
+                                                                      jobject thiz,
+                                                                      jstring xfp,
+                                                                      jint wallet_type,
+                                                                      jint address_type,
+                                                                      jint index) {
     try {
-        auto signer = NunchukProvider::get()->nu->GetSignerFromMasterSigner(
-                StringWrapper(env, master_signer_id),
+        auto signer = NunchukProvider::get()->nu->GetSigner(
+                StringWrapper(env, xfp),
                 Serializer::convert2CWalletType(wallet_type),
                 Serializer::convert2CAddressType(address_type),
                 index

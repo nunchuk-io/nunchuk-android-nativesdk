@@ -940,15 +940,15 @@ internal class LibNunchukAndroid {
     ): Transaction?
 
     @Throws
-    external fun getCurrentIndexFromMasterSigner(
-        masterSignerId: String,
+    external fun getCurrentSignerIndex(
+        xfp: String,
         walletType: Int,
         addressType: Int
     ): Int
 
     @Throws
-    external fun getSignerFromMasterSignerByIndex(
-        masterSignerId: String,
+    external fun getSignerByIndex(
+        xfp: String,
         walletType: Int,
         addressType: Int,
         index: Int
