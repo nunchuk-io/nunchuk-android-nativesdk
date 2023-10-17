@@ -1184,16 +1184,16 @@ class NunchukNativeSdk {
 
     @Throws
     fun getCurrentIndexFromMasterSigner(
-        masterSignerId: String,
+        xfp: String,
         walletType: Int,
         addressType: Int
-    ) = nunchukAndroid.getCurrentIndexFromMasterSigner(masterSignerId, walletType, addressType)
+    ) = nunchukAndroid.getCurrentSignerIndex(xfp, walletType, addressType)
 
     @Throws
     fun getSignerFromMasterSignerByIndex(
-        masterSignerId: String,
+        xfp: String,
         walletType: Int,
         addressType: Int,
         index: Int
-    ) : SingleSigner? = nunchukAndroid.getSignerFromMasterSignerByIndex(masterSignerId, walletType, addressType, index)
+    ) : SingleSigner? = nunchukAndroid.getSignerByIndex(xfp, walletType, addressType, index)
 }
