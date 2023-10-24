@@ -1164,14 +1164,14 @@ class NunchukNativeSdk {
         nunchukAndroid.getDummyTransaction(walletId, txId)
 
     @Throws
-    fun getCurrentIndexFromMasterSigner(
+    fun getCurrentSignerIndex(
         xfp: String,
         walletType: Int,
         addressType: Int
     ) = nunchukAndroid.getCurrentSignerIndex(xfp, walletType, addressType)
 
     @Throws
-    fun getSignerFromMasterSignerByIndex(
+    fun getSignerByIndex(
         xfp: String,
         walletType: Int,
         addressType: Int,
