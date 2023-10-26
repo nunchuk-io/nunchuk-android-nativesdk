@@ -708,7 +708,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCurrentSignerIndex(JNIEn
                                                                            jint wallet_type,
                                                                            jint address_type) {
     try {
-        return NunchukProvider::get()->nu->GetCurrentSignerIndex(
+        return NunchukProvider::get()->nu->GetLastUsedSignerIndex(
                 StringWrapper(env, xfp),
                 Serializer::convert2CWalletType(wallet_type),
                 Serializer::convert2CAddressType(address_type)
