@@ -32,7 +32,8 @@ jobject Deserializer::convert2JListString(JNIEnv *env, const std::vector<std::st
 }
 
 jobject
-Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool> &signersMap) {
+Deserializer::convert2JStringBooleanMap(JNIEnv *env, const std::map<std::string, bool> &signersMap) {
+    syslog(LOG_DEBUG, "[JNI] convert2JStringBooleanMap");
     jclass clazz = env->FindClass("java/util/HashMap");
     jmethodID init = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, init);
@@ -48,7 +49,7 @@ Deserializer::convert2JSignersMap(JNIEnv *env, const std::map<std::string, bool>
             }
         }
     } catch (const std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] convert2JSignersMap error::%s", e.what());
+        syslog(LOG_DEBUG, "[JNI] convert2JStringBooleanMap error::%s", e.what());
     }
     return instance;
 }
@@ -125,7 +126,8 @@ jobject Deserializer::convert2JAmount(JNIEnv *env, const Amount amount) {
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setValue", "(J)V"), (int64_t) amount);
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setValue", "(J)V"),
+                            (int64_t) amount);
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setFormattedValue", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(Utils::ValueFromAmount(amount).c_str()));
@@ -246,6 +248,8 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
                             convert2JSignerType(env, signer.get_type()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V"),
                             convert2JSignerTags(env, signer.get_tags()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVisible", "(Z)V"),
+                            signer.is_visible());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -287,6 +291,8 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
                             env->NewStringUTF(signer.get_descriptor().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V"),
                             convert2JSignerTags(env, signer.get_tags()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVisible", "(Z)V"),
+                            signer.is_visible());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -382,7 +388,8 @@ jobject Deserializer::convert2JWallets(JNIEnv *env, const std::vector<Wallet> &w
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction, const Amount amount) {
+jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction,
+                                           const Amount amount) {
     syslog(LOG_DEBUG, "[JNI] convert2JTransaction()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/Transaction");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
@@ -408,7 +415,7 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             transaction.get_change_index());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setM", "(I)V"), transaction.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/Map;)V"),
-                            convert2JSignersMap(env, transaction.get_signers()));
+                            convert2JStringBooleanMap(env, transaction.get_signers()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(transaction.get_memo().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
@@ -771,7 +778,8 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxid", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(output.get_txid().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(output.get_address().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVout", "(I)V"),
                             output.get_vout());
@@ -910,7 +918,9 @@ jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
     return instance;
 }
 
-jobject Deserializer::convert2JSignedMessage(JNIEnv *env, const std::string &address, const std::string &signature, const std::string &rfc2440) {
+jobject Deserializer::convert2JSignedMessage(JNIEnv *env, const std::string &address,
+                                             const std::string &signature,
+                                             const std::string &rfc2440) {
     syslog(LOG_DEBUG, "[JNI] convert2JSignedMessage()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/SignedMessage");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
@@ -1028,7 +1038,8 @@ jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection 
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"), collection.get_id());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"),
+                            collection.get_id());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(collection.get_name().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddNewCoin", "(Z)V"),
@@ -1041,7 +1052,8 @@ jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection 
     return instance;
 }
 
-jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<CoinCollection> &collections) {
+jobject Deserializer::convert2JCoinCollections(JNIEnv *env,
+                                               const std::vector<CoinCollection> &collections) {
     syslog(LOG_DEBUG, "[JNI] convert2JCoinCollections()");
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
             env->FindClass("java/util/ArrayList")));
@@ -1057,7 +1069,8 @@ jobject Deserializer::convert2JCoinCollections(JNIEnv *env, const std::vector<Co
 }
 
 jobject
-Deserializer::convert2JCollectionUnspentOutputs(JNIEnv *env, const std::vector<std::vector<UnspentOutput>> &outputs) {
+Deserializer::convert2JCollectionUnspentOutputs(JNIEnv *env,
+                                                const std::vector<std::vector<UnspentOutput>> &outputs) {
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
             env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");

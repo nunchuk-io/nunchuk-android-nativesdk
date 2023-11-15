@@ -177,12 +177,13 @@ internal class LibNunchukAndroid {
     ): Transaction
 
     @Throws(NCNativeException::class)
-    external fun createTransactionWallet(
+    external fun createInheritanceClaimTransaction(
         signer: SingleSigner,
         psbt: String,
         subAmount: String,
         feeRate: String,
-        fee: String
+        fee: String,
+        isDraft: Boolean
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -907,6 +908,51 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getRawTransaction(walletId: String, txId: String): String?
+
+    @Throws(NCNativeException::class)
+    external fun importDummyTx(dummyTransactionJson: String): Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun deleteDummyTx(walletId: String, txId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun saveDummyTxRequestToken(
+        walletId: String,
+        txId: String,
+        requestToken: String
+    ): Map<String, Boolean>
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTxRequestToken(
+        walletId: String,
+        txId: String
+    ): Map<String, Boolean>
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTransactions(
+        walletId: String
+    ): List<Transaction>
+
+    @Throws(NCNativeException::class)
+    external fun getDummyTransaction(
+        walletId: String,
+        txId: String
+    ): Transaction?
+
+    @Throws
+    external fun getCurrentSignerIndex(
+        xfp: String,
+        walletType: Int,
+        addressType: Int
+    ): Int
+
+    @Throws
+    external fun getSignerByIndex(
+        xfp: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ): SingleSigner?
 
     companion object {
         init {

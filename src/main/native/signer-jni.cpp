@@ -700,3 +700,48 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getHealthCheckPath(JNIEnv *
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCurrentSignerIndex(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring xfp,
+                                                                           jint wallet_type,
+                                                                           jint address_type) {
+    try {
+        return NunchukProvider::get()->nu->GetLastUsedSignerIndex(
+                StringWrapper(env, xfp),
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerByIndex(JNIEnv *env,
+                                                                      jobject thiz,
+                                                                      jstring xfp,
+                                                                      jint wallet_type,
+                                                                      jint address_type,
+                                                                      jint index) {
+    try {
+        auto signer = NunchukProvider::get()->nu->GetSigner(
+                StringWrapper(env, xfp),
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type),
+                index
+        );
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

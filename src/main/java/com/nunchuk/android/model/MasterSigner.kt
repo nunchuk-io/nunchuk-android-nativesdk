@@ -32,5 +32,6 @@ data class MasterSigner(
     var lastHealthCheck: Long = 0,
     var software: Boolean = false,
     var type: SignerType = SignerType.AIRGAP,
-    var tags: List<SignerTag> = emptyList()
+    var tags: List<SignerTag> = emptyList(),
+    var isVisible: Boolean = false
 ) : Parcelable
