@@ -38,5 +38,6 @@ data class SingleSigner(
     var hasMasterSigner: Boolean = false,
     var descriptor: String = "",
     var tags: List<SignerTag> = emptyList(),
-    var isVisible: Boolean = false
+    var isVisible: Boolean = false,
+    var index: Int = 0,
 ) : Parcelable

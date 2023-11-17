@@ -293,6 +293,8 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
                             convert2JSignerTags(env, signer.get_tags()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVisible", "(Z)V"),
                             signer.is_visible());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIndex", "(I)V"),
+                            Utils::GetIndexFromPath(signer.get_derivation_path()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
