@@ -954,6 +954,12 @@ internal class LibNunchukAndroid {
         index: Int
     ): SingleSigner?
 
+    external fun getAddressByIndex(
+        wallet: WalletBridge,
+        from: Int,
+        to: Int
+    ) : List<String>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

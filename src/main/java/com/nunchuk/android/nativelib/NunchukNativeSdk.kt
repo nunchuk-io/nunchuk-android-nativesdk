@@ -1177,4 +1177,11 @@ class NunchukNativeSdk {
         addressType: Int,
         index: Int
     ) : SingleSigner? = nunchukAndroid.getSignerByIndex(xfp, walletType, addressType, index)
+
+    @kotlin.jvm.Throws
+    fun getAddressByIndex(
+        wallet: Wallet,
+        from: Int,
+        to: Int
+    ) : List<String> = nunchukAndroid.getAddressByIndex(wallet.toBridge(), from, to)
 }
