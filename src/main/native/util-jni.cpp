@@ -41,8 +41,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidAddress(
         jstring address
 ) {
     try {
-        Utils::AddressToScriptPubKey(env->GetStringUTFChars(address, JNI_FALSE));
-        return JNI_TRUE;
+        return Utils::IsValidAddress(env->GetStringUTFChars(address, JNI_FALSE));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
