@@ -286,3 +286,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getColdcardSignatureFromPsb
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseWalletFromMk4(JNIEnv *env, jobject thiz,
+                                                                        jint chain,
+                                                                        jobjectArray records) {
+    try {
+        auto cRecords = Serializer::convert2CRecords(env, records);
+        NDEFMessageType type = DetectNDEFMessageType(cRecords);
+        if (type == NDEFMessageType::WALLET) {
+            auto config = NDEFRecordToStr(cRecords[0]);
+            auto cChain = Serializer::convert2CChain(chain);
+            auto wallet = Utils::ParseWalletConfig(cChain, config);
+            return Deserializer::convert2JWallet(env, wallet);
+        }
+        return nullptr;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

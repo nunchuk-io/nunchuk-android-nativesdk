@@ -44,7 +44,7 @@ internal class LibNunchukAndroid {
         storagePath: String,
         passphrase: String,
         accountId: String,
-        deviceId: String
+        deviceId: String,
     )
 
     @Throws(NCNativeException::class)
@@ -55,12 +55,12 @@ internal class LibNunchukAndroid {
         derivationPath: String,
         masterFingerprint: String,
         type: SignerType,
-        tags: List<SignerTag>
+        tags: List<SignerTag>,
     ): SingleSigner
 
     @Throws(NCNativeException::class)
     external fun parseKeystoneSigner(
-        qrData: String
+        qrData: String,
     ): SingleSigner
 
     @Throws(NCNativeException::class)
@@ -68,7 +68,7 @@ internal class LibNunchukAndroid {
         name: String,
         mnemonic: String,
         passphrase: String = "",
-        isPrimary: Boolean
+        isPrimary: Boolean,
     ): MasterSigner
 
     @Throws(NCNativeException::class)
@@ -81,7 +81,7 @@ internal class LibNunchukAndroid {
         signers: List<SingleSigner>,
         addressType: Int,
         isEscrow: Boolean,
-        description: String
+        description: String,
     ): Wallet
 
     @Throws(NCNativeException::class)
@@ -100,20 +100,20 @@ internal class LibNunchukAndroid {
         signers: List<SingleSigner>,
         addressType: Int,
         isEscrow: Boolean,
-        description: String
+        description: String,
     ): String
 
     @Throws(NCNativeException::class)
     external fun exportWallet(
         walletId: String,
         filePath: String,
-        format: Int
+        format: Int,
     ): Boolean
 
     @Throws(NCNativeException::class)
     external fun importKeystoneWallet(
         qrData: List<String>,
-        description: String
+        description: String,
     ): Wallet
 
     @Throws(NCNativeException::class)
@@ -153,14 +153,14 @@ internal class LibNunchukAndroid {
     external fun getUnusedSignerFromMasterSigner(
         masterSignerId: String,
         walletType: Int,
-        addressType: Int
+        addressType: Int,
     ): SingleSigner
 
     @Throws(NCNativeException::class)
     external fun getDefaultSignerFromMasterSigner(
         masterSignerId: String,
         walletType: Int,
-        addressType: Int
+        addressType: Int,
     ): SingleSigner
 
     @Throws(NCNativeException::class)
@@ -173,7 +173,7 @@ internal class LibNunchukAndroid {
         memo: String,
         inputs: List<TxInput>,
         feeRate: Amount,
-        subtractFeeFromAmount: Boolean
+        subtractFeeFromAmount: Boolean,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -183,7 +183,7 @@ internal class LibNunchukAndroid {
         subAmount: String,
         feeRate: String,
         fee: String,
-        isDraft: Boolean
+        isDraft: Boolean,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -192,7 +192,7 @@ internal class LibNunchukAndroid {
         outputs: Map<String, Amount>,
         inputs: List<TxInput>,
         feeRate: Amount,
-        subtractFeeFromAmount: Boolean
+        subtractFeeFromAmount: Boolean,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -232,7 +232,7 @@ internal class LibNunchukAndroid {
         txId: String,
         newTxId: String,
         rawTx: String,
-        rejectMsg: String
+        rejectMsg: String,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -241,7 +241,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun signAirgapTransaction(
         initEventId: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
@@ -293,7 +293,7 @@ internal class LibNunchukAndroid {
         addressType: Int,
         isEscrow: Boolean,
         des: String,
-        signers: List<SingleSigner>
+        signers: List<SingleSigner>,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
@@ -303,7 +303,7 @@ internal class LibNunchukAndroid {
     external fun leaveSharedWallet(
         roomId: String,
         joinEventId: String,
-        reason: String
+        reason: String,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
@@ -331,67 +331,67 @@ internal class LibNunchukAndroid {
         memo: String,
         inputs: List<UnspentOutput>,
         feeRate: Amount,
-        subtractFeeFromAmount: Boolean
+        subtractFeeFromAmount: Boolean,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun signRoomTransaction(
         initEventId: String,
-        device: Device
+        device: Device,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun rejectRoomTransaction(
         initEventId: String,
-        reason: String
+        reason: String,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun cancelRoomTransaction(
         initEventId: String,
-        reason: String
+        reason: String,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun broadcastRoomTransaction(
-        initEventId: String
+        initEventId: String,
     ): NunchukMatrixEvent
 
     @Throws(NCNativeException::class)
     external fun getRoomTransaction(
-        initEventId: String
+        initEventId: String,
     ): RoomTransaction
 
     @Throws(NCNativeException::class)
     external fun getPendingTransactions(
-        roomId: String
+        roomId: String,
     ): List<RoomTransaction>
 
     @Throws(NCNativeException::class)
     external fun getTransactionId(
-        eventId: String
+        eventId: String,
     ): String
 
     @Throws(NCNativeException::class)
     external fun consumeSyncEvent(
-        event: NunchukMatrixEvent
+        event: NunchukMatrixEvent,
     )
 
     @Throws(NCNativeException::class)
     external fun enableAutoBackUp(
-        enable: Boolean
+        enable: Boolean,
     )
 
     @Throws(NCNativeException::class)
     external fun registerAutoBackUp(
         syncRoomId: String,
-        accessToken: String
+        accessToken: String,
     )
 
     @Throws(NCNativeException::class)
     external fun uploadFileCallback(
         fileJsonInfo: String,
-        fileUrl: String
+        fileUrl: String,
     )
 
     @Throws(NCNativeException::class)
@@ -400,13 +400,13 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun downloadFileCallback(
         fileJsonInfo: String,
-        fileData: ByteArray
+        fileData: ByteArray,
     )
 
     @Throws(NCNativeException::class)
     external fun writeFileCallback(
         fileJsonInfo: String,
-        fileData: String
+        fileData: String,
     )
 
     @Throws(NCNativeException::class)
@@ -420,7 +420,7 @@ internal class LibNunchukAndroid {
         fingerprint: String,
         message: String,
         signature: String,
-        path: String
+        path: String,
     ): HealthStatus
 
     @Throws(NCNativeException::class)
@@ -428,7 +428,7 @@ internal class LibNunchukAndroid {
         roomId: String,
         platform: String,
         code: String,
-        message: String
+        message: String,
     )
 
     @Throws(NCNativeException::class)
@@ -441,21 +441,21 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun tapSignerStatus(
-        isoDep: IsoDep
+        isoDep: IsoDep,
     ): TapSignerStatus
 
     @Throws(NCNativeException::class)
     external fun initTapSigner(
         isoDep: IsoDep,
         oldCvc: String,
-        chainCode: String
+        chainCode: String,
     )
 
     @Throws(NCNativeException::class)
     external fun createTapSigner(
         isoDep: IsoDep,
         cvc: String,
-        name: String
+        name: String,
     ): MasterSigner
 
     @Throws(NCNativeException::class)
@@ -463,7 +463,7 @@ internal class LibNunchukAndroid {
         isoDep: IsoDep,
         cvc: String,
         walletId: String,
-        txId: String
+        txId: String,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -477,7 +477,7 @@ internal class LibNunchukAndroid {
     external fun getBackupTapSignerKey(
         isoDep: IsoDep,
         cvc: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): TapSignerStatus
 
     @Throws(NCNativeException::class)
@@ -485,7 +485,7 @@ internal class LibNunchukAndroid {
         isoDep: IsoDep,
         oldCvc: String,
         newCvc: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): Boolean
 
     @Throws(NCNativeException::class)
@@ -495,7 +495,7 @@ internal class LibNunchukAndroid {
         fingerprint: String,
         message: String,
         signature: String,
-        path: String
+        path: String,
     ): HealthStatus
 
     @Throws(NCNativeException::class)
@@ -510,147 +510,156 @@ internal class LibNunchukAndroid {
     external fun tapSignerTopUpXpub(
         isoDep: IsoDep,
         cvc: String,
-        masterSignerId: String
+        masterSignerId: String,
     )
 
     @Throws(NCNativeException::class)
     external fun cacheDefaultTapsignerMasterSignerXPub(
         isoDep: IsoDep,
         cvc: String,
-        masterSignerId: String
+        masterSignerId: String,
     )
 
     @Throws(NCNativeException::class)
     external fun getTapSignerStatusFromMasterSigner(
-        masterSignerId: String
+        masterSignerId: String,
     ): TapSignerStatus
 
     @Throws(NCNativeException::class)
     external fun decryptBackUpKey(
         backUpKey: String,
         decryptionKey: String,
-        rawName: String
+        rawName: String,
     ): MasterSigner
 
     @Throws(NCNativeException::class)
     external fun importTapsignerMasterSignerContent(
         content: ByteArray,
         backUpKey: String,
-        rawName: String
+        rawName: String,
     ): MasterSigner
 
     @Throws(NCNativeException::class)
     external fun parseWalletDescriptor(content: String): Wallet
 
     @Throws(NCNativeException::class)
+    external fun parseKeystoneWallet(chain: Int, qrData: List<String>): Wallet?
+
+    @Throws(NCNativeException::class)
     external fun hasSigner(signer: SingleSigner): Boolean
 
     @Throws(NCNativeException::class)
     external fun getSatsCardStatus(
-        isoDep: IsoDep
+        isoDep: IsoDep,
     ): SatsCardStatus
 
     @Throws(NCNativeException::class)
     external fun setupSatsCard(
         isoDep: IsoDep,
         cvc: String,
-        chainCode: String
+        chainCode: String,
     ): SatsCardStatus
 
     @Throws(NCNativeException::class)
     external fun loadSatsCardSlotsBalance(
-        slots: List<SatsCardSlot>
+        slots: List<SatsCardSlot>,
     ): List<SatsCardSlot>
 
     @Throws(NCNativeException::class)
     external fun unsealSatsCard(
         isoDep: IsoDep,
         cvc: String,
-        slot: SatsCardSlot
+        slot: SatsCardSlot,
     ): SatsCardSlot
 
     @Throws(NCNativeException::class)
     external fun sweepBalance(
         slots: List<SatsCardSlot>,
         address: String,
-        feeRate: Int
+        feeRate: Int,
     ): Transaction
 
     @Throws(NCNativeException::class)
     external fun draftSatscardTransaction(
         slots: List<SatsCardSlot>,
         address: String,
-        feeRate: Int
+        feeRate: Int,
     ): Transaction
 
     @Throws(NCNativeException::class)
     external fun getSlotKeys(
         isoDep: IsoDep,
         cvc: String,
-        slots: List<SatsCardSlot>
+        slots: List<SatsCardSlot>,
     ): List<SatsCardSlot>
 
     @Throws(NCNativeException::class)
     external fun getAutoCardStatus(
-        isoDep: IsoDep
+        isoDep: IsoDep,
     ): CardStatus
 
     @Throws(NCNativeException::class)
     external fun waitAutoCard(
-        isoDep: IsoDep
+        isoDep: IsoDep,
     )
 
     @Throws(NCNativeException::class)
     external fun loadTransaction(
-        txId: String
+        txId: String,
     ): Transaction
 
     @Throws(NCNativeException::class)
     external fun getMk4Signers(
-        records: Array<NdefRecord>
+        records: Array<NdefRecord>,
     ): List<SingleSigner>
 
     @Throws(NCNativeException::class)
     external fun createMk4Signer(
-        signer: SingleSigner
+        signer: SingleSigner,
     ): SingleSigner
 
     @Throws(NCNativeException::class)
     external fun exportWalletToMk4(
-        walletId: String
+        walletId: String,
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun exportWalletToBsmsById(
-        walletId: String
+        walletId: String,
     ): String
 
     @Throws(NCNativeException::class)
     external fun exportWalletToBsms(
-        wallet: WalletBridge
+        wallet: WalletBridge,
     ): String
 
     @Throws(NCNativeException::class)
     external fun exportPsbtToMk4(
         walletId: String,
-        txId: String
+        txId: String,
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun exportRawPsbtToMk4(
-        psbt: String
+        psbt: String,
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun importTransactionFromMk4(
         walletId: String,
-        records: Array<NdefRecord>
+        records: Array<NdefRecord>,
     ): Transaction?
 
     @Throws(NCNativeException::class)
     external fun importWalletFromMk4(
         chain: Int,
-        records: Array<NdefRecord>
+        records: Array<NdefRecord>,
+    ): Wallet?
+
+    @Throws(NCNativeException::class)
+    external fun parseWalletFromMk4(
+        chain: Int,
+        records: Array<NdefRecord>,
     ): Wallet?
 
     @Throws(NCNativeException::class)
@@ -662,26 +671,26 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getPrimaryKeyAddress(
         mnemonic: String,
-        passphrase: String
+        passphrase: String,
     ): String?
 
     @Throws(NCNativeException::class)
     external fun signLoginMessage(
         mnemonic: String,
         passphrase: String,
-        message: String
+        message: String,
     ): String?
 
     @Throws(NCNativeException::class)
     external fun signLoginMessageImpl(
         masterSignerId: String,
-        message: String
+        message: String,
     ): String?
 
     @Throws(NCNativeException::class)
     external fun getMasterFingerprint(
         mnemonic: String,
-        passphrase: String
+        passphrase: String,
     ): String?
 
     @Throws(NCNativeException::class)
@@ -689,7 +698,7 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun parseBtcUri(
-        uri: String
+        uri: String,
     ): BtcUri
 
     @Throws(NCNativeException::class)
@@ -701,13 +710,13 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun generateColdCardHealthCheckMessage(
         derivationPath: String,
-        message: String?
+        message: String?,
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
     external fun healthCheckColdCard(
         signer: SingleSigner,
-        records: Array<NdefRecord>
+        records: Array<NdefRecord>,
     ): ColdCardHealth
 
     @Throws(NCNativeException::class)
@@ -719,26 +728,26 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun parseJsonSigners(
         str: String,
-        type: SignerType
+        type: SignerType,
     ): List<SingleSigner>
 
     @Throws(NCNativeException::class)
     external fun verifyTapSignerBackup(
         backUpKey: String,
         decryptionKey: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): Boolean
 
     @Throws(NCNativeException::class)
     external fun verifyTapSignerBackupContent(
         content: ByteArray,
         backUpKey: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): Boolean
 
     @Throws(NCNativeException::class)
     external fun hasWallet(
-        walletId: String
+        walletId: String,
     ): Boolean
 
     @Throws(NCNativeException::class)
@@ -748,7 +757,7 @@ internal class LibNunchukAndroid {
         name: String,
         version: String,
         brithHeight: Int,
-        isTestNet: Boolean
+        isTestNet: Boolean,
     )
 
     @Throws(NCNativeException::class)
@@ -765,7 +774,7 @@ internal class LibNunchukAndroid {
         isoDep: IsoDep,
         cvc: String,
         signer: SingleSigner,
-        messagesToSign: String
+        messagesToSign: String,
     ): String
 
     @Throws(NCNativeException::class)
@@ -797,7 +806,7 @@ internal class LibNunchukAndroid {
 
     external fun getColdcardSignatureFromPsbt(
         signer: SingleSigner,
-        records: Array<NdefRecord>
+        records: Array<NdefRecord>,
     ): String?
 
     external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
@@ -828,7 +837,7 @@ internal class LibNunchukAndroid {
         walletId: String,
         txId: String,
         collectionId: Int,
-        vout: Int
+        vout: Int,
     ): Boolean
 
     @Throws(NCNativeException::class)
@@ -836,7 +845,7 @@ internal class LibNunchukAndroid {
         walletId: String,
         txId: String,
         collectionId: Int,
-        vout: Int
+        vout: Int,
     ): Boolean
 
     @Throws(NCNativeException::class)
@@ -876,7 +885,7 @@ internal class LibNunchukAndroid {
     external fun exportCoinControlData(walletId: String): String
 
     @Throws(NCNativeException::class)
-    external fun importCoinControlData(walletId: String, data: String, force: Boolean) : Boolean
+    external fun importCoinControlData(walletId: String, data: String, force: Boolean): Boolean
 
     @Throws(NCNativeException::class)
     external fun exportCoinControlBIP329(walletId: String): String
@@ -885,7 +894,11 @@ internal class LibNunchukAndroid {
     external fun importCoinControlBIP329(walletId: String, data: String)
 
     @Throws(NCNativeException::class)
-    external fun getCoinAncestry(walletId: String, txId: String, vout: Int) : List<List<UnspentOutput>>
+    external fun getCoinAncestry(
+        walletId: String,
+        txId: String,
+        vout: Int,
+    ): List<List<UnspentOutput>>
 
     @Throws(NCNativeException::class)
     external fun signMessageByTapSigner(
@@ -893,14 +906,14 @@ internal class LibNunchukAndroid {
         cvc: String,
         message: String,
         path: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): SignedMessage?
 
     @Throws(NCNativeException::class)
     external fun signMessageBySoftwareKey(
         message: String,
         path: String,
-        masterSignerId: String
+        masterSignerId: String,
     ): SignedMessage?
 
     @Throws(NCNativeException::class)
@@ -919,31 +932,31 @@ internal class LibNunchukAndroid {
     external fun saveDummyTxRequestToken(
         walletId: String,
         txId: String,
-        requestToken: String
+        requestToken: String,
     ): Map<String, Boolean>
 
     @Throws(NCNativeException::class)
     external fun getDummyTxRequestToken(
         walletId: String,
-        txId: String
+        txId: String,
     ): Map<String, Boolean>
 
     @Throws(NCNativeException::class)
     external fun getDummyTransactions(
-        walletId: String
+        walletId: String,
     ): List<Transaction>
 
     @Throws(NCNativeException::class)
     external fun getDummyTransaction(
         walletId: String,
-        txId: String
+        txId: String,
     ): Transaction?
 
     @Throws
     external fun getCurrentSignerIndex(
         xfp: String,
         walletType: Int,
-        addressType: Int
+        addressType: Int,
     ): Int
 
     @Throws
@@ -951,14 +964,14 @@ internal class LibNunchukAndroid {
         xfp: String,
         walletType: Int,
         addressType: Int,
-        index: Int
+        index: Int,
     ): SingleSigner?
 
     external fun getAddressByIndex(
         wallet: WalletBridge,
         from: Int,
-        to: Int
-    ) : List<String>
+        to: Int,
+    ): List<String>
 
     companion object {
         init {
