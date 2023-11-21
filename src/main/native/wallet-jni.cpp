@@ -503,3 +503,30 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressByIndex(JNIEnv *e
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneWallet(JNIEnv *env, jobject thiz,
+                                                                         jint chain,
+                                                                         jobject qr_data) {
+    auto cQrData = Serializer::convert2CListString(env, qr_data);
+    auto cChain = Serializer::convert2CChain(chain);
+    try {
+        auto wallet = Utils::ParseKeystoneWallet(cChain, cQrData);
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        try {
+            if (cQrData.size() != 1) {
+                Deserializer::convert2JException(env, e);
+                return nullptr;
+            }
+            auto wallet = Utils::ParseWalletDescriptor(cQrData[0]);
+            return Deserializer::convert2JWallet(env, wallet);
+        } catch (BaseException &e) {
+            Deserializer::convert2JException(env, e);
+            return nullptr;
+        }
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
