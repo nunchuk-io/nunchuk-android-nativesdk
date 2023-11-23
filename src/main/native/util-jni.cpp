@@ -267,3 +267,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hashSHA256(JNIEnv *env, job
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getIndexFromPath(JNIEnv *env, jobject thiz,
+                                                                      jstring path) {
+    try {
+        return Utils::GetIndexFromPath(StringWrapper(env, path));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}
