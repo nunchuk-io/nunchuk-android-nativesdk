@@ -1192,4 +1192,7 @@ class NunchukNativeSdk {
         from: Int,
         to: Int,
     ): List<String> = nunchukAndroid.getAddressByIndex(wallet.toBridge(), from, to)
+
+    @Throws(NCNativeException::class)
+    fun getIndexFromPath(path: String): Int = nunchukAndroid.getIndexFromPath(path)
 }
