@@ -726,6 +726,16 @@ internal class LibNunchukAndroid {
     external fun getSignerFromMasterSigner(masterSignerId: String, path: String): SingleSigner
 
     @Throws(NCNativeException::class)
+    external fun getSignerFromTapsignerMasterSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ): SingleSigner?
+
+    @Throws(NCNativeException::class)
     external fun parseJsonSigners(
         str: String,
         type: SignerType,

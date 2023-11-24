@@ -451,3 +451,34 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signMessageByTapSigner(JNIE
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerFromTapsignerMasterSigner(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jobject iso_dep,
+                                                                                        jstring cvc,
+                                                                                        jstring master_signer_id,
+                                                                                        jint wallet_type,
+                                                                                        jint address_type,
+                                                                                        jint index) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        auto signer = NunchukProvider::get()->nu->GetSignerFromTapsignerMasterSigner(
+                ts.get(),
+                StringWrapper(env, cvc),
+                StringWrapper(env, master_signer_id),
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type),
+                index
+        );
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return nullptr;
+    }
+}
