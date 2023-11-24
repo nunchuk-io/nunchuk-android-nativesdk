@@ -925,6 +925,23 @@ class NunchukNativeSdk {
         nunchukAndroid.getSignerFromMasterSigner(masterSignerId, path)
 
     @Throws(NCNativeException::class)
+    fun getSignerFromTapsignerMasterSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ) = nunchukAndroid.getSignerFromTapsignerMasterSigner(
+        isoDep = isoDep,
+        cvc = cvc,
+        masterSignerId = masterSignerId,
+        walletType = walletType,
+        addressType = addressType,
+        index = index
+    )
+
+    @Throws(NCNativeException::class)
     fun getDefaultSignerFromMasterSigner(
         masterSignerId: String,
         walletType: Int,
