@@ -41,8 +41,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidAddress(
         jstring address
 ) {
     try {
-        Utils::AddressToScriptPubKey(env->GetStringUTFChars(address, JNI_FALSE));
-        return JNI_TRUE;
+        return Utils::IsValidAddress(env->GetStringUTFChars(address, JNI_FALSE));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
@@ -266,5 +265,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hashSHA256(JNIEnv *env, job
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getIndexFromPath(JNIEnv *env, jobject thiz,
+                                                                      jstring path) {
+    try {
+        return Utils::GetIndexFromPath(StringWrapper(env, path));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
     }
 }

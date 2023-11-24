@@ -253,7 +253,7 @@ class NunchukNativeSdk {
         subAmount: String,
         feeRate: String,
         fee: String,
-        isDraft: Boolean
+        isDraft: Boolean,
     ) = nunchukAndroid.createInheritanceClaimTransaction(
         signer = signer,
         psbt = psbt,
@@ -729,6 +729,9 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun parseWalletDescriptor(content: String) = nunchukAndroid.parseWalletDescriptor(content)
 
+    fun parseKeystoneWallet(chain: Int, qrData: List<String>) =
+        nunchukAndroid.parseKeystoneWallet(chain, qrData)
+
     @Throws(NCNativeException::class)
     fun hasSigner(signer: SingleSigner) = nunchukAndroid.hasSigner(signer)
 
@@ -838,6 +841,11 @@ class NunchukNativeSdk {
         walletId: String,
         records: Array<NdefRecord>,
     ) = nunchukAndroid.importTransactionFromMk4(walletId, records)
+
+    fun parseWalletFromMk4(
+        chain: Int,
+        records: Array<NdefRecord>,
+    ) = nunchukAndroid.parseWalletFromMk4(chain, records)
 
     @Throws(NCNativeException::class)
     fun importWalletFromMk4(
@@ -1186,7 +1194,7 @@ class NunchukNativeSdk {
     fun getCurrentSignerIndex(
         xfp: String,
         walletType: Int,
-        addressType: Int
+        addressType: Int,
     ) = nunchukAndroid.getCurrentSignerIndex(xfp, walletType, addressType)
 
     @Throws
@@ -1194,6 +1202,16 @@ class NunchukNativeSdk {
         xfp: String,
         walletType: Int,
         addressType: Int,
-        index: Int
-    ) : SingleSigner? = nunchukAndroid.getSignerByIndex(xfp, walletType, addressType, index)
+        index: Int,
+    ): SingleSigner? = nunchukAndroid.getSignerByIndex(xfp, walletType, addressType, index)
+
+    @kotlin.jvm.Throws
+    fun getAddressByIndex(
+        wallet: Wallet,
+        from: Int,
+        to: Int,
+    ): List<String> = nunchukAndroid.getAddressByIndex(wallet.toBridge(), from, to)
+
+    @Throws(NCNativeException::class)
+    fun getIndexFromPath(path: String): Int = nunchukAndroid.getIndexFromPath(path)
 }

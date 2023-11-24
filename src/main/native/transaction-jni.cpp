@@ -597,7 +597,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
         }
         auto signed_tx = NunchukProvider::get()->nu->SignTransaction(dummy_wallet, tx,
                                                                      Device(singleSigner.get_master_fingerprint()));
-        return draft_tx;
+        return Deserializer::convert2JTransaction(env, signed_tx);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {
