@@ -530,3 +530,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseKeystoneWallet(JNIEnv 
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressPath(JNIEnv *env, jobject thiz,
+                                                                    jstring wallet_id,
+                                                                    jstring address) {
+    try {
+        auto path = NunchukProvider::get()->nu->GetAddressPath(StringWrapper(env, wallet_id),
+                                                               StringWrapper(env, address));
+        return env->NewStringUTF(path.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->NewStringUTF("");
+    }
+}

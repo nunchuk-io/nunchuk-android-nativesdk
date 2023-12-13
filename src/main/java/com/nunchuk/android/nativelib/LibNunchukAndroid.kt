@@ -986,6 +986,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getIndexFromPath(path: String): Int
 
+    @Throws(NCNativeException::class)
+    external fun getAddressPath(walletId: String, address: String): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

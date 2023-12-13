@@ -1231,4 +1231,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getIndexFromPath(path: String): Int = nunchukAndroid.getIndexFromPath(path)
+
+    @Throws(NCNativeException::class)
+    fun getAddressPath(walletId: String, address: String): String = nunchukAndroid.getAddressPath(walletId = walletId, address = address)
 }
