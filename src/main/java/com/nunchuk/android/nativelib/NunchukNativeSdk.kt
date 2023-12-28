@@ -248,14 +248,14 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun createInheritanceClaimTransaction(
-        signer: SingleSigner,
+        signers: List<SingleSigner>,
         psbt: String,
         subAmount: String,
         feeRate: String,
         fee: String,
         isDraft: Boolean,
     ) = nunchukAndroid.createInheritanceClaimTransaction(
-        signer = signer,
+        signers = signers,
         psbt = psbt,
         subAmount = subAmount,
         feeRate = feeRate,

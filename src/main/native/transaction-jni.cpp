@@ -577,7 +577,7 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTransaction(JNIEnv *env,
                                                                                        jobject thiz,
-                                                                                       jobject signer,
+                                                                                       jobject signers,
                                                                                        jstring psbt,
                                                                                        jstring sub_amount,
                                                                                        jstring fee_rate,
@@ -585,8 +585,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
                                                                                        jboolean is_draft) {
     try {
         Wallet dummy_wallet = Wallet(false);
-        SingleSigner singleSigner = Serializer::convert2CSigner(env, signer);
-        dummy_wallet.set_signers({singleSigner});
+        auto singleSigners = Serializer::convert2CSigners(env, signers);
+        dummy_wallet.set_signers(singleSigners);
         Transaction tx = Utils::DecodeTx(dummy_wallet, StringWrapper(env, psbt),
                                          Utils::AmountFromValue(StringWrapper(env, sub_amount)),
                                          Utils::AmountFromValue(StringWrapper(env, fee)),
@@ -595,8 +595,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
         if (is_draft) {
             return draft_tx;
         }
-        auto signed_tx = NunchukProvider::get()->nu->SignTransaction(dummy_wallet, tx,
-                                                                     Device(singleSigner.get_master_fingerprint()));
+        Transaction signed_tx = tx;
+        for (auto &&single_signer : singleSigners) {
+            signed_tx = NunchukProvider::get()->nu->SignTransaction(dummy_wallet, signed_tx,
+                                                                         Device(single_signer.get_master_fingerprint()));
+        }
         return Deserializer::convert2JTransaction(env, signed_tx);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
