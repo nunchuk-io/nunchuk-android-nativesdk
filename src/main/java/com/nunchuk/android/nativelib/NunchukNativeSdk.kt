@@ -248,14 +248,14 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun createInheritanceClaimTransaction(
-        signer: SingleSigner,
+        signers: List<SingleSigner>,
         psbt: String,
         subAmount: String,
         feeRate: String,
         fee: String,
         isDraft: Boolean,
     ) = nunchukAndroid.createInheritanceClaimTransaction(
-        signer = signer,
+        signers = signers,
         psbt = psbt,
         subAmount = subAmount,
         feeRate = feeRate,
@@ -1231,4 +1231,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getIndexFromPath(path: String): Int = nunchukAndroid.getIndexFromPath(path)
+
+    @Throws(NCNativeException::class)
+    fun getAddressPath(walletId: String, address: String): String = nunchukAndroid.getAddressPath(walletId = walletId, address = address)
 }
