@@ -1044,3 +1044,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTransaction(JNIEnv 
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinsFromTxInputs(JNIEnv *env, jobject thiz,
+                                                                          jstring wallet_id,
+                                                                          jobject inputs) {
+    try {
+        auto value = NunchukProvider::get()->nu->GetCoinsFromTxInputs(
+                StringWrapper(env, wallet_id),
+                Serializer::convert2CTxInputs(env, inputs));
+        return Deserializer::convert2JUnspentOutputs(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

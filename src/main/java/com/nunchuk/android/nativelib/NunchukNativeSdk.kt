@@ -1215,4 +1215,10 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getAddressPath(walletId: String, address: String): String = nunchukAndroid.getAddressPath(walletId = walletId, address = address)
+
+    @Throws(NCNativeException::class)
+    fun getCoinsFromTxInputs(
+        walletId: String,
+        inputs: List<TxInput>,
+    ): List<UnspentOutput> = nunchukAndroid.getCoinsFromTxInputs(walletId, inputs)
 }
