@@ -218,13 +218,15 @@ class NunchukNativeSdk {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
+        replaceTxId: String
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
         memo = memo,
         inputs = inputs,
         feeRate = feeRate,
-        subtractFeeFromAmount = subtractFeeFromAmount
+        subtractFeeFromAmount = subtractFeeFromAmount,
+        replaceTxId = replaceTxId
     )
 
     @Throws(NCNativeException::class)
