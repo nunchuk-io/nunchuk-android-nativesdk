@@ -174,6 +174,7 @@ internal class LibNunchukAndroid {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
+        replaceTxId: String
     ): Transaction
 
     @Throws(NCNativeException::class)
