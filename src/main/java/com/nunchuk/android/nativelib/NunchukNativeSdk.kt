@@ -1242,4 +1242,11 @@ class NunchukNativeSdk {
         walletId: String,
         inputs: List<TxInput>,
     ): List<UnspentOutput> = nunchukAndroid.getCoinsFromTxInputs(walletId, inputs)
+
+    @Throws(NCNativeException::class)
+    fun replaceTransactionId(
+        walletId: String,
+        txId: String,
+        newTxId: String,
+    ) = nunchukAndroid.replaceTransactionId(walletId, txId, newTxId)
 }
