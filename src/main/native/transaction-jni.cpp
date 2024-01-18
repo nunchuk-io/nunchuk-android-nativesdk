@@ -93,7 +93,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 subtract_fee_from_amount
         );
         Amount packageFeeRate{0};
-        if (NunchukProvider::get()->nu->IsCPFP(StringWrapper(env, wallet_id), transaction, packageFeeRate)) {
+        if (NunchukProvider::get()->nu->IsCPFP(StringWrapper(env, wallet_id), transaction,
+                                               packageFeeRate)) {
             return Deserializer::convert2JTransaction(env, transaction, packageFeeRate);
         } else {
             return Deserializer::convert2JTransaction(env, transaction);
@@ -598,9 +599,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
             return draft_tx;
         }
         Transaction signed_tx = tx;
-        for (auto &&single_signer : singleSigners) {
+        for (auto &&single_signer: singleSigners) {
             signed_tx = NunchukProvider::get()->nu->SignTransaction(dummy_wallet, signed_tx,
-                                                                         Device(single_signer.get_master_fingerprint()));
+                                                                    Device(single_signer.get_master_fingerprint()));
         }
         return Deserializer::convert2JTransaction(env, signed_tx);
     } catch (BaseException &e) {
@@ -909,7 +910,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteCoinCollection(JNIEnv
                                                                           jstring wallet_id,
                                                                           jint collection_id) {
     try {
-        return NunchukProvider::get()->nu->DeleteCoinCollection(StringWrapper(env, wallet_id), collection_id);
+        return NunchukProvider::get()->nu->DeleteCoinCollection(StringWrapper(env, wallet_id),
+                                                                collection_id);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {
@@ -1013,8 +1015,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDummyTransactions(JNIEnv
                                                                           jstring wallet_id) {
     try {
         auto map = NunchukProvider::get()->nu->GetDummyTxs(StringWrapper(env, wallet_id));
-        std::vector <Transaction> transactions;
-        for (auto &pair : map) {
+        std::vector<Transaction> transactions;
+        for (auto &pair: map) {
             pair.second.set_txid(pair.first);
             transactions.push_back(pair.second);
         }
@@ -1063,5 +1065,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinsFromTxInputs(JNIEnv
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransactionId(JNIEnv *env, jobject thiz,
+                                                                          jstring wallet_id,
+                                                                          jstring tx_id,
+                                                                          jstring replace_tx_id) {
+    try {
+        NunchukProvider::get()->nu->ReplaceTransactionId(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                StringWrapper(env, replace_tx_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
     }
 }

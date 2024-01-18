@@ -996,6 +996,13 @@ internal class LibNunchukAndroid {
         inputs: List<TxInput>,
     ): List<UnspentOutput>
 
+    @Throws(NCNativeException::class)
+    external fun replaceTransactionId(
+        walletId: String,
+        txId: String,
+        replaceTxId: String,
+    )
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
