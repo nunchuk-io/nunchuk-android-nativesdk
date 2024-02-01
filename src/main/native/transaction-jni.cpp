@@ -78,7 +78,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jobject outputs,
         jobject inputs,
         jobject fee_rate,
-        jboolean subtract_fee_from_amount
+        jboolean subtract_fee_from_amount,
+        jstring replace_tx_id
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
@@ -90,7 +91,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 Serializer::convert2CAmountsMap(env, outputs),
                 txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
-                subtract_fee_from_amount
+                subtract_fee_from_amount,
+                StringWrapper(env, replace_tx_id)
         );
         Amount packageFeeRate{0};
         if (NunchukProvider::get()->nu->IsCPFP(StringWrapper(env, wallet_id), transaction,
