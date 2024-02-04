@@ -237,13 +237,15 @@ class NunchukNativeSdk {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
+        replaceTxId: String
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
         memo = memo,
         inputs = inputs,
         feeRate = feeRate,
-        subtractFeeFromAmount = subtractFeeFromAmount
+        subtractFeeFromAmount = subtractFeeFromAmount,
+        replaceTxId = replaceTxId
     )
 
     @Throws(NCNativeException::class)
@@ -270,12 +272,14 @@ class NunchukNativeSdk {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
+        replaceTxId: String,
     ) = nunchukAndroid.draftTransaction(
         walletId = walletId,
         outputs = outputs,
         inputs = inputs,
         feeRate = feeRate,
-        subtractFeeFromAmount = subtractFeeFromAmount
+        subtractFeeFromAmount = subtractFeeFromAmount,
+        replaceTxId
     )
 
     @Throws(NCNativeException::class)
@@ -1234,4 +1238,17 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getAddressPath(walletId: String, address: String): String = nunchukAndroid.getAddressPath(walletId = walletId, address = address)
+
+    @Throws(NCNativeException::class)
+    fun getCoinsFromTxInputs(
+        walletId: String,
+        inputs: List<TxInput>,
+    ): List<UnspentOutput> = nunchukAndroid.getCoinsFromTxInputs(walletId, inputs)
+
+    @Throws(NCNativeException::class)
+    fun replaceTransactionId(
+        walletId: String,
+        txId: String,
+        newTxId: String,
+    ) = nunchukAndroid.replaceTransactionId(walletId, txId, newTxId)
 }

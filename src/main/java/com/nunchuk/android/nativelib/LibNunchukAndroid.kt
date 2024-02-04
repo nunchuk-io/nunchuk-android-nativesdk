@@ -174,6 +174,7 @@ internal class LibNunchukAndroid {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
+        replaceTxId: String
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -193,6 +194,7 @@ internal class LibNunchukAndroid {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
+        replaceTxId: String
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -988,6 +990,19 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getAddressPath(walletId: String, address: String): String
+
+    @Throws(NCNativeException::class)
+    external fun getCoinsFromTxInputs(
+        walletId: String,
+        inputs: List<TxInput>,
+    ): List<UnspentOutput>
+
+    @Throws(NCNativeException::class)
+    external fun replaceTransactionId(
+        walletId: String,
+        txId: String,
+        replaceTxId: String,
+    )
 
     companion object {
         init {
