@@ -218,7 +218,7 @@ class NunchukNativeSdk {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
-        replaceTxId: String
+        replaceTxId: String,
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
@@ -916,7 +916,7 @@ class NunchukNativeSdk {
         masterSignerId: String,
         walletType: Int,
         addressType: Int,
-        index: Int
+        index: Int,
     ) = nunchukAndroid.getSignerFromTapsignerMasterSigner(
         isoDep = isoDep,
         cvc = cvc,
@@ -1218,7 +1218,8 @@ class NunchukNativeSdk {
     fun getIndexFromPath(path: String): Int = nunchukAndroid.getIndexFromPath(path)
 
     @Throws(NCNativeException::class)
-    fun getAddressPath(walletId: String, address: String): String = nunchukAndroid.getAddressPath(walletId = walletId, address = address)
+    fun getAddressPath(walletId: String, address: String): String =
+        nunchukAndroid.getAddressPath(walletId = walletId, address = address)
 
     @Throws(NCNativeException::class)
     fun getCoinsFromTxInputs(
@@ -1232,4 +1233,19 @@ class NunchukNativeSdk {
         txId: String,
         newTxId: String,
     ) = nunchukAndroid.replaceTransactionId(walletId, txId, newTxId)
+
+    @Throws(NCNativeException::class)
+    fun createHotWallet() = nunchukAndroid.createHotWallet()
+
+    @Throws(NCNativeException::class)
+    fun getMnemonicFromHotWallet(walletId: String) =
+        nunchukAndroid.getMnemonicFromHotWallet(walletId)
+
+    @Throws(NCNativeException::class)
+    fun markHotWalletExported(walletId: String) = nunchukAndroid.markHotWalletExported(walletId)
+
+    @Throws(NCNativeException::class)
+    fun recoverHotWallet(
+        mnemonic: String,
+    ) = nunchukAndroid.recoverHotWallet(mnemonic)
 }

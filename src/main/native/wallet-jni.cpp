@@ -547,3 +547,71 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressPath(JNIEnv *env,
         return env->NewStringUTF("");
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createHotWallet(JNIEnv *env, jobject thiz) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->CreateHotWallet();
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromHotWallet(JNIEnv *env,
+                                                                              jobject thiz,
+                                                                              jstring wallet_id) {
+    try {
+        std::string mnemonic = NunchukProvider::get()->nu->GetHotWalletMnemonic(
+                StringWrapper(env, wallet_id)
+        );
+        return env->NewStringUTF(mnemonic.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->NewStringUTF("");
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_markHotWalletExported(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring wallet_id) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->GetWallet(
+                StringWrapper(env, wallet_id)
+        );
+        if (wallet.need_backup()) {
+            wallet.set_need_backup(false);
+            NunchukProvider::get()->nu->UpdateWallet(wallet);
+        }
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverHotWallet(JNIEnv *env, jobject thiz,
+                                                                      jstring mnemonic) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->CreateHotWallet(
+                StringWrapper(env, mnemonic)
+        );
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

@@ -15,7 +15,8 @@ data class Wallet(
     var balance: Amount = Amount.ZER0,
     var createDate: Long = 0L,
     var description: String = "",
-    var gapLimit: Int = 0
+    var gapLimit: Int = 0,
+    var needBackup: Boolean = false,
 ) : Parcelable {
     companion object {
         val EMPTY = Wallet()

@@ -1004,6 +1004,20 @@ internal class LibNunchukAndroid {
         replaceTxId: String,
     )
 
+    @Throws(NCNativeException::class)
+    external fun createHotWallet(): Wallet?
+
+    @Throws(NCNativeException::class)
+    external fun getMnemonicFromHotWallet(walletId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun markHotWalletExported(walletId: String)
+
+    @Throws(NCNativeException::class)
+    external fun recoverHotWallet(
+        mnemonic: String,
+    ) : Wallet?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
