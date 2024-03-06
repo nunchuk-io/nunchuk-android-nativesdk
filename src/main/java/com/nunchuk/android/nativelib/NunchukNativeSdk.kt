@@ -151,6 +151,12 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun exportBCR2020010Wallet(walletId: String, density: Int) = nunchukAndroid.exportBCR2020010Wallet(
+        walletId = walletId,
+        density = density
+    )
+
+    @Throws(NCNativeException::class)
     fun getWallet(walletId: String) = nunchukAndroid.getWallet(walletId)
 
     @Throws(NCNativeException::class)

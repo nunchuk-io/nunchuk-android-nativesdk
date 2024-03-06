@@ -547,6 +547,28 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressPath(JNIEnv *env,
         return env->NewStringUTF("");
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBCR2020010Wallet(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring wallet_id,
+                                                                            jint density) {
+    try {
+        auto values = NunchukProvider::get()->nu->ExportBCR2020010Wallet(
+                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                density
+        );
+        return Deserializer::convert2JListString(env, values);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createHotWallet(JNIEnv *env, jobject thiz) {
