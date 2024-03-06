@@ -126,6 +126,9 @@ internal class LibNunchukAndroid {
     external fun exportKeystoneWallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
+    external fun exportBCR2020010Wallet(walletId: String, density: Int): List<String>
+
+    @Throws(NCNativeException::class)
     external fun generateMnemonic(): String
 
     @Throws(NCNativeException::class)
