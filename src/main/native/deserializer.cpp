@@ -361,6 +361,8 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
                             env->NewStringUTF(wallet.get_description().c_str()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setGapLimit", "(I)V"),
                             wallet.get_gap_limit());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedBackup", "(Z)V"),
+                            wallet.need_backup());
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s",
                Utils::ValueFromAmount(wallet.get_balance()).c_str());
     } catch (std::exception &e) {
