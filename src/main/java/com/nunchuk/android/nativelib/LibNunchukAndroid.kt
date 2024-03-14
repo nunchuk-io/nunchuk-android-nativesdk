@@ -126,6 +126,9 @@ internal class LibNunchukAndroid {
     external fun exportKeystoneWallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
+    external fun exportBCR2020010Wallet(walletId: String, density: Int): List<String>
+
+    @Throws(NCNativeException::class)
     external fun generateMnemonic(): String
 
     @Throws(NCNativeException::class)
@@ -1003,6 +1006,20 @@ internal class LibNunchukAndroid {
         txId: String,
         replaceTxId: String,
     )
+
+    @Throws(NCNativeException::class)
+    external fun createHotWallet(): Wallet?
+
+    @Throws(NCNativeException::class)
+    external fun getMnemonicFromHotWallet(walletId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun markHotWalletExported(walletId: String)
+
+    @Throws(NCNativeException::class)
+    external fun recoverHotWallet(
+        mnemonic: String,
+    ) : Wallet?
 
     companion object {
         init {
