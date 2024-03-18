@@ -626,7 +626,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverHotWallet(JNIEnv *en
                                                                       jstring mnemonic) {
     try {
         auto wallet = NunchukProvider::get()->nu->CreateHotWallet(
-                StringWrapper(env, mnemonic)
+                StringWrapper(env, mnemonic),
+                "",
+                false
         );
         return Deserializer::convert2JWallet(env, wallet);
     } catch (BaseException &e) {
