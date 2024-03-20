@@ -639,3 +639,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverHotWallet(JNIEnv *en
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRWallet(JNIEnv *env, jobject thiz,
+                                                                      jobject wallet,
+                                                                      jint density) {
+    try {
+        auto cWallet = Serializer::convert2CWallet(env, wallet);
+        auto data = Utils::ExportBBQRWallet(cWallet, ExportFormat::COLDCARD, 1, density);
+        return Deserializer::convert2JListString(env, data);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
