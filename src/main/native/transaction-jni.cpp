@@ -1086,3 +1086,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransactionId(JNIEnv
         Deserializer::convertStdException2JException(env, e);
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRTransaction(JNIEnv *env, jobject thiz,
+                                                                           jstring psbt,
+                                                                           jint density) {
+    try {
+        auto value = Utils::ExportBBQRTransaction(StringWrapper(env, psbt), 1, density);
+        return Deserializer::convert2JListString(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
