@@ -37,3 +37,4 @@ deploy:
   script:
     - ./gradlew clean assembleArm64_v8aRelease --stacktrace
     - ./gradlew publish
+# python3 upload_aar.py push_code.py
