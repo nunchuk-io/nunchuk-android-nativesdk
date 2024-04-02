@@ -1,0 +1,3 @@
+- BBQR support
+- Added a new Setting item to use large font in home
+- Bug fixes and improvements
