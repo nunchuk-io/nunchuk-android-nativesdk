@@ -57,8 +57,8 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
         print(f"File '{file_path}' uploaded successfully to '{destination_path}' in '{repo_name}' repository.")
 
     # Create a release
-    repo.create_git_release(version, version, release_note, draft=True)
-    nunchuk_sdk_repo.create_git_release(version, version, release_note, draft=True)
+    repo.create_git_release(version, version, release_note, draft=False)
+    nunchuk_sdk_repo.create_git_release(version, version, release_note, draft=False)
     print(f"Release '{version}' created successfully with tag '{version}'.")
 
 # Usage
