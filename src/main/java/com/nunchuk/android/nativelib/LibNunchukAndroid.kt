@@ -177,7 +177,7 @@ internal class LibNunchukAndroid {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
-        replaceTxId: String
+        replaceTxId: String,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -197,7 +197,7 @@ internal class LibNunchukAndroid {
         inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
-        replaceTxId: String
+        replaceTxId: String,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -737,7 +737,7 @@ internal class LibNunchukAndroid {
         masterSignerId: String,
         walletType: Int,
         addressType: Int,
-        index: Int
+        index: Int,
     ): SingleSigner?
 
     @Throws(NCNativeException::class)
@@ -1019,7 +1019,12 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun recoverHotWallet(
         mnemonic: String,
-    ) : Wallet?
+    ): Wallet?
+
+    @Throws(NCNativeException::class)
+    external fun exportBBQRWallet(wallet: WalletBridge, density: Int): List<String>
+    @Throws(NCNativeException::class)
+    external fun exportBBQRTransaction(psbt: String, density: Int): List<String>
 
     companion object {
         init {
