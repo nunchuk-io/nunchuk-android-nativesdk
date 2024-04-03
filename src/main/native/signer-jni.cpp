@@ -558,6 +558,32 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerFromMasterSigner(J
         return JNI_FALSE;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerFromMasterSignerByIndex(JNIEnv *env,
+                                                                                      jobject thiz,
+                                                                                      jstring master_signer_id,
+                                                                                      jint wallet_type,
+                                                                                      jint address_type,
+                                                                                      jint index) {
+    try {
+        auto signer = NunchukProvider::get()->nu->GetSignerFromMasterSigner(
+                StringWrapper(env, master_signer_id),
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type),
+                index
+        );
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDefaultSignerFromMasterSigner(JNIEnv *env,
