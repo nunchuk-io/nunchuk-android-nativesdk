@@ -731,7 +731,7 @@ internal class LibNunchukAndroid {
     external fun getSignerFromMasterSigner(masterSignerId: String, path: String): SingleSigner
 
     @Throws(NCNativeException::class)
-    external fun getSignerFromMasterSigner(
+    external fun getSignerFromMasterSignerByIndex(
         masterSignerId: String,
         walletType: Int,
         addressType: Int,
