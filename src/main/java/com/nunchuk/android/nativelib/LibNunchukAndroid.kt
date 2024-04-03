@@ -731,6 +731,14 @@ internal class LibNunchukAndroid {
     external fun getSignerFromMasterSigner(masterSignerId: String, path: String): SingleSigner
 
     @Throws(NCNativeException::class)
+    external fun getSignerFromMasterSigner(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int,
+    ): SingleSigner
+
+    @Throws(NCNativeException::class)
     external fun getSignerFromTapsignerMasterSigner(
         isoDep: IsoDep,
         cvc: String,
@@ -1023,6 +1031,7 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun exportBBQRWallet(wallet: WalletBridge, density: Int): List<String>
+
     @Throws(NCNativeException::class)
     external fun exportBBQRTransaction(psbt: String, density: Int): List<String>
 
