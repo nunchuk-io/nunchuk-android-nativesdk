@@ -942,7 +942,7 @@ class NunchukNativeSdk {
         walletType: Int,
         addressType: Int,
         index: Int,
-    ) = nunchukAndroid.getSignerFromMasterSigner(masterSignerId, walletType, addressType, index)
+    ) = nunchukAndroid.getSignerFromMasterSignerByIndex(masterSignerId, walletType, addressType, index)
 
     @Throws(NCNativeException::class)
     fun getSignerFromTapsignerMasterSigner(
