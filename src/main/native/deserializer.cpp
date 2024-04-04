@@ -55,23 +55,15 @@ Deserializer::convert2JStringBooleanMap(JNIEnv *env, const std::map<std::string,
 }
 
 void Deserializer::convert2JException(JNIEnv *env, const BaseException &e) {
-    jclass clazz = env->FindClass("com/nunchuk/android/exception/NCNativeException");
-    if (nullptr == clazz) {
-        clazz = env->FindClass("java/lang/NullPointerException");
-    }
+    static jclass clazz = static_cast<jclass>(env->NewGlobalRef(env->FindClass("com/nunchuk/android/exception/NCNativeException")));
     syslog(LOG_DEBUG, "[JNI] convert2JException()");
-    std::stringstream message;
-    message << std::to_string(e.code()) << ":" << e.what();
-    const std::string &string = message.str();
-    const char *msg = string.c_str();
-    env->ThrowNew(clazz, msg);
+    std::string msg = std::to_string(e.code()) + ":" + e.what();
+    env->ThrowNew(clazz, msg.c_str());
 }
 
 void Deserializer::convertStdException2JException(JNIEnv *env, const std::exception &e) {
-    static jclass clazz = env->FindClass("com/nunchuk/android/exception/NCNativeException");
-    if (nullptr == clazz) {
-        clazz = env->FindClass("java/lang/NullPointerException");
-    }
+    static jclass clazz = static_cast<jclass>(env->NewGlobalRef(env->FindClass("com/nunchuk/android/exception/NCNativeException")));
+    syslog(LOG_DEBUG, "[JNI] convertStdException2JException()");
     env->ThrowNew(clazz, e.what());
 }
 
