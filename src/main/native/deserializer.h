@@ -23,7 +23,7 @@ public:
 
     static void convert2JException(JNIEnv *env, const BaseException &e);
 
-    static void convertStdException2JException(JNIEnv *env, std::exception e);
+    static void convertStdException2JException(JNIEnv *env, const std::exception &e);
 
     static jobject convert2JDevice(JNIEnv *env, const Device &device);
 

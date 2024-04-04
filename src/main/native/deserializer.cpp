@@ -67,7 +67,7 @@ void Deserializer::convert2JException(JNIEnv *env, const BaseException &e) {
     env->ThrowNew(clazz, msg);
 }
 
-void Deserializer::convertStdException2JException(JNIEnv *env, std::exception e) {
+void Deserializer::convertStdException2JException(JNIEnv *env, const std::exception &e) {
     jclass clazz = env->FindClass("com/nunchuk/android/exception/NCNativeException");
     if (nullptr == clazz) {
         clazz = env->FindClass("java/lang/NullPointerException");
