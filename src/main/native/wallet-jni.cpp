@@ -438,8 +438,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importCoinControlData(JNIEn
                                                                  StringWrapper(env, data), force);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
     }
 }
 extern "C"
@@ -651,8 +653,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRWallet(JNIEnv *en
         return Deserializer::convert2JListString(env, data);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
-        env->ExceptionOccurred();
+        return Deserializer::convert2JListString(env, std::vector<std::string>());
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
+        return Deserializer::convert2JListString(env, std::vector<std::string>());
     }
 }
