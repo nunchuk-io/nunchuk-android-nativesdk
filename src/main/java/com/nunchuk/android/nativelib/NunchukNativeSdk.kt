@@ -4,7 +4,6 @@ import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
-import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.*
 
@@ -174,7 +173,7 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun generateMnemonic() = nunchukAndroid.generateMnemonic()
+    fun generateMnemonic(count: Int = 24) = nunchukAndroid.generateMnemonic(count)
 
     //https://iancoleman.io/bip39/
     @Throws(NCNativeException::class)

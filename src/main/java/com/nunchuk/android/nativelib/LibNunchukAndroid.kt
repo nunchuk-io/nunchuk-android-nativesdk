@@ -129,7 +129,7 @@ internal class LibNunchukAndroid {
     external fun exportBCR2020010Wallet(walletId: String, density: Int): List<String>
 
     @Throws(NCNativeException::class)
-    external fun generateMnemonic(): String
+    external fun generateMnemonic(count: Int): String
 
     @Throws(NCNativeException::class)
     external fun getBip39WordList(): List<String>
