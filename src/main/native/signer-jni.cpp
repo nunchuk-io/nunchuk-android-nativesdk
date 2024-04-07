@@ -183,10 +183,11 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateMnemonic(
         JNIEnv *env,
-        jobject thiz
+        jobject thiz,
+        jint count
 ) {
     try {
-        return env->NewStringUTF(Utils::GenerateMnemonic().c_str());
+        return env->NewStringUTF(Utils::GenerateMnemonic(count).c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
