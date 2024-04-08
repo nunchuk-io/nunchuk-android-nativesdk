@@ -1,3 +1,4 @@
+import sys
 from github import Github, InputGitTreeElement
 import base64
 import configparser
@@ -26,6 +27,8 @@ def get_github_token():
 
 def upload_file_to_github(token, repo_name, file_path, commit_message):
     g = Github(token)
+    should_create_tag = sys.argv[1] != 'false'
+    print(f"Creating tag: {should_create_tag}")
     version = get_version_from_gradle()
     repo = g.get_repo(repo_name)
     nunchuk_sdk_repo = g.get_repo("nunchuk-io/nunchuk-android-nativesdk")
@@ -57,9 +60,10 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
         print(f"File '{file_path}' uploaded successfully to '{destination_path}' in '{repo_name}' repository.")
 
     # Create a release
-    repo.create_git_release(version, version, release_note, draft=False)
-    nunchuk_sdk_repo.create_git_release(version, version, release_note, draft=False)
-    print(f"Release '{version}' created successfully with tag '{version}'.")
+    if should_create_tag:
+        repo.create_git_release(version, version, release_note, draft=False)
+        nunchuk_sdk_repo.create_git_release(version, version, release_note, draft=False)
+        print(f"Release '{version}' created successfully with tag '{version}'.")
 
 # Usage
 version = get_version_from_gradle()
