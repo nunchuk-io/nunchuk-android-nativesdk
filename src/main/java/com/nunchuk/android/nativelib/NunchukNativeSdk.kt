@@ -43,6 +43,7 @@ class NunchukNativeSdk {
         masterFingerprint: String,
         type: SignerType,
         tags: List<SignerTag>,
+        replace: Boolean
     ) = nunchukAndroid.createSigner(
         name = name,
         xpub = xpub,
@@ -51,6 +52,7 @@ class NunchukNativeSdk {
         masterFingerprint = masterFingerprint,
         type = type,
         tags = tags,
+        replace = replace,
     )
 
     @Throws(NCNativeException::class)
@@ -71,11 +73,13 @@ class NunchukNativeSdk {
         mnemonic: String,
         passphrase: String,
         isPrimary: Boolean,
+        replace: Boolean,
     ) = nunchukAndroid.createSoftwareSigner(
         name = name,
         mnemonic = mnemonic,
         passphrase = passphrase,
-        isPrimary = isPrimary
+        isPrimary = isPrimary,
+        replace = replace
     )
 
     @Throws(NCNativeException::class)
@@ -642,7 +646,8 @@ class NunchukNativeSdk {
         isoDep: IsoDep,
         cvc: String,
         name: String,
-    ) = nunchukAndroid.createTapSigner(isoDep, cvc, name)
+        replace: Boolean
+    ) = nunchukAndroid.createTapSigner(isoDep, cvc, name, replace)
 
     @Throws(NCNativeException::class)
     fun signTransactionByTapSigner(
@@ -989,7 +994,8 @@ class NunchukNativeSdk {
         version: String,
         brithHeight: Int,
         isTestNet: Boolean,
-    ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet)
+        replace: Boolean
+    ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet, replace)
 
     @Throws(NCNativeException::class)
     fun signerTypeFromStr(signerType: String): SignerType =
@@ -1262,7 +1268,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun recoverHotWallet(
         mnemonic: String,
-    ) = nunchukAndroid.recoverHotWallet(mnemonic)
+        replace: Boolean
+    ) = nunchukAndroid.recoverHotWallet(mnemonic, replace)
 
     @Throws(NCNativeException::class)
     fun exportBBQRWallet(wallet: Wallet, density: Int) =

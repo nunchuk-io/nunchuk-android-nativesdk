@@ -56,6 +56,7 @@ internal class LibNunchukAndroid {
         masterFingerprint: String,
         type: SignerType,
         tags: List<SignerTag>,
+        replace: Boolean,
     ): SingleSigner
 
     @Throws(NCNativeException::class)
@@ -69,6 +70,7 @@ internal class LibNunchukAndroid {
         mnemonic: String,
         passphrase: String = "",
         isPrimary: Boolean,
+        replace: Boolean,
     ): MasterSigner
 
     @Throws(NCNativeException::class)
@@ -461,6 +463,7 @@ internal class LibNunchukAndroid {
         isoDep: IsoDep,
         cvc: String,
         name: String,
+        replace: Boolean
     ): MasterSigner
 
     @Throws(NCNativeException::class)
@@ -781,6 +784,7 @@ internal class LibNunchukAndroid {
         version: String,
         brithHeight: Int,
         isTestNet: Boolean,
+        replace: Boolean
     )
 
     @Throws(NCNativeException::class)
@@ -1027,6 +1031,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun recoverHotWallet(
         mnemonic: String,
+        replace: Boolean,
     ): Wallet?
 
     @Throws(NCNativeException::class)
