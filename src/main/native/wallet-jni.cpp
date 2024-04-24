@@ -625,12 +625,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_markHotWalletExported(JNIEn
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverHotWallet(JNIEnv *env, jobject thiz,
-                                                                      jstring mnemonic) {
+                                                                      jstring mnemonic,
+                                                                      jboolean replace) {
     try {
         auto wallet = NunchukProvider::get()->nu->CreateHotWallet(
                 StringWrapper(env, mnemonic),
                 "",
-                false
+                false,
+                replace
         );
         return Deserializer::convert2JWallet(env, wallet);
     } catch (BaseException &e) {
