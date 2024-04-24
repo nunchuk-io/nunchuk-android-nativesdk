@@ -56,14 +56,17 @@ JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTapSigner(JNIEnv *env, jobject thiz,
                                                                      jobject iso_dep,
                                                                      jstring cvc,
-                                                                     jstring name) {
+                                                                     jstring name,
+                                                                     jboolean replace) {
     try {
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         auto signer = NunchukProvider::get()->nu->CreateTapsignerMasterSigner(
                 ts.get(),
                 env->GetStringUTFChars(cvc, JNI_FALSE),
                 env->GetStringUTFChars(name, JNI_FALSE),
-                [](int percent) { return true; }
+                [](int percent) { return true; },
+                false,
+                replace
         );
 
         return Deserializer::convert2JMasterSigner(env, signer);
@@ -352,7 +355,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addTapSigner(JNIEnv *env, j
                                                                   jstring card_id, jstring xfp,
                                                                   jstring name, jstring version,
                                                                   jint brith_height,
-                                                                  jboolean is_test_net) {
+                                                                  jboolean is_test_net,
+                                                                  jboolean replace) {
     try {
         NunchukProvider::get()->nu->AddTapsigner(
                 StringWrapper(env, card_id),
@@ -360,7 +364,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addTapSigner(JNIEnv *env, j
                 StringWrapper(env, name),
                 StringWrapper(env, version),
                 brith_height,
-                is_test_net
+                is_test_net,
+                replace
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);

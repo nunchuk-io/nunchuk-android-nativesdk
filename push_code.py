@@ -26,6 +26,6 @@ def merge_and_push():
     subprocess.run(['git', 'merge', '--no-ff', '-m', commit_message, 'origin/master'])
 
     # Push changes to the main branch on GitHub
-    # subprocess.run(['git', 'push', 'origin-github', main_branch])
+    subprocess.run(['git', 'push', 'origin-github', main_branch])
 
 merge_and_push()

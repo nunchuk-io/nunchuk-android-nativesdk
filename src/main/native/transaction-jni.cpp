@@ -1097,7 +1097,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRTransaction(JNIEn
         return Deserializer::convert2JListString(env, value);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
+        return nullptr;
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
+        return nullptr;
     }
 }

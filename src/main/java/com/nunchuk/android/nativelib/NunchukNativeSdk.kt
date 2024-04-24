@@ -23,7 +23,6 @@ import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
-import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.*
 
@@ -63,6 +62,7 @@ class NunchukNativeSdk {
         masterFingerprint: String,
         type: SignerType,
         tags: List<SignerTag>,
+        replace: Boolean
     ) = nunchukAndroid.createSigner(
         name = name,
         xpub = xpub,
@@ -71,6 +71,7 @@ class NunchukNativeSdk {
         masterFingerprint = masterFingerprint,
         type = type,
         tags = tags,
+        replace = replace,
     )
 
     @Throws(NCNativeException::class)
@@ -91,11 +92,13 @@ class NunchukNativeSdk {
         mnemonic: String,
         passphrase: String,
         isPrimary: Boolean,
+        replace: Boolean,
     ) = nunchukAndroid.createSoftwareSigner(
         name = name,
         mnemonic = mnemonic,
         passphrase = passphrase,
-        isPrimary = isPrimary
+        isPrimary = isPrimary,
+        replace = replace
     )
 
     @Throws(NCNativeException::class)
@@ -171,10 +174,11 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun exportBCR2020010Wallet(walletId: String, density: Int) = nunchukAndroid.exportBCR2020010Wallet(
-        walletId = walletId,
-        density = density
-    )
+    fun exportBCR2020010Wallet(walletId: String, density: Int) =
+        nunchukAndroid.exportBCR2020010Wallet(
+            walletId = walletId,
+            density = density
+        )
 
     @Throws(NCNativeException::class)
     fun getWallet(walletId: String) = nunchukAndroid.getWallet(walletId)
@@ -192,7 +196,7 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun generateMnemonic() = nunchukAndroid.generateMnemonic()
+    fun generateMnemonic(count: Int = 24) = nunchukAndroid.generateMnemonic(count)
 
     //https://iancoleman.io/bip39/
     @Throws(NCNativeException::class)
@@ -661,7 +665,8 @@ class NunchukNativeSdk {
         isoDep: IsoDep,
         cvc: String,
         name: String,
-    ) = nunchukAndroid.createTapSigner(isoDep, cvc, name)
+        replace: Boolean
+    ) = nunchukAndroid.createTapSigner(isoDep, cvc, name, replace)
 
     @Throws(NCNativeException::class)
     fun signTransactionByTapSigner(
@@ -936,6 +941,14 @@ class NunchukNativeSdk {
         nunchukAndroid.getSignerFromMasterSigner(masterSignerId, path)
 
     @Throws(NCNativeException::class)
+    fun getSignerFromMasterSigner(
+        masterSignerId: String,
+        walletType: Int,
+        addressType: Int,
+        index: Int,
+    ) = nunchukAndroid.getSignerFromMasterSignerByIndex(masterSignerId, walletType, addressType, index)
+
+    @Throws(NCNativeException::class)
     fun getSignerFromTapsignerMasterSigner(
         isoDep: IsoDep,
         cvc: String,
@@ -1000,7 +1013,8 @@ class NunchukNativeSdk {
         version: String,
         brithHeight: Int,
         isTestNet: Boolean,
-    ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet)
+        replace: Boolean
+    ) = nunchukAndroid.addTapSigner(cardId, xfp, name, version, brithHeight, isTestNet, replace)
 
     @Throws(NCNativeException::class)
     fun signerTypeFromStr(signerType: String): SignerType =
@@ -1273,9 +1287,14 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun recoverHotWallet(
         mnemonic: String,
-    ) = nunchukAndroid.recoverHotWallet(mnemonic)
+        replace: Boolean
+    ) = nunchukAndroid.recoverHotWallet(mnemonic, replace)
+
     @Throws(NCNativeException::class)
-    fun exportBBQRWallet(wallet: Wallet, density: Int) = nunchukAndroid.exportBBQRWallet(wallet.toBridge(), density)
+    fun exportBBQRWallet(wallet: Wallet, density: Int) =
+        nunchukAndroid.exportBBQRWallet(wallet.toBridge(), density)
+
     @Throws(NCNativeException::class)
-    fun exportBBQRTransaction(psbt: String, density: Int) = nunchukAndroid.exportBBQRTransaction(psbt, density)
+    fun exportBBQRTransaction(psbt: String, density: Int) =
+        nunchukAndroid.exportBBQRTransaction(psbt, density)
 }
