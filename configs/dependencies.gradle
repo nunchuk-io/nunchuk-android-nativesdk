@@ -3,8 +3,8 @@ ext {
 
     //Plugins versions
     gradleVersion = '8.1.0'
-    kotlinGradlePluginVersion = '1.7.20'
-    kotlinStdlibVersion = '1.7.20'
+    kotlinGradlePluginVersion = '1.9.0'
+    kotlinStdlibVersion = '1.9.0'
 
     androidConfig = [
             compileSdkVersion: 30,
