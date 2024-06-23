@@ -491,7 +491,7 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
 
     jfieldID fieldMemo = env->GetFieldID(clazz, "memo", "Ljava/lang/String;");
     auto memoVal = (jstring) env->GetObjectField(unspentOutput, fieldMemo);
-    auto memo = StringWrapper(memoVal);
+    auto memo = StringWrapper(env, memoVal);
 
     UnspentOutput output = UnspentOutput();
     output.set_txid(txId);
