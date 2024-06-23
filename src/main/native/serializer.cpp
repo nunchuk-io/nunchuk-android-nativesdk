@@ -3,6 +3,7 @@
 #include <syslog.h>
 #include <nunchuk.h>
 #include <nunchukmatrix.h>
+#include "string-wrapper.h"
 #include "serializer.h"
 #include "utils/ndef.hpp"
 
@@ -473,11 +474,11 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
 
     jfieldID fieldTxId = env->GetFieldID(clazz, "txid", "Ljava/lang/String;");
     auto txIdVal = (jstring) env->GetObjectField(unspentOutput, fieldTxId);
-    auto txId = env->GetStringUTFChars(txIdVal, JNI_FALSE);
+    auto txId = StringWrapper(env, txIdVal);
 
     jfieldID fieldAddress = env->GetFieldID(clazz, "address", "Ljava/lang/String;");
     auto addressVal = (jstring) env->GetObjectField(unspentOutput, fieldAddress);
-    auto address = env->GetStringUTFChars(addressVal, JNI_FALSE);
+    auto address = StringWrapper(env, addressVal);
 
     jfieldID fieldVOut = env->GetFieldID(clazz, "vout", "I");
     auto vout = env->GetIntField(unspentOutput, fieldVOut);
@@ -490,10 +491,7 @@ UnspentOutput Serializer::convert2CUnspentOutput(JNIEnv *env, jobject unspentOut
 
     jfieldID fieldMemo = env->GetFieldID(clazz, "memo", "Ljava/lang/String;");
     auto memoVal = (jstring) env->GetObjectField(unspentOutput, fieldMemo);
-    auto memo = env->GetStringUTFChars(memoVal, JNI_FALSE);
-
-    env->ReleaseStringUTFChars(txIdVal, txId);
-    env->ReleaseStringUTFChars(memoVal, memo);
+    auto memo = StringWrapper(memoVal);
 
     UnspentOutput output = UnspentOutput();
     output.set_txid(txId);
@@ -779,12 +777,12 @@ CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collecti
 
     jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
     auto nameVal = (jstring) env->GetObjectField(collection, fieldName);
-    auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
+    auto name = StringWrapper(env, nameVal);
     jfieldID fieldAddNewCoin = env->GetFieldID(clazz, "isAddNewCoin", "Z");
     auto isAddNewCoin = env->GetBooleanField(collection, fieldAddNewCoin);
     jfieldID fieldAutoLock = env->GetFieldID(clazz, "isAutoLock", "Z");
     auto isAutoLock = env->GetBooleanField(collection, fieldAutoLock);
-    env->ReleaseStringUTFChars(nameVal, name);
+
     CoinCollection coinCollection = CoinCollection(id, name);
     coinCollection.set_add_new_coin(isAddNewCoin);
     coinCollection.set_auto_lock(isAutoLock);
