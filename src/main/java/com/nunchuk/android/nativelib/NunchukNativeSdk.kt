@@ -1297,4 +1297,12 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun exportBBQRTransaction(psbt: String, density: Int) =
         nunchukAndroid.exportBBQRTransaction(psbt, density)
+
+    @Throws(NCNativeException::class)
+    fun createSoftwareSignerFromMasterXprv(
+        name: String,
+        xprv: String,
+        isPrimary: Boolean,
+        replace: Boolean,
+    ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(name, xprv, isPrimary, replace)
 }

@@ -1040,6 +1040,14 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun exportBBQRTransaction(psbt: String, density: Int): List<String>
 
+    @Throws(NCNativeException::class)
+    external fun createSoftwareSignerFromMasterXprv(
+        name: String,
+        xprv: String,
+        isPrimary: Boolean,
+        replace: Boolean,
+    ): MasterSigner
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
