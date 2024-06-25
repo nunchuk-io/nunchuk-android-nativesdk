@@ -1046,7 +1046,7 @@ internal class LibNunchukAndroid {
         xprv: String,
         isPrimary: Boolean,
         replace: Boolean,
-    ): MasterSigner
+    ): MasterSigner?
 
     companion object {
         init {
