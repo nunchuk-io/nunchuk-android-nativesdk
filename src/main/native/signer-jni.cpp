@@ -800,3 +800,24 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSignerFromMas
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signHealthCheckMessageTapSignerSignIn(
+        JNIEnv *env, jobject thiz, jobject signer, jobject iso_dep, jstring cvc,
+        jstring messages_to_sign) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        std::string signature = Utils::SignPsbt(ts.get(),
+                                                StringWrapper(env, cvc),
+                                                StringWrapper(env,messages_to_sign));
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        auto signedSignature = Utils::GetPartialSignature(singleSigner, signature);
+        return env->NewStringUTF(signedSignature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
