@@ -1037,6 +1037,14 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.signHealthCheckMessageTapSigner(isoDep, cvc, signer, messagesToSign)
 
     @Throws(NCNativeException::class)
+    fun signHealthCheckMessageTapSignerSignIn(
+        signer: SingleSigner,
+        isoDep: IsoDep,
+        cvc: String,
+        messagesToSign: String,
+    ) = nunchukAndroid.signHealthCheckMessageTapSignerSignIn(signer, isoDep, cvc, messagesToSign)
+
+    @Throws(NCNativeException::class)
     fun signMessageColdCard(derivationPath: String, messagesToSign: String) =
         nunchukAndroid.signMessageColdCard(derivationPath, messagesToSign)
 
@@ -1054,8 +1062,16 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
 
+    @Throws(NCNativeException::class)
+    fun getSignInDummyTx(message: String) = nunchukAndroid.getSignInDummyTx(message)
+
+    @Throws(NCNativeException::class)
     fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) =
         nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
+
+    @Throws(NCNativeException::class)
+    fun getSignInDummyTxByByteArray(fileData: ByteArray) =
+        nunchukAndroid.getSignInDummyTxByByteArray(fileData)
 
     @Throws(NCNativeException::class)
     fun exportKeystoneDummyTransaction(txToSign: String, density: Int) =

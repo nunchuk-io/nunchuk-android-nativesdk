@@ -805,6 +805,14 @@ internal class LibNunchukAndroid {
     ): String
 
     @Throws(NCNativeException::class)
+    external fun signHealthCheckMessageTapSignerSignIn(
+        signer: SingleSigner,
+        isoDep: IsoDep,
+        cvc: String,
+        messagesToSign: String,
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun signMessageColdCard(derivationPath: String, messagesToSign: String): String
 
     @Throws(NCNativeException::class)
@@ -817,10 +825,19 @@ internal class LibNunchukAndroid {
     external fun getHealthCheckDummyTxMessage(walletId: String, body: String): String
 
     @Throws(NCNativeException::class)
+    external fun getSignInHealthCheckDummyTxMessage(body: String): String
+
+    @Throws(NCNativeException::class)
     external fun getDummyTx(walletId: String, message: String): Transaction
 
     @Throws(NCNativeException::class)
+    external fun getSignInDummyTx(psbt: String): Transaction
+
+    @Throws(NCNativeException::class)
     external fun getDummyTxByByteArray(walletId: String, fileData: ByteArray): Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun getSignInDummyTxByByteArray(fileData: ByteArray): Transaction?
 
     @Throws(NCNativeException::class)
     external fun exportKeystoneDummyTransaction(txToSign: String, density: Int): List<String>

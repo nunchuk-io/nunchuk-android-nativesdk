@@ -281,3 +281,51 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getIndexFromPath(JNIEnv *en
         return -1;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTx(JNIEnv *env, jobject thiz,
+                                                                      jstring psbt) {
+    try {
+        auto tx = Utils::DecodeDummyTx(Wallet(false), StringWrapper(env, psbt));
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInHealthCheckDummyTxMessage(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jstring body) {
+    try {
+        std::string tx_to_sign = Utils::GetHealthCheckDummyTx(Wallet(false), StringWrapper(env,
+                                                                                    body)); // user_data in json string
+        return env->NewStringUTF(tx_to_sign.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTxByByteArray(JNIEnv *env,
+                                                                                 jobject thiz,
+                                                                                 jbyteArray file_data) {
+    try {
+        auto first = env->GetByteArrayElements(file_data, nullptr);
+        auto len = env->GetArrayLength(file_data);
+        std::string psbt = std::string(first, first + len);
+        env->ReleaseByteArrayElements(file_data, first, JNI_ABORT);
+        auto tx = Utils::DecodeDummyTx(Wallet(false), psbt);
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
