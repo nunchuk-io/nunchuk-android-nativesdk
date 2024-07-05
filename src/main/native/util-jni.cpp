@@ -329,3 +329,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTxByByteArray
     }
     return nullptr;
 }
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidXPrv(JNIEnv *env, jobject thiz,
+                                                                 jstring xprv) {
+    try {
+        return Utils::IsValidXPrv(StringWrapper(env, xprv));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}

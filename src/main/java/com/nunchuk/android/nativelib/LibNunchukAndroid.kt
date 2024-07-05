@@ -1065,6 +1065,9 @@ internal class LibNunchukAndroid {
         replace: Boolean,
     ): MasterSigner?
 
+    @Throws(NCNativeException::class)
+    external fun isValidXPrv(xprv: String): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
