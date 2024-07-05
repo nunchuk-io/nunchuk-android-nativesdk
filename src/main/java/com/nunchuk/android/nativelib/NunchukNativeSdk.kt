@@ -1302,4 +1302,7 @@ class NunchukNativeSdk {
         isPrimary: Boolean,
         replace: Boolean,
     ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(name, xprv, isPrimary, replace)
+
+    @Throws(NCNativeException::class)
+    fun isValidXPrv(xprv: String) = nunchukAndroid.isValidXPrv(xprv)
 }
