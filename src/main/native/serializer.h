@@ -74,4 +74,7 @@ public:
     static CoinTag convert2CCoinTag(JNIEnv *env, jobject tag);
 
     static CoinCollection convert2CCoinCollection(JNIEnv *env, jobject collection);
+
+    static std::vector<CoinTag> convert2CCoinTags(JNIEnv *env, jobject tags);
+    static std::vector<CoinCollection> convert2CCoinCollections(JNIEnv *env, jobject collections);
 };

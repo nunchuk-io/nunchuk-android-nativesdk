@@ -1080,3 +1080,55 @@ Deserializer::convert2JCollectionUnspentOutputs(JNIEnv *env,
     return arrayListInstance;
 }
 
+jobject Deserializer::convert2JPairAmount(JNIEnv *env, const std::pair<Amount, Amount> &pair) {
+    syslog(LOG_DEBUG, "[JNI] convert2JPairAmount()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/PairAmount");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFirst",
+                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
+                            convert2JAmount(env, pair.first));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSecond",
+                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
+                            convert2JAmount(env, pair.second));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JPairAmount error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JDraftRollOverTransaction(JNIEnv *env, const Transaction &transaction,
+                                                        const std::vector<int> &tagIds,
+                                                        const std::vector<int> &collectionIds) {
+    syslog(LOG_DEBUG, "[JNI] convert2JDraftRollOverTransaction()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/DraftRollOverTransaction");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        jobject element = convert2JTransaction(env, transaction);
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTransaction",
+                                                       "(Lcom/nunchuk/android/model/Transaction;)V"),
+                            element);
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTagIds", "(Ljava/util/Set;)V"),
+                            convert2JInts(env, tagIds));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCollectionIds", "(Ljava/util/Set;)V"),
+                            convert2JInts(env, collectionIds));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JDraftRollOverTransaction error::%s", e.what());
+    }
+    return instance;
+}
+
+jobjectArray Deserializer::convert2JDraftRollOverTransactions(JNIEnv *env,
+                                                              const std::map<std::pair<std::set<int>, std::set<int>>, Transaction> txs) {
+    syslog(LOG_DEBUG, "[JNI] convert2JDraftRollOverTransactions()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/DraftRollOverTransaction");
+    jobjectArray ret = env->NewObjectArray(txs.size(), clazz, nullptr);
+    int i = 0;
+    for (const auto &tx: txs) {
+        jobject element = convert2JDraftRollOverTransaction(env, tx.second, std::vector<int>(tx.first.first.begin(), tx.first.first.end()), std::vector<int>(tx.first.second.begin(), tx.first.second.end()));
+        env->SetObjectArrayElement(ret, i++, element);
+    }
+    return ret;
+}
