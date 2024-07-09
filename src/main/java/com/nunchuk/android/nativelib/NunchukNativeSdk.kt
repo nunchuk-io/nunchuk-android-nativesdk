@@ -1320,4 +1320,38 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)
+
+    @Throws(NCNativeException::class)
+    fun estimateRollOverTransactionCount(
+        walletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>
+    ) = nunchukAndroid.estimateRollOverTransactionCount(walletId, tags, collections)
+
+    @Throws(NCNativeException::class)
+    fun estimateRollOverAmount(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ) = nunchukAndroid.estimateRollOverAmount(walletId, newWalletId, tags, collections, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun draftRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ) = nunchukAndroid.draftRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun createRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ) = nunchukAndroid.createRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
 }

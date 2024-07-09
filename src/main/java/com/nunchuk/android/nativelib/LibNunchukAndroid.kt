@@ -1082,6 +1082,40 @@ internal class LibNunchukAndroid {
         signerString: String,
     ): SingleSigner?
 
+    @Throws(NCNativeException::class)
+    external fun estimateRollOverTransactionCount(
+        walletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>
+    ): Int
+
+    @Throws(NCNativeException::class)
+    external fun estimateRollOverAmount(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): PairAmount
+
+    @Throws(NCNativeException::class)
+    external fun draftRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): Array<DraftRollOverTransaction>
+
+    @Throws(NCNativeException::class)
+    external fun createRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): List<Transaction>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
