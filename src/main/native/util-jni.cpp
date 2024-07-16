@@ -364,3 +364,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBip32Path(JNIEnv *env, j
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseSignerString(JNIEnv *env, jobject thiz,
+                                                                       jstring signer_string) {
+    try {
+        auto signer = Utils::ParseSignerString(StringWrapper(env, signer_string));
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

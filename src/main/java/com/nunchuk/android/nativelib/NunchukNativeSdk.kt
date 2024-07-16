@@ -946,7 +946,12 @@ class NunchukNativeSdk {
         walletType: Int,
         addressType: Int,
         index: Int,
-    ) = nunchukAndroid.getSignerFromMasterSignerByIndex(masterSignerId, walletType, addressType, index)
+    ) = nunchukAndroid.getSignerFromMasterSignerByIndex(
+        masterSignerId,
+        walletType,
+        addressType,
+        index
+    )
 
     @Throws(NCNativeException::class)
     fun getSignerFromTapsignerMasterSigner(
@@ -1331,4 +1336,7 @@ class NunchukNativeSdk {
         addressType: AddressType,
         index: Int
     ) = nunchukAndroid.getBip32Path(walletType.ordinal, addressType.ordinal, index)
+
+    @Throws(NCNativeException::class)
+    fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)
 }

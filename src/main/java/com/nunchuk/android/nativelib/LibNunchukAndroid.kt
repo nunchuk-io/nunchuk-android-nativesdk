@@ -1077,6 +1077,11 @@ internal class LibNunchukAndroid {
         index: Int
     ): String
 
+    @Throws(NCNativeException::class)
+    external fun parseSignerString(
+        signerString: String,
+    ): SingleSigner?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
