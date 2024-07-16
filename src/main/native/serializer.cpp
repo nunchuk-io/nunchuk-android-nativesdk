@@ -82,6 +82,9 @@ SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
         case 7:
             type = SignerType::SERVER;
             break;
+        case 8:
+            type = SignerType::PORTAL_NFC;
+            break;
         default:
             type = SignerType::UNKNOWN;
             break;
