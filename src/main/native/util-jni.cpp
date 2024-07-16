@@ -245,7 +245,8 @@ JNIEXPORT jdouble JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_analyzeQr(JNIEnv *env, jobject thiz,
                                                                jobject qrs) {
     try {
-        return Utils::AnalyzeQR(Serializer::convert2CListString(env, qrs)).estimated_percent_complete;
+        return Utils::AnalyzeQR(
+                Serializer::convert2CListString(env, qrs)).estimated_percent_complete;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return 0.0;
@@ -302,7 +303,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInHealthCheckDummyTx
                                                                                         jstring body) {
     try {
         std::string tx_to_sign = Utils::GetHealthCheckDummyTx(Wallet(false), StringWrapper(env,
-                                                                                    body)); // user_data in json string
+                                                                                           body)); // user_data in json string
         return env->NewStringUTF(tx_to_sign.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -341,5 +342,25 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidXPrv(JNIEnv *env, jo
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBip32Path(JNIEnv *env, jobject thiz,
+                                                                  jint wallet_type,
+                                                                  jint address_type,
+                                                                  jint index) {
+    try {
+        return env->NewStringUTF(Utils::GetBip32Path(
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type),
+                index
+        ).c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
     }
 }

@@ -24,9 +24,11 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
+import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.HealthStatus
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
+import com.nunchuk.android.type.WalletType
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -1067,6 +1069,13 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun isValidXPrv(xprv: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getBip32Path(
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ): String
 
     companion object {
         init {
