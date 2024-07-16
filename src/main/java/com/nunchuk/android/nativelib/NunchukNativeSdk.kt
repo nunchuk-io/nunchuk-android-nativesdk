@@ -1324,4 +1324,11 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun isValidXPrv(xprv: String) = nunchukAndroid.isValidXPrv(xprv)
+
+    @Throws(NCNativeException::class)
+    fun getBip32Path(
+        walletType: WalletType,
+        addressType: AddressType,
+        index: Int
+    ) = nunchukAndroid.getBip32Path(walletType.ordinal, addressType.ordinal, index)
 }
