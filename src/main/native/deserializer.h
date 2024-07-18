@@ -125,6 +125,8 @@ public:
 
     static jobject convert2JCoinStatus(JNIEnv *env, const CoinStatus &status);
 
+    static jobject convert2JBSMSData(JNIEnv *env, const BSMSData &data);
+
     static jobject convert2JCollectionUnspentOutputs(JNIEnv *env, const std::vector<std::vector<UnspentOutput>> &outputs);
     static jobject convert2JPairAmount(JNIEnv *env, const std::pair<Amount, Amount> &pair);
     static jobject convert2JDraftRollOverTransaction(JNIEnv *env, const Transaction &transaction, const std::vector<int> &tagIds, const std::vector<int> &collectionIds);

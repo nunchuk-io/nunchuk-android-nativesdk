@@ -218,6 +218,26 @@ jobject Deserializer::convert2JCoinStatus(JNIEnv *env, const CoinStatus &status)
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) status);
 }
 
+jobject Deserializer::convert2JBSMSData(JNIEnv *env, const BSMSData &data) {
+    syslog(LOG_DEBUG, "[JNI] convert2JBSMSData()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/BSMSData");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(data.version.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDescriptor", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(data.descriptor.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPathRestrictions", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(data.path_restrictions.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFirstAddress", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(data.first_address.c_str()));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
+    }
+    return instance;
+}
+
 jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &signer) {
     syslog(LOG_DEBUG, "[JNI] convert2JMasterSigner()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/MasterSigner");
