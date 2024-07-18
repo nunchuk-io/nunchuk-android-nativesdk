@@ -1116,6 +1116,11 @@ internal class LibNunchukAndroid {
         feeRate: Amount
     ): List<Transaction>
 
+    @Throws(NCNativeException::class)
+    external fun exportWalletToPortal(
+        walletId: String,
+    ): BSMSData?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

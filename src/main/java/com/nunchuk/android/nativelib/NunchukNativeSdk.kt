@@ -1373,4 +1373,9 @@ class NunchukNativeSdk {
         collections: List<CoinCollection>,
         feeRate: Amount
     ) = nunchukAndroid.createRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun exportWalletToPortal(
+        walletId: String,
+    ) = nunchukAndroid.exportWalletToPortal(walletId)
 }
