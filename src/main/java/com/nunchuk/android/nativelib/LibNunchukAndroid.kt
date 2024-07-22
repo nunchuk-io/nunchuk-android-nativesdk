@@ -1121,6 +1121,12 @@ internal class LibNunchukAndroid {
         walletId: String,
     ): BSMSData?
 
+    @Throws(NCNativeException::class)
+    external fun getAddressIndex(
+        walletId: String,
+        address: String,
+    ): Int
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
