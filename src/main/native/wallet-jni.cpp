@@ -678,3 +678,21 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToPortal(JNIEnv
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressIndex(JNIEnv *env, jobject thiz,
+                                                                     jstring wallet_id,
+                                                                     jstring address) {
+    try {
+        return NunchukProvider::get()->nu->GetAddressIndex(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, address)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}

@@ -1359,4 +1359,10 @@ class NunchukNativeSdk {
     fun exportWalletToPortal(
         walletId: String,
     ) = nunchukAndroid.exportWalletToPortal(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getAddressIndex(
+        walletId: String,
+        address: String,
+    ) = nunchukAndroid.getAddressIndex(walletId, address)
 }
