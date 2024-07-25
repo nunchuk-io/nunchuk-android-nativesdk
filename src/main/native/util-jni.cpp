@@ -245,7 +245,8 @@ JNIEXPORT jdouble JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_analyzeQr(JNIEnv *env, jobject thiz,
                                                                jobject qrs) {
     try {
-        return Utils::AnalyzeQR(Serializer::convert2CListString(env, qrs)).estimated_percent_complete;
+        return Utils::AnalyzeQR(
+                Serializer::convert2CListString(env, qrs)).estimated_percent_complete;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return 0.0;
@@ -279,5 +280,102 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getIndexFromPath(JNIEnv *en
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return -1;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTx(JNIEnv *env, jobject thiz,
+                                                                      jstring psbt) {
+    try {
+        auto tx = Utils::DecodeDummyTx(Wallet(false), StringWrapper(env, psbt));
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInHealthCheckDummyTxMessage(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jstring body) {
+    try {
+        std::string tx_to_sign = Utils::GetHealthCheckDummyTx(Wallet(false), StringWrapper(env,
+                                                                                           body)); // user_data in json string
+        return env->NewStringUTF(tx_to_sign.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTxByByteArray(JNIEnv *env,
+                                                                                 jobject thiz,
+                                                                                 jbyteArray file_data) {
+    try {
+        auto first = env->GetByteArrayElements(file_data, nullptr);
+        auto len = env->GetArrayLength(file_data);
+        std::string psbt = std::string(first, first + len);
+        env->ReleaseByteArrayElements(file_data, first, JNI_ABORT);
+        auto tx = Utils::DecodeDummyTx(Wallet(false), psbt);
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidXPrv(JNIEnv *env, jobject thiz,
+                                                                 jstring xprv) {
+    try {
+        return Utils::IsValidXPrv(StringWrapper(env, xprv));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBip32Path(JNIEnv *env, jobject thiz,
+                                                                  jint wallet_type,
+                                                                  jint address_type,
+                                                                  jint index) {
+    try {
+        return env->NewStringUTF(Utils::GetBip32Path(
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type),
+                index
+        ).c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseSignerString(JNIEnv *env, jobject thiz,
+                                                                       jstring signer_string) {
+    try {
+        auto signer = Utils::ParseSignerString(StringWrapper(env, signer_string));
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
     }
 }

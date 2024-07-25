@@ -82,6 +82,9 @@ SignerType Serializer::convert2CSignerType(JNIEnv *env, jobject singerType) {
         case 7:
             type = SignerType::SERVER;
             break;
+        case 8:
+            type = SignerType::PORTAL_NFC;
+            break;
         default:
             type = SignerType::UNKNOWN;
             break;
@@ -787,4 +790,36 @@ CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collecti
     coinCollection.set_add_new_coin(isAddNewCoin);
     coinCollection.set_auto_lock(isAutoLock);
     return coinCollection;
+}
+
+std::vector<CoinTag> Serializer::convert2CCoinTags(JNIEnv *env, jobject tags) {
+    jclass cList = env->FindClass("java/util/List");
+
+    jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
+
+    jint size = env->CallIntMethod(tags, sizeMethod);
+    std::vector<CoinTag> result;
+    for (jint i = 0; i < size; i++) {
+        auto item = (jobject) env->CallObjectMethod(tags, getMethod, i);
+        auto tag = Serializer::convert2CCoinTag(env, item);
+        result.push_back(tag);
+    }
+    return result;
+}
+
+std::vector<CoinCollection> Serializer::convert2CCoinCollections(JNIEnv *env, jobject collections) {
+    jclass cList = env->FindClass("java/util/List");
+
+    jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
+
+    jint size = env->CallIntMethod(collections, sizeMethod);
+    std::vector<CoinCollection> result;
+    for (jint i = 0; i < size; i++) {
+        auto item = (jobject) env->CallObjectMethod(collections, getMethod, i);
+        auto collection = Serializer::convert2CCoinCollection(env, item);
+        result.push_back(collection);
+    }
+    return result;
 }

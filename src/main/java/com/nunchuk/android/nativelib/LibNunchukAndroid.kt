@@ -24,9 +24,11 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
+import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.HealthStatus
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
+import com.nunchuk.android.type.WalletType
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -805,6 +807,14 @@ internal class LibNunchukAndroid {
     ): String
 
     @Throws(NCNativeException::class)
+    external fun signHealthCheckMessageTapSignerSignIn(
+        signer: SingleSigner,
+        isoDep: IsoDep,
+        cvc: String,
+        messagesToSign: String,
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun signMessageColdCard(derivationPath: String, messagesToSign: String): String
 
     @Throws(NCNativeException::class)
@@ -817,10 +827,19 @@ internal class LibNunchukAndroid {
     external fun getHealthCheckDummyTxMessage(walletId: String, body: String): String
 
     @Throws(NCNativeException::class)
+    external fun getSignInHealthCheckDummyTxMessage(body: String): String
+
+    @Throws(NCNativeException::class)
     external fun getDummyTx(walletId: String, message: String): Transaction
 
     @Throws(NCNativeException::class)
+    external fun getSignInDummyTx(psbt: String): Transaction
+
+    @Throws(NCNativeException::class)
     external fun getDummyTxByByteArray(walletId: String, fileData: ByteArray): Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun getSignInDummyTxByByteArray(fileData: ByteArray): Transaction?
 
     @Throws(NCNativeException::class)
     external fun exportKeystoneDummyTransaction(txToSign: String, density: Int): List<String>
@@ -1039,6 +1058,74 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun exportBBQRTransaction(psbt: String, density: Int): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun createSoftwareSignerFromMasterXprv(
+        name: String,
+        xprv: String,
+        isPrimary: Boolean,
+        replace: Boolean,
+    ): MasterSigner?
+
+    @Throws(NCNativeException::class)
+    external fun isValidXPrv(xprv: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getBip32Path(
+        walletType: Int,
+        addressType: Int,
+        index: Int
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun parseSignerString(
+        signerString: String,
+    ): SingleSigner?
+
+    @Throws(NCNativeException::class)
+    external fun estimateRollOverTransactionCount(
+        walletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>
+    ): Int
+
+    @Throws(NCNativeException::class)
+    external fun estimateRollOverAmount(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): PairAmount
+
+    @Throws(NCNativeException::class)
+    external fun draftRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): Array<DraftRollOverTransaction>
+
+    @Throws(NCNativeException::class)
+    external fun createRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): List<Transaction>
+
+    @Throws(NCNativeException::class)
+    external fun exportWalletToPortal(
+        walletId: String,
+    ): BSMSData?
+
+    @Throws(NCNativeException::class)
+    external fun getAddressIndex(
+        walletId: String,
+        address: String,
+    ): Int
 
     companion object {
         init {

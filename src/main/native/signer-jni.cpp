@@ -775,3 +775,49 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerByIndex(JNIEnv *en
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSignerFromMasterXprv(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jstring name,
+                                                                                        jstring xprv,
+                                                                                        jboolean is_primary,
+                                                                                        jboolean replace) {
+    try {
+        const MasterSigner &signer = NunchukProvider::get()->nu->CreateSoftwareSignerFromMasterXprv(
+                env->GetStringUTFChars(name, JNI_FALSE),
+                env->GetStringUTFChars(xprv, JNI_FALSE),
+                [](int percent) { return true; },
+                is_primary,
+                replace
+        );
+        return Deserializer::convert2JMasterSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signHealthCheckMessageTapSignerSignIn(
+        JNIEnv *env, jobject thiz, jobject signer, jobject iso_dep, jstring cvc,
+        jstring messages_to_sign) {
+    try {
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        std::string signature = Utils::SignPsbt(ts.get(),
+                                                StringWrapper(env, cvc),
+                                                StringWrapper(env,messages_to_sign));
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        auto signedSignature = Utils::GetPartialSignature(singleSigner, signature);
+        return env->NewStringUTF(signedSignature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

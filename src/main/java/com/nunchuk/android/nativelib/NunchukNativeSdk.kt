@@ -946,7 +946,12 @@ class NunchukNativeSdk {
         walletType: Int,
         addressType: Int,
         index: Int,
-    ) = nunchukAndroid.getSignerFromMasterSignerByIndex(masterSignerId, walletType, addressType, index)
+    ) = nunchukAndroid.getSignerFromMasterSignerByIndex(
+        masterSignerId,
+        walletType,
+        addressType,
+        index
+    )
 
     @Throws(NCNativeException::class)
     fun getSignerFromTapsignerMasterSigner(
@@ -1037,6 +1042,14 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.signHealthCheckMessageTapSigner(isoDep, cvc, signer, messagesToSign)
 
     @Throws(NCNativeException::class)
+    fun signHealthCheckMessageTapSignerSignIn(
+        signer: SingleSigner,
+        isoDep: IsoDep,
+        cvc: String,
+        messagesToSign: String,
+    ) = nunchukAndroid.signHealthCheckMessageTapSignerSignIn(signer, isoDep, cvc, messagesToSign)
+
+    @Throws(NCNativeException::class)
     fun signMessageColdCard(derivationPath: String, messagesToSign: String) =
         nunchukAndroid.signMessageColdCard(derivationPath, messagesToSign)
 
@@ -1054,8 +1067,16 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getDummyTx(walletId: String, message: String) = nunchukAndroid.getDummyTx(walletId, message)
 
+    @Throws(NCNativeException::class)
+    fun getSignInDummyTx(message: String) = nunchukAndroid.getSignInDummyTx(message)
+
+    @Throws(NCNativeException::class)
     fun getDummyTxByByteArray(walletId: String, fileData: ByteArray) =
         nunchukAndroid.getDummyTxByByteArray(walletId, fileData)
+
+    @Throws(NCNativeException::class)
+    fun getSignInDummyTxByByteArray(fileData: ByteArray) =
+        nunchukAndroid.getSignInDummyTxByByteArray(fileData)
 
     @Throws(NCNativeException::class)
     fun exportKeystoneDummyTransaction(txToSign: String, density: Int) =
@@ -1297,4 +1318,70 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun exportBBQRTransaction(psbt: String, density: Int) =
         nunchukAndroid.exportBBQRTransaction(psbt, density)
+
+    @Throws(NCNativeException::class)
+    fun createSoftwareSignerFromMasterXprv(
+        name: String,
+        xprv: String,
+        isPrimary: Boolean,
+        replace: Boolean,
+    ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(name, xprv, isPrimary, replace)
+
+    @Throws(NCNativeException::class)
+    fun isValidXPrv(xprv: String) = nunchukAndroid.isValidXPrv(xprv)
+
+    @Throws(NCNativeException::class)
+    fun getBip32Path(
+        walletType: WalletType,
+        addressType: AddressType,
+        index: Int
+    ) = nunchukAndroid.getBip32Path(walletType.ordinal, addressType.ordinal, index)
+
+    @Throws(NCNativeException::class)
+    fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)
+
+    @Throws(NCNativeException::class)
+    fun estimateRollOverTransactionCount(
+        walletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>
+    ) = nunchukAndroid.estimateRollOverTransactionCount(walletId, tags, collections)
+
+    @Throws(NCNativeException::class)
+    fun estimateRollOverAmount(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ) = nunchukAndroid.estimateRollOverAmount(walletId, newWalletId, tags, collections, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun draftRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ) = nunchukAndroid.draftRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun createRollOverTransactions(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ) = nunchukAndroid.createRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun exportWalletToPortal(
+        walletId: String,
+    ) = nunchukAndroid.exportWalletToPortal(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getAddressIndex(
+        walletId: String,
+        address: String,
+    ) = nunchukAndroid.getAddressIndex(walletId, address)
 }

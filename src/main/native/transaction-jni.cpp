@@ -1103,3 +1103,134 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRTransaction(JNIEn
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOverTransactionCount(JNIEnv *env,
+                                                                                      jobject thiz,
+                                                                                      jstring wallet_id,
+                                                                                      jobject tags,
+                                                                                      jobject collections) {
+    try {
+        auto coinTags = Serializer::convert2CCoinTags(env, tags);
+        auto tagIds = std::set<int>();
+        for (auto &tag: coinTags) {
+            tagIds.insert(tag.get_id());
+        }
+        auto coinCollections = Serializer::convert2CCoinCollections(env, collections);
+        auto collectionIds = std::set<int>();
+        for (auto &collection: coinCollections) {
+            collectionIds.insert(collection.get_id());
+        }
+        return NunchukProvider::get()->nu->EstimateRollOverTransactionCount(
+                StringWrapper(env, wallet_id),
+                tagIds, collectionIds);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOverAmount(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring wallet_id,
+                                                                            jstring new_wallet_id,
+                                                                            jobject tags,
+                                                                            jobject collections,
+                                                                            jobject fee_rate) {
+    try {
+        auto coinTags = Serializer::convert2CCoinTags(env, tags);
+        auto tagIds = std::set<int>();
+        for (auto &tag: coinTags) {
+            tagIds.insert(tag.get_id());
+        }
+        auto coinCollections = Serializer::convert2CCoinCollections(env, collections);
+        auto collectionIds = std::set<int>();
+        for (auto &collection: coinCollections) {
+            collectionIds.insert(collection.get_id());
+        }
+        auto value = NunchukProvider::get()->nu->EstimateRollOverAmount(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                tagIds, collectionIds,
+                Serializer::convert2CAmount(env, fee_rate));
+        return Deserializer::convert2JPairAmount(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobjectArray JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRollOverTransactions(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jstring wallet_id,
+                                                                               jstring new_wallet_id,
+                                                                               jobject tags,
+                                                                               jobject collections,
+                                                                               jobject fee_rate) {
+    try {
+        auto coinTags = Serializer::convert2CCoinTags(env, tags);
+        auto tagIds = std::set<int>();
+        for (auto &tag: coinTags) {
+            tagIds.insert(tag.get_id());
+        }
+        auto coinCollections = Serializer::convert2CCoinCollections(env, collections);
+        auto collectionIds = std::set<int>();
+        for (auto &collection: coinCollections) {
+            collectionIds.insert(collection.get_id());
+        }
+        auto txs = NunchukProvider::get()->nu->DraftRollOverTransactions(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate));
+        return Deserializer::convert2JDraftRollOverTransactions(env, txs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(JNIEnv *env,
+                                                                                jobject thiz,
+                                                                                jstring wallet_id,
+                                                                                jstring new_wallet_id,
+                                                                                jobject tags,
+                                                                                jobject collections,
+                                                                                jobject fee_rate) {
+    try {
+        auto coinTags = Serializer::convert2CCoinTags(env, tags);
+        auto tagIds = std::set<int>();
+        for (auto &tag: coinTags) {
+            tagIds.insert(tag.get_id());
+        }
+        auto coinCollections = Serializer::convert2CCoinCollections(env, collections);
+        auto collectionIds = std::set<int>();
+        for (auto &collection: coinCollections) {
+            collectionIds.insert(collection.get_id());
+        }
+        auto txs = NunchukProvider::get()->nu->CreateRollOverTransactions(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate));
+        return Deserializer::convert2JTransactions(env, txs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

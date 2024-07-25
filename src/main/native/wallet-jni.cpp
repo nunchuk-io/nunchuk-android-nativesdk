@@ -661,3 +661,38 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRWallet(JNIEnv *en
         return Deserializer::convert2JListString(env, std::vector<std::string>());
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToPortal(JNIEnv *env, jobject thiz,
+                                                                          jstring wallet_id) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->GetWallet(StringWrapper(env, wallet_id));
+        auto bsms = NunchukProvider::get()->nu->GetWalletExportData(wallet, ExportFormat::BSMS);
+        auto portalData = Utils::ParseBSMSData(bsms);
+        return Deserializer::convert2JBSMSData(env, portalData);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressIndex(JNIEnv *env, jobject thiz,
+                                                                     jstring wallet_id,
+                                                                     jstring address) {
+    try {
+        return NunchukProvider::get()->nu->GetAddressIndex(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, address)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}
