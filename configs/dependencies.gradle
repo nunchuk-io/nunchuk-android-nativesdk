@@ -2,15 +2,14 @@ ext {
     coroutinesVersion = '1.4.3'
 
     //Plugins versions
-    gradleVersion = '8.1.0'
+    gradleVersion = '8.5.0'
     kotlinGradlePluginVersion = '1.9.0'
     kotlinStdlibVersion = '1.9.0'
 
     androidConfig = [
-            compileSdkVersion: 30,
-            targetSdkVersion : 30,
+            compileSdkVersion: 34,
+            targetSdkVersion : 33,
             minSdkVersion    : 24,
-            buildToolsVersion: "30.0.3",
     ]
 
     pluginsDeps = [

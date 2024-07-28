@@ -6,7 +6,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    ndkVersion "25.2.9519653"
+    ndkVersion "25.1.8937393"
     namespace "com.nunchuk.android.nativesdk"
     compileSdkVersion androidConfig.compileSdkVersion
     defaultConfig {
@@ -106,9 +106,7 @@ allprojects {
     }
 }
 
-def properties = new Properties()
-properties.load(project.rootProject.file("local.properties").newDataInputStream())
-def SUPPORTED_ARCH = properties.getProperty("arch.processor", "arm64_v8a")
+def SUPPORTED_ARCH = "arm8"
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk"
 def VERSION = "1.1.75"
