@@ -24,11 +24,9 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
-import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.HealthStatus
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
-import com.nunchuk.android.type.WalletType
 
 internal const val LIB_NAME = "nunchuk-android"
 
@@ -919,7 +917,7 @@ internal class LibNunchukAndroid {
     external fun createCoinCollection(walletId: String, name: String): CoinCollection
 
     @Throws(NCNativeException::class)
-    external fun updateCoinCollection(walletId: String, coinCollection: CoinCollection): Boolean
+    external fun updateCoinCollection(walletId: String, coinCollection: CoinCollection, applyToExistingCoin: Boolean): Boolean
 
     @Throws(NCNativeException::class)
     external fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean

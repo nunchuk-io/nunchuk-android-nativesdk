@@ -893,12 +893,15 @@ extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateCoinCollection(JNIEnv *env, jobject thiz,
                                                                           jstring wallet_id,
-                                                                          jobject coin_collection) {
+                                                                          jobject coin_collection,
+                                                                          jboolean apply_to_existing_coins
+                                                                          ) {
     try {
         CoinCollection coinCollection = Serializer::convert2CCoinCollection(env, coin_collection);
         return NunchukProvider::get()->nu->UpdateCoinCollection(
                 StringWrapper(env, wallet_id),
-                coinCollection);
+                coinCollection,
+                apply_to_existing_coins);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
     } catch (std::exception &e) {

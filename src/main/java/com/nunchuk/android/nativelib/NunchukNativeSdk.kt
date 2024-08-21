@@ -1170,8 +1170,8 @@ class NunchukNativeSdk {
         nunchukAndroid.createCoinCollection(walletId, name)
 
     @Throws(NCNativeException::class)
-    fun updateCoinCollection(walletId: String, coinCollection: CoinCollection): Boolean =
-        nunchukAndroid.updateCoinCollection(walletId, coinCollection)
+    fun updateCoinCollection(walletId: String, coinCollection: CoinCollection, applyToExistingCoins: Boolean): Boolean =
+        nunchukAndroid.updateCoinCollection(walletId, coinCollection, applyToExistingCoins)
 
     @Throws(NCNativeException::class)
     fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean =
