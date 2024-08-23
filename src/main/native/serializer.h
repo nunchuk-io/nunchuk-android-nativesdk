@@ -39,6 +39,8 @@ public:
 
     static std::vector<std::string> convert2CListString(JNIEnv *env, jobject values);
 
+    static std::vector<int> convert2CListInt(JNIEnv *env, jobject values);
+
     static Wallet convert2CWallet(JNIEnv *env, jobject wallet);
 
     static TxInput convert2CTxInput(JNIEnv *env, jobject input);

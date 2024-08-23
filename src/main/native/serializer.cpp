@@ -218,6 +218,24 @@ std::vector<std::string> Serializer::convert2CListString(JNIEnv *env, jobject va
     return result;
 }
 
+std::vector<int> Serializer::convert2CListInt(JNIEnv *env, jobject values) {
+    jclass cList = env->FindClass("java/util/List");
+    jmethodID sizeMethod = env->GetMethodID(cList, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(cList, "get", "(I)Ljava/lang/Object;");
+    jint size = env->CallIntMethod(values, sizeMethod);
+
+    std::vector<int> result;
+    result.reserve(size);
+
+    for (jint i = 0; i < size; i++) {
+        jobject item = env->CallObjectMethod(values, getMethod, i);
+        jint intValue = env->CallIntMethod(item, env->GetMethodID(env->FindClass("java/lang/Integer"), "intValue", "()I"));
+        result.push_back(intValue);
+    }
+
+    return result;
+}
+
 SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     jclass clazz = env->FindClass("com/nunchuk/android/model/SingleSigner");
 
@@ -785,10 +803,14 @@ CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collecti
     auto isAddNewCoin = env->GetBooleanField(collection, fieldAddNewCoin);
     jfieldID fieldAutoLock = env->GetFieldID(clazz, "isAutoLock", "Z");
     auto isAutoLock = env->GetBooleanField(collection, fieldAutoLock);
+    // get tagIds List<Integer>
+    jfieldID fieldTagsId = env->GetFieldID(clazz, "tagIds", "Ljava/util/List;");
+    auto tags = (jobject) env->GetObjectField(collection, fieldTagsId);
 
     CoinCollection coinCollection = CoinCollection(id, name);
     coinCollection.set_add_new_coin(isAddNewCoin);
     coinCollection.set_auto_lock(isAutoLock);
+    coinCollection.set_add_coins_with_tag(Serializer::convert2CListInt(env, tags));
     return coinCollection;
 }
 
