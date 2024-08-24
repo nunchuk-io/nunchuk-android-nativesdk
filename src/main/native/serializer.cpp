@@ -236,6 +236,27 @@ std::vector<int> Serializer::convert2CListInt(JNIEnv *env, jobject values) {
     return result;
 }
 
+std::vector<int> Serializer::convert2CSetInt(JNIEnv *env, jobject values) {
+    jclass cSet = env->FindClass("java/util/Set");
+
+    jmethodID iteratorMethod = env->GetMethodID(cSet, "iterator", "()Ljava/util/Iterator;");
+    jobject iterator = env->CallObjectMethod(values, iteratorMethod);
+
+    jclass cIterator = env->FindClass("java/util/Iterator");
+    jmethodID hasNextMethod = env->GetMethodID(cIterator, "hasNext", "()Z");
+    jmethodID nextMethod = env->GetMethodID(cIterator, "next", "()Ljava/lang/Object;");
+
+    std::vector<int> result;
+
+    while (env->CallBooleanMethod(iterator, hasNextMethod)) {
+        jobject item = env->CallObjectMethod(iterator, nextMethod);
+        jint intValue = env->CallIntMethod(item, env->GetMethodID(env->FindClass("java/lang/Integer"), "intValue", "()I"));
+        result.push_back(intValue);
+    }
+
+    return result;
+}
+
 SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     jclass clazz = env->FindClass("com/nunchuk/android/model/SingleSigner");
 
@@ -803,14 +824,13 @@ CoinCollection Serializer::convert2CCoinCollection(JNIEnv *env, jobject collecti
     auto isAddNewCoin = env->GetBooleanField(collection, fieldAddNewCoin);
     jfieldID fieldAutoLock = env->GetFieldID(clazz, "isAutoLock", "Z");
     auto isAutoLock = env->GetBooleanField(collection, fieldAutoLock);
-    // get tagIds List<Integer>
-    jfieldID fieldTagsId = env->GetFieldID(clazz, "tagIds", "Ljava/util/List;");
+    jfieldID fieldTagsId = env->GetFieldID(clazz, "tagIds", "Ljava/util/Set;");
     auto tags = (jobject) env->GetObjectField(collection, fieldTagsId);
 
     CoinCollection coinCollection = CoinCollection(id, name);
     coinCollection.set_add_new_coin(isAddNewCoin);
     coinCollection.set_auto_lock(isAutoLock);
-    coinCollection.set_add_coins_with_tag(Serializer::convert2CListInt(env, tags));
+    coinCollection.set_add_coins_with_tag(Serializer::convert2CSetInt(env, tags));
     return coinCollection;
 }
 

@@ -1062,7 +1062,7 @@ jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection 
                             collection.is_add_new_coin());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAutoLock", "(Z)V"),
                             collection.is_auto_lock());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTagIds", "(Ljava/util/List;)V"),
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTagIds", "(Ljava/util/Set;)V"),
                             convert2JInts(env, collection.get_add_coins_with_tag()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JCoinCollection error::%s", e.what());
