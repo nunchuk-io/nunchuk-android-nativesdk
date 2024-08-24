@@ -9,5 +9,5 @@ data class CoinCollection(
     var name: String = "",
     var isAddNewCoin: Boolean = false,
     var isAutoLock: Boolean = false,
-    var tagIds: List<Int> = emptyList(),
+    var tagIds: Set<Int> = emptySet(),
 ) : Parcelable
