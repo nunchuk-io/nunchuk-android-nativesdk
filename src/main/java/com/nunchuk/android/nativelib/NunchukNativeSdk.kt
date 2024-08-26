@@ -141,6 +141,9 @@ class NunchukNativeSdk {
     fun getWallets() = nunchukAndroid.getWallets()
 
     @Throws(NCNativeException::class)
+    fun getMostRecentlyUsedWallets() = nunchukAndroid.getMostRecentlyUsedWallets()
+
+    @Throws(NCNativeException::class)
     fun exportWallet(walletId: String, filePath: String, format: ExportFormat) =
         nunchukAndroid.exportWallet(
             walletId = walletId,

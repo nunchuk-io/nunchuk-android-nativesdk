@@ -696,3 +696,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressIndex(JNIEnv *env
         return -1;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMostRecentlyUsedWallets(JNIEnv *env,
+                                                                                jobject thiz) {
+    try {
+        auto wallets = NunchukProvider::get()->nu->GetWallets({ OrderBy::MOST_RECENTLY_USED });
+        return Deserializer::convert2JWallets(env, wallets);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
