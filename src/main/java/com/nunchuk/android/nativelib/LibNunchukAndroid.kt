@@ -90,6 +90,9 @@ internal class LibNunchukAndroid {
     external fun getWallets(): List<Wallet>
 
     @Throws(NCNativeException::class)
+    external fun getMostRecentlyUsedWallets(): List<Wallet>
+
+    @Throws(NCNativeException::class)
     external fun deleteRemoteSigner(masterFingerprint: String, derivationPath: String)
 
     @Throws(NCNativeException::class)
