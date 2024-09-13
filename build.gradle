@@ -106,9 +106,14 @@ allprojects {
     }
 }
 
-def properties = new Properties()
-properties.load(project.rootProject.file("local.properties").newDataInputStream())
-def SUPPORTED_ARCH = properties.getProperty("arch.processor", "arm8")
+def localProperties = project.rootProject.file("local.properties")
+def SUPPORTED_ARCH = "arm8"
+
+if (localProperties.exists()) {
+  def properties = new Properties()
+  properties.load(localProperties.newDataInputStream())
+  SUPPORTED_ARCH = properties.getProperty("arch.processor", SUPPORTED_ARCH)
+}
 
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk"
