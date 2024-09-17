@@ -26,6 +26,7 @@ public:
             const std::string &pass_phrase,
             const std::string &account_id,
             const std::string &device_id,
+            const std::string &decoy_pin,
             SendEventFunc send_event_func
     );
 };

@@ -74,7 +74,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jstring storage_path,
         jstring pass_phrase,
         jstring account_id,
-        jstring device_id
+        jstring device_id,
+        jstring decoy_pin
 ) {
     try {
         AppSettings settings;
@@ -90,9 +91,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         env->GetJavaVM(&Initializer::get()->jvm);
         NunchukProvider::get()->initNunchuk(
                 settings,
-                env->GetStringUTFChars(pass_phrase, JNI_FALSE),
-                env->GetStringUTFChars(account_id, JNI_FALSE),
-                env->GetStringUTFChars(device_id, JNI_FALSE),
+                StringWrapper(env, pass_phrase),
+                StringWrapper(env, account_id),
+                StringWrapper(env, device_id),
+                StringWrapper(env, decoy_pin),
                 [](const std::string &room_id, const std::string &type, const std::string &content, bool ignore_error) {
                     JNIEnv *g_env;
                     try {

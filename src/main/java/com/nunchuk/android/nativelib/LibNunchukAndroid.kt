@@ -45,6 +45,7 @@ internal class LibNunchukAndroid {
         passphrase: String,
         accountId: String,
         deviceId: String,
+        decoyPin: String
     )
 
     @Throws(NCNativeException::class)
@@ -84,6 +85,7 @@ internal class LibNunchukAndroid {
         addressType: Int,
         isEscrow: Boolean,
         description: String,
+        decoyPin: String,
     ): Wallet
 
     @Throws(NCNativeException::class)
@@ -1127,6 +1129,25 @@ internal class LibNunchukAndroid {
         walletId: String,
         address: String,
     ): Int
+
+    @Throws(NCNativeException::class)
+    external fun createNewDecoyPin(
+        storagePath: String,
+        pin: String,
+    )
+
+    @Throws(NCNativeException::class)
+    external fun changeDecoyPin(
+        storagePath: String,
+        oldPin: String,
+        newPin: String,
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun decoyPinExists(
+        storagePath: String,
+        pin: String
+    ): Boolean
 
     companion object {
         init {

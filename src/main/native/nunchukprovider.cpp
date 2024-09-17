@@ -19,8 +19,11 @@ void NunchukProvider::initNunchuk(
         const std::string &pass_phrase,
         const std::string &account_id,
         const std::string &device_id,
+        const std::string &decoy_pin,
         SendEventFunc send_event_func
 ) {
-    nu = MakeNunchukForAccount(settings, pass_phrase, account_id);
+    // if decoy pin is empty use MakeNunchukForAccount else use MakeNunchukForDecoyPin
+    nu = decoy_pin.empty() ? MakeNunchukForAccount(settings, pass_phrase, account_id)
+                           : MakeNunchukForDecoyPin(settings, decoy_pin);
     nuMatrix = MakeNunchukMatrixForAccount(settings, pass_phrase, account_id, device_id, send_event_func);
 }
