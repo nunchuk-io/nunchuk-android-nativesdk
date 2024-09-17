@@ -37,6 +37,7 @@ class NunchukNativeSdk {
         passphrase: String,
         accountId: String,
         deviceId: String,
+        decoyPin: String,
     ) {
         nunchukAndroid.initNunchuk(
             chain = appSettings.chain.ordinal,
@@ -49,7 +50,8 @@ class NunchukNativeSdk {
             storagePath = appSettings.storagePath,
             passphrase = passphrase,
             accountId = accountId,
-            deviceId = deviceId
+            deviceId = deviceId,
+            decoyPin = decoyPin
         )
     }
 
@@ -130,13 +132,15 @@ class NunchukNativeSdk {
         addressType: AddressType,
         isEscrow: Boolean,
         description: String,
+        decoyPin: String = ""
     ) = nunchukAndroid.createWallet(
         name = name,
         totalRequireSigns = totalRequireSigns,
         signers = signers,
         addressType = addressType.ordinal,
         isEscrow = isEscrow,
-        description = description
+        description = description,
+        decoyPin = decoyPin
     )
 
     @Throws(NCNativeException::class)
@@ -1387,4 +1391,23 @@ class NunchukNativeSdk {
         walletId: String,
         address: String,
     ) = nunchukAndroid.getAddressIndex(walletId, address)
+
+    @Throws(NCNativeException::class)
+    fun createNewDecoyPin(
+        storagePath: String,
+        pin: String,
+    ) = nunchukAndroid.createNewDecoyPin(storagePath, pin)
+
+    @Throws(NCNativeException::class)
+    fun changeDecoyPin(
+        storagePath: String,
+        oldPin: String,
+        newPin: String,
+    ) = nunchukAndroid.changeDecoyPin(storagePath, oldPin, newPin)
+
+    @Throws(NCNativeException::class)
+    fun decoyPinExists(
+        storagePath: String,
+        pin: String
+    ) = nunchukAndroid.decoyPinExists(storagePath, pin)
 }

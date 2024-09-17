@@ -379,3 +379,54 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseSignerString(JNIEnv *e
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createNewDecoyPin(JNIEnv *env, jobject thiz,
+                                                                       jstring storage_path,
+                                                                       jstring pin) {
+    try {
+        auto exists = Utils::IsExistingDecoyPin(StringWrapper(env, storage_path),
+                                                StringWrapper(env, pin));
+        if (!exists) {
+            Utils::NewDecoyPin(StringWrapper(env, storage_path), StringWrapper(env, pin));
+        }
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_changeDecoyPin(JNIEnv *env, jobject thiz,
+                                                                    jstring storage_path,
+                                                                    jstring old_pin,
+                                                                    jstring new_pin) {
+    try {
+        return Utils::ChangeDecoyPin(StringWrapper(env, storage_path),
+                                     StringWrapper(env, old_pin),
+                                     StringWrapper(env, new_pin));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decoyPinExists(JNIEnv *env, jobject thiz,
+                                                                    jstring storage_path,
+                                                                    jstring pin) {
+    try {
+        return Utils::IsExistingDecoyPin(StringWrapper(env, storage_path),
+                                         StringWrapper(env, pin));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}

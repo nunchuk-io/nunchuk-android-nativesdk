@@ -73,7 +73,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
         jobject signers,
         jint address_type,
         jboolean is_escrow,
-        jstring description
+        jstring description,
+        jstring decoy_pin
 ) {
     syslog(LOG_DEBUG, "[JNI] createWallet()");
     syslog(LOG_DEBUG, "[JNI] name::%s", env->GetStringUTFChars(name, JNI_FALSE));
@@ -88,7 +89,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
                 singleSigners,
                 type,
                 is_escrow,
-                env->GetStringUTFChars(description, JNI_FALSE)
+                env->GetStringUTFChars(description, JNI_FALSE),
+                false,
+                StringWrapper(env, decoy_pin)
         );
         return Deserializer::convert2JWallet(env, wallet);
     } catch (BaseException &e) {
@@ -711,4 +714,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMostRecentlyUsedWallets(
         Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
     }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createDecoyWallet(JNIEnv *env, jobject thiz,
+                                                                       jstring pin, jstring name,
+                                                                       jint total_require_signs,
+                                                                       jobject signers,
+                                                                       jint address_type,
+                                                                       jboolean is_escrow,
+                                                                       jstring description) {
 }
