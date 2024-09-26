@@ -11,7 +11,11 @@ if [ -z "$ANDROID_NDK_HOME" ]; then
   exit 1
 fi
 
-export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64
+if [ "$(uname)" = "Darwin" ]; then
+    export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64
+else
+    export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
+fi
 
 cd $TOOLCHAIN/bin/
 for source in arm-linux-androideabi-*; do
@@ -66,13 +70,13 @@ installBitcoinDeps() {
 
   export TARGET=$target
 
-  export AR=$TOOLCHAIN/bin/$TARGET-ar
-  export AS=$TOOLCHAIN/bin/$TARGET-as
+  export AR=$TOOLCHAIN/bin/llvm-ar
   export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export AS=$CC
   export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/$TARGET-ld
-  export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
-  export STRIP=$TOOLCHAIN/bin/$TARGET-strip
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
 
   ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$TARGET ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1
 }
@@ -93,13 +97,13 @@ installBitcoinCore() {
 
   export TARGET=$target
 
-  export AR=$TOOLCHAIN/bin/$TARGET-ar
-  export AS=$TOOLCHAIN/bin/$TARGET-as
+  export AR=$TOOLCHAIN/bin/llvm-ar
   export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export AS=$CC
   export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/$TARGET-ld
-  export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
-  export STRIP=$TOOLCHAIN/bin/$TARGET-strip
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
   sh ./autogen.sh
   CFLAGS="-fPIC" CXXFLAGS="-fPIC" ./configure --prefix=$PWD/depends/$TARGET --without-gui --disable-zmq --with-miniupnpc=no --with-incompatible-bdb --disable-bench --disable-tests --enable-module-ecdh
   make -j8
@@ -112,6 +116,12 @@ popd || exit
 #########################################################################################
 ####                                 OpenSSL Lib                                     ####
 #########################################################################################
+OPENSSL_FOLDER=contrib/openssl
+applyOpenSSLPatches() {
+  cmp -s ./patches/openssl-15-android.conf libnunchuk/$OPENSSL_FOLDER/Configurations/15-android.conf || cp ./patches/openssl-15-android.conf libnunchuk/$OPENSSL_FOLDER/Configurations/15-android.conf
+}
+
+applyOpenSSLPatches
 
 installOpenSSL() {
   if [ "$ANDROID_ABI" == $ANDROID_ABI_ARM64_V8A ]; then
@@ -129,19 +139,19 @@ installOpenSSL() {
 
   export TARGET=$target
 
-  export AR=$TOOLCHAIN/bin/$TARGET-ar
-  export AS=$TOOLCHAIN/bin/$TARGET-as
+  export AR=$TOOLCHAIN/bin/llvm-ar
   export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export AS=$CC
   export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/$TARGET-ld
-  export RANLIB=$TOOLCHAIN/bin/$TARGET-ranlib
-  export STRIP=$TOOLCHAIN/bin/$TARGET-strip
-  PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
+  PATH=$TOOLCHAIN/bin:$PATH
   ./Configure android-$abi -D__ANDROID_API__=$API
-  make
+  make -j $num_jobs
 }
 
-pushd libnunchuk/contrib/openssl || exit
+pushd "libnunchuk/$OPENSSL_FOLDER" || exit
 installOpenSSL
 popd || exit
 
