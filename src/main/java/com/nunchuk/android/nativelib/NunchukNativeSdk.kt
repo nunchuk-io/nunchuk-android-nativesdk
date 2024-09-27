@@ -1391,4 +1391,10 @@ class NunchukNativeSdk {
         storagePath: String,
         pin: String
     ) = nunchukAndroid.decoyPinExists(storagePath, pin)
+
+    @Throws(NCNativeException::class)
+    fun markAddressAsUsed(
+        walletId: String,
+        address: String,
+    ) = nunchukAndroid.markAddressAsUsed(walletId, address)
 }
