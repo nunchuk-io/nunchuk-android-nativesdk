@@ -1149,6 +1149,12 @@ internal class LibNunchukAndroid {
         pin: String
     ): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun markAddressAsUsed(
+        walletId: String,
+        address: String
+    ): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
