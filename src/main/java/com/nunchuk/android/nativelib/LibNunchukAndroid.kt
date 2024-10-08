@@ -1155,6 +1155,12 @@ internal class LibNunchukAndroid {
         address: String
     ): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun cloneWallet(
+        walletId: String,
+        decoyPin: String,
+    ): Wallet
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

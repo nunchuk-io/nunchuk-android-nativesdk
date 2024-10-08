@@ -1397,4 +1397,10 @@ class NunchukNativeSdk {
         walletId: String,
         address: String,
     ) = nunchukAndroid.markAddressAsUsed(walletId, address)
+
+    @Throws(NCNativeException::class)
+    fun cloneWallet(
+        walletId: String,
+        decoyPin: String,
+    ) = nunchukAndroid.cloneWallet(walletId, decoyPin)
 }

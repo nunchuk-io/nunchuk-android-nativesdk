@@ -745,3 +745,23 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_markAddressAsUsed(JNIEnv *e
     }
 }
 
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cloneWallet(JNIEnv *env, jobject thiz,
+                                                                 jstring wallet_id,
+                                                                 jstring decoy_pin) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->CloneWallet(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, decoy_pin)
+        );
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
