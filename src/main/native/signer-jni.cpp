@@ -821,3 +821,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signHealthCheckMessageTapSi
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importBackupKeyContent(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jbyteArray content,
+                                                                            jstring back_up_key,
+                                                                            jstring raw_name) {
+    try {
+        auto signer = NunchukProvider::get()->nu->ImportBackupKey(
+                Serializer::convert2CByteArray(env, content),
+                StringWrapper(env, back_up_key),
+                StringWrapper(env, raw_name),
+                [](int percent) { return true; }
+        );
+
+        return Deserializer::convert2JMasterSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}

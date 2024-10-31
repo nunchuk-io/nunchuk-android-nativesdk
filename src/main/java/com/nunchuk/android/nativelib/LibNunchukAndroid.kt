@@ -553,6 +553,13 @@ internal class LibNunchukAndroid {
     ): MasterSigner
 
     @Throws(NCNativeException::class)
+    external fun importBackupKeyContent(
+        content: ByteArray,
+        backUpKey: String,
+        rawName: String,
+    ): MasterSigner
+
+    @Throws(NCNativeException::class)
     external fun parseWalletDescriptor(content: String): Wallet
 
     @Throws(NCNativeException::class)
@@ -775,6 +782,13 @@ internal class LibNunchukAndroid {
         backUpKey: String,
         masterSignerId: String,
     ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun verifyColdCardBackup(
+        data: ByteArray,
+        backUpKey: String,
+        masterSignerId: String,
+    )
 
     @Throws(NCNativeException::class)
     external fun hasWallet(

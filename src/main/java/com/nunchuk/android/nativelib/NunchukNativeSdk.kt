@@ -1006,11 +1006,25 @@ class NunchukNativeSdk {
     ): Boolean = nunchukAndroid.verifyTapSignerBackupContent(content, backUpKey, masterSignerId)
 
     @Throws(NCNativeException::class)
+    fun verifyColdCardBackup(
+        data: ByteArray,
+        backUpKey: String,
+        masterSignerId: String,
+    ) = nunchukAndroid.verifyColdCardBackup(data, backUpKey, masterSignerId)
+
+    @Throws(NCNativeException::class)
     fun importTapsignerMasterSignerContent(
         content: ByteArray,
         backUpKey: String,
         rawName: String,
     ): MasterSigner = nunchukAndroid.importTapsignerMasterSignerContent(content, backUpKey, rawName)
+
+    @Throws(NCNativeException::class)
+    fun importBackupKeyContent(
+        content: ByteArray,
+        backUpKey: String,
+        rawName: String,
+    ): MasterSigner = nunchukAndroid.importBackupKeyContent(content, backUpKey, rawName)
 
     @Throws(NCNativeException::class)
     fun hasWallet(

@@ -309,3 +309,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseWalletFromMk4(JNIEnv *
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_verifyColdCardBackup(JNIEnv *env, jobject thiz,
+                                                                          jbyteArray data,
+                                                                          jstring back_up_key,
+                                                                          jstring master_signer_id) {
+    try {
+        auto cData = Serializer::convert2CByteArray(env, data);
+        auto back_up_key_str = StringWrapper(env, back_up_key);
+        auto master_signer_id_str = StringWrapper(env, master_signer_id);
+        NunchukProvider::get()->nu->VerifyColdcardBackup(cData, back_up_key_str, master_signer_id_str);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
