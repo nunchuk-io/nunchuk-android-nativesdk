@@ -33,7 +33,8 @@ data class WalletBridge(
     var balance: Amount = Amount.ZER0,
     var createDate: Long = 0L,
     var description: String = "",
-    var gapLimit: Int = 0
+    var gapLimit: Int = 0,
+    var needBackup: Boolean = false
 )
 
 internal fun Wallet.toBridge() = WalletBridge(
@@ -46,5 +47,6 @@ internal fun Wallet.toBridge() = WalletBridge(
     balance = balance,
     createDate = createDate,
     description = description,
-    gapLimit = gapLimit
+    gapLimit = gapLimit,
+    needBackup = needBackup
 )
