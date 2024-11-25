@@ -17,17 +17,7 @@ else
     export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64
 fi
 
-cd $TOOLCHAIN/bin/
-for source in arm-linux-androideabi-*; do
-  dest=${source/arm/armv7a}
-  ln -sf $source $dest
-done
-cd -
-
-export API=21
-
-pwd=$(pwd)
-echo "pwd::$pwd"
+export API=24
 
 export ANDROID_ABI_ARMEABI_V7A="armeabi-v7a"
 export ANDROID_ABI_ARM64_V8A="arm64-v8a"
@@ -39,120 +29,81 @@ export ANDROID_TARGET_ARM64_V8A="aarch64-linux-android"
 export ANDROID_TARGET_X86_64="x86_64-linux-android"
 export ANDROID_TARGET_X86="i686-linux-android"
 
-export ANDROID_ABI=$1
-ANDROID_TARGET=""
+num_jobs=4
+if [ -f /proc/cpuinfo ]; then
+   num_jobs=$(grep ^processor /proc/cpuinfo | wc -l)
+fi
 
-parseArgs() {
-  if [ "$ANDROID_ABI" == $ANDROID_ABI_ARMEABI_V7A ]; then
-    ANDROID_TARGET=$ANDROID_TARGET_ARMEABI_V7A
-  elif [ "$ANDROID_ABI" == $ANDROID_ABI_ARM64_V8A ]; then
-    ANDROID_TARGET=$ANDROID_TARGET_ARM64_V8A
-  elif [ "$ANDROID_ABI" == $ANDROID_ABI_X86_64 ]; then
-    ANDROID_TARGET=$ANDROID_TARGET_X86_64
-  elif [ "$ANDROID_ABI" == $ANDROID_ABI_X86 ]; then
-    ANDROID_TARGET=$ANDROID_TARGET_X86
-  else
-    echo "Invalid ABI argument $ANDROID_ABI"
-    exit 1
-  fi
-}
-parseArgs
 #########################################################################################
 ####                                Bitcoin Deps                                     ####
 #########################################################################################
+applyBitcoinDependsPatches() {
+  cmp -s ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk || cp ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
+}
+
 installBitcoinDeps() {
-  abi=$ANDROID_ABI
-  target=$ANDROID_TARGET
+  abi=$1
+  target=$2
 
   echo "-------------------------------------------------------------------------------"
   echo "                     Installing deps for $abi $target                          "
   echo "-------------------------------------------------------------------------------"
 
-  export TARGET=$target
-
   export AR=$TOOLCHAIN/bin/llvm-ar
-  export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export CC=$TOOLCHAIN/bin/$target$API-clang
   export AS=$CC
-  export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
+  export CXX=$TOOLCHAIN/bin/$target$API-clang++
   export LD=$TOOLCHAIN/bin/ld
   export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
   export STRIP=$TOOLCHAIN/bin/llvm-strip
 
-  ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$TARGET ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1
-}
-#
-pushd libnunchuk/contrib/bitcoin/depends || exit
-installBitcoinDeps
-popd || exit
-
-#########################################################################################
-####                                 Bitcoin Core                                    ####
-#########################################################################################
-installBitcoinCore() {
-  abi=$ANDROID_ABI
-  target=$ANDROID_TARGET
-  echo "-------------------------------------------------------------------------------"
-  echo "                        Installing core for $abi $target                       "
-  echo "-------------------------------------------------------------------------------"
-
-  export TARGET=$target
-
-  export AR=$TOOLCHAIN/bin/llvm-ar
-  export CC=$TOOLCHAIN/bin/$TARGET$API-clang
-  export AS=$CC
-  export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
-  export LD=$TOOLCHAIN/bin/ld
-  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
-  export STRIP=$TOOLCHAIN/bin/llvm-strip
-  sh ./autogen.sh
-  CFLAGS="-fPIC" CXXFLAGS="-fPIC" ./configure --prefix=$PWD/depends/$TARGET --without-gui --disable-zmq --with-miniupnpc=no --with-incompatible-bdb --disable-bench --disable-tests --enable-module-ecdh
-  make -j8
+  ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$target ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1 NO_SQLITE=1  NO_USDT=1 -j $num_jobs
 }
 
-pushd libnunchuk/contrib/bitcoin || exit
-installBitcoinCore
+pushd "libnunchuk/contrib/bitcoin/depends" || exit
+applyBitcoinDependsPatches
+installBitcoinDeps $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A
+installBitcoinDeps $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A
 popd || exit
+
 
 #########################################################################################
 ####                                 OpenSSL Lib                                     ####
 #########################################################################################
-OPENSSL_FOLDER=contrib/openssl
+
 applyOpenSSLPatches() {
-  cmp -s ./patches/openssl-15-android.conf libnunchuk/$OPENSSL_FOLDER/Configurations/15-android.conf || cp ./patches/openssl-15-android.conf libnunchuk/$OPENSSL_FOLDER/Configurations/15-android.conf
+  cmp -s ./patches/openssl-15-android.conf libnunchuk/contrib/openssl/Configurations/15-android.conf || cp ./patches/openssl-15-android.conf libnunchuk/contrib/openssl/Configurations/15-android.conf
 }
 
-applyOpenSSLPatches
+if [ "$(uname)" = "Linux" ]; then
+  applyOpenSSLPatches
+fi
 
 installOpenSSL() {
-  if [ "$ANDROID_ABI" == $ANDROID_ABI_ARM64_V8A ]; then
-    abi="arm64"
-  elif [ "$ANDROID_ABI" == $ANDROID_ABI_ARMEABI_V7A ]; then
-    abi="arm"
-  else
-    abi="$ANDROID_ABI"
-  fi
-
-  target=$ANDROID_TARGET
+  abi=$1
+  target=$2
+  openssl_abi=$3
   echo "-------------------------------------------------------------------------------"
   echo "                    Installing OpenSSL for $abi $target                        "
   echo "-------------------------------------------------------------------------------"
 
-  export TARGET=$target
-
   export AR=$TOOLCHAIN/bin/llvm-ar
-  export CC=$TOOLCHAIN/bin/$TARGET$API-clang
+  export CC=$TOOLCHAIN/bin/$target$API-clang
   export AS=$CC
-  export CXX=$TOOLCHAIN/bin/$TARGET$API-clang++
+  export CXX=$TOOLCHAIN/bin/$target$API-clang++
   export LD=$TOOLCHAIN/bin/ld
   export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
   export STRIP=$TOOLCHAIN/bin/llvm-strip
   PATH=$TOOLCHAIN/bin:$PATH
-  ./Configure android-$abi -D__ANDROID_API__=$API
+  ./Configure $openssl_abi -D__ANDROID_API__=$API --prefix="$PWD/$target"
+  make clean
   make -j $num_jobs
+  make install_dev
 }
 
-pushd "libnunchuk/$OPENSSL_FOLDER" || exit
-installOpenSSL
+pushd "libnunchuk/contrib/openssl" || exit
+installOpenSSL $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A "android-arm"
+installOpenSSL $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A "android-arm64"
 popd || exit
 
 echo "done"

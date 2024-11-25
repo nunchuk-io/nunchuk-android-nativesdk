@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.4.1)
+
 project(nunchuk-android)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -44,8 +45,8 @@ add_library(nunchuk-android SHARED
 set(UR__DISABLE_TESTS ON)
 add_subdirectory(libnunchuk)
 
-target_link_libraries(nunchuk-android
-        nunchuk)
+target_link_libraries(nunchuk-android nunchuk)
+target_link_options(nunchuk-android PUBLIC "-ferror-limit=0")
 
 target_include_directories(nunchuk-android PUBLIC
         "${PROJECT_SOURCE_DIR}"
@@ -53,4 +54,4 @@ target_include_directories(nunchuk-android PUBLIC
         "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/src"
         "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/src/univalue/include"
         "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/src/leveldb/include"
-        "${PROJECT_SOURCE_DIR}/${BITCOIN_FOLDER}/depends/${ANDROID_TARGET}/include")
+      )

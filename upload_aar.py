@@ -33,7 +33,7 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
     repo = g.get_repo(repo_name)
     nunchuk_sdk_repo = g.get_repo("nunchuk-io/nunchuk-android-nativesdk")
     release_note = read_file_content('release_note.md')
-    destination_path = "nunchuk-android-nativesdk-arm8-release.aar"
+    destination_path = "nunchuk-android-nativesdk-arm-release.aar"
     # Read the file content in binary mode
     with open(file_path, 'rb') as file:
         file_content = file.read()
@@ -68,4 +68,4 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
 # Usage
 version = get_version_from_gradle()
 github_token = get_github_token()
-upload_file_to_github(github_token, "nunchuk-io/nunchuk-android-nativesdk-prebuild", "build/outputs/aar/nunchuk-android-nativesdk-arm8-release.aar", "Upload aar file")
+upload_file_to_github(github_token, "nunchuk-io/nunchuk-android-nativesdk-prebuild", "build/outputs/aar/nunchuk-android-nativesdk-arm-release.aar", "Upload aar file")
