@@ -57,11 +57,11 @@ installBitcoinDeps() {
   export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
   export STRIP=$TOOLCHAIN/bin/llvm-strip
 
-  ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$target ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1 NO_SQLITE=1  NO_USDT=1 -j $num_jobs
+  ANDROID_SDK=$ANDROID_SDK ANDROID_NDK=$ANDROID_NDK_HOME make HOST=$target ANDROID_TOOLCHAIN_BIN=$TOOLCHAIN ANDROID_API_LEVEL=$API NO_QT=1 NO_ZMQ=1 NO_QR=1 NO_UPNP=1 NO_SQLITE=1 NO_BDB=1  NO_USDT=1 -j $num_jobs
 }
 
-pushd "libnunchuk/contrib/bitcoin/depends" || exit
 applyBitcoinDependsPatches
+pushd "libnunchuk/contrib/bitcoin/depends" || exit
 installBitcoinDeps $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A
 installBitcoinDeps $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A
 popd || exit
