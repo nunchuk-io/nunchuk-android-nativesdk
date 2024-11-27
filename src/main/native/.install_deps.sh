@@ -75,10 +75,6 @@ applyOpenSSLPatches() {
   cmp -s ./patches/openssl-15-android.conf libnunchuk/contrib/openssl/Configurations/15-android.conf || cp ./patches/openssl-15-android.conf libnunchuk/contrib/openssl/Configurations/15-android.conf
 }
 
-if [ "$(uname)" = "Linux" ]; then
-  applyOpenSSLPatches
-fi
-
 installOpenSSL() {
   abi=$1
   target=$2
@@ -101,6 +97,7 @@ installOpenSSL() {
   make install_dev
 }
 
+applyOpenSSLPatches
 pushd "libnunchuk/contrib/openssl" || exit
 installOpenSSL $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A "android-arm"
 installOpenSSL $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A "android-arm64"
