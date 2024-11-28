@@ -39,6 +39,10 @@ fi
 #########################################################################################
 applyBitcoinDependsPatches() {
   cmp -s ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk || cp ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
+
+  if [ ! -f libnunchuk/contrib/bitcoin/depends/hosts/android.mk ] || ! cmp -s ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/android.mk; then
+      cp ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/
+  fi
 }
 
 installBitcoinDeps() {
