@@ -27,5 +27,6 @@ data class Transaction(
     var subAmount: Amount = Amount.ZER0,
     var totalAmount: Amount = Amount.ZER0,
     var psbt: String = "",
-    var cpfpFee: Amount = Amount.ZER0
+    var cpfpFee: Amount = Amount.ZER0,
+    var keySetStatus: List<KeySetStatus> = emptyList()
 ) : Parcelable
