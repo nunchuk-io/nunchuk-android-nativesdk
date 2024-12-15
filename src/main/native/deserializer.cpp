@@ -466,10 +466,32 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCpfpFee",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, amount));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setKeySetStatus", "(Ljava/util/List;)V"), convert2JKeySetStatus(env, transaction.get_keyset_status()));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
     return instance;
+}
+
+jobject Deserializer::convert2JKeySetStatus(JNIEnv *env, const std::vector<KeysetStatus> &keySetStatus) {
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+    static jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID arrayListAddMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, arrayListConstructor);
+
+    for (const auto &status : keySetStatus) {
+        jclass keySetStatusClass = env->FindClass("com/nunchuk/android/model/KeySetStatus");
+        jmethodID keySetStatusConstructor = env->GetMethodID(keySetStatusClass, "<init>", "()V");
+        jobject keySetStatusInstance = env->NewObject(keySetStatusClass, keySetStatusConstructor);
+
+        env->CallVoidMethod(keySetStatusInstance, env->GetMethodID(keySetStatusClass, "setStatus", "(Lcom/nunchuk/android/type/TransactionStatus;)V"), convert2JTransactionStatus(env, status.first));
+        env->CallVoidMethod(keySetStatusInstance, env->GetMethodID(keySetStatusClass, "setSignerStatus", "(Ljava/util/Map;)V"), convert2JStringBooleanMap(env, status.second));
+
+        env->CallBooleanMethod(arrayListInstance, arrayListAddMethod, keySetStatusInstance);
+        env->DeleteLocalRef(keySetStatusInstance);
+    }
+
+    return arrayListInstance;
 }
 
 jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &transaction) {
