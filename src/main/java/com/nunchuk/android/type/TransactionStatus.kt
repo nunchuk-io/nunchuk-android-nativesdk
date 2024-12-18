@@ -10,4 +10,5 @@ enum class TransactionStatus {
     PENDING_CONFIRMATION,
     REPLACED,
     CONFIRMED,
+    PENDING_NONCE
 }
