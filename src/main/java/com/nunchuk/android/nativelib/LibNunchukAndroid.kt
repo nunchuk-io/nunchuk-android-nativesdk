@@ -24,6 +24,7 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.*
 import com.nunchuk.android.model.bridge.WalletBridge
+import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.HealthStatus
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
@@ -1174,6 +1175,9 @@ internal class LibNunchukAndroid {
         walletId: String,
         decoyPin: String,
     ): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun getFreeGroupWalletConfig(addressType: Int): FreeGroupWalletConfig
 
     companion object {
         init {

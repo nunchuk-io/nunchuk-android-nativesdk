@@ -1436,4 +1436,7 @@ class NunchukNativeSdk {
         walletId: String,
         decoyPin: String,
     ) = nunchukAndroid.cloneWallet(walletId, decoyPin)
+
+    @Throws(NCNativeException::class)
+    fun getFreeGroupWalletConfig(addressType: AddressType): FreeGroupWalletConfig = nunchukAndroid.getFreeGroupWalletConfig(addressType.ordinal)
 }

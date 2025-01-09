@@ -765,3 +765,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cloneWallet(JNIEnv *env, jo
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getFreeGroupWalletConfig(JNIEnv *env,
+                                                                              jobject thiz,
+                                                                              jint address_type) {
+    try {
+        auto config = NunchukProvider::get()->nu->GetGroupConfig();
+        auto addressType = Serializer::convert2CAddressType(address_type);
+        return Deserializer::convert2JFreeGroupWalletConfig(env, config, addressType);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

@@ -1219,3 +1219,19 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     );
     return instance;
 }
+
+jobject Deserializer::convert2JFreeGroupWalletConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType) {
+    syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupWalletConfig()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupWalletConfig");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotal", "(I)V"), config.get_total());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRemain", "(I)V"), config.get_remain());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMaxKey", "(I)V"), config.get_max_keys(addressType));
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupWalletConfig error::%s", e.what());
+    }
+    return instance;
+}

@@ -133,4 +133,5 @@ public:
     static jobjectArray convert2JDraftRollOverTransactions(JNIEnv *env, std::map<std::pair<std::set<int>, std::set<int>>, Transaction> txs);
     static jobject convert2JKeySetStatus(JNIEnv *env, const std::vector<KeysetStatus> &keySetStatus);
     static jobject convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &groupSandbox);
+    static jobject convert2JFreeGroupWalletConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType);
 };
