@@ -75,7 +75,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jstring pass_phrase,
         jstring account_id,
         jstring device_id,
-        jstring decoy_pin
+        jstring decoy_pin,
+        jstring base_url_api
 ) {
     try {
         AppSettings settings;
@@ -87,6 +88,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_signet_servers(Serializer::convert2CListString(env, signet_servers));
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
+        settings.set_group_server(env->GetStringUTFChars(base_url_api, JNI_FALSE));
 
         env->GetJavaVM(&Initializer::get()->jvm);
         NunchukProvider::get()->initNunchuk(

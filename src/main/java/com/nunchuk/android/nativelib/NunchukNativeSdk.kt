@@ -38,6 +38,7 @@ class NunchukNativeSdk {
         accountId: String,
         deviceId: String,
         decoyPin: String,
+        baseApiUrl: String,
     ) {
         nunchukAndroid.initNunchuk(
             chain = appSettings.chain.ordinal,
@@ -51,7 +52,8 @@ class NunchukNativeSdk {
             passphrase = passphrase,
             accountId = accountId,
             deviceId = deviceId,
-            decoyPin = decoyPin
+            decoyPin = decoyPin,
+            baseApiUrl = baseApiUrl
         )
     }
 
@@ -1191,7 +1193,11 @@ class NunchukNativeSdk {
         nunchukAndroid.createCoinCollection(walletId, name)
 
     @Throws(NCNativeException::class)
-    fun updateCoinCollection(walletId: String, coinCollection: CoinCollection, applyToExistingCoins: Boolean): Boolean =
+    fun updateCoinCollection(
+        walletId: String,
+        coinCollection: CoinCollection,
+        applyToExistingCoins: Boolean
+    ): Boolean =
         nunchukAndroid.updateCoinCollection(walletId, coinCollection, applyToExistingCoins)
 
     @Throws(NCNativeException::class)
@@ -1438,5 +1444,20 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.cloneWallet(walletId, decoyPin)
 
     @Throws(NCNativeException::class)
-    fun getFreeGroupWalletConfig(addressType: AddressType): FreeGroupWalletConfig = nunchukAndroid.getFreeGroupWalletConfig(addressType.ordinal)
+    fun getFreeGroupWalletConfig(addressType: AddressType): FreeGroupWalletConfig =
+        nunchukAndroid.getFreeGroupWalletConfig(addressType.ordinal)
+
+    @Throws(NCNativeException::class)
+    fun updateFreeGroupWallet(
+        groupId: String,
+        name: String,
+        m: Int,
+        n: Int,
+        addressType: Int,
+        signer: SingleSigner,
+    ): Wallet = nunchukAndroid.updateFreeGroupWallet(groupId, name, m, n, addressType, signer)
+
+    @Throws(NCNativeException::class)
+    fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet =
+        nunchukAndroid.recoverFreeGroupWallet(filePath, name, description)
 }

@@ -782,3 +782,58 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getFreeGroupWalletConfig(JN
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateFreeGroupWallet(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring group_id,
+                                                                           jstring name, jint m,
+                                                                           jint n,
+                                                                           jint address_type,
+                                                                           jobject signer) {
+    try {
+        auto cSigner = Serializer::convert2CSigner(env, signer);
+        auto addressType = Serializer::convert2CAddressType(address_type);
+        auto wallet = NunchukProvider::get()->nu->UpdateGroup(
+                StringWrapper(env, group_id),
+                StringWrapper(env, name),
+                m,
+                n,
+                addressType,
+                cSigner
+        );
+        return Deserializer::convert2JGroupSandbox(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverFreeGroupWallet(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring file_path,
+                                                                            jstring name,
+                                                                            jstring description) {
+    try {
+        auto wallet = NunchukProvider::get()->nu->ImportWalletDescriptor(
+                env->GetStringUTFChars(file_path, JNI_FALSE),
+                env->GetStringUTFChars(name, JNI_FALSE),
+                env->GetStringUTFChars(description, JNI_FALSE)
+        );
+        bool isGroupWallet = NunchukProvider::get()->nu->CheckGroupWalletExists(wallet);
+        if (isGroupWallet) {
+            NunchukProvider::get()->nu->RecoverGroupWallet(wallet.get_id());
+        }
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
