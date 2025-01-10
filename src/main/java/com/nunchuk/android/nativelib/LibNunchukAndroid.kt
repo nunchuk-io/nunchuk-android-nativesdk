@@ -1177,7 +1177,7 @@ internal class LibNunchukAndroid {
     ): Wallet
 
     @Throws(NCNativeException::class)
-    external fun getFreeGroupWalletConfig(addressType: Int): FreeGroupWalletConfig
+    external fun getFreeGroupWalletConfig(addressType: Int): FreeGroupConfig
 
     @Throws(NCNativeException::class)
     external fun updateFreeGroupWallet(
@@ -1214,6 +1214,41 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getGroups(): List<GroupSandbox>
+
+    @Throws(NCNativeException::class)
+    external fun enableGroupWallet(
+        osName: String, osVersion: String, appVersion: String, deviceClass: String, deviceId: String, accessToken: String
+    )
+
+    @Throws(NCNativeException::class)
+    external fun joinGroupWallet(
+        sandboxUrl: String,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun sendGroupWalletMessage(
+        walletId: String,
+        message: String,
+        singleSigner: SingleSigner
+    )
+
+    @Throws(NCNativeException::class)
+    external fun getGroupWalletMessages(
+        walletId: String,
+        page: Int,
+        pageSize: Int
+    ): List<FreeGroupMessage>
+
+    @Throws(NCNativeException::class)
+    external fun updateGroupWalletConfig(
+        walletId: String,
+        chatRetentionDays: Int,
+    )
+
+    @Throws(NCNativeException::class)
+    external fun getGroupWalletConfig(
+        walletId: String,
+    ): FreeGroupWalletConfig
 
     companion object {
         init {

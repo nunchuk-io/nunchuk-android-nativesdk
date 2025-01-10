@@ -1444,7 +1444,7 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.cloneWallet(walletId, decoyPin)
 
     @Throws(NCNativeException::class)
-    fun getFreeGroupWalletConfig(addressType: AddressType): FreeGroupWalletConfig =
+    fun getFreeGroupWalletConfig(addressType: AddressType): FreeGroupConfig =
         nunchukAndroid.getFreeGroupWalletConfig(addressType.ordinal)
 
     @Throws(NCNativeException::class)
@@ -1483,4 +1483,39 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getGroups() = nunchukAndroid.getGroups()
+
+    @Throws(NCNativeException::class)
+    fun enableGroupWallet(
+        osName: String, osVersion: String, appVersion: String, deviceClass: String, deviceId: String, accessToken: String
+    ) = nunchukAndroid.enableGroupWallet(osName, osVersion, appVersion, deviceClass, deviceId, accessToken)
+
+    @Throws(NCNativeException::class)
+    fun joinGroupWallet(
+        sandboxUrl: String,
+    ): GroupSandbox = nunchukAndroid.joinGroupWallet(sandboxUrl)
+
+    @Throws(NCNativeException::class)
+    fun sendGroupWalletMessage(
+        walletId: String,
+        message: String,
+        singleSigner: SingleSigner
+    ) = nunchukAndroid.sendGroupWalletMessage(walletId, message, singleSigner)
+
+    @Throws(NCNativeException::class)
+    fun getGroupWalletMessages(
+        walletId: String,
+        page: Int,
+        pageSize: Int
+    ): List<FreeGroupMessage> = nunchukAndroid.getGroupWalletMessages(walletId, page, pageSize)
+
+    @Throws(NCNativeException::class)
+    fun updateGroupWalletConfig(
+        walletId: String,
+        chatRetentionDays: Int,
+    ) = nunchukAndroid.updateGroupWalletConfig(walletId, chatRetentionDays)
+
+    @Throws(NCNativeException::class)
+    fun getGroupWalletConfig(
+        walletId: String,
+    ): FreeGroupWalletConfig = nunchukAndroid.getGroupWalletConfig(walletId)
 }

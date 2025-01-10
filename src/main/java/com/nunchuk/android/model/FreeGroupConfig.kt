@@ -4,6 +4,8 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class FreeGroupWalletConfig(
-    var chatRetentionDays: Int,
+data class FreeGroupConfig(
+    var total: Int,
+    var remain: Int,
+    var maxKey: Int,
 ) : Parcelable

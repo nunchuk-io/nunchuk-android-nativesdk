@@ -134,5 +134,8 @@ public:
     static jobject convert2JKeySetStatus(JNIEnv *env, const std::vector<KeysetStatus> &keySetStatus);
     static jobject convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &groupSandbox);
     static jobject convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox);
-    static jobject convert2JFreeGroupWalletConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType);
+    static jobject convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType);
+    static jobject convert2JGroupMessage(JNIEnv *env, const GroupMessage &message);
+    static jobject convert2JGroupMessages(JNIEnv *env, const std::vector<GroupMessage> &messages);
+    static jobject convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config);
 };

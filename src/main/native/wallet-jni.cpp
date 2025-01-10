@@ -773,7 +773,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getFreeGroupWalletConfig(JN
     try {
         auto config = NunchukProvider::get()->nu->GetGroupConfig();
         auto addressType = Serializer::convert2CAddressType(address_type);
-        return Deserializer::convert2JFreeGroupWalletConfig(env, config, addressType);
+        return Deserializer::convert2JFreeGroupConfig(env, config, addressType);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;

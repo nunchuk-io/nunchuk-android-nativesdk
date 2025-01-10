@@ -1220,9 +1220,9 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     return instance;
 }
 
-jobject Deserializer::convert2JFreeGroupWalletConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType) {
-    syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupWalletConfig()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupWalletConfig");
+jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType) {
+    syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupConfig()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupConfig");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
@@ -1246,4 +1246,51 @@ jobject Deserializer::convert2JGroupsSandbox(JNIEnv *env, const std::vector<Grou
         env->SetObjectArrayElement(ret, i++, element);
     }
     return ret;
+}
+
+jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMessage &message) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupMessage()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupMessage");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(message.get_id().c_str()));
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(message.get_wallet_id().c_str()));
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(message.get_content().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTimestampt", "(J)V"),
+                            message.get_ts());
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JGroupMessage error::%s", e.what());
+    }
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupMessages(JNIEnv *env, const std::vector<nunchuk::GroupMessage> &messages) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupMessages()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupMessage");
+    jobjectArray ret = env->NewObjectArray(messages.size(), clazz, nullptr);
+    int i = 0;
+    for (const auto &message: messages) {
+        jobject element = convert2JGroupMessage(env, message);
+        env->SetObjectArrayElement(ret, i++, element);
+    }
+    return ret;
+}
+
+jobject Deserializer::convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupWalletConfig");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jobject instance = env->NewObject(clazz, constructor);
+    try {
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChatRetentionDays", "(I)V"), config.get_chat_retention_days());
+    } catch (const std::exception &e) {
+        syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig error::%s", e.what());
+    }
+    return instance;
 }
