@@ -28,6 +28,7 @@ add_library(nunchuk-android SHARED
         satscard-jni.cpp
         mk4.cpp
         string-wrapper.h
+        group-wallet-jni.cpp
 )
 
 add_subdirectory(libnunchuk)

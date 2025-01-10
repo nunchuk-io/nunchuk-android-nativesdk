@@ -1235,3 +1235,15 @@ jobject Deserializer::convert2JFreeGroupWalletConfig(JNIEnv *env, const GroupCon
     }
     return instance;
 }
+
+jobject Deserializer::convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupsSandbox()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSandbox");
+    jobjectArray ret = env->NewObjectArray(groupSandbox.size(), clazz, nullptr);
+    int i = 0;
+    for (const auto &group: groupSandbox) {
+        jobject element = convert2JGroupSandbox(env, group);
+        env->SetObjectArrayElement(ret, i++, element);
+    }
+    return ret;
+}

@@ -1460,4 +1460,27 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet =
         nunchukAndroid.recoverFreeGroupWallet(filePath, name, description)
+
+    @Throws(NCNativeException::class)
+    fun addSignerToGroup(
+        groupId: String,
+        signer: SingleSigner,
+    ) = nunchukAndroid.addSignerToGroup(groupId, signer)
+
+    @Throws(NCNativeException::class)
+    fun removeSignerFromGroup(
+        groupId: String,
+        signer: SingleSigner,
+    ) = nunchukAndroid.removeSignerFromGroup(groupId, signer)
+
+    @Throws(NCNativeException::class)
+    fun finalizeGroup(
+        groupId: String,
+    ) = nunchukAndroid.finalizeGroup(groupId)
+
+    @Throws(NCNativeException::class)
+    fun getGroupWallets() = nunchukAndroid.getGroupWallets()
+
+    @Throws(NCNativeException::class)
+    fun getGroups() = nunchukAndroid.getGroups()
 }

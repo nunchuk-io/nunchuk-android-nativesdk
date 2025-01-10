@@ -1192,6 +1192,29 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet
 
+    @Throws(NCNativeException::class)
+    external fun addSignerToGroup(
+        groupId: String,
+        signer: SingleSigner,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun removeSignerFromGroup(
+        groupId: String,
+        signer: SingleSigner,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun finalizeGroup(
+        groupId: String,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun getGroupWallets(): List<Wallet>
+
+    @Throws(NCNativeException::class)
+    external fun getGroups(): List<GroupSandbox>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
