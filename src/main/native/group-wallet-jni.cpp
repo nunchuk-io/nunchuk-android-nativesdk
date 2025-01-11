@@ -216,3 +216,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletConfig(JNIEnv
         return nullptr;
     }
 }
+
+// virtual GroupSandbox GetGroup(const std::string& groupId) = 0;
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupSandbox(JNIEnv *env, jobject thiz,
+                                                              jstring group_id) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->GetGroup(
+                StringWrapper(env, group_id)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

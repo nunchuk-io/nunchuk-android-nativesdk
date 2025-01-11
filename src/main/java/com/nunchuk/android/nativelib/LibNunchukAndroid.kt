@@ -1250,6 +1250,11 @@ internal class LibNunchukAndroid {
         walletId: String,
     ): FreeGroupWalletConfig
 
+    @Throws(NCNativeException::class)
+    external fun getGroupSandbox(
+        groupId: String,
+    ): GroupSandbox?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

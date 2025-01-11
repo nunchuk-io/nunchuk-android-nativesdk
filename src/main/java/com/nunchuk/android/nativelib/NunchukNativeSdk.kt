@@ -1518,4 +1518,9 @@ class NunchukNativeSdk {
     fun getGroupWalletConfig(
         walletId: String,
     ): FreeGroupWalletConfig = nunchukAndroid.getGroupWalletConfig(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getGroupSandbox(
+        groupId: String,
+    ) = nunchukAndroid.getGroupSandbox(groupId)
 }
