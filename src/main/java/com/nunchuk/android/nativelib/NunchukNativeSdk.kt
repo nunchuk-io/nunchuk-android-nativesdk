@@ -1454,8 +1454,7 @@ class NunchukNativeSdk {
         m: Int,
         n: Int,
         addressType: Int,
-        signer: SingleSigner,
-    ): Wallet = nunchukAndroid.updateFreeGroupWallet(groupId, name, m, n, addressType, signer)
+    ): Wallet = nunchukAndroid.updateFreeGroupWallet(groupId, name, m, n, addressType)
 
     @Throws(NCNativeException::class)
     fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet =

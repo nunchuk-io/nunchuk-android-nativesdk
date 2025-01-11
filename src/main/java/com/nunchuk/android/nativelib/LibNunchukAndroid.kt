@@ -1185,8 +1185,7 @@ internal class LibNunchukAndroid {
         name: String,
         m: Int,
         n: Int,
-        addressType: Int,
-        signer: SingleSigner,
+        addressType: Int
     ): Wallet
 
     @Throws(NCNativeException::class)

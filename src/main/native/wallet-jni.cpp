@@ -789,18 +789,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateFreeGroupWallet(JNIEn
                                                                            jstring group_id,
                                                                            jstring name, jint m,
                                                                            jint n,
-                                                                           jint address_type,
-                                                                           jobject signer) {
+                                                                           jint address_type) {
     try {
-        auto cSigner = Serializer::convert2CSigner(env, signer);
         auto addressType = Serializer::convert2CAddressType(address_type);
         auto wallet = NunchukProvider::get()->nu->UpdateGroup(
                 StringWrapper(env, group_id),
                 StringWrapper(env, name),
                 m,
                 n,
-                addressType,
-                cSigner
+                addressType
         );
         return Deserializer::convert2JGroupSandbox(env, wallet);
     } catch (BaseException &e) {
