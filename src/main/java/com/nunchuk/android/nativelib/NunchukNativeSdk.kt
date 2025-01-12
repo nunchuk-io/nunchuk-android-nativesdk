@@ -1448,13 +1448,13 @@ class NunchukNativeSdk {
         nunchukAndroid.getFreeGroupWalletConfig(addressType.ordinal)
 
     @Throws(NCNativeException::class)
-    fun updateFreeGroupWallet(
+    fun updateGroupSandbox(
         groupId: String,
         name: String,
         m: Int,
         n: Int,
         addressType: Int,
-    ): Wallet = nunchukAndroid.updateFreeGroupWallet(groupId, name, m, n, addressType)
+    ) = nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
 
     @Throws(NCNativeException::class)
     fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet =
@@ -1506,7 +1506,7 @@ class NunchukNativeSdk {
         walletId: String,
         page: Int,
         pageSize: Int
-    ): List<FreeGroupMessage> = nunchukAndroid.getGroupWalletMessages(walletId, page, pageSize)
+    ) = nunchukAndroid.getGroupWalletMessages(walletId, page, pageSize)
 
     @Throws(NCNativeException::class)
     fun updateGroupWalletConfig(
@@ -1517,10 +1517,18 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getGroupWalletConfig(
         walletId: String,
-    ): FreeGroupWalletConfig = nunchukAndroid.getGroupWalletConfig(walletId)
+    ) = nunchukAndroid.getGroupWalletConfig(walletId)
 
     @Throws(NCNativeException::class)
     fun getGroupSandbox(
         groupId: String,
     ) = nunchukAndroid.getGroupSandbox(groupId)
+
+    @Throws(NCNativeException::class)
+    fun createGroupSandbox(
+        name: String,
+        m: Int,
+        n: Int,
+        addressType: AddressType,
+    ) = nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
 }

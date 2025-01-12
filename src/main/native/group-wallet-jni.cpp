@@ -235,3 +235,25 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupSandbox(JNIEnv *env
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createGroupSandbox(JNIEnv *env, jobject thiz,
+                                                                       jstring name, jint m, jint n,
+                                                                       jint address_type) {
+    try {
+        auto addressType = Serializer::convert2CAddressType(address_type);
+        auto wallet = NunchukProvider::get()->nu->CreateGroup(
+                StringWrapper(env, name),
+                m,
+                n,
+                addressType
+        );
+        return Deserializer::convert2JGroupSandbox(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

@@ -1180,13 +1180,13 @@ internal class LibNunchukAndroid {
     external fun getFreeGroupWalletConfig(addressType: Int): FreeGroupConfig
 
     @Throws(NCNativeException::class)
-    external fun updateFreeGroupWallet(
+    external fun updateGroupSandbox(
         groupId: String,
         name: String,
         m: Int,
         n: Int,
         addressType: Int
-    ): Wallet
+    ): GroupSandbox
 
     @Throws(NCNativeException::class)
     external fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet
@@ -1254,6 +1254,14 @@ internal class LibNunchukAndroid {
     external fun getGroupSandbox(
         groupId: String,
     ): GroupSandbox?
+
+    @Throws(NCNativeException::class)
+    external fun createGroupSandbox(
+        name: String,
+        m: Int,
+        n: Int,
+        addressType: Int,
+    ): GroupSandbox
 
     companion object {
         init {

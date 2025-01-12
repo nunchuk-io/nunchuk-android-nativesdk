@@ -1202,8 +1202,7 @@ jobjectArray Deserializer::convert2JDraftRollOverTransactions(JNIEnv *env,
 jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &sandbox) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupSandbox()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSandbox");
-    jmethodID constructor = env->GetMethodID(clazz, "<init>",
-                                             "(Ljava/lang/String;I)V"); // Adjust the signature based on the actual parameters of GroupSandbox
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(
             clazz,
             constructor,
@@ -1262,8 +1261,12 @@ jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMes
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(message.get_content().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTimestampt", "(J)V"),
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTimestamp", "(J)V"),
                             message.get_ts());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSender", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(message.get_sender().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigner", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(message.get_signer().c_str()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JGroupMessage error::%s", e.what());
     }

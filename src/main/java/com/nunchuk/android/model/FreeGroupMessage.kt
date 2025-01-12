@@ -10,4 +10,5 @@ data class FreeGroupMessage(
     var sender: String,
     var content: String,
     var timestamp: Long,
+    var signer: String
 ) : Parcelable

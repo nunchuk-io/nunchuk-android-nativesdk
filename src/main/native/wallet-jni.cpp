@@ -784,7 +784,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getFreeGroupWalletConfig(JN
 }
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateFreeGroupWallet(JNIEnv *env,
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateGroupSandbox(JNIEnv *env,
                                                                            jobject thiz,
                                                                            jstring group_id,
                                                                            jstring name, jint m,
@@ -792,14 +792,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateFreeGroupWallet(JNIEn
                                                                            jint address_type) {
     try {
         auto addressType = Serializer::convert2CAddressType(address_type);
-        auto wallet = NunchukProvider::get()->nu->UpdateGroup(
+        auto groupSandbox = NunchukProvider::get()->nu->UpdateGroup(
                 StringWrapper(env, group_id),
                 StringWrapper(env, name),
                 m,
                 n,
                 addressType
         );
-        return Deserializer::convert2JGroupSandbox(env, wallet);
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;
