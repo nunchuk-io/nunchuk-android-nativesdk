@@ -1464,13 +1464,14 @@ class NunchukNativeSdk {
     fun addSignerToGroup(
         groupId: String,
         signer: SingleSigner,
-    ) = nunchukAndroid.addSignerToGroup(groupId, signer)
+        index: Int
+    ) = nunchukAndroid.addSignerToGroup(groupId, signer, index)
 
     @Throws(NCNativeException::class)
     fun removeSignerFromGroup(
         groupId: String,
-        signer: SingleSigner,
-    ) = nunchukAndroid.removeSignerFromGroup(groupId, signer)
+        index: Int
+    ) = nunchukAndroid.removeSignerFromGroup(groupId, index)
 
     @Throws(NCNativeException::class)
     fun finalizeGroup(

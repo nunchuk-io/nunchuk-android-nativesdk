@@ -11,12 +11,14 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addSignerToGroup(JNIEnv *env, jobject thiz,
                                                                       jstring group_id,
-                                                                      jobject signer) {
+                                                                      jobject signer,
+                                                                      jint index) {
     try {
         auto cSigner = Serializer::convert2CSigner(env, signer);
         auto groupSandbox = NunchukProvider::get()->nu->AddSignerToGroup(
                 StringWrapper(env, group_id),
-                cSigner
+                cSigner,
+                index
         );
         return Deserializer::convert2JGroupSandbox(env, groupSandbox);
     } catch (BaseException &e) {
@@ -32,12 +34,11 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_removeSignerFromGroup(JNIEnv *env, jobject thiz,
                                                                            jstring group_id,
-                                                                           jobject signer) {
+                                                                           jint index) {
     try {
-        auto cSigner = Serializer::convert2CSigner(env, signer);
         auto groupSandbox = NunchukProvider::get()->nu->RemoveSignerFromGroup(
                 StringWrapper(env, group_id),
-                cSigner
+                index
         );
         return Deserializer::convert2JGroupSandbox(env, groupSandbox);
     } catch (BaseException &e) {
@@ -217,7 +218,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletConfig(JNIEnv
     }
 }
 
-// virtual GroupSandbox GetGroup(const std::string& groupId) = 0;
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupSandbox(JNIEnv *env, jobject thiz,
