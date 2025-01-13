@@ -1237,14 +1237,18 @@ jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &c
 
 jobject Deserializer::convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupsSandbox()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSandbox");
-    jobjectArray ret = env->NewObjectArray(groupSandbox.size(), clazz, nullptr);
-    int i = 0;
-    for (const auto &group: groupSandbox) {
-        jobject element = convert2JGroupSandbox(env, group);
-        env->SetObjectArrayElement(ret, i++, element);
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+
+    for (const auto &group : groupSandbox) {
+        jobject jGroup = convert2JGroupSandbox(env, group);
+        env->CallBooleanMethod(arrayList, arrayListAdd, jGroup);
+        env->DeleteLocalRef(jGroup);
     }
-    return ret;
+
+    return arrayList;
 }
 
 jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMessage &message) {
