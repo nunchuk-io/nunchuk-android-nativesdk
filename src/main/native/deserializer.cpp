@@ -1202,7 +1202,10 @@ jobjectArray Deserializer::convert2JDraftRollOverTransactions(JNIEnv *env,
 jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &sandbox) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupSandbox()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSandbox");
-    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    syslog(LOG_DEBUG, "[JNI] name::%s", sandbox.get_name().c_str());
+    syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;)V");
     jobject instance = env->NewObject(
             clazz,
             constructor,
