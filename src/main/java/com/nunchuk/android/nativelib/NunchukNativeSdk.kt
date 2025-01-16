@@ -761,6 +761,9 @@ class NunchukNativeSdk {
     fun hasSigner(signer: SingleSigner) = nunchukAndroid.hasSigner(signer)
 
     @Throws(NCNativeException::class)
+    fun getSigner(signer: SingleSigner) = nunchukAndroid.getSigner(signer)
+
+    @Throws(NCNativeException::class)
     fun getMatrixEvent(
         eventId: String,
     ) = nunchukAndroid.getMatrixEvent(eventId)
@@ -1531,4 +1534,9 @@ class NunchukNativeSdk {
         n: Int,
         addressType: AddressType,
     ) = nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
+
+    @Throws(NCNativeException::class)
+    fun deleteGroupSandbox(
+        groupId: String,
+    ) = nunchukAndroid.deleteGroupSandbox(groupId)
 }

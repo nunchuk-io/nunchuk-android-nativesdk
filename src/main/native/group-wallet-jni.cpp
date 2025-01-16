@@ -257,3 +257,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createGroupSandbox(JNIEnv *
         return nullptr;
     }
 }
+
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteGroupSandbox(JNIEnv *env, jobject thiz,
+                                                                        jstring group_id) {
+    try {
+        NunchukProvider::get()->nu->DeleteGroup(StringWrapper(env, group_id));
+        return JNI_TRUE;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}

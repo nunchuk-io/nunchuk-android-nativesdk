@@ -570,6 +570,9 @@ internal class LibNunchukAndroid {
     external fun hasSigner(signer: SingleSigner): Boolean
 
     @Throws(NCNativeException::class)
+    external fun getSigner(signer: SingleSigner): SingleSigner
+
+    @Throws(NCNativeException::class)
     external fun getSatsCardStatus(
         isoDep: IsoDep,
     ): SatsCardStatus
@@ -1262,6 +1265,11 @@ internal class LibNunchukAndroid {
         n: Int,
         addressType: Int,
     ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun deleteGroupSandbox(
+        groupId: String,
+    ): Boolean
 
     companion object {
         init {

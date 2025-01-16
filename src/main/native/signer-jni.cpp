@@ -845,3 +845,21 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importBackupKeyContent(JNIE
         return JNI_FALSE;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSigner(JNIEnv *env,
+                                                               jobject thiz,
+                                                               jobject signer) {
+    try {
+        auto cSigner = Serializer::convert2CSigner(env, signer);
+        auto result = NunchukProvider::get()->nu->GetSigner(cSigner);
+        return Deserializer::convert2JSigner(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
