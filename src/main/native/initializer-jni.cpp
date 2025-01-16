@@ -66,12 +66,20 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     auto tmpGroupSandboxListenerClass = env->FindClass(
             "com/nunchuk/android/listener/GroupSandboxListener");
+    auto tmpGroupMessageListenerClass = env->FindClass(
+            "com/nunchuk/android/listener/GroupMessageListener");
     auto tmpGroupSandboxListenerMethod = env->GetStaticMethodID(tmpGroupSandboxListenerClass,
                                                                "onGroupUpdate",
                                                                "(Lcom/nunchuk/android/model/GroupSandbox;)V");
+    auto tmpGroupMessageListenerMethod = env->GetStaticMethodID(tmpGroupMessageListenerClass,
+                                                                "onGroupMessageUpdate",
+                                                                "(Lcom/nunchuk/android/model/FreeGroupMessage;)V");
     Initializer::get()->groupSandboxListenerClass = (jclass) env->NewGlobalRef(
             tmpGroupSandboxListenerClass);
     Initializer::get()->groupSandboxListenerMethod = tmpGroupSandboxListenerMethod;
+    Initializer::get()->groupMessageListenerClass = (jclass) env->NewGlobalRef(
+            tmpGroupMessageListenerClass);
+    Initializer::get()->groupMessageListenerMethod = tmpGroupMessageListenerMethod;
 
     return JNI_VERSION_1_6;
 }
@@ -276,6 +284,34 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         Initializer::get()->groupSandboxListenerClass,
                         Initializer::get()->groupSandboxListenerMethod,
                         Deserializer::convert2JGroupSandbox(g_env, state)
+                );
+            });
+
+            NunchukProvider::get()->nu->AddGroupMessageListener([](const GroupMessage &state) {
+                syslog(LOG_DEBUG, "[JNI] Group Message Listener call\n");
+                JNIEnv *g_env;
+                JavaVMAttachArgs args;
+                args.version = JNI_VERSION_1_6;
+                args.name = nullptr;
+                args.group = nullptr;
+                Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                int envState = Initializer::get()->jvm->GetEnv((void **) &g_env,
+                                                               JNI_VERSION_1_6);
+                if (envState == JNI_EDETACHED) {
+                    if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                        syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                    } else {
+                        syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                    }
+                } else if (envState == JNI_OK) {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+                } else if (envState == JNI_EVERSION) {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+                }
+                g_env->CallStaticVoidMethod(
+                        Initializer::get()->groupMessageListenerClass,
+                        Initializer::get()->groupMessageListenerMethod,
+                        Deserializer::convert2JGroupMessage(g_env, state)
                 );
             });
 
