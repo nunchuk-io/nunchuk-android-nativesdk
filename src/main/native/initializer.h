@@ -32,4 +32,7 @@ public:
 
     jclass transactionListenerClass;
     jmethodID transactionListenerMethod;
+
+    jclass groupSandboxListenerClass;
+    jmethodID groupSandboxListenerMethod;
 };
