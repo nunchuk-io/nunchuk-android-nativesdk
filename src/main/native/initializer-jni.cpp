@@ -169,22 +169,54 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     return "";
                 }
         );
-        NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
-    } catch (const std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-    }
-}
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIEnv *env,
-                                                                            jobject thiz) {
-    try {
-        NunchukProvider::get()->nu->AddBlockchainConnectionListener(
-                [](ConnectionStatus connectionStatus, int percent) {
-                    syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener percent::%d",
-                           percent);
-                    JNIEnv *g_env;
-                    try {
+        try {
+            NunchukProvider::get()->nu->AddBlockchainConnectionListener(
+                    [](ConnectionStatus connectionStatus, int percent) {
+                        syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener percent::%d",
+                               percent);
+                        JNIEnv *g_env;
+                        try {
+                            JavaVMAttachArgs args;
+                            args.version = JNI_VERSION_1_6;
+                            args.name = nullptr;
+                            args.group = nullptr;
+                            Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                            int envState = Initializer::get()->jvm->GetEnv((void **) &g_env,
+                                                                           JNI_VERSION_1_6);
+                            if (envState == JNI_EDETACHED) {
+                                if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) !=
+                                    0) {
+                                    syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                                } else {
+                                    syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                                }
+                            } else if (envState == JNI_OK) {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+                            } else if (envState == JNI_EVERSION) {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+                            }
+
+                            g_env->CallStaticVoidMethod(
+                                    Initializer::get()->connectStatusClass,
+                                    Initializer::get()->connectStatusMethod,
+                                    (int) connectionStatus,
+                                    percent
+                            );
+                        } catch (const std::exception &t) {
+                            Deserializer::convertStdException2JException(g_env, t);
+                        }
+                    }
+            );
+        } catch (BaseException &e) {
+            syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener error::%s", e.what());
+            Deserializer::convert2JException(env, e);
+        }
+
+        try {
+            NunchukProvider::get()->nu->AddBlockListener(
+                    [](int height, const std::string &hex_header) {
+                        syslog(LOG_DEBUG, "[JNI] Block listener call\n");
+                        JNIEnv *g_env;
                         JavaVMAttachArgs args;
                         args.version = JNI_VERSION_1_6;
                         args.name = nullptr;
@@ -193,8 +225,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
                         int envState = Initializer::get()->jvm->GetEnv((void **) &g_env,
                                                                        JNI_VERSION_1_6);
                         if (envState == JNI_EDETACHED) {
-                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) !=
-                                0) {
+                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
                                 syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
                             } else {
                                 syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
@@ -204,94 +235,62 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
-
                         g_env->CallStaticVoidMethod(
-                                Initializer::get()->connectStatusClass,
-                                Initializer::get()->connectStatusMethod,
-                                (int) connectionStatus,
-                                percent
+                                Initializer::get()->blockListenerClass,
+                                Initializer::get()->blockListenerMethod,
+                                height,
+                                StringWrapper(hex_header).toJString(g_env)
                         );
-                    } catch (const std::exception &t) {
-                        Deserializer::convertStdException2JException(g_env, t);
-                    }
-                }
-        );
-    } catch (BaseException &e) {
-        syslog(LOG_DEBUG, "[JNI] addBlockchainConnectionListener error::%s", e.what());
-        Deserializer::convert2JException(env, e);
-    }
+                    });
+        } catch (BaseException &e) {
+            syslog(LOG_DEBUG, "[JNI] Block listener error::%s", e.what());
+            Deserializer::convert2JException(env, e);
+        }
 
-    try {
-        NunchukProvider::get()->nu->AddBlockListener(
-                [](int height, const std::string &hex_header) {
-                    syslog(LOG_DEBUG, "[JNI] Block listener call\n");
-                    JNIEnv *g_env;
-                    JavaVMAttachArgs args;
-                    args.version = JNI_VERSION_1_6;
-                    args.name = nullptr;
-                    args.group = nullptr;
-                    Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                    int envState = Initializer::get()->jvm->GetEnv((void **) &g_env,
-                                                                   JNI_VERSION_1_6);
-                    if (envState == JNI_EDETACHED) {
-                        if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                        } else {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+        try {
+            NunchukProvider::get()->nu->AddTransactionListener(
+                    [](const std::string &tx_id, TransactionStatus status,
+                       const std::string &wallet_id) {
+                        syslog(LOG_DEBUG, "[JNI] Transaction Listener call\n");
+                        JNIEnv *g_env;
+                        JavaVMAttachArgs args;
+                        args.version = JNI_VERSION_1_6;
+                        args.name = nullptr;
+                        args.group = nullptr;
+                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env,
+                                                                       JNI_VERSION_1_6);
+                        if (envState == JNI_EDETACHED) {
+                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                            } else {
+                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                            }
+                        } else if (envState == JNI_OK) {
+                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+                        } else if (envState == JNI_EVERSION) {
+                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
-                    } else if (envState == JNI_OK) {
-                        syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                    } else if (envState == JNI_EVERSION) {
-                        syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                    }
-                    g_env->CallStaticVoidMethod(
-                            Initializer::get()->blockListenerClass,
-                            Initializer::get()->blockListenerMethod,
-                            height,
-                            StringWrapper(hex_header).toJString(g_env)
-                    );
-                });
-    } catch (BaseException &e) {
-        syslog(LOG_DEBUG, "[JNI] Block listener error::%s", e.what());
-        Deserializer::convert2JException(env, e);
+                        g_env->CallStaticVoidMethod(
+                                Initializer::get()->transactionListenerClass,
+                                Initializer::get()->transactionListenerMethod,
+                                StringWrapper(tx_id).toJString(g_env),
+                                StringWrapper(wallet_id).toJString(g_env)
+                        );
+                    });
+        } catch (BaseException &e) {
+            syslog(LOG_DEBUG, "[JNI] Transaction Listener Error::%s", e.what());
+            Deserializer::convert2JException(env, e);
+        }
+        NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);
+    } catch (const std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
     }
-
-    try {
-        NunchukProvider::get()->nu->AddTransactionListener(
-                [](const std::string &tx_id, TransactionStatus status,
-                   const std::string &wallet_id) {
-                    syslog(LOG_DEBUG, "[JNI] Transaction Listener call\n");
-                    JNIEnv *g_env;
-                    JavaVMAttachArgs args;
-                    args.version = JNI_VERSION_1_6;
-                    args.name = nullptr;
-                    args.group = nullptr;
-                    Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                    int envState = Initializer::get()->jvm->GetEnv((void **) &g_env,
-                                                                   JNI_VERSION_1_6);
-                    if (envState == JNI_EDETACHED) {
-                        if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                        } else {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
-                        }
-                    } else if (envState == JNI_OK) {
-                        syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                    } else if (envState == JNI_EVERSION) {
-                        syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                    }
-                    g_env->CallStaticVoidMethod(
-                            Initializer::get()->transactionListenerClass,
-                            Initializer::get()->transactionListenerMethod,
-                            StringWrapper(tx_id).toJString(g_env),
-                            StringWrapper(wallet_id).toJString(g_env)
-                    );
-                });
-    } catch (BaseException &e) {
-        syslog(LOG_DEBUG, "[JNI] Transaction Listener Error::%s", e.what());
-        Deserializer::convert2JException(env, e);
-    }
-
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIEnv *env,
+                                                                            jobject thiz) {
     try {
         NunchukProvider::get()->nu->AddGroupUpdateListener([](const GroupSandbox &state) {
             syslog(LOG_DEBUG, "[JNI] Group Update Listener call\n");
@@ -392,4 +391,5 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
         syslog(LOG_DEBUG, "[JNI] Group Online Listener Error::%s", e.what());
         Deserializer::convert2JException(env, e);
     }
+    NunchukProvider::get()->nu->StartConsumeGroupEvent();
 }
