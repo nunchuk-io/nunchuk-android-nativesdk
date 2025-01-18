@@ -1271,6 +1271,11 @@ internal class LibNunchukAndroid {
         groupId: String,
     ): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun getGroupOnline(
+        groupId: String,
+    ): Int
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

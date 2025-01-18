@@ -1489,8 +1489,20 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun enableGroupWallet(
-        osName: String, osVersion: String, appVersion: String, deviceClass: String, deviceId: String, accessToken: String
-    ) = nunchukAndroid.enableGroupWallet(osName, osVersion, appVersion, deviceClass, deviceId, accessToken)
+        osName: String,
+        osVersion: String,
+        appVersion: String,
+        deviceClass: String,
+        deviceId: String,
+        accessToken: String
+    ) = nunchukAndroid.enableGroupWallet(
+        osName,
+        osVersion,
+        appVersion,
+        deviceClass,
+        deviceId,
+        accessToken
+    )
 
     @Throws(NCNativeException::class)
     fun joinGroupWallet(
@@ -1539,4 +1551,9 @@ class NunchukNativeSdk {
     fun deleteGroupSandbox(
         groupId: String,
     ) = nunchukAndroid.deleteGroupSandbox(groupId)
+
+    @Throws(NCNativeException::class)
+    fun getGroupOnline(
+        groupId: String,
+    ) = nunchukAndroid.getGroupOnline(groupId)
 }

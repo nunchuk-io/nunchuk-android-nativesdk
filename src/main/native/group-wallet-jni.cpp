@@ -274,3 +274,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteGroupSandbox(JNIEnv *
         return JNI_FALSE;
     }
 }
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupOnline(JNIEnv *env, jobject thiz,
+                                                                    jstring group_id) {
+    try {
+        auto online = NunchukProvider::get()->nu->GetGroupOnline(
+                StringWrapper(env, group_id)
+        );
+        return online;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return 0;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return 0;
+    }
+}
