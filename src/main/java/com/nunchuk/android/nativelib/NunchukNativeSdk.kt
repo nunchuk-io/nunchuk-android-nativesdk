@@ -1556,4 +1556,7 @@ class NunchukNativeSdk {
     fun getGroupOnline(
         groupId: String,
     ) = nunchukAndroid.getGroupOnline(groupId)
+
+    @Throws(NCNativeException::class)
+    fun registerGlobalListener() = nunchukAndroid.registerGlobalListener()
 }

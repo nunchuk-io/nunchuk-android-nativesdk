@@ -50,6 +50,9 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun registerGlobalListener()
+
+    @Throws(NCNativeException::class)
     external fun createSigner(
         name: String,
         xpub: String,
