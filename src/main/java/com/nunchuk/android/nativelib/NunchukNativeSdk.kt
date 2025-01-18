@@ -1559,4 +1559,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun registerGlobalListener() = nunchukAndroid.registerGlobalListener()
+
+    @Throws(NCNativeException::class)
+    fun getGroupDeviceUID() = nunchukAndroid.getGroupDeviceUID()
 }

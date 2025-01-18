@@ -291,3 +291,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupOnline(JNIEnv *env,
         return 0;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupDeviceUID(JNIEnv *env, jobject thiz) {
+    try {
+        return env->NewStringUTF(NunchukProvider::get()->nu->GetGroupDeviceUID().c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
