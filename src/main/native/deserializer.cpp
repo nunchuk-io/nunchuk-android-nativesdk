@@ -1281,15 +1281,17 @@ jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMes
 }
 
 jobject Deserializer::convert2JGroupMessages(JNIEnv *env, const std::vector<nunchuk::GroupMessage> &messages) {
-    syslog(LOG_DEBUG, "[JNI] convert2JGroupMessages()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupMessage");
-    jobjectArray ret = env->NewObjectArray(messages.size(), clazz, nullptr);
-    int i = 0;
-    for (const auto &message: messages) {
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
+            env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+    for (const GroupMessage &message: messages) {
         jobject element = convert2JGroupMessage(env, message);
-        env->SetObjectArrayElement(ret, i++, element);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
     }
-    return ret;
+    return arrayListInstance;
 }
 
 jobject Deserializer::convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config) {
