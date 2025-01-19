@@ -304,3 +304,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupDeviceUID(JNIEnv *e
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_startConsumeGroupEvent(JNIEnv *env,
+                                                                            jobject thiz) {
+    try {
+        NunchukProvider::get()->nu->StartConsumeGroupEvent();
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}

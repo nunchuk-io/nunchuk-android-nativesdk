@@ -429,5 +429,4 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
         syslog(LOG_DEBUG, "[JNI] Group Delete Listener Error::%s", e.what());
         Deserializer::convert2JException(env, e);
     }
-    NunchukProvider::get()->nu->StartConsumeGroupEvent();
 }
