@@ -91,6 +91,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
             tmpGroupOnlineListenerClass);
     Initializer::get()->groupOnlineListenerMethod = tmpGroupOnlineListenerMethod;
 
+    auto tmpGroupDeleteListenerClass = env->FindClass("com/nunchuk/android/listener/GroupDeleteListener");
+    auto tmpGroupDeleteListenerMethod = env->GetStaticMethodID(tmpGroupDeleteListenerClass, "onGroupDelete", "(Ljava/lang/String;)V");
+
+    Initializer::get()->groupDeleteListenerClass = (jclass) env->NewGlobalRef(tmpGroupDeleteListenerClass);
+    Initializer::get()->groupDeleteListenerMethod = tmpGroupDeleteListenerMethod;
+
 
     return JNI_VERSION_1_6;
 }
@@ -389,6 +395,38 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
                 });
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] Group Online Listener Error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+    }
+
+    try {
+        NunchukProvider::get()->nu->AddGroupDeleteListener([](const std::string &groupId) {
+            syslog(LOG_DEBUG, "[JNI] Group Delete Listener call\n");
+            JNIEnv *g_env;
+            JavaVMAttachArgs args;
+            args.version = JNI_VERSION_1_6;
+            args.name = nullptr;
+            args.group = nullptr;
+            Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+            int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+            if (envState == JNI_EDETACHED) {
+                if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                } else {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                }
+            } else if (envState == JNI_OK) {
+                syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+            } else if (envState == JNI_EVERSION) {
+                syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+            }
+            g_env->CallStaticVoidMethod(
+                    Initializer::get()->groupDeleteListenerClass,
+                    Initializer::get()->groupDeleteListenerMethod,
+                    g_env->NewStringUTF(groupId.c_str())
+            );
+        });
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] Group Delete Listener Error::%s", e.what());
         Deserializer::convert2JException(env, e);
     }
     NunchukProvider::get()->nu->StartConsumeGroupEvent();

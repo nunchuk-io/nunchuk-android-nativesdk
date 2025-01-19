@@ -41,4 +41,7 @@ public:
 
     jclass groupOnlineListenerClass;
     jmethodID groupOnlineListenerMethod;
+
+    jclass groupDeleteListenerClass;
+    jmethodID groupDeleteListenerMethod;
 };
