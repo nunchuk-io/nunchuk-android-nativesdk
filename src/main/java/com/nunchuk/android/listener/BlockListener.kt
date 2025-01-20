@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 object BlockListener {
-    private val appScope = CoroutineScope(Job() + Dispatchers.Main.immediate)
+    private val appScope = CoroutineScope(Job() + Dispatchers.IO)
     private val blockChainFlow = MutableSharedFlow<BtcBlockInfo>()
 
     @JvmStatic

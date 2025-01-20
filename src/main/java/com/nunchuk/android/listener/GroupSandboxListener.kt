@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 object GroupSandboxListener {
-    private val appScope = CoroutineScope(Job() + Dispatchers.Main.immediate)
+    private val appScope = CoroutineScope(Job() + Dispatchers.IO)
     private val groupFlow = MutableSharedFlow<GroupSandbox>()
 
     @JvmStatic

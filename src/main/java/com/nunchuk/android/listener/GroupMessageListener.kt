@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 object GroupMessageListener {
-    private val appScope = CoroutineScope(Job() + Dispatchers.Main.immediate)
+    private val appScope = CoroutineScope(Job() + Dispatchers.IO)
     private val messageFlow = MutableSharedFlow<FreeGroupMessage>()
 
     @JvmStatic
