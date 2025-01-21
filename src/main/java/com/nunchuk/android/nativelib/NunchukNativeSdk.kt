@@ -1447,8 +1447,8 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.cloneWallet(walletId, decoyPin)
 
     @Throws(NCNativeException::class)
-    fun getFreeGroupWalletConfig(addressType: AddressType): FreeGroupConfig =
-        nunchukAndroid.getFreeGroupWalletConfig(addressType.ordinal)
+    fun getFreeGroupWalletConfig(addressType: AddressType): GlobalGroupWalletConfig =
+        nunchukAndroid.getGlobalGroupWalletConfig(addressType.ordinal)
 
     @Throws(NCNativeException::class)
     fun updateGroupSandbox(
@@ -1565,4 +1565,15 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getGroupDeviceUID() = nunchukAndroid.getGroupDeviceUID()
+
+    @Throws(NCNativeException::class)
+    fun getGroupWalletUnreadMessagesCount(
+        walletId: String,
+    ) = nunchukAndroid.getGroupWalletUnreadMessagesCount(walletId)
+
+    @Throws(NCNativeException::class)
+    fun setGroupWalletLastReadMessage(
+        walletId: String,
+        messageId: String,
+    ) = nunchukAndroid.setGroupWalletLastReadMessage(walletId, messageId)
 }

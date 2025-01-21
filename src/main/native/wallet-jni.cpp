@@ -767,9 +767,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cloneWallet(JNIEnv *env, jo
 }
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getFreeGroupWalletConfig(JNIEnv *env,
-                                                                              jobject thiz,
-                                                                              jint address_type) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGlobalGroupWalletConfig(JNIEnv *env,
+                                                                                jobject thiz,
+                                                                                jint address_type) {
     try {
         auto config = NunchukProvider::get()->nu->GetGroupConfig();
         auto addressType = Serializer::convert2CAddressType(address_type);

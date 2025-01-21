@@ -1224,7 +1224,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
 
 jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType) {
     syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupConfig()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupConfig");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GlobalGroupWalletConfig");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
@@ -1232,6 +1232,8 @@ jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &c
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotal", "(I)V"), config.get_total());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRemain", "(I)V"), config.get_remain());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMaxKey", "(I)V"), config.get_max_keys(addressType));
+        env->CallVoidMethod(instance,  env->GetMethodID(clazz, "setRetentionDaysOptions", "(Ljava/util/Set;)V"),
+                            convert2JInts(env, config.get_retention_days_options()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupWalletConfig error::%s", e.what());
     }

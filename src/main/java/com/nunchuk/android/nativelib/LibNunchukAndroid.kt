@@ -1186,7 +1186,7 @@ internal class LibNunchukAndroid {
     ): Wallet
 
     @Throws(NCNativeException::class)
-    external fun getFreeGroupWalletConfig(addressType: Int): FreeGroupConfig
+    external fun getGlobalGroupWalletConfig(addressType: Int): GlobalGroupWalletConfig
 
     @Throws(NCNativeException::class)
     external fun updateGroupSandbox(
@@ -1284,6 +1284,17 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getGroupDeviceUID(): String
+
+    @Throws(NCNativeException::class)
+    external fun getGroupWalletUnreadMessagesCount(
+        walletId: String,
+    ): Int
+
+    @Throws(NCNativeException::class)
+    external fun setGroupWalletLastReadMessage(
+        walletId: String,
+        messageId: String,
+    )
 
     companion object {
         init {

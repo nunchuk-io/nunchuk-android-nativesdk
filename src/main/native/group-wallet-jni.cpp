@@ -316,3 +316,37 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_startConsumeGroupEvent(JNIE
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletUnreadMessagesCount(JNIEnv *env,
+                                                                                       jobject thiz,
+                                                                                       jstring wallet_id) {
+    try {
+        return NunchukProvider::get()->nu->GetUnreadMessagesCount(
+                StringWrapper(env, wallet_id)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return 0;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return 0;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setGroupWalletLastReadMessage(JNIEnv *env,
+                                                                                   jobject thiz,
+                                                                                   jstring wallet_id,
+                                                                                   jstring message_id) {
+    try {
+        NunchukProvider::get()->nu->SetLastReadMessage(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, message_id)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
