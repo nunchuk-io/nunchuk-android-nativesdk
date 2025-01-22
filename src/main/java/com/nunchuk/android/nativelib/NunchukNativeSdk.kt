@@ -1564,6 +1564,9 @@ class NunchukNativeSdk {
     fun startConsumeGroupEvent() = nunchukAndroid.startConsumeGroupEvent()
 
     @Throws(NCNativeException::class)
+    fun stopConsumeGroupEvent() = nunchukAndroid.stopConsumeGroupEvent()
+
+    @Throws(NCNativeException::class)
     fun getGroupDeviceUID() = nunchukAndroid.getGroupDeviceUID()
 
     @Throws(NCNativeException::class)
