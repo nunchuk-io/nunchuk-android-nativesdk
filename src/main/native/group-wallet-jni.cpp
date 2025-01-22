@@ -355,6 +355,9 @@ JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_stopConsumeGroupEvent(JNIEnv *env,
                                                                            jobject thiz) {
     try {
+        if (NunchukProvider::get()->nu == nullptr) {
+            return;
+        }
         NunchukProvider::get()->nu->StopConsumeGroupEvent();
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
