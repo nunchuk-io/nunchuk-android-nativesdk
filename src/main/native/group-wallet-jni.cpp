@@ -365,3 +365,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_stopConsumeGroupEvent(JNIEn
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_joinGroupWalletById(JNIEnv *env, jobject thiz,
+                                                                         jstring group_id) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->JoinGroup(
+                StringWrapper(env, group_id)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

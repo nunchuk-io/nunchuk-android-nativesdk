@@ -1299,6 +1299,11 @@ internal class LibNunchukAndroid {
         messageId: String,
     )
 
+    @Throws(NCNativeException::class)
+    external fun joinGroupWalletById(
+        groupId: String,
+    ): GroupSandbox
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

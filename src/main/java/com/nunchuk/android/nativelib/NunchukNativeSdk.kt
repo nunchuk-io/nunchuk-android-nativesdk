@@ -1579,4 +1579,9 @@ class NunchukNativeSdk {
         walletId: String,
         messageId: String,
     ) = nunchukAndroid.setGroupWalletLastReadMessage(walletId, messageId)
+
+    @Throws(NCNativeException::class)
+    fun joinGroupWalletById(
+        groupId: String,
+    ) = nunchukAndroid.joinGroupWalletById(groupId)
 }
