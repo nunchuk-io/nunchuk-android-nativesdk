@@ -1204,8 +1204,37 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSandbox");
     syslog(LOG_DEBUG, "[JNI] name::%s", sandbox.get_name().c_str());
     syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
+
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
-                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;)V");
+                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
+
+    jclass occupiedSlotClass = env->FindClass("com/nunchuk/android/model/OccupiedSlot");
+    jmethodID occupiedSlotConstructor = env->GetMethodID(occupiedSlotClass, "<init>", "(JLjava/lang/String;)V");
+
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject occupiedSlots = env->NewObject(arrayListClass, arrayListConstructor);
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(ILjava/lang/Object;)V");
+
+    for (int i = 0; i < sandbox.get_signers().size(); i++) {
+        env->CallVoidMethod(occupiedSlots, addMethod, i, nullptr);
+    }
+
+    for (int index = 0; index < sandbox.get_signers().size(); index++) {
+        if (sandbox.get_signers()[index].get_master_fingerprint().empty()) {
+            if (sandbox.get_occupied().contains(index)) {
+                std::pair<time_t, std::string> ts_uid = sandbox.get_occupied().at(index);
+                time_t timeout = 5 * 60; // 5 minutes
+                if (ts_uid.first + timeout > std::time(0)) {
+                    jobject occupiedSlot = env->NewObject(occupiedSlotClass, occupiedSlotConstructor,
+                                                          static_cast<jlong>(ts_uid.first),
+                                                          env->NewStringUTF(ts_uid.second.c_str()));
+                    env->CallVoidMethod(occupiedSlots, addMethod, index, occupiedSlot);
+                    env->DeleteLocalRef(occupiedSlot);
+                }
+            }
+        }
+    }
     jobject instance = env->NewObject(
             clazz,
             constructor,
@@ -1217,22 +1246,28 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             convert2JAddressType(env, sandbox.get_address_type()),
             convert2JSigners(env, sandbox.get_signers()),
             sandbox.is_finalized(),
-            env->NewStringUTF(sandbox.get_wallet_id().c_str())
+            env->NewStringUTF(sandbox.get_wallet_id().c_str()),
+            occupiedSlots
     );
     return instance;
 }
 
-jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType) {
+jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config,
+                                               const AddressType &addressType) {
     syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupConfig()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/GlobalGroupWalletConfig");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
 
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotal", "(I)V"), config.get_total());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRemain", "(I)V"), config.get_remain());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMaxKey", "(I)V"), config.get_max_keys(addressType));
-        env->CallVoidMethod(instance,  env->GetMethodID(clazz, "setRetentionDaysOptions", "(Ljava/util/Set;)V"),
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotal", "(I)V"),
+                            config.get_total());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRemain", "(I)V"),
+                            config.get_remain());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMaxKey", "(I)V"),
+                            config.get_max_keys(addressType));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRetentionDaysOptions",
+                                                       "(Ljava/util/Set;)V"),
                             convert2JInts(env, config.get_retention_days_options()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupWalletConfig error::%s", e.what());
@@ -1240,14 +1275,15 @@ jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &c
     return instance;
 }
 
-jobject Deserializer::convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox) {
+jobject
+Deserializer::convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupsSandbox()");
     jclass arrayListClass = env->FindClass("java/util/ArrayList");
     jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
     jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
 
-    for (const auto &group : groupSandbox) {
+    for (const auto &group: groupSandbox) {
         jobject jGroup = convert2JGroupSandbox(env, group);
         env->CallBooleanMethod(arrayList, arrayListAdd, jGroup);
         env->DeleteLocalRef(jGroup);
@@ -1282,7 +1318,8 @@ jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMes
     return instance;
 }
 
-jobject Deserializer::convert2JGroupMessages(JNIEnv *env, const std::vector<nunchuk::GroupMessage> &messages) {
+jobject Deserializer::convert2JGroupMessages(JNIEnv *env,
+                                             const std::vector<nunchuk::GroupMessage> &messages) {
     static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
             env->FindClass("java/util/ArrayList")));
     static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
@@ -1302,7 +1339,8 @@ jobject Deserializer::convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletC
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChatRetentionDays", "(I)V"), config.get_chat_retention_days());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChatRetentionDays", "(I)V"),
+                            config.get_chat_retention_days());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig error::%s", e.what());
     }

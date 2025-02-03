@@ -1304,6 +1304,13 @@ internal class LibNunchukAndroid {
         groupId: String,
     ): GroupSandbox
 
+    @Throws(NCNativeException::class)
+    external fun setSlotOccupied(
+        groupId: String,
+        index: Int,
+        value: Boolean
+    ): GroupSandbox?
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

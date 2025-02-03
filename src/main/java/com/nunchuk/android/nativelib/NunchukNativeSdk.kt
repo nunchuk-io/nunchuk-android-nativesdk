@@ -1584,4 +1584,11 @@ class NunchukNativeSdk {
     fun joinGroupWalletById(
         groupId: String,
     ) = nunchukAndroid.joinGroupWalletById(groupId)
+
+    @Throws(NCNativeException::class)
+    fun setSlotOccupied(
+        groupId: String,
+        index: Int,
+        value: Boolean
+    ) = nunchukAndroid.setSlotOccupied(groupId, index, value)
 }

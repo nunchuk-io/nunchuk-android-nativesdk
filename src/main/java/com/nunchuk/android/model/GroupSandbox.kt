@@ -14,5 +14,6 @@ data class GroupSandbox(
     val addressType: AddressType,
     val signers: List<SingleSigner>,
     val finalized: Boolean,
-    val walletId: String
+    val walletId: String,
+    val occupiedSlots: List<OccupiedSlot?>,
 ) : Parcelable
