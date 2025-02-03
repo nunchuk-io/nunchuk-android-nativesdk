@@ -1209,7 +1209,8 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
                                              "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
 
     jclass occupiedSlotClass = env->FindClass("com/nunchuk/android/model/OccupiedSlot");
-    jmethodID occupiedSlotConstructor = env->GetMethodID(occupiedSlotClass, "<init>", "(JLjava/lang/String;)V");
+    jmethodID occupiedSlotConstructor = env->GetMethodID(occupiedSlotClass, "<init>",
+                                                         "(JLjava/lang/String;)V");
 
     jclass arrayListClass = env->FindClass("java/util/ArrayList");
     jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
@@ -1224,14 +1225,11 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
         if (sandbox.get_signers()[index].get_master_fingerprint().empty()) {
             if (sandbox.get_occupied().contains(index)) {
                 std::pair<time_t, std::string> ts_uid = sandbox.get_occupied().at(index);
-                time_t timeout = 5 * 60; // 5 minutes
-                if (ts_uid.first + timeout > std::time(0)) {
-                    jobject occupiedSlot = env->NewObject(occupiedSlotClass, occupiedSlotConstructor,
-                                                          static_cast<jlong>(ts_uid.first),
-                                                          env->NewStringUTF(ts_uid.second.c_str()));
-                    env->CallVoidMethod(occupiedSlots, addMethod, index, occupiedSlot);
-                    env->DeleteLocalRef(occupiedSlot);
-                }
+                jobject occupiedSlot = env->NewObject(occupiedSlotClass, occupiedSlotConstructor,
+                                                      static_cast<jlong>(ts_uid.first),
+                                                      env->NewStringUTF(ts_uid.second.c_str()));
+                env->CallVoidMethod(occupiedSlots, addMethod, index, occupiedSlot);
+                env->DeleteLocalRef(occupiedSlot);
             }
         }
     }
