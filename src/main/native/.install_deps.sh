@@ -37,10 +37,19 @@ fi
 #########################################################################################
 ####                                Bitcoin Deps                                     ####
 #########################################################################################
+
+patchFile() {
+  patch=$1
+  dest=$2
+  echo "Patching file $dest using patch $patch"
+  cmp -s $patch $dest || cp $patch $dest
+}
+
 applyBitcoinDependsPatches() {
-  cmp -s ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk || cp ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
-  cmp -s ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/android.mk || cp ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/android.mk
-  cmp -s ./patches/FindLibevent.cmake libnunchuk/contrib/bitcoin/cmake/module/FindLibevent.cmake || cp ./patches/FindLibevent.cmake libnunchuk/contrib/bitcoin/cmake/module/FindLibevent.cmake
+  patchFile ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
+  patchFile ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/android.mk
+  patchFile ./patches/FindLibevent.cmake libnunchuk/contrib/bitcoin/cmake/module/FindLibevent.cmake
+  patchFile ./patches/random.cpp libnunchuk/contrib/bitcoin/src/random.cpp
 }
 
 installBitcoinDeps() {
