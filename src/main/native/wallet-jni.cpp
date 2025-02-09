@@ -809,7 +809,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateGroupSandbox(JNIEnv *
     }
 }
 extern "C"
-JNIEXPORT jobject JNICALL
+JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverFreeGroupWallet(JNIEnv *env,
                                                                             jobject thiz,
                                                                             jstring file_path,
@@ -821,16 +821,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverFreeGroupWallet(JNIE
                 env->GetStringUTFChars(name, JNI_FALSE),
                 env->GetStringUTFChars(description, JNI_FALSE)
         );
-        bool isGroupWallet = NunchukProvider::get()->nu->CheckGroupWalletExists(wallet);
-        if (isGroupWallet) {
-            NunchukProvider::get()->nu->RecoverGroupWallet(wallet.get_id());
-        }
-        return Deserializer::convert2JWallet(env, wallet);
+        NunchukProvider::get()->nu->RecoverGroupWallet(wallet.get_id());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
-        return nullptr;
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
-        return nullptr;
     }
 }

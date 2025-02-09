@@ -1460,8 +1460,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
 
     @Throws(NCNativeException::class)
-    fun recoverFreeGroupWallet(filePath: String, name: String, description: String): Wallet =
+    fun recoverFreeGroupWallet(filePath: String, name: String, description: String) =
         nunchukAndroid.recoverFreeGroupWallet(filePath, name, description)
+
+    @Throws(NCNativeException::class)
+    fun checkGroupWalletExists(walletId: String) = nunchukAndroid.checkGroupWalletExists(walletId)
 
     @Throws(NCNativeException::class)
     fun addSignerToGroup(
