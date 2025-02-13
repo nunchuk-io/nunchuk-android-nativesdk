@@ -1314,6 +1314,14 @@ internal class LibNunchukAndroid {
         value: Boolean
     ): GroupSandbox?
 
+    @Throws(NCNativeException::class)
+    external fun getSignerFromTapsignerMasterSignerByPath(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String,
+        path: String
+    ): SingleSigner
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

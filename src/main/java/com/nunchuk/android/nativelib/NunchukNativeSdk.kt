@@ -1594,4 +1594,12 @@ class NunchukNativeSdk {
         index: Int,
         value: Boolean
     ) = nunchukAndroid.setSlotOccupied(groupId, index, value)
+
+    @Throws(NCNativeException::class)
+    fun getSignerFromTapsignerMasterSigner(
+        isoDep: IsoDep,
+        cvc: String,
+        masterSignerId: String,
+        path: String
+    ) = nunchukAndroid.getSignerFromTapsignerMasterSignerByPath(isoDep, cvc, masterSignerId, path)
 }
