@@ -1482,7 +1482,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun finalizeGroup(
         groupId: String,
-    ) = nunchukAndroid.finalizeGroup(groupId)
+        keySetIndexes: Set<Int>
+    ) = nunchukAndroid.finalizeGroup(groupId, keySetIndexes)
 
     @Throws(NCNativeException::class)
     fun getGroupWallets() = nunchukAndroid.getGroupWallets()

@@ -53,10 +53,34 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_removeSignerFromGroup(JNIEn
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_finalizeGroup(JNIEnv *env, jobject thiz,
-                                                                   jstring group_id) {
+                                                                   jstring group_id,
+                                                                   jobject key_set_indexes) {
     try {
+        std::set<size_t> c_key_set_indexes;
+
+        jclass setClass = env->FindClass("java/util/Set");
+        jmethodID iteratorMethod = env->GetMethodID(setClass, "iterator", "()Ljava/util/Iterator;");
+
+        jclass iteratorClass = env->FindClass("java/util/Iterator");
+        jmethodID hasNextMethod = env->GetMethodID(iteratorClass, "hasNext", "()Z");
+        jmethodID nextMethod = env->GetMethodID(iteratorClass, "next", "()Ljava/lang/Object;");
+
+        jobject iterator = env->CallObjectMethod(key_set_indexes, iteratorMethod);
+
+        while (env->CallBooleanMethod(iterator, hasNextMethod)) {
+            jobject element = env->CallObjectMethod(iterator, nextMethod);
+            jint elementInt = env->CallIntMethod(element, env->GetMethodID(env->FindClass("java/lang/Integer"), "intValue", "()I"));
+            c_key_set_indexes.insert(static_cast<size_t>(elementInt));
+            env->DeleteLocalRef(element);
+        }
+
+        env->DeleteLocalRef(iterator);
+        env->DeleteLocalRef(setClass);
+        env->DeleteLocalRef(iteratorClass);
+
         auto groupSandbox = NunchukProvider::get()->nu->FinalizeGroup(
-                StringWrapper(env, group_id)
+                StringWrapper(env, group_id),
+                c_key_set_indexes
         );
         return Deserializer::convert2JGroupSandbox(env, groupSandbox);
     } catch (BaseException &e) {

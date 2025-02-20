@@ -1222,6 +1222,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun finalizeGroup(
         groupId: String,
+        keySetIndexes : Set<Int>
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
