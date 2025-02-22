@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <initializer.h>
 #include "deserializer.h"
 #include "utils/ndef.hpp"
 
@@ -193,7 +194,13 @@ jobject Deserializer::convert2JTxOutputs(JNIEnv *env, const std::vector<TxOutput
 }
 
 jobject Deserializer::convert2JAddressType(JNIEnv *env, const AddressType &type) {
-    jclass clazz = env->FindClass("com/nunchuk/android/type/AddressTypeHelper");
+    syslog(LOG_DEBUG, "[JNI] convert2JAddressType()");
+    jstring className = env->NewStringUTF("com/nunchuk/android/type/AddressTypeHelper");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
+
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
                                                     "(I)Lcom/nunchuk/android/type/AddressType;");
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) type);
@@ -201,7 +208,11 @@ jobject Deserializer::convert2JAddressType(JNIEnv *env, const AddressType &type)
 
 jobject Deserializer::convert2JSignerType(JNIEnv *env, const SignerType &type) {
     syslog(LOG_DEBUG, "[JNI] convert2JSignerType()");
-    jclass clazz = env->FindClass("com/nunchuk/android/type/SignerTypeHelper");
+    jstring className = env->NewStringUTF("com/nunchuk/android/type/SignerTypeHelper");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
                                                     "(I)Lcom/nunchuk/android/type/SignerType;");
     return env->CallStaticObjectMethod(clazz, staticMethod, ((int) type) + 1);
@@ -277,7 +288,11 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
 
 jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
     syslog(LOG_DEBUG, "[JNI] convert2JSigner()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/SingleSigner");
+    jstring className = env->NewStringUTF("com/nunchuk/android/model/SingleSigner");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
@@ -1014,7 +1029,11 @@ jobject Deserializer::convert2JColdCardHealth(JNIEnv *env, const HealthStatus &s
 }
 
 jobject Deserializer::convert2JSignerTag(JNIEnv *env, const SignerTag &tag) {
-    jclass clazz = env->FindClass("com/nunchuk/android/type/SignerTagHelper");
+    jstring className = env->NewStringUTF("com/nunchuk/android/type/SignerTagHelper");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
                                                     "(I)Lcom/nunchuk/android/type/SignerTag;");
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) tag);
@@ -1201,14 +1220,23 @@ jobjectArray Deserializer::convert2JDraftRollOverTransactions(JNIEnv *env,
 
 jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &sandbox) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupSandbox()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSandbox");
+    jstring className = env->NewStringUTF("com/nunchuk/android/model/GroupSandbox");
+    jclass clazz = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                                  Initializer::get()->loadClassMethod,
+                                                                  className));
+    env->DeleteLocalRef(className);
     syslog(LOG_DEBUG, "[JNI] name::%s", sandbox.get_name().c_str());
     syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
 
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
                                              "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
 
-    jclass occupiedSlotClass = env->FindClass("com/nunchuk/android/model/OccupiedSlot");
+    className = env->NewStringUTF("com/nunchuk/android/model/OccupiedSlot");
+    jclass occupiedSlotClass = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                                              Initializer::get()->loadClassMethod,
+                                                                              className));
+    env->DeleteLocalRef(className);
+
     jmethodID occupiedSlotConstructor = env->GetMethodID(occupiedSlotClass, "<init>",
                                                          "(JLjava/lang/String;)V");
 
@@ -1292,7 +1320,11 @@ Deserializer::convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox
 
 jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMessage &message) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupMessage()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupMessage");
+    jstring className = env->NewStringUTF("com/nunchuk/android/model/FreeGroupMessage");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {

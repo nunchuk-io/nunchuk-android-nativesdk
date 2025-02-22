@@ -97,6 +97,15 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     Initializer::get()->groupDeleteListenerClass = (jclass) env->NewGlobalRef(tmpGroupDeleteListenerClass);
     Initializer::get()->groupDeleteListenerMethod = tmpGroupDeleteListenerMethod;
 
+    // Cache the ClassLoader reference
+    jclass threadClass = env->FindClass("java/lang/Thread");
+    jmethodID currentThreadMethod = env->GetStaticMethodID(threadClass, "currentThread", "()Ljava/lang/Thread;");
+    jobject currentThread = env->CallStaticObjectMethod(threadClass, currentThreadMethod);
+    jmethodID getContextClassLoaderMethod = env->GetMethodID(threadClass, "getContextClassLoader", "()Ljava/lang/ClassLoader;");
+    jobject localClassLoader = env->CallObjectMethod(currentThread, getContextClassLoaderMethod);
+    Initializer::get()->classLoader = env->NewGlobalRef(localClassLoader);
+    Initializer::get()->loadClassMethod = env->GetMethodID(env->FindClass("java/lang/ClassLoader"), "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+
 
     return JNI_VERSION_1_6;
 }

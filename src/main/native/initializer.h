@@ -3,8 +3,6 @@
 #include <string>
 
 class Initializer {
-    static Initializer *_instance;
-
 private:
     Initializer() {}
 
@@ -44,4 +42,7 @@ public:
 
     jclass groupDeleteListenerClass;
     jmethodID groupDeleteListenerMethod;
+
+    jobject classLoader;
+    jmethodID loadClassMethod;
 };
