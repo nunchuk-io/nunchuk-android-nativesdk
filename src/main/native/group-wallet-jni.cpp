@@ -163,26 +163,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_joinGroupWallet(JNIEnv *env
         return nullptr;
     }
 }
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendGroupWalletMessage(JNIEnv *env,
-                                                                            jobject thiz,
-                                                                            jstring wallet_id,
-                                                                            jstring message,
-                                                                            jobject single_signer) {
-    try {
-        auto cSigner = Serializer::convert2CSigner(env, single_signer);
-        NunchukProvider::get()->nu->SendGroupMessage(
-                StringWrapper(env, wallet_id),
-                StringWrapper(env, message),
-                cSigner
-        );
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-    }
-}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletMessages(JNIEnv *env,
@@ -442,5 +423,31 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_checkGroupWalletExists(JNIE
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendGroupWalletMessage(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring wallet_id,
+                                                                            jstring message,
+                                                                            jobject single_signer) {
+    try {
+        if (single_signer == nullptr) {
+            NunchukProvider::get()->nu->SendGroupMessage(
+                    StringWrapper(env, wallet_id),
+                    StringWrapper(env, message)
+            );
+        } else {
+            NunchukProvider::get()->nu->SendGroupMessage(
+                    StringWrapper(env, wallet_id),
+                    StringWrapper(env, message),
+                    Serializer::convert2CSigner(env, single_signer)
+            );
+        }
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
     }
 }

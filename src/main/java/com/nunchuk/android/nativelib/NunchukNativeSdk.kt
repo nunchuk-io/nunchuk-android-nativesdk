@@ -1517,7 +1517,7 @@ class NunchukNativeSdk {
     fun sendGroupWalletMessage(
         walletId: String,
         message: String,
-        singleSigner: SingleSigner
+        singleSigner: SingleSigner?
     ) = nunchukAndroid.sendGroupWalletMessage(walletId, message, singleSigner)
 
     @Throws(NCNativeException::class)

@@ -1245,7 +1245,7 @@ internal class LibNunchukAndroid {
     external fun sendGroupWalletMessage(
         walletId: String,
         message: String,
-        singleSigner: SingleSigner
+        singleSigner: SingleSigner?
     )
 
     @Throws(NCNativeException::class)
