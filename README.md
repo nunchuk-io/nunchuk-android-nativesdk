@@ -3,15 +3,13 @@ Nunchuk Android Native SDK is a wrapper for [libnunchuk](https://github.com/nunc
 
 For more info on our products, please visit [our website](https://nunchuk.io/).
 
-# Building the SDK
+# Building
 ## Build requirements
-Java: 11
+NDK: 27.2.12479018
 
-NDK: 25.1.8937393
+minSdkVersion: 24
 
-minSdkVersion: 21
-
-## Dependencies
+## Mac OS
 ### 1. Xcode Command Line Tools
 
 The Xcode Command Line Tools are a collection of build tools for macOS.
@@ -41,30 +39,39 @@ Run the following from your terminal:
 brew install automake libtool boost pkg-config libevent
 ```
 
-### 4. Pull submodules
+## Linux
 
+Ensure the following packages are installed on your system:
 ```
-pushd ${PWD}/src/main/native
-git submodule add --force -b main https://gitlab.com/nunchuck/libnunchuk.git
-git submodule update --init --recursive
-sh .install_deps.sh arm64-v8a
-popd
-```
-
-### 5. Export PATHs:
-```
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-11.0.2.jdk/Contents/Home
-export PATH=$JAVA_HOME/bin:$PATH
-export ANDROID_SDK=/Users/${USER}/Library/Android/sdk
-export ANDROID_SDK_HOME=/Users/${USER}/Library/Android/sdk
-export ANDROID_SDK_ROOT=/Users/${USER}/Library/Android/sdk
-export ANDROID_HOME=/Users/${USER}/Library/Android/sdk 
-export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-export ANDROID_NDK_HOME=/Users/${USER}/Library/Android/sdk/ndk/25.1.8937393
+make automake ninja-build libtool pkg-config git openjdk-17-jdk
 ```
 
 ## Building
+### 1. Pull submodules
+
+``` bash
+pushd ${PWD}/src/main/native
+git submodule add --force -b main https://github.com/nunchuk-io/libnunchuk.git
+git submodule update --init --recursive
+bash .install_deps.sh
+popd
 ```
-./gradlew clean assembleArm64_v8aDebug --stacktrace
+
+### 2. Export PATH Variables
+``` bash
+export ANDROID_SDK=/path/to/your/android/sdk
+export ANDROID_NDK_HOME=/path/to/your/android/sdk/ndk/27.2.12479018
+
+# On Mac OS, the default paths are:
+export ANDROID_SDK=/Users/${USER}/Library/Android/sdk
+export ANDROID_NDK_HOME=/Users/${USER}/Library/Android/sdk/ndk/27.2.12479018
+# On Linux, the default paths are:
+export ANDROID_SDK=$HOME/Android/Sdk
+export ANDROID_NDK_HOME=$HOME/Android/Sdk/ndk/27.2.12479018
+```
+
+### 3. Build the SDK
+```
+./gradlew clean assembleArmRelease --stacktrace
 ./gradlew publish
 ```
