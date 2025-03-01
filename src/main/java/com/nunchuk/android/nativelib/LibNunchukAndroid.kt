@@ -949,7 +949,11 @@ internal class LibNunchukAndroid {
     external fun createCoinCollection(walletId: String, name: String): CoinCollection
 
     @Throws(NCNativeException::class)
-    external fun updateCoinCollection(walletId: String, coinCollection: CoinCollection, applyToExistingCoin: Boolean): Boolean
+    external fun updateCoinCollection(
+        walletId: String,
+        coinCollection: CoinCollection,
+        applyToExistingCoin: Boolean
+    ): Boolean
 
     @Throws(NCNativeException::class)
     external fun deleteCoinCollection(walletId: String, collectionId: Int): Boolean
@@ -1222,7 +1226,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun finalizeGroup(
         groupId: String,
-        keySetIndexes : Set<Int>
+        keySetIndexes: Set<Int>
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
@@ -1233,7 +1237,12 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun enableGroupWallet(
-        osName: String, osVersion: String, appVersion: String, deviceClass: String, deviceId: String, accessToken: String
+        osName: String,
+        osVersion: String,
+        appVersion: String,
+        deviceClass: String,
+        deviceId: String,
+        accessToken: String
     )
 
     @Throws(NCNativeException::class)
@@ -1322,6 +1331,18 @@ internal class LibNunchukAndroid {
         masterSignerId: String,
         path: String
     ): SingleSigner
+
+    @Throws(NCNativeException::class)
+    external fun createReplaceGroup(walletId: String): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun acceptReplaceGroup(walletId: String, groupId: String): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun declineReplaceGroup(walletId: String, groupId: String)
+
+    @Throws(NCNativeException::class)
+    external fun GetReplaceGroups(walletId: String): Map<String, Boolean>
 
     companion object {
         init {

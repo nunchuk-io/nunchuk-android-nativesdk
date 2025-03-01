@@ -1229,7 +1229,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
 
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
-                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
+                                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
 
     className = env->NewStringUTF("com/nunchuk/android/model/OccupiedSlot");
     jclass occupiedSlotClass = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
@@ -1265,6 +1265,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             clazz,
             constructor,
             env->NewStringUTF(sandbox.get_id().c_str()),
+            env->NewStringUTF(sandbox.get_replace_wallet_id().c_str()),
             env->NewStringUTF(sandbox.get_name().c_str()),
             env->NewStringUTF(sandbox.get_url().c_str()),
             sandbox.get_m(),

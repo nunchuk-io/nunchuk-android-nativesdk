@@ -97,6 +97,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     Initializer::get()->groupDeleteListenerClass = (jclass) env->NewGlobalRef(tmpGroupDeleteListenerClass);
     Initializer::get()->groupDeleteListenerMethod = tmpGroupDeleteListenerMethod;
 
+    auto tmpGroupUpdateListenerClass = env->FindClass("com/nunchuk/android/listener/GroupReplaceListener");
+    auto tmpGroupUpdateListenerMethod = env->GetStaticMethodID(tmpGroupUpdateListenerClass, "onGroupReplace", "(Ljava/lang/String;Ljava/lang/String;)V");
+    Initializer::get()->groupReplaceListenerClass = (jclass) env->NewGlobalRef(tmpGroupUpdateListenerClass);
+    Initializer::get()->groupReplaceListenerMethod = tmpGroupUpdateListenerMethod;
+
     // Cache the ClassLoader reference
     jclass threadClass = env->FindClass("java/lang/Thread");
     jmethodID currentThreadMethod = env->GetStaticMethodID(threadClass, "currentThread", "()Ljava/lang/Thread;");
@@ -438,4 +443,39 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
         syslog(LOG_DEBUG, "[JNI] Group Delete Listener Error::%s", e.what());
         Deserializer::convert2JException(env, e);
     }
+
+    try {
+        NunchukProvider::get()->nu->AddReplaceRequestListener([](const std::string &walletId,
+                                                                const std::string &replaceGroupId) {
+            syslog(LOG_DEBUG, "[JNI] Group Replace Listener call\n");
+            JNIEnv *g_env;
+            JavaVMAttachArgs args;
+            args.version = JNI_VERSION_1_6;
+            args.name = nullptr;
+            args.group = nullptr;
+            Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+            int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
+            if (envState == JNI_EDETACHED) {
+                if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
+                } else {
+                    syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
+                }
+            } else if (envState == JNI_OK) {
+                syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
+            } else if (envState == JNI_EVERSION) {
+                syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
+            }
+            g_env->CallStaticVoidMethod(
+                    Initializer::get()->groupReplaceListenerClass,
+                    Initializer::get()->groupReplaceListenerMethod,
+                    g_env->NewStringUTF(walletId.c_str()),
+                    g_env->NewStringUTF(replaceGroupId.c_str())
+            );
+        });
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] Group Replace Listener Error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+    }
+
 }

@@ -426,6 +426,78 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_checkGroupWalletExists(JNIE
     }
 }
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createReplaceGroup(JNIEnv *env, jobject thiz,
+                                                                        jstring group_id) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->CreateReplaceGroup(
+                StringWrapper(env, group_id)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_acceptReplaceGroup(JNIEnv *env, jobject thiz,
+                                                                        jstring wallet_id,
+                                                                        jstring group_id) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->AcceptReplaceGroup(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, group_id)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_declineReplaceGroup(JNIEnv *env, jobject thiz,
+                                                                         jstring wallet_id,
+                                                                         jstring group_id) {
+    try {
+        NunchukProvider::get()->nu->DeclineReplaceGroup(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, group_id)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getReplaceGroups(JNIEnv *env, jobject thiz,
+                                                                     jstring wallet_id) {
+    try {
+        auto replaceGroup = NunchukProvider::get()->nu->GetReplaceGroups(
+                StringWrapper(env, wallet_id)
+        );
+        return Deserializer::convert2JStringBooleanMap(env, replaceGroup);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendGroupWalletMessage(JNIEnv *env,
                                                                             jobject thiz,

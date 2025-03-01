@@ -43,6 +43,9 @@ public:
     jclass groupDeleteListenerClass;
     jmethodID groupDeleteListenerMethod;
 
+    jclass groupReplaceListenerClass;
+    jmethodID groupReplaceListenerMethod;
+
     jobject classLoader;
     jmethodID loadClassMethod;
 };
