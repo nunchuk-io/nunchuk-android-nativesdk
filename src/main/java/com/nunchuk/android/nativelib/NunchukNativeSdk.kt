@@ -1603,4 +1603,16 @@ class NunchukNativeSdk {
         masterSignerId: String,
         path: String
     ) = nunchukAndroid.getSignerFromTapsignerMasterSignerByPath(isoDep, cvc, masterSignerId, path)
+
+    @Throws(NCNativeException::class)
+    fun createReplaceGroup(walletId: String) = nunchukAndroid.createReplaceGroup(walletId)
+
+    @Throws(NCNativeException::class)
+    fun acceptReplaceGroup(walletId: String, groupId: String) = nunchukAndroid.acceptReplaceGroup(walletId, groupId)
+
+    @Throws(NCNativeException::class)
+    fun declineReplaceGroup(walletId: String, groupId: String) = nunchukAndroid.declineReplaceGroup(walletId, groupId)
+
+    @Throws(NCNativeException::class)
+    fun getReplaceGroups(walletId: String) = nunchukAndroid.getReplaceGroups(walletId)
 }

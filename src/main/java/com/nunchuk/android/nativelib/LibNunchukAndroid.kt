@@ -1342,7 +1342,7 @@ internal class LibNunchukAndroid {
     external fun declineReplaceGroup(walletId: String, groupId: String)
 
     @Throws(NCNativeException::class)
-    external fun GetReplaceGroups(walletId: String): Map<String, Boolean>
+    external fun getReplaceGroups(walletId: String): Map<String, Boolean>
 
     companion object {
         init {
