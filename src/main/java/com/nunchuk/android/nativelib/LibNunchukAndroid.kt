@@ -1344,6 +1344,12 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getReplaceGroups(walletId: String): Map<String, Boolean>
 
+    @Throws(NCNativeException::class)
+    external fun decryptGroupWalletId(walletId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun decryptGroupTxId(walletId: String, txId: String): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

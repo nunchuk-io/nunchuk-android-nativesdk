@@ -1615,4 +1615,10 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getReplaceGroups(walletId: String) = nunchukAndroid.getReplaceGroups(walletId)
+
+    @Throws(NCNativeException::class)
+    fun decryptGroupWalletId(walletId: String) = nunchukAndroid.decryptGroupWalletId(walletId)
+
+    @Throws(NCNativeException::class)
+    fun decryptGroupTxId(walletId: String, txId: String) = nunchukAndroid.decryptGroupTxId(walletId, txId)
 }

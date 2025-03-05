@@ -523,3 +523,35 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendGroupWalletMessage(JNIE
         Deserializer::convertStdException2JException(env, e);
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decryptGroupWalletId(JNIEnv *env, jobject thiz,
+                                                                          jstring wallet_id) {
+    try {
+        return env->NewStringUTF(NunchukProvider::get()->nu->DecryptGroupWalletId(StringWrapper(env, wallet_id)).c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decryptGroupTxId(JNIEnv *env, jobject thiz,
+                                                                      jstring wallet_id,
+                                                                      jstring tx_id) {
+    try {
+        return env->NewStringUTF(NunchukProvider::get()->nu->DecryptGroupTxId(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id)
+        ).c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
