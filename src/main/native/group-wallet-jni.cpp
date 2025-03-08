@@ -555,3 +555,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decryptGroupTxId(JNIEnv *en
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDeprecatedGroupWallets(JNIEnv *env, jobject thiz) {
+    try {
+        auto deprecatedWallets = NunchukProvider::get()->nu->GetDeprecatedGroupWallets();
+        return Deserializer::convert2JListString(env, deprecatedWallets);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

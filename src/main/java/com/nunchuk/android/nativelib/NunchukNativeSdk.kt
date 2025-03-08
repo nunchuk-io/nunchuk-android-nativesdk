@@ -1621,4 +1621,7 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun decryptGroupTxId(walletId: String, txId: String) = nunchukAndroid.decryptGroupTxId(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getDeprecatedGroupWallets(): List<String> = nunchukAndroid.getDeprecatedGroupWallets()
 }

@@ -1350,6 +1350,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun decryptGroupTxId(walletId: String, txId: String): String
 
+    @Throws(NCNativeException::class)
+    external fun getDeprecatedGroupWallets(): List<String>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
