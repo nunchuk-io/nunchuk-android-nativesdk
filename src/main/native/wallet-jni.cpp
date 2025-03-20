@@ -74,7 +74,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
         jint address_type,
         jboolean is_escrow,
         jstring description,
-        jstring decoy_pin
+        jstring decoy_pin,
+        jboolean disableValueKeyset
 ) {
     syslog(LOG_DEBUG, "[JNI] createWallet()");
     syslog(LOG_DEBUG, "[JNI] name::%s", env->GetStringUTFChars(name, JNI_FALSE));
@@ -82,6 +83,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
     try {
         const std::vector<SingleSigner> &singleSigners = Serializer::convert2CSigners(env, signers);
         AddressType type = Serializer::convert2CAddressType(address_type);
+
+        WalletTemplate wallet_template = disableValueKeyset
+                                         ? WalletTemplate::DISABLE_KEY_PATH
+                                         : WalletTemplate::DEFAULT;
+
         const Wallet &wallet = NunchukProvider::get()->nu->CreateWallet(
                 env->GetStringUTFChars(name, JNI_FALSE),
                 require_signs,
@@ -91,7 +97,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createWallet(
                 is_escrow,
                 env->GetStringUTFChars(description, JNI_FALSE),
                 false,
-                StringWrapper(env, decoy_pin)
+                StringWrapper(env, decoy_pin),
+                wallet_template
         );
         return Deserializer::convert2JWallet(env, wallet);
     } catch (BaseException &e) {

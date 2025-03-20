@@ -96,6 +96,7 @@ internal class LibNunchukAndroid {
         isEscrow: Boolean,
         description: String,
         decoyPin: String,
+        disableValueKeyset: Boolean
     ): Wallet
 
     @Throws(NCNativeException::class)

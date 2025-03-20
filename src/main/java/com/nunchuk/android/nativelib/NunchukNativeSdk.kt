@@ -134,7 +134,8 @@ class NunchukNativeSdk {
         addressType: AddressType,
         isEscrow: Boolean,
         description: String,
-        decoyPin: String = ""
+        decoyPin: String = "",
+        disableValueKeyset: Boolean = false,
     ) = nunchukAndroid.createWallet(
         name = name,
         totalRequireSigns = totalRequireSigns,
@@ -142,7 +143,8 @@ class NunchukNativeSdk {
         addressType = addressType.ordinal,
         isEscrow = isEscrow,
         description = description,
-        decoyPin = decoyPin
+        decoyPin = decoyPin,
+        disableValueKeyset = disableValueKeyset
     )
 
     @Throws(NCNativeException::class)
