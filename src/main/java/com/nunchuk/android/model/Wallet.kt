@@ -21,6 +21,7 @@ package com.nunchuk.android.model
 
 import android.os.Parcelable
 import com.nunchuk.android.type.AddressType
+import com.nunchuk.android.type.WalletTemplate
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -36,6 +37,7 @@ data class Wallet(
     var description: String = "",
     var gapLimit: Int = 0,
     var needBackup: Boolean = false,
+    var walletTemplate: WalletTemplate = WalletTemplate.DEFAULT,
 ) : Parcelable {
     companion object {
         val EMPTY = Wallet()

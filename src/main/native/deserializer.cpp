@@ -397,6 +397,9 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
                             wallet.get_gap_limit());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedBackup", "(Z)V"),
                             wallet.need_backup());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletTemplate",
+                                                       "(Lcom/nunchuk/android/type/WalletTemplate;)V"),
+                            convert2JWalletTemplate(env, wallet.get_wallet_template()));
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s",
                Utils::ValueFromAmount(wallet.get_balance()).c_str());
     } catch (std::exception &e) {
@@ -1229,12 +1232,13 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
 
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
-                                            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
+                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
 
     className = env->NewStringUTF("com/nunchuk/android/model/OccupiedSlot");
-    jclass occupiedSlotClass = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
-                                                                              Initializer::get()->loadClassMethod,
-                                                                              className));
+    jclass occupiedSlotClass = reinterpret_cast<jclass>(env->CallObjectMethod(
+            Initializer::get()->classLoader,
+            Initializer::get()->loadClassMethod,
+            className));
     env->DeleteLocalRef(className);
 
     jmethodID occupiedSlotConstructor = env->GetMethodID(occupiedSlotClass, "<init>",
@@ -1376,4 +1380,12 @@ jobject Deserializer::convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletC
         syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig error::%s", e.what());
     }
     return instance;
+}
+
+jobject Deserializer::convert2JWalletTemplate(JNIEnv *env, const WalletTemplate &wallet_template) {
+    syslog(LOG_DEBUG, "[JNI] convert2JWalletTemplate()");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk.android.type.WalletTemplate");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
+                                                    "(I)Lcom/nunchuk/android/type/WalletTemplate;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) wallet_template);
 }

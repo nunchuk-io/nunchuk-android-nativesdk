@@ -138,4 +138,5 @@ public:
     static jobject convert2JGroupMessage(JNIEnv *env, const GroupMessage &message);
     static jobject convert2JGroupMessages(JNIEnv *env, const std::vector<GroupMessage> &messages);
     static jobject convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config);
+    static jobject convert2JWalletTemplate(JNIEnv *env, const WalletTemplate &wallet_template);
 };

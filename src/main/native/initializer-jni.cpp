@@ -477,5 +477,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
         syslog(LOG_DEBUG, "[JNI] Group Replace Listener Error::%s", e.what());
         Deserializer::convert2JException(env, e);
     }
+}
 
+jclass Initializer::getClass(JNIEnv *env, const char *classPath) {
+    jstring className = env->NewStringUTF(classPath);
+    jclass clazz = static_cast<jclass>(
+            env->CallObjectMethod(Initializer::get()->classLoader,
+                                  Initializer::get()->loadClassMethod,
+                                  className));
+    env->DeleteLocalRef(className);
+    return clazz;
 }

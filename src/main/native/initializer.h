@@ -48,4 +48,6 @@ public:
 
     jobject classLoader;
     jmethodID loadClassMethod;
+
+    jclass getClass(JNIEnv *env, const char *classPath);
 };
