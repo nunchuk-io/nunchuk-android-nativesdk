@@ -1237,3 +1237,24 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getScriptPathFeeRate(JNIEnv *env, jobject thiz,
+                                                                          jstring wallet_id,
+                                                                          jstring transaction_id) {
+    try {
+        std::string c_wallet_id = StringWrapper(env, wallet_id);
+        std::string c_tx_id = StringWrapper(env, transaction_id);
+
+        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
+        nunchuk::Amount fee_rate = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, tx);
+
+        return Deserializer::convert2JAmount(env, fee_rate);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
