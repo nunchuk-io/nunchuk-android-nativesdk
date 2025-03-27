@@ -280,6 +280,8 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
                             convert2JSignerTags(env, signer.get_tags()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVisible", "(Z)V"),
                             signer.is_visible());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedBackup", "(Z)V"),
+                            signer.need_backup());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }

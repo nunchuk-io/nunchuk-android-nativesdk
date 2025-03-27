@@ -863,3 +863,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSigner(JNIEnv *env,
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromHotKey(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jstring signer_id) {
+    try {
+        return env->NewStringUTF(
+                NunchukProvider::get()->nu->GetHotKeyMnemonic(
+                        StringWrapper(env, signer_id)).c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

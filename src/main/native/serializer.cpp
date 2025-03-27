@@ -345,6 +345,9 @@ MasterSigner Serializer::convert2CMasterSigner(JNIEnv *env, jobject signer) {
     jfieldID fieldVisible = env->GetFieldID(clazz, "isVisible", "Z");
     auto isVisible = env->GetBooleanField(signer, fieldVisible);
     masterSigner.set_visible(isVisible);
+    jfieldID fieldNeedBackup = env->GetFieldID(clazz, "isNeedBackup", "Z");
+    auto isNeedBackup = env->GetBooleanField(signer, fieldNeedBackup);
+    masterSigner.set_need_backup(isNeedBackup);
     syslog(LOG_DEBUG, "[JNI][MasterSigner]id:: %s", masterSigner.get_id().c_str());
     syslog(LOG_DEBUG, "[JNI][MasterSigner]name:: %s", masterSigner.get_name().c_str());
     syslog(LOG_DEBUG, "[JNI][MasterSigner]path:: %s", masterSigner.get_device().get_path().c_str());

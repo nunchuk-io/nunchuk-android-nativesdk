@@ -33,5 +33,6 @@ data class MasterSigner(
     var software: Boolean = false,
     var type: SignerType = SignerType.AIRGAP,
     var tags: List<SignerTag> = emptyList(),
-    var isVisible: Boolean = false
+    var isVisible: Boolean = false,
+    var isNeedBackup: Boolean = false
 ) : Parcelable

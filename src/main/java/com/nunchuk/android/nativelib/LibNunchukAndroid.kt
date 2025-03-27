@@ -1354,6 +1354,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getDeprecatedGroupWallets(): List<String>
 
+    @Throws(NCNativeException::class)
+    external fun getMnemonicFromHotKey(signerId: String): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

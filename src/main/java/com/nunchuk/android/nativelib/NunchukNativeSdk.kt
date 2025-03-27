@@ -1626,4 +1626,9 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getDeprecatedGroupWallets(): List<String> = nunchukAndroid.getDeprecatedGroupWallets()
+
+    @Throws(NCNativeException::class)
+    fun getMnemonicFromHotKey(signerId: String) =
+        nunchukAndroid.getMnemonicFromHotKey(signerId)
+
 }
