@@ -82,12 +82,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jstring replace_tx_id
 ) {
     try {
+        auto c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
         auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
-                StringWrapper(env, wallet_id),
+                c_wallet_id,
                 txInputs);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                c_wallet_id,
                 Serializer::convert2CAmountsMap(env, outputs),
                 txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
@@ -95,12 +96,28 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 StringWrapper(env, replace_tx_id)
         );
         Amount packageFeeRate{0};
-        if (NunchukProvider::get()->nu->IsCPFP(StringWrapper(env, wallet_id), transaction,
+        jobject jtransaction;
+        if (NunchukProvider::get()->nu->IsCPFP(c_wallet_id, transaction,
                                                packageFeeRate)) {
-            return Deserializer::convert2JTransaction(env, transaction, packageFeeRate);
+            jtransaction = Deserializer::convert2JTransaction(env, transaction, packageFeeRate);
         } else {
-            return Deserializer::convert2JTransaction(env, transaction);
+            jtransaction = Deserializer::convert2JTransaction(env, transaction);
         }
+
+        auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
+        if (wallet.get_address_type() == AddressType::TAPROOT) {
+            auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, transaction);
+
+            // Set `scriptPathFee` field manually
+            jclass txClass = env->GetObjectClass(jtransaction);
+            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee", "Lcom/nunchuk/android/type/Amount;");
+            jobject jfeeAmount = Deserializer::convert2JAmount(env, fee);
+            if (feeField != nullptr) {
+                env->SetObjectField(jtransaction, feeField, jfeeAmount);
+            }
+        }
+
+        return jtransaction;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return env->ExceptionOccurred();
@@ -1229,27 +1246,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
                 StringWrapper(env, new_wallet_id),
                 tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate));
         return Deserializer::convert2JTransactions(env, txs);
-    } catch (BaseException &e) {
-        Deserializer::convert2JException(env, e);
-        return nullptr;
-    } catch (std::exception &e) {
-        Deserializer::convertStdException2JException(env, e);
-        return nullptr;
-    }
-}
-extern "C"
-JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getScriptPathFeeRate(JNIEnv *env, jobject thiz,
-                                                                          jstring wallet_id,
-                                                                          jstring transaction_id) {
-    try {
-        std::string c_wallet_id = StringWrapper(env, wallet_id);
-        std::string c_tx_id = StringWrapper(env, transaction_id);
-
-        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
-        nunchuk::Amount fee_rate = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, tx);
-
-        return Deserializer::convert2JAmount(env, fee_rate);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;

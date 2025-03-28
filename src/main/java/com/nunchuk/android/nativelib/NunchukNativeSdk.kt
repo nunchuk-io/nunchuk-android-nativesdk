@@ -1630,7 +1630,4 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getMnemonicFromHotKey(signerId: String) =
         nunchukAndroid.getMnemonicFromHotKey(signerId)
-
-    @Throws(NCNativeException::class)
-    fun getScriptPathFeeRate(walletId: String, transactionId: String) = nunchukAndroid.getScriptPathFeeRate(walletId, transactionId)
 }

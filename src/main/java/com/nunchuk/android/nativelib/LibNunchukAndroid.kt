@@ -1357,9 +1357,6 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getMnemonicFromHotKey(signerId: String): String
 
-    @Throws(NCNativeException::class)
-    external fun getScriptPathFeeRate(walletId: String, transactionId: String): Amount
-
     companion object {
         init {
             System.loadLibrary(LIB_NAME)
