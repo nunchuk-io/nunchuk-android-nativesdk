@@ -108,9 +108,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         if (wallet.get_address_type() == AddressType::TAPROOT) {
             auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, transaction);
 
-            // Set `scriptPathFee` field manually
             jclass txClass = env->GetObjectClass(jtransaction);
-            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee", "Lcom/nunchuk/android/type/Amount;");
+            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee", "Lcom/nunchuk/android/model/Amount;");
             jobject jfeeAmount = Deserializer::convert2JAmount(env, fee);
             if (feeField != nullptr) {
                 env->SetObjectField(jtransaction, feeField, jfeeAmount);
