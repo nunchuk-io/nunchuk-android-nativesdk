@@ -402,6 +402,7 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletTemplate",
                                                        "(Lcom/nunchuk/android/type/WalletTemplate;)V"),
                             convert2JWalletTemplate(env, wallet.get_wallet_template()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setArchived", "(Z)V"), wallet.is_archived());
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s",
                Utils::ValueFromAmount(wallet.get_balance()).c_str());
     } catch (std::exception &e) {
