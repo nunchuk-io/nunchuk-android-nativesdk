@@ -1206,7 +1206,7 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
-    external fun recoverFreeGroupWallet(filePath: String, name: String, description: String)
+    external fun recoverFreeGroupWallet(walletId: String)
 
     @Throws(NCNativeException::class)
     external fun checkGroupWalletExists(walletId: String): Boolean

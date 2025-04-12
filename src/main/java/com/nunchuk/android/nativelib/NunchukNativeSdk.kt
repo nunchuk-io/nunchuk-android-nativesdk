@@ -19,6 +19,7 @@
 
 package com.nunchuk.android.nativelib
 
+import android.R.attr.name
 import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
@@ -1462,8 +1463,8 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
 
     @Throws(NCNativeException::class)
-    fun recoverFreeGroupWallet(filePath: String, name: String, description: String) =
-        nunchukAndroid.recoverFreeGroupWallet(filePath, name, description)
+    fun recoverFreeGroupWallet(walletId: String) =
+        nunchukAndroid.recoverFreeGroupWallet(walletId)
 
     @Throws(NCNativeException::class)
     fun checkGroupWalletExists(walletId: String) = nunchukAndroid.checkGroupWalletExists(walletId)

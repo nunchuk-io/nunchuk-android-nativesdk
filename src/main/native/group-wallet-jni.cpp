@@ -570,3 +570,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDeprecatedGroupWallets(J
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverFreeGroupWallet(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring wallet_id) {
+    try {
+        NunchukProvider::get()->nu->RecoverGroupWallet(StringWrapper(env, wallet_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
