@@ -82,6 +82,7 @@ internal class LibNunchukAndroid {
         passphrase: String = "",
         isPrimary: Boolean,
         replace: Boolean,
+        primaryDecoyPin: String
     ): MasterSigner
 
     @Throws(NCNativeException::class)
@@ -1100,6 +1101,7 @@ internal class LibNunchukAndroid {
         xprv: String,
         isPrimary: Boolean,
         replace: Boolean,
+        primaryDecoyPin: String,
     ): MasterSigner?
 
     @Throws(NCNativeException::class)

@@ -964,6 +964,9 @@ jobject Deserializer::convert2JPrimaryKey(JNIEnv *env, const PrimaryKey &key) {
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(key.get_address().c_str()));
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setDecoyPin", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(key.get_decoy_pin().c_str()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }

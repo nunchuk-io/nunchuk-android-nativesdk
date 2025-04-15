@@ -98,12 +98,14 @@ class NunchukNativeSdk {
         passphrase: String,
         isPrimary: Boolean,
         replace: Boolean,
+        primaryDecoyPin: String
     ) = nunchukAndroid.createSoftwareSigner(
         name = name,
         mnemonic = mnemonic,
         passphrase = passphrase,
         isPrimary = isPrimary,
-        replace = replace
+        replace = replace,
+        primaryDecoyPin = primaryDecoyPin
     )
 
     @Throws(NCNativeException::class)
@@ -1358,7 +1360,8 @@ class NunchukNativeSdk {
         xprv: String,
         isPrimary: Boolean,
         replace: Boolean,
-    ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(name, xprv, isPrimary, replace)
+        primaryDecoyPin: String
+    ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(name, xprv, isPrimary, replace, primaryDecoyPin)
 
     @Throws(NCNativeException::class)
     fun isValidXPrv(xprv: String) = nunchukAndroid.isValidXPrv(xprv)

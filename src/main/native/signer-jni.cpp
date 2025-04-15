@@ -248,7 +248,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSigner(
         jobject thiz,
         jstring name,
         jstring mnemonic,
-        jstring passphrase, jboolean is_primary, jboolean replace) {
+        jstring passphrase, jboolean is_primary, jboolean replace, jstring primary_decoy_pin) {
     try {
         const MasterSigner &signer = NunchukProvider::get()->nu->CreateSoftwareSigner(
                 env->GetStringUTFChars(name, JNI_FALSE),
@@ -256,7 +256,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSigner(
                 env->GetStringUTFChars(passphrase, JNI_FALSE),
                 [](int percent) { return true; },
                 is_primary,
-                replace
+                replace,
+                env->GetStringUTFChars(primary_decoy_pin, JNI_FALSE)
         );
         return Deserializer::convert2JMasterSigner(env, signer);
     } catch (BaseException &e) {
@@ -782,14 +783,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSoftwareSignerFromMas
                                                                                         jstring name,
                                                                                         jstring xprv,
                                                                                         jboolean is_primary,
-                                                                                        jboolean replace) {
+                                                                                        jboolean replace,
+                                                                                        jstring primary_decoy_pin) {
     try {
         const MasterSigner &signer = NunchukProvider::get()->nu->CreateSoftwareSignerFromMasterXprv(
                 env->GetStringUTFChars(name, JNI_FALSE),
                 env->GetStringUTFChars(xprv, JNI_FALSE),
                 [](int percent) { return true; },
                 is_primary,
-                replace
+                replace,
+                env->GetStringUTFChars(primary_decoy_pin, JNI_FALSE)
         );
         return Deserializer::convert2JMasterSigner(env, signer);
     } catch (BaseException &e) {

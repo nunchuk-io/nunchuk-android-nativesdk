@@ -26,5 +26,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PrimaryKey(
     var name: String = "", var masterFingerprint: String = "",
-    var account: String = "", var address: String = "", var chain: Chain? = null
+    var account: String = "", var address: String = "", var chain: Chain? = null,
+    var decoyPin: String = ""
 ) : Parcelable
