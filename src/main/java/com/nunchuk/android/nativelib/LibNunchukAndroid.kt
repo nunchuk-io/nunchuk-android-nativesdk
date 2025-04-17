@@ -22,7 +22,34 @@ package com.nunchuk.android.nativelib
 import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
-import com.nunchuk.android.model.*
+import com.nunchuk.android.model.Amount
+import com.nunchuk.android.model.BSMSData
+import com.nunchuk.android.model.BtcUri
+import com.nunchuk.android.model.CardStatus
+import com.nunchuk.android.model.CoinCollection
+import com.nunchuk.android.model.CoinTag
+import com.nunchuk.android.model.ColdCardHealth
+import com.nunchuk.android.model.Device
+import com.nunchuk.android.model.DraftRollOverTransaction
+import com.nunchuk.android.model.FreeGroupMessage
+import com.nunchuk.android.model.FreeGroupWalletConfig
+import com.nunchuk.android.model.GlobalGroupWalletConfig
+import com.nunchuk.android.model.GroupSandbox
+import com.nunchuk.android.model.MasterSigner
+import com.nunchuk.android.model.NunchukMatrixEvent
+import com.nunchuk.android.model.PairAmount
+import com.nunchuk.android.model.PrimaryKey
+import com.nunchuk.android.model.RoomTransaction
+import com.nunchuk.android.model.RoomWallet
+import com.nunchuk.android.model.SatsCardSlot
+import com.nunchuk.android.model.SatsCardStatus
+import com.nunchuk.android.model.SignedMessage
+import com.nunchuk.android.model.SingleSigner
+import com.nunchuk.android.model.TapSignerStatus
+import com.nunchuk.android.model.Transaction
+import com.nunchuk.android.model.TxInput
+import com.nunchuk.android.model.UnspentOutput
+import com.nunchuk.android.model.Wallet
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
 import com.nunchuk.android.type.SignerTag
@@ -197,6 +224,7 @@ internal class LibNunchukAndroid {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
+        antiFeeSniping: Boolean
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -236,7 +264,12 @@ internal class LibNunchukAndroid {
     external fun getTransaction(walletId: String, txId: String): Transaction
 
     @Throws(NCNativeException::class)
-    external fun replaceTransaction(walletId: String, txId: String, newFeeRate: Amount): Transaction
+    external fun replaceTransaction(
+        walletId: String,
+        txId: String,
+        newFeeRate: Amount,
+        antiFeeSniping: Boolean
+    ): Transaction
 
     @Throws(NCNativeException::class)
     external fun importTransaction(walletId: String, filePath: String): Transaction
@@ -1150,7 +1183,8 @@ internal class LibNunchukAndroid {
         newWalletId: String,
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
-        feeRate: Amount
+        feeRate: Amount,
+        antiFeeSniping: Boolean,
     ): List<Transaction>
 
     @Throws(NCNativeException::class)

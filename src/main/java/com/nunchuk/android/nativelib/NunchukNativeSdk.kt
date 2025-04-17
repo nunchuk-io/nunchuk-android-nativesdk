@@ -263,6 +263,7 @@ class NunchukNativeSdk {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
+        antiFeeSniping: Boolean,
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
@@ -270,7 +271,8 @@ class NunchukNativeSdk {
         inputs = inputs,
         feeRate = feeRate,
         subtractFeeFromAmount = subtractFeeFromAmount,
-        replaceTxId = replaceTxId
+        replaceTxId = replaceTxId,
+        antiFeeSniping = antiFeeSniping
     )
 
     @Throws(NCNativeException::class)
@@ -343,10 +345,12 @@ class NunchukNativeSdk {
         walletId: String,
         txId: String,
         newFeeRate: Amount,
+        antiFeeSniping: Boolean,
     ) = nunchukAndroid.replaceTransaction(
         walletId = walletId,
         txId = txId,
-        newFeeRate = newFeeRate
+        newFeeRate = newFeeRate,
+        antiFeeSniping = antiFeeSniping
     )
 
     @Throws(NCNativeException::class)
@@ -1407,8 +1411,9 @@ class NunchukNativeSdk {
         newWalletId: String,
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
-        feeRate: Amount
-    ) = nunchukAndroid.createRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
+        feeRate: Amount,
+        antiFeeSniping: Boolean
+    ) = nunchukAndroid.createRollOverTransactions(walletId, newWalletId, tags, collections, feeRate, antiFeeSniping)
 
     @Throws(NCNativeException::class)
     fun exportWalletToPortal(

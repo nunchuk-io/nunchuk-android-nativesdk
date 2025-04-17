@@ -43,7 +43,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
         jobject inputs,
         jobject fee_rate,
         jboolean subtract_fee_from_amount,
-        jstring replace_tx_id
+        jstring replace_tx_id,
+        jboolean anti_fee_sniping
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
@@ -57,7 +58,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
                 txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount,
-                StringWrapper(env, replace_tx_id)
+                StringWrapper(env, replace_tx_id),
+                anti_fee_sniping
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
@@ -231,13 +233,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransaction(
         jobject thiz,
         jstring wallet_id,
         jstring tx_id,
-        jobject new_fee_rate
+        jobject new_fee_rate,
+        jboolean anti_fee_sniping
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->ReplaceTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 env->GetStringUTFChars(tx_id, JNI_FALSE),
-                Serializer::convert2CAmount(env, new_fee_rate)
+                Serializer::convert2CAmount(env, new_fee_rate),
+                anti_fee_sniping
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
@@ -1228,7 +1232,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
                                                                                 jstring new_wallet_id,
                                                                                 jobject tags,
                                                                                 jobject collections,
-                                                                                jobject fee_rate) {
+                                                                                jobject fee_rate,
+                                                                                jboolean anti_fee_sniping) {
     try {
         auto coinTags = Serializer::convert2CCoinTags(env, tags);
         auto tagIds = std::set<int>();
@@ -1243,7 +1248,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
         auto txs = NunchukProvider::get()->nu->CreateRollOverTransactions(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, new_wallet_id),
-                tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate));
+                tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate),
+                anti_fee_sniping);
         return Deserializer::convert2JTransactions(env, txs);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
