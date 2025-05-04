@@ -449,7 +449,10 @@ Wallet Serializer::convert2CWallet(JNIEnv *env, jobject wallet) {
     jfieldID fieldArchived = env->GetFieldID(clazz, "archived", "Z");
     auto archived = env->GetBooleanField(wallet, fieldArchived);
 
-    Wallet updateWallet = Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, 0);
+    jfieldID fieldCreateDate = env->GetFieldID(clazz, "createDate", "J");
+    auto create_date = env->GetLongField(wallet, fieldCreateDate);
+
+    Wallet updateWallet = Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, create_date);
     updateWallet.set_name(name);
     updateWallet.set_gap_limit(gap_limit);
     updateWallet.set_need_backup(need_backup);
