@@ -44,7 +44,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
         jobject fee_rate,
         jboolean subtract_fee_from_amount,
         jstring replace_tx_id,
-        jboolean anti_fee_sniping
+        jboolean anti_fee_sniping,
+        jboolean use_script_path
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
@@ -59,7 +60,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount,
                 StringWrapper(env, replace_tx_id),
-                anti_fee_sniping
+                anti_fee_sniping,
+                use_script_path
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
@@ -81,7 +83,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jobject inputs,
         jobject fee_rate,
         jboolean subtract_fee_from_amount,
-        jstring replace_tx_id
+        jstring replace_tx_id,
+        jboolean use_script_path
 ) {
     try {
         auto c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
@@ -95,7 +98,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount,
-                StringWrapper(env, replace_tx_id)
+                StringWrapper(env, replace_tx_id),
+                use_script_path
         );
         Amount packageFeeRate{0};
         jobject jtransaction;
