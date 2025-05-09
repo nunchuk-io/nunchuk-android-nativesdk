@@ -40,5 +40,7 @@ data class AppSettings(
         val coreRpcPort: Int = 0,
         val coreRpcUsername: String = "",
         val coreRpcPassword: String = "",
-        val signetExplorerHost: String = ""
+        val signetExplorerHost: String = "",
+        val testExplorerHost: String = "",
+        val mainnetExplorerHost: String = "",
 )
