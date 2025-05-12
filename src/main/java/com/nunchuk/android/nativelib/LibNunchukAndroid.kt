@@ -224,8 +224,7 @@ internal class LibNunchukAndroid {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
-        antiFeeSniping: Boolean,
-        useScriptPath: Boolean
+        antiFeeSniping: Boolean
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -246,7 +245,6 @@ internal class LibNunchukAndroid {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
-        useScriptPath: Boolean
     ): Transaction
 
     @Throws(NCNativeException::class)
