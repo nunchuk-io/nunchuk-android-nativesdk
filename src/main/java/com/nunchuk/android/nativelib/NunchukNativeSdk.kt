@@ -264,6 +264,7 @@ class NunchukNativeSdk {
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
         antiFeeSniping: Boolean,
+        useScriptPath: Boolean
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
@@ -272,7 +273,8 @@ class NunchukNativeSdk {
         feeRate = feeRate,
         subtractFeeFromAmount = subtractFeeFromAmount,
         replaceTxId = replaceTxId,
-        antiFeeSniping = antiFeeSniping
+        antiFeeSniping = antiFeeSniping,
+        useScriptPath = useScriptPath
     )
 
     @Throws(NCNativeException::class)
@@ -300,13 +302,15 @@ class NunchukNativeSdk {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
+        useScriptPath: Boolean
     ) = nunchukAndroid.draftTransaction(
         walletId = walletId,
         outputs = outputs,
         inputs = inputs,
         feeRate = feeRate,
         subtractFeeFromAmount = subtractFeeFromAmount,
-        replaceTxId
+        replaceTxId = replaceTxId,
+        useScriptPath = useScriptPath
     )
 
     @Throws(NCNativeException::class)
