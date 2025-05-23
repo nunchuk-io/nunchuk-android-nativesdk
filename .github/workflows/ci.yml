@@ -1,0 +1,70 @@
+name: Build nativesdk
+
+on:
+  push:
+    branches: [ "*" ]
+    tags:     [ "*" ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Override submodule URL
+        run: |
+          git config -f .gitmodules submodule.src/main/native/libnunchuk.url https://github.com/nunchuk-io/libnunchuk
+          git submodule sync
+          git submodule update --init --recursive --depth 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push builder image
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            -f Dockerfile \
+            -t ghcr.io/${{ github.repository }}/nunchuk-builder \
+            --cache-from type=registry,ref=ghcr.io/${{ github.repository }}/builder-cache \
+            --cache-to   type=registry,ref=ghcr.io/${{ github.repository }}/builder-cache,mode=max \
+            --push .
+
+      - name: Install dependencies
+        run: |
+          docker run  --rm \
+            -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
+            -w /nunchuk-android-nativesdk/src/main/native \
+            ghcr.io/${{ github.repository }}/nunchuk-builder \
+            bash ./.install_deps.sh
+
+      - name: Build the sdk
+        run: |
+          docker run  --rm \
+            -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
+            -w /nunchuk-android-nativesdk \
+            ghcr.io/${{ github.repository }}/nunchuk-builder \
+            ./gradlew assembleArmRelease
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nativesdk-${{ env.GITHUB_SHA }}
+          path: build/outputs/aar
