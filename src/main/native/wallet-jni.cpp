@@ -712,7 +712,7 @@ JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMostRecentlyUsedWallets(JNIEnv *env,
                                                                                 jobject thiz) {
     try {
-        auto wallets = NunchukProvider::get()->nu->GetWallets({ OrderBy::MOST_RECENTLY_USED });
+        auto wallets = NunchukProvider::get()->nu->GetWallets({OrderBy::MOST_RECENTLY_USED});
         return Deserializer::convert2JWallets(env, wallets);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -740,8 +740,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_markAddressAsUsed(JNIEnv *e
                                                                        jstring address) {
     try {
         return NunchukProvider::get()->nu->MarkAddressAsUsed(
-                 StringWrapper(env, wallet_id),
-                 StringWrapper(env, address)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, address)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -792,11 +792,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGlobalGroupWalletConfig(
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateGroupSandbox(JNIEnv *env,
-                                                                           jobject thiz,
-                                                                           jstring group_id,
-                                                                           jstring name, jint m,
-                                                                           jint n,
-                                                                           jint address_type) {
+                                                                        jobject thiz,
+                                                                        jstring group_id,
+                                                                        jstring name, jint m,
+                                                                        jint n,
+                                                                        jint address_type) {
     try {
         auto addressType = Serializer::convert2CAddressType(address_type);
         auto groupSandbox = NunchukProvider::get()->nu->UpdateGroup(
@@ -807,6 +807,133 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateGroupSandbox(JNIEnv *
                 addressType
         );
         return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateBySelection(
+        JNIEnv *env, jobject thiz, jint multisign_type, jint m, jint n, jint new_m, jint new_n,
+        jint timelock_type, jint time_unit, jlong time, jint address_type, jboolean reuse_signer) {
+    try {
+        Timelock::Based based;
+        Timelock::Type type = Timelock::Type::ABSOLUTE;
+
+        if (timelock_type == 0) {
+            type = Timelock::Type::ABSOLUTE;
+        } else if (timelock_type == 1) {
+            type = Timelock::Type::RELATIVE;
+        }
+
+        if (time_unit == 0) {
+            based = Timelock::Based::TIME_LOCK;
+        } else if (time_unit == 1) {
+            based = Timelock::Based::HEIGHT_LOCK;
+        }
+
+        std::string miniscript_template;
+        auto expand_time = Timelock(based, type, static_cast<int64_t>(time));
+        AddressType addressType = Serializer::convert2CAddressType(address_type);
+        if (multisign_type == 0) {
+            miniscript_template = Utils::ExpandingMultisigMiniscriptTemplate(m, n, new_n,
+                                                                             expand_time,
+                                                                             addressType);
+        } else if (multisign_type == 1) {
+            miniscript_template = Utils::DecayingMultisigMiniscriptTemplate(m, n, new_m,
+                                                                            expand_time,
+                                                                            addressType);
+        } else if (multisign_type == 2) {
+            miniscript_template = Utils::FlexibleMultisigMiniscriptTemplate(m, n, new_m, new_n,
+                                                                            reuse_signer,
+                                                                            expand_time,
+                                                                            addressType);
+        } else {
+            return env->NewStringUTF("");
+        }
+
+        return env->NewStringUTF(miniscript_template.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByCustom(JNIEnv *env,
+                                                                                      jobject thiz,
+                                                                                      jstring input,
+                                                                                      jint address_type) {
+    try {
+        std::string miniscript_template;
+        std::string user_input = env->GetStringUTFChars(input, JNI_FALSE);
+        AddressType addressType = Serializer::convert2CAddressType(address_type);
+        if (Utils::IsValidMiniscriptTemplate(user_input, addressType)) {
+            miniscript_template = user_input;
+        } else if (Utils::IsValidPolicy(user_input)) {
+            miniscript_template = Utils::PolicyToMiniscript(user_input, {}, addressType);
+        } else {
+            miniscript_template = "";
+        }
+        return env->NewStringUTF(miniscript_template.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getScriptNodeFromMiniscript(JNIEnv *env,
+                                                                                 jobject thiz,
+                                                                                 jstring miniscript_template) {
+    try {
+        auto node = Utils::MiniscriptToScriptNode(
+                env->GetStringUTFChars(miniscript_template, JNI_FALSE));
+        return Deserializer::convert2JScriptNode(env, node);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptWallet(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring miniscript_template,
+                                                                            jobject signer_map,
+                                                                            jstring name,
+                                                                            jstring description,
+                                                                            jint address_type,
+                                                                            jboolean allow_used_signer,
+                                                                            jstring decoy_pin) {
+    try {
+        auto signerMap = Serializer::convert2CSignerMap(env, signer_map);
+        auto cMiniscriptTemplate = env->GetStringUTFChars(miniscript_template, JNI_FALSE);
+        auto cAddressType = Serializer::convert2CAddressType(address_type);
+
+        std::string miniscript = Utils::MiniscriptTemplateToMiniscript(cMiniscriptTemplate, signerMap);
+        auto wallet = NunchukProvider::get()->nu->CreateMiniscriptWallet(
+                StringWrapper(env, name),
+                miniscript,
+                cAddressType,
+                StringWrapper(env, description),
+                allow_used_signer,
+                StringWrapper(env, decoy_pin)
+        );
+        return Deserializer::convert2JWallet(env, wallet);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;

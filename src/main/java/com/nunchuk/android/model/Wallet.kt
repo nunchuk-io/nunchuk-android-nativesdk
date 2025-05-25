@@ -38,7 +38,8 @@ data class Wallet(
     var gapLimit: Int = 0,
     var needBackup: Boolean = false,
     var walletTemplate: WalletTemplate = WalletTemplate.DEFAULT,
-    var archived: Boolean = false
+    var archived: Boolean = false,
+    var miniscript: String = "",
 ) : Parcelable {
     companion object {
         val EMPTY = Wallet()

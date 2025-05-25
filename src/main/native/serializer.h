@@ -43,6 +43,8 @@ public:
 
     static std::vector<int> convert2CSetInt(JNIEnv *env, jobject values);
 
+    static std::map<std::string, SingleSigner> convert2CSignerMap(JNIEnv *env, jobject signer_map);
+
     static Wallet convert2CWallet(JNIEnv *env, jobject wallet);
 
     static TxInput convert2CTxInput(JNIEnv *env, jobject input);

@@ -403,6 +403,9 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
                                                        "(Lcom/nunchuk/android/type/WalletTemplate;)V"),
                             convert2JWalletTemplate(env, wallet.get_wallet_template()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setArchived", "(Z)V"), wallet.is_archived());
+        env->CallVoidMethod(instance,
+                            env->GetMethodID(clazz, "setMiniscript", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(wallet.get_miniscript().c_str()));
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s",
                Utils::ValueFromAmount(wallet.get_balance()).c_str());
     } catch (std::exception &e) {
@@ -1394,4 +1397,51 @@ jobject Deserializer::convert2JWalletTemplate(JNIEnv *env, const WalletTemplate 
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
                                                     "(I)Lcom/nunchuk/android/type/WalletTemplate;");
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) wallet_template);
+}
+
+jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
+    syslog(LOG_DEBUG, "[JNI] convert2JScriptNode()");
+    jstring className = env->NewStringUTF("com/nunchuk/android/model/ScriptNode");
+    jclass clazz = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                                  Initializer::get()->loadClassMethod,
+                                                                  className));
+    // Constructor signature: (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;I)V
+    jmethodID constructor = env->GetMethodID(clazz,
+                                             "<init>",
+                                             "(Ljava/lang/String;Ljava/util/List;Ljava/util/List;I)V");
+
+    jstring typeStr = env->NewStringUTF(ScriptNode::type_to_string(node.get_type()).c_str());
+    jobject keysList = convert2JListString(env, node.get_keys());
+    jobject subsList = convert2JScriptNodes(env, node.get_subs());
+    if (subsList == nullptr) {
+        // create an empty list to avoid null pointer in Kotlin
+        jclass arrayListClass = env->FindClass("java/util/ArrayList");
+        jmethodID constructorArr = env->GetMethodID(arrayListClass, "<init>", "()V");
+        subsList = env->NewObject(arrayListClass, constructorArr);
+    }
+    jint kValue = static_cast<jint>(node.get_k());
+
+    // Construct Kotlin ScriptNode object
+    jobject instance = env->NewObject(clazz, constructor, typeStr, keysList, subsList, kValue);
+
+    // Cleanup
+    env->DeleteLocalRef(typeStr);
+
+    return instance;
+}
+
+jobject Deserializer::convert2JScriptNodes(JNIEnv *env, const std::vector<ScriptNode> &nodes) {
+    static auto arrayListClass = static_cast<jclass>(env->NewGlobalRef(
+            env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayListInstance = env->NewObject(arrayListClass, constructor);
+
+    for (const ScriptNode &node : nodes) {
+        jobject element = convert2JScriptNode(env, node);
+        env->CallBooleanMethod(arrayListInstance, addMethod, element);
+        env->DeleteLocalRef(element);
+    }
+
+    return arrayListInstance;
 }

@@ -43,6 +43,7 @@ import com.nunchuk.android.model.RoomTransaction
 import com.nunchuk.android.model.RoomWallet
 import com.nunchuk.android.model.SatsCardSlot
 import com.nunchuk.android.model.SatsCardStatus
+import com.nunchuk.android.model.ScriptNode
 import com.nunchuk.android.model.SignedMessage
 import com.nunchuk.android.model.SingleSigner
 import com.nunchuk.android.model.TapSignerStatus
@@ -1401,6 +1402,40 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getMnemonicFromHotKey(signerId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun createMiniscriptTemplateBySelection(
+        multisignType: Int,
+        m: Int,
+        n: Int,
+        newM: Int,
+        newN: Int,
+        timelockType: Int,
+        timeUnit: Int,
+        time: Long,
+        addressType: Int,
+        reuseSigner: Boolean,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun createMiniscriptTemplateByCustom(input: String, addressType: Int): String
+
+    @Throws(NCNativeException::class)
+    external fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNode
+
+    @Throws(NCNativeException::class)
+    external fun createMiniscriptWallet(
+        miniscriptTemplate: String,
+        signerMap: Map<String, SingleSigner>,
+        name: String,
+        description: String,
+        addressType: Int,
+        allowUsedSigner: Boolean,
+        decoyPin: String,
+    ): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun getCurrentIndexFromMasterSigner(mastersignerId: String, walletType: Int, addressType: Int): Int
 
     companion object {
         init {

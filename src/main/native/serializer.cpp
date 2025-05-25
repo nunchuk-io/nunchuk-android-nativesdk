@@ -238,22 +238,49 @@ std::vector<int> Serializer::convert2CListInt(JNIEnv *env, jobject values) {
 
 std::vector<int> Serializer::convert2CSetInt(JNIEnv *env, jobject values) {
     jclass cSet = env->FindClass("java/util/Set");
+    jmethodID sizeMethod = env->GetMethodID(cSet, "size", "()I");
+    jmethodID toArrayMethod = env->GetMethodID(cSet, "toArray", "()[Ljava/lang/Object;");
+    jint size = env->CallIntMethod(values, sizeMethod);
+    jobjectArray array = (jobjectArray) env->CallObjectMethod(values, toArrayMethod);
+    std::vector<int> result;
+    for (jint i = 0; i < size; i++) {
+        jobject item = env->GetObjectArrayElement(array, i);
+        jclass cInteger = env->FindClass("java/lang/Integer");
+        jmethodID intValueMethod = env->GetMethodID(cInteger, "intValue", "()I");
+        jint value = env->CallIntMethod(item, intValueMethod);
+        result.push_back(value);
+    }
+    return result;
+}
 
+std::map<std::string, SingleSigner> Serializer::convert2CSignerMap(JNIEnv *env, jobject signer_map) {
+    jclass cMap = env->FindClass("java/util/Map");
+    jmethodID entrySetMethod = env->GetMethodID(cMap, "entrySet", "()Ljava/util/Set;");
+    jobject entrySet = env->CallObjectMethod(signer_map, entrySetMethod);
+
+    jclass cSet = env->FindClass("java/util/Set");
     jmethodID iteratorMethod = env->GetMethodID(cSet, "iterator", "()Ljava/util/Iterator;");
-    jobject iterator = env->CallObjectMethod(values, iteratorMethod);
+    jobject iterator = env->CallObjectMethod(entrySet, iteratorMethod);
 
     jclass cIterator = env->FindClass("java/util/Iterator");
     jmethodID hasNextMethod = env->GetMethodID(cIterator, "hasNext", "()Z");
     jmethodID nextMethod = env->GetMethodID(cIterator, "next", "()Ljava/lang/Object;");
 
-    std::vector<int> result;
+    jclass cMapEntry = env->FindClass("java/util/Map$Entry");
+    jmethodID getKeyMethod = env->GetMethodID(cMapEntry, "getKey", "()Ljava/lang/Object;");
+    jmethodID getValueMethod = env->GetMethodID(cMapEntry, "getValue", "()Ljava/lang/Object;");
 
+    std::map<std::string, SingleSigner> result;
     while (env->CallBooleanMethod(iterator, hasNextMethod)) {
-        jobject item = env->CallObjectMethod(iterator, nextMethod);
-        jint intValue = env->CallIntMethod(item, env->GetMethodID(env->FindClass("java/lang/Integer"), "intValue", "()I"));
-        result.push_back(intValue);
-    }
+        jobject entry = env->CallObjectMethod(iterator, nextMethod);
+        jstring key = (jstring) env->CallObjectMethod(entry, getKeyMethod);
+        jobject value = env->CallObjectMethod(entry, getValueMethod);
 
+        const char* keyStr = env->GetStringUTFChars(key, nullptr);
+        SingleSigner signer = convert2CSigner(env, value);
+        result[keyStr] = signer;
+        env->ReleaseStringUTFChars(key, keyStr);
+    }
     return result;
 }
 
