@@ -48,7 +48,6 @@ patchFile() {
 applyBitcoinDependsPatches() {
   patchFile ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
   patchFile ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/android.mk
-  patchFile ./patches/FindLibevent.cmake libnunchuk/contrib/bitcoin/cmake/module/FindLibevent.cmake
   patchFile ./patches/random.cpp libnunchuk/contrib/bitcoin/src/random.cpp
 }
 
@@ -82,10 +81,6 @@ popd || exit
 ####                                 OpenSSL Lib                                     ####
 #########################################################################################
 
-applyOpenSSLPatches() {
-  cmp -s ./patches/openssl-15-android.conf libnunchuk/contrib/openssl/Configurations/15-android.conf || cp ./patches/openssl-15-android.conf libnunchuk/contrib/openssl/Configurations/15-android.conf
-}
-
 installOpenSSL() {
   abi=$1
   target=$2
@@ -108,7 +103,6 @@ installOpenSSL() {
   make install_dev
 }
 
-applyOpenSSLPatches
 pushd "libnunchuk/contrib/openssl" || exit
 installOpenSSL $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A "android-arm"
 installOpenSSL $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A "android-arm64"
