@@ -314,6 +314,17 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun draftRbfTransaction(
+        walletId: String,
+        feeRate: Amount,
+        replaceTxId: String,
+    ): Transaction = nunchukAndroid.draftRbfTransaction(
+        walletId = walletId,
+        feeRate = feeRate,
+        replaceTxId = replaceTxId,
+    )
+
+    @Throws(NCNativeException::class)
     fun deleteTransaction(walletId: String, txId: String) = nunchukAndroid.deleteTransaction(
         walletId = walletId,
         txId = txId

@@ -250,6 +250,13 @@ internal class LibNunchukAndroid {
     ): Transaction
 
     @Throws(NCNativeException::class)
+    external fun draftRbfTransaction(
+        walletId: String,
+        feeRate: Amount,
+        replaceTxId: String,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
     external fun deleteTransaction(walletId: String, txId: String): Boolean
 
     @Throws(NCNativeException::class)
