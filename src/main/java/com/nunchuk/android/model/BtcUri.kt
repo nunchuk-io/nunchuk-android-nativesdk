@@ -19,9 +19,13 @@
 
 package com.nunchuk.android.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class BtcUri(
     var address: String = "",
     var amount: Amount = Amount(0),
     var label: String = "",
     var message: String = ""
-)
+) : Parcelable
