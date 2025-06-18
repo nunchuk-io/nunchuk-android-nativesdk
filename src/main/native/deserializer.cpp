@@ -1445,3 +1445,11 @@ jobject Deserializer::convert2JScriptNodes(JNIEnv *env, const std::vector<Script
 
     return arrayListInstance;
 }
+
+jobject Deserializer::convert2JMiniscriptTemplateResult(JNIEnv *env, const std::string &template_str, bool isValidTapscript) {
+    syslog(LOG_DEBUG, "[JNI] convert2JMiniscriptTemplateResult()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/MiniscriptTemplateResult");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;Z)V");
+    jobject instance = env->NewObject(clazz, constructor, env->NewStringUTF(template_str.c_str()), isValidTapscript);
+    return instance;
+}

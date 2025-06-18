@@ -23,6 +23,7 @@ import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.Amount
+import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.AppSettings
 import com.nunchuk.android.model.CoinCollection
 import com.nunchuk.android.model.CoinTag
@@ -1716,7 +1717,7 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun createMiniscriptTemplateByCustom(input: String, addressType: Int,): String =
+    fun createMiniscriptTemplateByCustom(input: String, addressType: Int,): MiniscriptTemplateResult =
         nunchukAndroid.createMiniscriptTemplateByCustom(input, addressType)
 
     @Throws(NCNativeException::class)

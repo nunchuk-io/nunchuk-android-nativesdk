@@ -24,6 +24,7 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.Amount
 import com.nunchuk.android.model.BSMSData
+import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.BtcUri
 import com.nunchuk.android.model.CardStatus
 import com.nunchuk.android.model.CoinCollection
@@ -1418,7 +1419,7 @@ internal class LibNunchukAndroid {
     ): String
 
     @Throws(NCNativeException::class)
-    external fun createMiniscriptTemplateByCustom(input: String, addressType: Int): String
+    external fun createMiniscriptTemplateByCustom(input: String, addressType: Int): MiniscriptTemplateResult
 
     @Throws(NCNativeException::class)
     external fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNode

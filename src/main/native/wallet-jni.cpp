@@ -866,23 +866,30 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByS
     }
 }
 extern "C"
-JNIEXPORT jstring JNICALL
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByCustom(JNIEnv *env,
                                                                                       jobject thiz,
                                                                                       jstring input,
                                                                                       jint address_type) {
     try {
         std::string miniscript_template;
+        std::string error;
+        bool is_valid_tapscript = false;
         std::string user_input = env->GetStringUTFChars(input, JNI_FALSE);
         AddressType addressType = Serializer::convert2CAddressType(address_type);
+        
         if (Utils::IsValidMiniscriptTemplate(user_input, addressType)) {
             miniscript_template = user_input;
         } else if (Utils::IsValidPolicy(user_input)) {
             miniscript_template = Utils::PolicyToMiniscript(user_input, {}, addressType);
+        } else if (Utils::IsValidTapscriptTemplate(user_input, error)) {
+            miniscript_template = user_input;
+            is_valid_tapscript = true;
         } else {
             miniscript_template = "";
         }
-        return env->NewStringUTF(miniscript_template.c_str());
+        
+        return Deserializer::convert2JMiniscriptTemplateResult(env, miniscript_template, is_valid_tapscript);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;
@@ -897,9 +904,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getScriptNodeFromMiniscript
                                                                                  jobject thiz,
                                                                                  jstring miniscript_template) {
     try {
-        auto node = Utils::MiniscriptToScriptNode(
-                env->GetStringUTFChars(miniscript_template, JNI_FALSE));
-        return Deserializer::convert2JScriptNode(env, node);
+        std::map<std::string, SingleSigner> signers{};
+        std::string keypath;
+        ScriptNode script_node = Utils::GetScriptNode(env->GetStringUTFChars(miniscript_template, JNI_FALSE), keypath);
+        return Deserializer::convert2JScriptNode(env, script_node);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;
@@ -924,10 +932,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptWallet(JNIE
         auto cMiniscriptTemplate = env->GetStringUTFChars(miniscript_template, JNI_FALSE);
         auto cAddressType = Serializer::convert2CAddressType(address_type);
 
-        std::string miniscript = Utils::MiniscriptTemplateToMiniscript(cMiniscriptTemplate, signerMap);
         auto wallet = NunchukProvider::get()->nu->CreateMiniscriptWallet(
                 StringWrapper(env, name),
-                miniscript,
+                cMiniscriptTemplate,
+                signerMap,
                 cAddressType,
                 StringWrapper(env, description),
                 allow_used_signer,
