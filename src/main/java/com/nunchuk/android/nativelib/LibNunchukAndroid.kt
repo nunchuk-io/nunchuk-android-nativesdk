@@ -45,6 +45,7 @@ import com.nunchuk.android.model.RoomWallet
 import com.nunchuk.android.model.SatsCardSlot
 import com.nunchuk.android.model.SatsCardStatus
 import com.nunchuk.android.model.ScriptNode
+import com.nunchuk.android.model.ScriptNodeResult
 import com.nunchuk.android.model.SignedMessage
 import com.nunchuk.android.model.SingleSigner
 import com.nunchuk.android.model.TapSignerStatus
@@ -1422,7 +1423,7 @@ internal class LibNunchukAndroid {
     external fun createMiniscriptTemplateByCustom(input: String, addressType: Int): MiniscriptTemplateResult
 
     @Throws(NCNativeException::class)
-    external fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNode
+    external fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNodeResult
 
     @Throws(NCNativeException::class)
     external fun createMiniscriptWallet(

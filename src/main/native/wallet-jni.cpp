@@ -907,7 +907,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getScriptNodeFromMiniscript
         std::map<std::string, SingleSigner> signers{};
         std::string keypath;
         ScriptNode script_node = Utils::GetScriptNode(env->GetStringUTFChars(miniscript_template, JNI_FALSE), keypath);
-        return Deserializer::convert2JScriptNode(env, script_node);
+        return Deserializer::convert2JScriptNodeResult(env, script_node, keypath);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;

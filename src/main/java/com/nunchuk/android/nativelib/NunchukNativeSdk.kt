@@ -35,6 +35,7 @@ import com.nunchuk.android.model.MasterSigner
 import com.nunchuk.android.model.NunchukMatrixEvent
 import com.nunchuk.android.model.SatsCardSlot
 import com.nunchuk.android.model.ScriptNode
+import com.nunchuk.android.model.ScriptNodeResult
 import com.nunchuk.android.model.SingleSigner
 import com.nunchuk.android.model.Transaction
 import com.nunchuk.android.model.TxInput
@@ -1721,7 +1722,7 @@ class NunchukNativeSdk {
         nunchukAndroid.createMiniscriptTemplateByCustom(input, addressType)
 
     @Throws(NCNativeException::class)
-    fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNode =
+    fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNodeResult =
         nunchukAndroid.getScriptNodeFromMiniscript(miniscriptTemplate)
 
     @Throws(NCNativeException::class)
