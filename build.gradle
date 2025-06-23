@@ -118,7 +118,7 @@ if (localProperties.exists()) {
 
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk"
-def VERSION = "1.1.96"
+def VERSION = "1.1.97"
 
 publishing {
     publications {
