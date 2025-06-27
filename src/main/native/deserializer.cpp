@@ -140,8 +140,8 @@ jobject Deserializer::convert2JTxInput(JNIEnv *env, const TxInput &input) {
     jobject instance = env->NewObject(clazz, constructor);
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFirst", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(input.first.c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSecond", "(I)V"), input.second);
+                            env->NewStringUTF(input.txid.c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSecond", "(I)V"), input.vout);
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxInput error::%s", e.what());
     }
