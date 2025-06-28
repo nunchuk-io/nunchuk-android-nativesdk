@@ -500,6 +500,8 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setKeySetStatus", "(Ljava/util/List;)V"),
                             convert2JKeySetStatus(env, transaction.get_keyset_status()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLockTime", "(J)V"),
+                            static_cast<jlong>(transaction.get_lock_time()));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
@@ -885,6 +887,9 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAmount",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, output.get_amount()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLockBased",
+                                                       "(Lcom/nunchuk/android/type/MiniscriptTimelockBased;)V"),
+                            convert2JMiniscriptTimelockBased(env, output.get_lock_based()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JUnspentOutput error::%s", e.what());
     }
@@ -1469,4 +1474,14 @@ jobject Deserializer::convert2JMiniscriptTemplateResult(JNIEnv *env, const std::
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;Z)V");
     jobject instance = env->NewObject(clazz, constructor, env->NewStringUTF(template_str.c_str()), isValidTapscript);
     return instance;
+}
+
+jobject Deserializer::convert2JMiniscriptTimelockBased(JNIEnv *env, nunchuk::Timelock::Based based) {
+    jstring className = env->NewStringUTF("com/nunchuk/android/type/MiniscriptTimelockBasedHelper");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/MiniscriptTimelockBased;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, static_cast<jint>(based));
 }

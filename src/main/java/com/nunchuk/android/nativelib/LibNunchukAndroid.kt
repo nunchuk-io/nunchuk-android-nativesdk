@@ -1439,6 +1439,13 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getCurrentIndexFromMasterSigner(mastersignerId: String, walletType: Int, addressType: Int): Int
 
+    @Throws(NCNativeException::class)
+    external fun getTimelockedCoins(
+        walletId: String,
+        txId: String,
+        maxLockValue: Long
+    ): List<UnspentOutput>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

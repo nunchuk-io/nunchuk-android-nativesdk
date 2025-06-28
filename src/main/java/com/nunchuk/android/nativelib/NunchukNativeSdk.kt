@@ -1747,4 +1747,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getCurrentIndexFromMasterSigner(mastersignerId: String, walletType: Int, addressType: Int) =
         nunchukAndroid.getCurrentIndexFromMasterSigner(mastersignerId, walletType, addressType)
+
+    @Throws(NCNativeException::class)
+    fun getTimelockedCoins(walletId: String, txId: String, maxLockValue: Long): List<UnspentOutput> =
+        nunchukAndroid.getTimelockedCoins(walletId, txId, maxLockValue)
 }

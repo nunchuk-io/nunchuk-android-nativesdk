@@ -143,4 +143,5 @@ public:
     static jobject convert2JScriptNodes(JNIEnv *env, const std::vector<ScriptNode> &nodes);
     static jobject convert2JScriptNodeResult(JNIEnv *env, const ScriptNode &node, const std::string &keyPath);
     static jobject convert2JMiniscriptTemplateResult(JNIEnv *env, const std::string &template_str, bool isValidTapscript);
+    static jobject convert2JMiniscriptTimelockBased(JNIEnv *env, nunchuk::Timelock::Based based);
 };
