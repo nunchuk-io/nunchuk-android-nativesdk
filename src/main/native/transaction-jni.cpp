@@ -1327,8 +1327,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
     JNIEnv *env,
     jobject thiz,
     jstring wallet_id,
-    jstring tx_id,
-    jlong max_lock_value
+    jstring tx_id
 ) {
     try {
         auto c_wallet_id = StringWrapper(env, wallet_id);
@@ -1336,13 +1335,48 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
         auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
         auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
         std::vector<nunchuk::UnspentOutput> coins = NunchukProvider::get()->nu->GetCoinsFromTxInputs(wallet.get_id(), tx.get_inputs());
+        int64_t max_lock_value = 0;
         std::vector<nunchuk::UnspentOutput> locked_coins = nunchuk::Utils::GetTimelockedCoins(wallet.get_miniscript(), coins, max_lock_value, NunchukProvider::get()->nu->GetChainTip());
-        return Deserializer::convert2JUnspentOutputs(env, locked_coins);
+        jobject lockedCoinsList = Deserializer::convert2JUnspentOutputs(env, locked_coins);
+        jclass pairClass = env->FindClass("kotlin/Pair");
+        jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+        jobject maxLockValueObj = env->NewObject(env->FindClass("java/lang/Long"), env->GetMethodID(env->FindClass("java/lang/Long"), "<init>", "(J)V"), static_cast<jlong>(max_lock_value));
+        jobject pairObj = env->NewObject(pairClass, pairConstructor, maxLockValueObj, lockedCoinsList);
+        env->DeleteLocalRef(maxLockValueObj);
+        env->DeleteLocalRef(lockedCoinsList);
+        return pairObj;
+    } catch (const std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFeeForSigningPaths(
+    JNIEnv *env,
+    jobject thiz,
+    jstring wallet_id,
+    jobject outputs,
+    jobject inputs,
+    jobject fee_rate,
+    jboolean subtract_fee_from_amount,
+    jstring replace_tx_id
+) {
+    try {
+        auto c_wallet_id = StringWrapper(env, wallet_id);
+        auto c_outputs = Serializer::convert2CAmountsMap(env, outputs);
+        auto c_inputs = Serializer::convert2CUnspentOutputs(env, inputs);
+        Amount c_fee_rate = Serializer::convert2CAmount(env, fee_rate);
+        auto c_replace_tx_id = StringWrapper(env, replace_tx_id);
+        auto result = NunchukProvider::get()->nu->EstimateFeeForSigningPaths(
+            c_wallet_id, c_outputs, c_inputs, c_fee_rate, subtract_fee_from_amount, c_replace_tx_id);
+        return Deserializer::convert2JSigningPathAmountPairs(env, result);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
-        return env->ExceptionOccurred();
+        return nullptr;
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
-        return env->ExceptionOccurred();
+        return nullptr;
     }
 }

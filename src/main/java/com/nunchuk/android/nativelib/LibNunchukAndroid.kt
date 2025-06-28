@@ -24,7 +24,6 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.Amount
 import com.nunchuk.android.model.BSMSData
-import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.BtcUri
 import com.nunchuk.android.model.CardStatus
 import com.nunchuk.android.model.CoinCollection
@@ -37,6 +36,7 @@ import com.nunchuk.android.model.FreeGroupWalletConfig
 import com.nunchuk.android.model.GlobalGroupWalletConfig
 import com.nunchuk.android.model.GroupSandbox
 import com.nunchuk.android.model.MasterSigner
+import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.NunchukMatrixEvent
 import com.nunchuk.android.model.PairAmount
 import com.nunchuk.android.model.PrimaryKey
@@ -44,9 +44,9 @@ import com.nunchuk.android.model.RoomTransaction
 import com.nunchuk.android.model.RoomWallet
 import com.nunchuk.android.model.SatsCardSlot
 import com.nunchuk.android.model.SatsCardStatus
-import com.nunchuk.android.model.ScriptNode
 import com.nunchuk.android.model.ScriptNodeResult
 import com.nunchuk.android.model.SignedMessage
+import com.nunchuk.android.model.SigningPath
 import com.nunchuk.android.model.SingleSigner
 import com.nunchuk.android.model.TapSignerStatus
 import com.nunchuk.android.model.Transaction
@@ -1442,9 +1442,18 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getTimelockedCoins(
         walletId: String,
-        txId: String,
-        maxLockValue: Long
-    ): List<UnspentOutput>
+        txId: String
+    ): Pair<Long, List<UnspentOutput>>
+
+    @Throws(NCNativeException::class)
+    external fun estimateFeeForSigningPaths(
+        walletId: String,
+        outputs: Map<String, Amount>,
+        inputs: List<UnspentOutput>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+        replaceTxId: String
+    ): List<Pair<SigningPath, Amount>>
 
     companion object {
         init {

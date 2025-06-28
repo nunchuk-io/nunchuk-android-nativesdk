@@ -23,7 +23,6 @@ import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.Amount
-import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.AppSettings
 import com.nunchuk.android.model.CoinCollection
 import com.nunchuk.android.model.CoinTag
@@ -32,10 +31,11 @@ import com.nunchuk.android.model.Device
 import com.nunchuk.android.model.GlobalGroupWalletConfig
 import com.nunchuk.android.model.GroupSandbox
 import com.nunchuk.android.model.MasterSigner
+import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.NunchukMatrixEvent
 import com.nunchuk.android.model.SatsCardSlot
-import com.nunchuk.android.model.ScriptNode
 import com.nunchuk.android.model.ScriptNodeResult
+import com.nunchuk.android.model.SigningPath
 import com.nunchuk.android.model.SingleSigner
 import com.nunchuk.android.model.Transaction
 import com.nunchuk.android.model.TxInput
@@ -1749,6 +1749,24 @@ class NunchukNativeSdk {
         nunchukAndroid.getCurrentIndexFromMasterSigner(mastersignerId, walletType, addressType)
 
     @Throws(NCNativeException::class)
-    fun getTimelockedCoins(walletId: String, txId: String, maxLockValue: Long): List<UnspentOutput> =
-        nunchukAndroid.getTimelockedCoins(walletId, txId, maxLockValue)
+    fun getTimelockedCoins(walletId: String, txId: String): Pair<Long, List<UnspentOutput>> =
+        nunchukAndroid.getTimelockedCoins(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun estimateFeeForSigningPaths(
+        walletId: String,
+        outputs: Map<String, Amount>,
+        inputs: List<UnspentOutput>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+        replaceTxId: String
+    ): List<Pair<SigningPath, Amount>> =
+        nunchukAndroid.estimateFeeForSigningPaths(
+            walletId,
+            outputs,
+            inputs,
+            feeRate,
+            subtractFeeFromAmount,
+            replaceTxId
+        )
 }

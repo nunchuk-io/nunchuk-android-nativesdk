@@ -1485,3 +1485,44 @@ jobject Deserializer::convert2JMiniscriptTimelockBased(JNIEnv *env, nunchuk::Tim
     jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/MiniscriptTimelockBased;");
     return env->CallStaticObjectMethod(clazz, staticMethod, static_cast<jint>(based));
 }
+
+jobject Deserializer::convert2JSigningPath(JNIEnv *env, const SigningPath &signingPath) {
+    jclass signingPathClass = env->FindClass("com/nunchuk/android/model/SigningPath");
+    jmethodID constructor = env->GetMethodID(signingPathClass, "<init>", "(Ljava/util/List;)V");
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject outerList = env->NewObject(arrayListClass, arrayListConstructor);
+    for (const auto &scriptNodeId : signingPath) {
+        jobject innerList = env->NewObject(arrayListClass, arrayListConstructor);
+        for (size_t idx : scriptNodeId) {
+            jobject integerObj = env->NewObject(env->FindClass("java/lang/Integer"), env->GetMethodID(env->FindClass("java/lang/Integer"), "<init>", "(I)V"), static_cast<jint>(idx));
+            env->CallBooleanMethod(innerList, arrayListAdd, integerObj);
+            env->DeleteLocalRef(integerObj);
+        }
+        env->CallBooleanMethod(outerList, arrayListAdd, innerList);
+        env->DeleteLocalRef(innerList);
+    }
+    jobject signingPathObj = env->NewObject(signingPathClass, constructor, outerList);
+    env->DeleteLocalRef(outerList);
+    return signingPathObj;
+}
+
+jobject Deserializer::convert2JSigningPathAmountPairs(JNIEnv *env, const std::vector<std::pair<SigningPath, Amount>> &pairs) {
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
+    jclass pairClass = env->FindClass("kotlin/Pair");
+    jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+    for (const auto &pair : pairs) {
+        jobject signingPathObj = convert2JSigningPath(env, pair.first);
+        jobject amountObj = convert2JAmount(env, pair.second);
+        jobject pairObj = env->NewObject(pairClass, pairConstructor, signingPathObj, amountObj);
+        env->CallBooleanMethod(arrayList, arrayListAdd, pairObj);
+        env->DeleteLocalRef(signingPathObj);
+        env->DeleteLocalRef(amountObj);
+        env->DeleteLocalRef(pairObj);
+    }
+    return arrayList;
+}
