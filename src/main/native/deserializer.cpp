@@ -1410,19 +1410,30 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
     jclass clazz = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
                                                                   Initializer::get()->loadClassMethod,
                                                                   className));
-    // Updated constructor signature: (Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V
+    // Updated constructor signature: (Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V
     jmethodID constructor = env->GetMethodID(clazz,
                                              "<init>",
-                                             "(Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V");
+                                             "(Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V");
+
+    // Map ScriptNodeId to List<Integer>
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject idList = env->NewObject(arrayListClass, arrayListConstructor);
+    for (size_t idx : node.get_id()) {
+        jobject integerObj = env->NewObject(env->FindClass("java/lang/Integer"), env->GetMethodID(env->FindClass("java/lang/Integer"), "<init>", "(I)V"), static_cast<jint>(idx));
+        env->CallBooleanMethod(idList, arrayListAdd, integerObj);
+        env->DeleteLocalRef(integerObj);
+    }
 
     jstring typeStr = env->NewStringUTF(ScriptNode::type_to_string(node.get_type()).c_str());
     jobject keysList = convert2JListString(env, node.get_keys());
     jobject subsList = convert2JScriptNodes(env, node.get_subs());
     if (subsList == nullptr) {
         // create an empty list to avoid null pointer in Kotlin
-        jclass arrayListClass = env->FindClass("java/util/ArrayList");
-        jmethodID constructorArr = env->GetMethodID(arrayListClass, "<init>", "()V");
-        subsList = env->NewObject(arrayListClass, constructorArr);
+        jclass arrayListClass2 = env->FindClass("java/util/ArrayList");
+        jmethodID constructorArr = env->GetMethodID(arrayListClass2, "<init>", "()V");
+        subsList = env->NewObject(arrayListClass2, constructorArr);
     }
     jint kValue = static_cast<jint>(node.get_k());
     const std::vector<unsigned char>& dataVec = node.get_data();
@@ -1431,10 +1442,11 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
         env->SetByteArrayRegion(dataArray, 0, dataVec.size(), reinterpret_cast<const jbyte*>(dataVec.data()));
     }
     // Construct Kotlin ScriptNode object
-    jobject instance = env->NewObject(clazz, constructor, typeStr, keysList, subsList, kValue, dataArray);
+    jobject instance = env->NewObject(clazz, constructor, idList, typeStr, keysList, subsList, kValue, dataArray);
     // Cleanup
     env->DeleteLocalRef(typeStr);
     env->DeleteLocalRef(dataArray);
+    env->DeleteLocalRef(idList);
     return instance;
 }
 
