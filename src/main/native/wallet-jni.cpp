@@ -841,10 +841,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByS
         AddressType addressType = Serializer::convert2CAddressType(address_type);
         if (multisign_type == 0) {
             miniscript_template = Utils::ExpandingMultisigMiniscriptTemplate(m, n, new_n,
+                                                                             reuse_signer,
                                                                              expand_time,
                                                                              addressType);
         } else if (multisign_type == 1) {
             miniscript_template = Utils::DecayingMultisigMiniscriptTemplate(m, n, new_m,
+                                                                            reuse_signer,
                                                                             expand_time,
                                                                             addressType);
         } else if (multisign_type == 2) {
