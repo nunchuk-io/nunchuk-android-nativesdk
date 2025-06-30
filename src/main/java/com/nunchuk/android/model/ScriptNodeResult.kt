@@ -5,5 +5,5 @@ data class ScriptNodeResult(
     val keyPath: String
 ) {
     // Default constructor for JNI
-    constructor() : this(ScriptNode("", emptyList(), emptyList(), 0), "")
+    constructor() : this(ScriptNode("", emptyList(), emptyList(), 0, byteArrayOf()), "")
 } 

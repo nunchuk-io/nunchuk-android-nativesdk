@@ -1769,4 +1769,12 @@ class NunchukNativeSdk {
             subtractFeeFromAmount,
             replaceTxId
         )
+
+    @Throws(NCNativeException::class)
+    fun isPreimageRevealed(psbt: String, hash: ByteArray): Boolean =
+        nunchukAndroid.isPreimageRevealed(psbt, hash)
+
+    @Throws(NCNativeException::class)
+    fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean =
+        nunchukAndroid.isSatisfiable(walletId, nodeId, txId)
 }

@@ -1410,10 +1410,10 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
     jclass clazz = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
                                                                   Initializer::get()->loadClassMethod,
                                                                   className));
-    // Constructor signature: (Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;I)V
+    // Updated constructor signature: (Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V
     jmethodID constructor = env->GetMethodID(clazz,
                                              "<init>",
-                                             "(Ljava/lang/String;Ljava/util/List;Ljava/util/List;I)V");
+                                             "(Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V");
 
     jstring typeStr = env->NewStringUTF(ScriptNode::type_to_string(node.get_type()).c_str());
     jobject keysList = convert2JListString(env, node.get_keys());
@@ -1425,13 +1425,16 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
         subsList = env->NewObject(arrayListClass, constructorArr);
     }
     jint kValue = static_cast<jint>(node.get_k());
-
+    const std::vector<unsigned char>& dataVec = node.get_data();
+    jbyteArray dataArray = env->NewByteArray(dataVec.size());
+    if (!dataVec.empty()) {
+        env->SetByteArrayRegion(dataArray, 0, dataVec.size(), reinterpret_cast<const jbyte*>(dataVec.data()));
+    }
     // Construct Kotlin ScriptNode object
-    jobject instance = env->NewObject(clazz, constructor, typeStr, keysList, subsList, kValue);
-
+    jobject instance = env->NewObject(clazz, constructor, typeStr, keysList, subsList, kValue, dataArray);
     // Cleanup
     env->DeleteLocalRef(typeStr);
-
+    env->DeleteLocalRef(dataArray);
     return instance;
 }
 

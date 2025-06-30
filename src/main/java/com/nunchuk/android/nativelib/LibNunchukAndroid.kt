@@ -1455,6 +1455,15 @@ internal class LibNunchukAndroid {
         replaceTxId: String
     ): List<Pair<SigningPath, Amount>>
 
+    @Throws(NCNativeException::class)
+    external fun isPreimageRevealed(
+        psbt: String,
+        hash: ByteArray
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

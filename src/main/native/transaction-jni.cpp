@@ -6,8 +6,15 @@
 #include "deserializer.h"
 #include "modelprovider.h"
 #include "string-wrapper.h"
+#include <unordered_map>
+#include <memory>
+#include <mutex>
 
 using namespace nunchuk;
+
+// ScriptNode cache for each wallet_id
+static std::unordered_map<std::string, std::shared_ptr<nunchuk::ScriptNode>> script_node_cache;
+static std::mutex script_node_cache_mutex;
 
 extern "C"
 JNIEXPORT jobject JNICALL
@@ -1378,5 +1385,94 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFeeForSigningPaths(
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isPreimageRevealed(
+    JNIEnv *env,
+    jobject thiz,
+    jstring psbt,
+    jbyteArray hash
+) {
+    try {
+        auto c_psbt = StringWrapper(env, psbt);
+        jsize hash_len = env->GetArrayLength(hash);
+        std::vector<uint8_t> hash_vec(hash_len);
+        env->GetByteArrayRegion(hash, 0, hash_len, reinterpret_cast<jbyte *>(hash_vec.data()));
+        bool result = nunchuk::Utils::IsPreimageRevealed(c_psbt, hash_vec);
+        return result ? JNI_TRUE : JNI_FALSE;
+    } catch (const std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
+    JNIEnv *env,
+    jobject thiz,
+    jstring wallet_id,
+    jintArray node_id,
+    jstring tx_id
+) {
+    try {
+        // Convert wallet_id and tx_id
+        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
+
+        // Convert node_id (jintArray) to std::vector<size_t>
+        jsize node_id_len = env->GetArrayLength(node_id);
+        std::vector<size_t> node_path(node_id_len);
+        jint *node_id_elements = env->GetIntArrayElements(node_id, nullptr);
+        for (jsize i = 0; i < node_id_len; ++i) {
+            node_path[i] = static_cast<size_t>(node_id_elements[i]);
+        }
+        env->ReleaseIntArrayElements(node_id, node_id_elements, JNI_ABORT);
+
+        std::shared_ptr<nunchuk::ScriptNode> root_node_ptr;
+        {
+            std::lock_guard<std::mutex> lock(script_node_cache_mutex);
+            auto it = script_node_cache.find(c_wallet_id);
+            if (it != script_node_cache.end()) {
+                root_node_ptr = it->second;
+            } else {
+                // Get Wallet and miniscript
+                auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
+                std::string miniscript = wallet.get_miniscript();
+                std::string keypath;
+                auto root_node = std::make_shared<nunchuk::ScriptNode>(nunchuk::Utils::GetScriptNode(miniscript, keypath));
+                script_node_cache[c_wallet_id] = root_node;
+                root_node_ptr = root_node;
+            }
+        }
+
+        // Traverse ScriptNode tree by node_path
+        const nunchuk::ScriptNode* node = root_node_ptr.get();
+        for (size_t idx : node_path) {
+            const auto& subs = node->get_subs();
+            if (idx == 0 || idx > subs.size()) {
+                // Invalid path
+                return JNI_FALSE;
+            }
+            node = &subs[idx - 1];
+        }
+
+        // Get Transaction
+        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
+
+        // Call is_satisfiable
+        bool result = node->is_satisfiable(tx);
+        return result ? JNI_TRUE : JNI_FALSE;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
     }
 }
