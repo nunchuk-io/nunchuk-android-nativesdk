@@ -1756,7 +1756,7 @@ class NunchukNativeSdk {
     fun estimateFeeForSigningPaths(
         walletId: String,
         outputs: Map<String, Amount>,
-        inputs: List<UnspentOutput>,
+        inputs: List<TxInput>,
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String

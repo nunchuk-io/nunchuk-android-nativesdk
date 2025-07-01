@@ -1373,11 +1373,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFeeForSigningPaths(
     try {
         auto c_wallet_id = StringWrapper(env, wallet_id);
         auto c_outputs = Serializer::convert2CAmountsMap(env, outputs);
-        auto c_inputs = Serializer::convert2CUnspentOutputs(env, inputs);
+        auto txInputs = Serializer::convert2CTxInputs(env, inputs);
+        auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
+            c_wallet_id,
+            txInputs);
         Amount c_fee_rate = Serializer::convert2CAmount(env, fee_rate);
         auto c_replace_tx_id = StringWrapper(env, replace_tx_id);
         auto result = NunchukProvider::get()->nu->EstimateFeeForSigningPaths(
-            c_wallet_id, c_outputs, c_inputs, c_fee_rate, subtract_fee_from_amount, c_replace_tx_id);
+            c_wallet_id, c_outputs, txInputUnspentOutputs, c_fee_rate, subtract_fee_from_amount, c_replace_tx_id);
         return Deserializer::convert2JSigningPathAmountPairs(env, result);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
