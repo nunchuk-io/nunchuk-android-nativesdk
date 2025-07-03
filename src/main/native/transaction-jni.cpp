@@ -52,13 +52,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
         jboolean subtract_fee_from_amount,
         jstring replace_tx_id,
         jboolean anti_fee_sniping,
-        jboolean use_script_path
+        jboolean use_script_path,
+        jobject signing_path
 ) {
     try {
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
         auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
                 StringWrapper(env, wallet_id),
                 txInputs);
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->CreateTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 Serializer::convert2CAmountsMap(env, outputs),
@@ -68,7 +70,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
                 subtract_fee_from_amount,
                 StringWrapper(env, replace_tx_id),
                 anti_fee_sniping,
-                use_script_path
+                use_script_path,
+                c_signing_path
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {

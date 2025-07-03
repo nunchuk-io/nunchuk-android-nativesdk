@@ -228,7 +228,8 @@ internal class LibNunchukAndroid {
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
         antiFeeSniping: Boolean,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ): Transaction
 
     @Throws(NCNativeException::class)

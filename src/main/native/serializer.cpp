@@ -906,3 +906,34 @@ std::vector<CoinCollection> Serializer::convert2CCoinCollections(JNIEnv *env, jo
     }
     return result;
 }
+
+SigningPath Serializer::convert2CSigningPath(JNIEnv *env, jobject signingPathObj) {
+    SigningPath result;
+    if (signingPathObj == nullptr) {
+        return result;
+    }
+    jclass signingPathClass = env->GetObjectClass(signingPathObj);
+    jfieldID pathField = env->GetFieldID(signingPathClass, "path", "Ljava/util/List;");
+    jobject pathList = env->GetObjectField(signingPathObj, pathField);
+    if (pathList == nullptr) {
+        return result;
+    }
+    jclass listClass = env->FindClass("java/util/List");
+    jmethodID sizeMethod = env->GetMethodID(listClass, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
+    jint outerSize = env->CallIntMethod(pathList, sizeMethod);
+    for (jint i = 0; i < outerSize; ++i) {
+        jobject innerList = env->CallObjectMethod(pathList, getMethod, i);
+        jint innerSize = env->CallIntMethod(innerList, sizeMethod);
+        std::vector<size_t> innerVec;
+        for (jint j = 0; j < innerSize; ++j) {
+            jobject intObj = env->CallObjectMethod(innerList, getMethod, j);
+            jclass integerClass = env->FindClass("java/lang/Integer");
+            jmethodID intValueMethod = env->GetMethodID(integerClass, "intValue", "()I");
+            jint value = env->CallIntMethod(intObj, intValueMethod);
+            innerVec.push_back(static_cast<size_t>(value));
+        }
+        result.push_back(innerVec);
+    }
+    return result;
+}

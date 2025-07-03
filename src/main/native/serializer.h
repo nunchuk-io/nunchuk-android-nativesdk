@@ -83,4 +83,5 @@ public:
 
     static std::vector<CoinTag> convert2CCoinTags(JNIEnv *env, jobject tags);
     static std::vector<CoinCollection> convert2CCoinCollections(JNIEnv *env, jobject collections);
+    static SigningPath convert2CSigningPath(JNIEnv *env, jobject signingPathObj);
 };

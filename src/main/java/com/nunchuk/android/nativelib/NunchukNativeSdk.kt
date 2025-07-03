@@ -285,7 +285,8 @@ class NunchukNativeSdk {
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
         antiFeeSniping: Boolean,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
@@ -295,7 +296,8 @@ class NunchukNativeSdk {
         subtractFeeFromAmount = subtractFeeFromAmount,
         replaceTxId = replaceTxId,
         antiFeeSniping = antiFeeSniping,
-        useScriptPath = useScriptPath
+        useScriptPath = useScriptPath,
+        signingPath = signingPath
     )
 
     @Throws(NCNativeException::class)
