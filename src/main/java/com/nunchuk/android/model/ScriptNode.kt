@@ -1,6 +1,7 @@
 package com.nunchuk.android.model
 
 import android.os.Parcelable
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -12,6 +13,9 @@ data class ScriptNode(
     val k: Int,
     val data: ByteArray
 ) : Parcelable {
+    @IgnoredOnParcel
+    val idString: String = id.joinToString(separator = ",")
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -1457,7 +1457,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
 
         // Traverse ScriptNode tree by node_path
         const nunchuk::ScriptNode* node = root_node_ptr.get();
-        for (size_t idx : node_path) {
+        for (size_t depth = 1; depth < node_path.size(); ++depth) {
+            size_t idx = node_path[depth];
             const auto& subs = node->get_subs();
             if (idx == 0 || idx > subs.size()) {
                 // Invalid path
@@ -1480,5 +1481,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
         Deserializer::convertStdException2JException(env, e);
         env->ExceptionOccurred();
         return JNI_FALSE;
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearScriptNodeCache(
+    JNIEnv *env,
+    jobject thiz,
+    jstring wallet_id
+) {
+    try {
+        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        std::lock_guard<std::mutex> lock(script_node_cache_mutex);
+        script_node_cache.erase(c_wallet_id);
+        env->ReleaseStringUTFChars(wallet_id, c_wallet_id.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
     }
 }

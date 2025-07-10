@@ -1465,6 +1465,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
 
+    @Throws(NCNativeException::class)
+    external fun clearScriptNodeCache(walletId: String)
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

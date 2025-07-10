@@ -1779,4 +1779,7 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean =
         nunchukAndroid.isSatisfiable(walletId, nodeId, txId)
+
+    @Throws(NCNativeException::class)
+    fun clearScriptNodeCache(walletId: String) = nunchukAndroid.clearScriptNodeCache(walletId)
 }
