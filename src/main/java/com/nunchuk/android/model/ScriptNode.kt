@@ -3,6 +3,7 @@ package com.nunchuk.android.model
 import android.os.Parcelable
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class ScriptNode(
@@ -11,7 +12,8 @@ data class ScriptNode(
     val keys: List<String>,
     val subs: List<ScriptNode>,
     val k: Int,
-    val data: ByteArray
+    val data: ByteArray,
+    val timeLock: @RawValue TimeLock?
 ) : Parcelable {
     @IgnoredOnParcel
     val idString: String = id.joinToString(separator = ",")
@@ -28,6 +30,7 @@ data class ScriptNode(
         if (keys != other.keys) return false
         if (subs != other.subs) return false
         if (!data.contentEquals(other.data)) return false
+        if (timeLock != other.timeLock) return false
 
         return true
     }
@@ -39,6 +42,7 @@ data class ScriptNode(
         result = 31 * result + keys.hashCode()
         result = 31 * result + subs.hashCode()
         result = 31 * result + data.contentHashCode()
+        result = 31 * result + (timeLock?.hashCode() ?: 0)
         return result
     }
 }

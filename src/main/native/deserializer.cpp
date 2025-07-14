@@ -1410,10 +1410,10 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
     jclass clazz = reinterpret_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
                                                                   Initializer::get()->loadClassMethod,
                                                                   className));
-    // Updated constructor signature: (Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V
+    // Updated constructor signature to include TimeLock: (Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[BLcom/nunchuk/android/model/TimeLock;)V
     jmethodID constructor = env->GetMethodID(clazz,
                                              "<init>",
-                                             "(Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[B)V");
+                                             "(Ljava/util/List;Ljava/lang/String;Ljava/util/List;Ljava/util/List;I[BLcom/nunchuk/android/model/TimeLock;)V");
 
     // Map ScriptNodeId to List<Integer>
     jclass arrayListClass = env->FindClass("java/util/ArrayList");
@@ -1441,12 +1441,26 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
     if (!dataVec.empty()) {
         env->SetByteArrayRegion(dataArray, 0, dataVec.size(), reinterpret_cast<const jbyte*>(dataVec.data()));
     }
+    
+    // Extract timelock information for AFTER and OLDER types
+    jobject timeLockObj = nullptr;
+    if (node.get_type() == ScriptNode::Type::AFTER) {
+        Timelock timelock = Timelock::FromK(true, node.get_k());
+        timeLockObj = convert2JTimeLock(env, timelock);
+    } else if (node.get_type() == ScriptNode::Type::OLDER) {
+        Timelock timelock = Timelock::FromK(false, node.get_k());
+        timeLockObj = convert2JTimeLock(env, timelock);
+    }
+    
     // Construct Kotlin ScriptNode object
-    jobject instance = env->NewObject(clazz, constructor, idList, typeStr, keysList, subsList, kValue, dataArray);
+    jobject instance = env->NewObject(clazz, constructor, idList, typeStr, keysList, subsList, kValue, dataArray, timeLockObj);
     // Cleanup
     env->DeleteLocalRef(typeStr);
     env->DeleteLocalRef(dataArray);
     env->DeleteLocalRef(idList);
+    if (timeLockObj) {
+        env->DeleteLocalRef(timeLockObj);
+    }
     return instance;
 }
 
@@ -1540,4 +1554,32 @@ jobject Deserializer::convert2JSigningPathAmountPairs(JNIEnv *env, const std::ve
         env->DeleteLocalRef(pairObj);
     }
     return arrayList;
+}
+
+jobject Deserializer::convert2JMiniscriptTimelockType(JNIEnv *env, nunchuk::Timelock::Type type) {
+    jstring className = env->NewStringUTF("com/nunchuk/android/type/MiniscriptTimelockTypeHelper");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from", "(I)Lcom/nunchuk/android/type/MiniscriptTimelockType;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, static_cast<jint>(type));
+}
+
+jobject Deserializer::convert2JTimeLock(JNIEnv *env, const nunchuk::Timelock &timeLock) {
+    syslog(LOG_DEBUG, "[JNI] convert2JTimeLock()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/TimeLock");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Lcom/nunchuk/android/type/MiniscriptTimelockBased;Lcom/nunchuk/android/type/MiniscriptTimelockType;J)V");
+    
+    jobject basedObj = convert2JMiniscriptTimelockBased(env, timeLock.based());
+    jobject typeObj = convert2JMiniscriptTimelockType(env, timeLock.type());
+    jlong valueVal = static_cast<jlong>(timeLock.value());
+    
+    jobject instance = env->NewObject(clazz, constructor, basedObj, typeObj, valueVal);
+    
+    // Cleanup
+    env->DeleteLocalRef(basedObj);
+    env->DeleteLocalRef(typeObj);
+    
+    return instance;
 }
