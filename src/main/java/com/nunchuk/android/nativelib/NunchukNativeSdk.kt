@@ -1751,8 +1751,8 @@ class NunchukNativeSdk {
         nunchukAndroid.getCurrentIndexFromMasterSigner(mastersignerId, walletType, addressType)
 
     @Throws(NCNativeException::class)
-    fun getTimelockedCoins(walletId: String, txId: String): Pair<Long, List<UnspentOutput>> =
-        nunchukAndroid.getTimelockedCoins(walletId, txId)
+    fun getTimelockedCoins(walletId: String, inputs: List<TxInput>): Pair<Long, List<UnspentOutput>> =
+        nunchukAndroid.getTimelockedCoins(walletId, inputs)
 
     @Throws(NCNativeException::class)
     fun estimateFeeForSigningPaths(

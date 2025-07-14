@@ -1337,14 +1337,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
     JNIEnv *env,
     jobject thiz,
     jstring wallet_id,
-    jstring tx_id
+    jobject inputs
 ) {
     try {
+        // Convert parameters
         auto c_wallet_id = StringWrapper(env, wallet_id);
-        auto c_tx_id = StringWrapper(env, tx_id);
+        auto tx_inputs = Serializer::convert2CTxInputs(env, inputs);
         auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
-        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
-        std::vector<nunchuk::UnspentOutput> coins = NunchukProvider::get()->nu->GetCoinsFromTxInputs(wallet.get_id(), tx.get_inputs());
+        std::vector<nunchuk::UnspentOutput> coins = NunchukProvider::get()->nu->GetCoinsFromTxInputs(
+                wallet.get_id(), tx_inputs);
         int64_t max_lock_value = 0;
         std::vector<nunchuk::UnspentOutput> locked_coins = nunchuk::Utils::GetTimelockedCoins(wallet.get_miniscript(), coins, max_lock_value, NunchukProvider::get()->nu->GetChainTip());
         jobject lockedCoinsList = Deserializer::convert2JUnspentOutputs(env, locked_coins);

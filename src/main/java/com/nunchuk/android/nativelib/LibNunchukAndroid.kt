@@ -1443,7 +1443,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getTimelockedCoins(
         walletId: String,
-        txId: String
+        inputs: List<TxInput>
     ): Pair<Long, List<UnspentOutput>>
 
     @Throws(NCNativeException::class)
