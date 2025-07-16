@@ -94,7 +94,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jobject fee_rate,
         jboolean subtract_fee_from_amount,
         jstring replace_tx_id,
-        jboolean use_script_path
+        jboolean use_script_path,
+        jobject signing_path
 ) {
     try {
         auto c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
@@ -102,6 +103,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
                 c_wallet_id,
                 txInputs);
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
                 c_wallet_id,
                 Serializer::convert2CAmountsMap(env, outputs),
@@ -109,7 +111,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount,
                 StringWrapper(env, replace_tx_id),
-                use_script_path
+                use_script_path,
+                c_signing_path
         );
         Amount packageFeeRate{0};
         jobject jtransaction;

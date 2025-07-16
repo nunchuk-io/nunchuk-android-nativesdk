@@ -250,7 +250,8 @@ internal class LibNunchukAndroid {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ): Transaction
 
     @Throws(NCNativeException::class)
