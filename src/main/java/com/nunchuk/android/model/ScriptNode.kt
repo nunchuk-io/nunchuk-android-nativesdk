@@ -16,7 +16,8 @@ data class ScriptNode(
     val timeLock: @RawValue TimeLock?
 ) : Parcelable {
     @IgnoredOnParcel
-    val idString: String = id.joinToString(separator = ",")
+    val idString: String
+        get() = id.joinToString(separator = ".")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
