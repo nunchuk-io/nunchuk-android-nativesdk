@@ -55,6 +55,7 @@ import com.nunchuk.android.model.UnspentOutput
 import com.nunchuk.android.model.Wallet
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
+import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 
@@ -1465,6 +1466,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased>
 
     @Throws(NCNativeException::class)
     external fun clearScriptNodeCache(walletId: String)

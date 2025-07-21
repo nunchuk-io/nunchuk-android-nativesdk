@@ -1583,3 +1583,25 @@ jobject Deserializer::convert2JTimeLock(JNIEnv *env, const nunchuk::Timelock &ti
     
     return instance;
 }
+
+jobject Deserializer::convert2JPairLongMiniscriptTimelockBased(JNIEnv *env, const std::pair<int64_t, nunchuk::Timelock::Based> &pair) {
+    jclass pairClass = env->FindClass("kotlin/Pair");
+    jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+    
+    // Create Long object for the first element
+    jclass longClass = env->FindClass("java/lang/Long");
+    jmethodID longConstructor = env->GetMethodID(longClass, "<init>", "(J)V");
+    jobject longObj = env->NewObject(longClass, longConstructor, static_cast<jlong>(pair.first));
+    
+    // Create MiniscriptTimelockBased object for the second element
+    jobject timelockBasedObj = convert2JMiniscriptTimelockBased(env, pair.second);
+    
+    // Create Pair object
+    jobject pairObj = env->NewObject(pairClass, pairConstructor, longObj, timelockBasedObj);
+    
+    // Cleanup
+    env->DeleteLocalRef(longObj);
+    env->DeleteLocalRef(timelockBasedObj);
+    
+    return pairObj;
+}

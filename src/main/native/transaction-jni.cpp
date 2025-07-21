@@ -1489,6 +1489,28 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
 }
 
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedUntil(
+    JNIEnv *env,
+    jobject thiz,
+    jstring wallet_id,
+    jstring tx_id
+) {
+    try {
+        auto c_wallet_id = StringWrapper(env, wallet_id);
+        auto c_tx_id = StringWrapper(env, tx_id);
+        auto result = NunchukProvider::get()->nu->GetTimelockedUntil(c_wallet_id, c_tx_id);
+        return Deserializer::convert2JPairLongMiniscriptTimelockBased(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearScriptNodeCache(
     JNIEnv *env,

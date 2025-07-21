@@ -44,6 +44,7 @@ import com.nunchuk.android.model.Wallet
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.ExportFormat
+import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 import com.nunchuk.android.type.WalletType
@@ -1781,6 +1782,9 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean =
         nunchukAndroid.isSatisfiable(walletId, nodeId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased> = nunchukAndroid.getTimelockedUntil(walletId, txId)
 
     @Throws(NCNativeException::class)
     fun clearScriptNodeCache(walletId: String) = nunchukAndroid.clearScriptNodeCache(walletId)

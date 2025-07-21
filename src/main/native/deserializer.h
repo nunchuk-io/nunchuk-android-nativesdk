@@ -148,4 +148,5 @@ public:
     static jobject convert2JTimeLock(JNIEnv *env, const nunchuk::Timelock &timeLock);
     static jobject convert2JSigningPath(JNIEnv *env, const SigningPath &signingPath);
     static jobject convert2JSigningPathAmountPairs(JNIEnv *env, const std::vector<std::pair<SigningPath, Amount>> &pairs);
+    static jobject convert2JPairLongMiniscriptTimelockBased(JNIEnv *env, const std::pair<int64_t, nunchuk::Timelock::Based> &pair);
 };
