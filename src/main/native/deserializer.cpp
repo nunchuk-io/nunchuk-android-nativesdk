@@ -1480,19 +1480,19 @@ jobject Deserializer::convert2JScriptNodes(JNIEnv *env, const std::vector<Script
     return arrayListInstance;
 }
 
-jobject Deserializer::convert2JScriptNodeResult(JNIEnv *env, const ScriptNode &node, const std::string &keyPath) {
+jobject Deserializer::convert2JScriptNodeResult(JNIEnv *env, const ScriptNode &node, const std::vector<std::string> &keyPath) {
     syslog(LOG_DEBUG, "[JNI] convert2JScriptNodeResult()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/ScriptNodeResult");
-    jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Lcom/nunchuk/android/model/ScriptNode;Ljava/lang/String;)V");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Lcom/nunchuk/android/model/ScriptNode;Ljava/util/List;)V");
     
     jobject scriptNodeObj = convert2JScriptNode(env, node);
-    jstring keyPathStr = env->NewStringUTF(keyPath.c_str());
+    jobject keyPathList = convert2JListString(env, keyPath);
     
-    jobject instance = env->NewObject(clazz, constructor, scriptNodeObj, keyPathStr);
+    jobject instance = env->NewObject(clazz, constructor, scriptNodeObj, keyPathList);
     
     // Cleanup
     env->DeleteLocalRef(scriptNodeObj);
-    env->DeleteLocalRef(keyPathStr);
+    env->DeleteLocalRef(keyPathList);
     
     return instance;
 }

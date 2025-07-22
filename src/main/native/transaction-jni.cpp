@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <memory>
 #include <mutex>
+#include <vector>
 
 using namespace nunchuk;
 
@@ -1452,7 +1453,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
                 // Get Wallet and miniscript
                 auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
                 std::string miniscript = wallet.get_miniscript();
-                std::string keypath;
+                std::vector<std::string> keypath;
                 auto root_node = std::make_shared<nunchuk::ScriptNode>(nunchuk::Utils::GetScriptNode(miniscript, keypath));
                 script_node_cache[c_wallet_id] = root_node;
                 root_node_ptr = root_node;
