@@ -1776,8 +1776,12 @@ class NunchukNativeSdk {
         )
 
     @Throws(NCNativeException::class)
-    fun isPreimageRevealed(psbt: String, hash: ByteArray): Boolean =
-        nunchukAndroid.isPreimageRevealed(psbt, hash)
+    fun isPreimageRevealed(walletId: String, txId: String, hash: ByteArray): Boolean =
+        nunchukAndroid.isPreimageRevealed(walletId, txId, hash)
+
+    @Throws(NCNativeException::class)
+    fun revealPreimage(walletId: String, txId: String, hash: ByteArray, preimage: ByteArray): Boolean =
+        nunchukAndroid.revealPreimage(walletId, txId, hash, preimage)
 
     @Throws(NCNativeException::class)
     fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean =

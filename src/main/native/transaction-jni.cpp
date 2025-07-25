@@ -125,11 +125,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         }
 
         auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
-        if (wallet.get_address_type() == AddressType::TAPROOT && wallet.get_wallet_type() == WalletType::MULTI_SIG) {
+        if (wallet.get_address_type() == AddressType::TAPROOT &&
+            wallet.get_wallet_type() == WalletType::MULTI_SIG) {
             auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, transaction);
 
             jclass txClass = env->GetObjectClass(jtransaction);
-            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee", "Lcom/nunchuk/android/model/Amount;");
+            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee",
+                                                "Lcom/nunchuk/android/model/Amount;");
             jobject jfeeAmount = Deserializer::convert2JAmount(env, fee);
             if (feeField != nullptr) {
                 env->SetObjectField(jtransaction, feeField, jfeeAmount);
@@ -933,7 +935,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateCoinCollection(JNIEnv
                                                                           jstring wallet_id,
                                                                           jobject coin_collection,
                                                                           jboolean apply_to_existing_coins
-                                                                          ) {
+) {
     try {
         CoinCollection coinCollection = Serializer::convert2CCoinCollection(env, coin_collection);
         return NunchukProvider::get()->nu->UpdateCoinCollection(
@@ -1130,7 +1132,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransactionId(JNIEnv
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRTransaction(JNIEnv *env, jobject thiz,
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRTransaction(JNIEnv *env,
+                                                                           jobject thiz,
                                                                            jstring psbt,
                                                                            jint density) {
     try {
@@ -1318,7 +1321,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
             auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, transaction);
 
             jclass txClass = env->GetObjectClass(jtransaction);
-            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee", "Lcom/nunchuk/android/model/Amount;");
+            jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee",
+                                                "Lcom/nunchuk/android/model/Amount;");
             jobject jfeeAmount = Deserializer::convert2JAmount(env, fee);
             if (feeField != nullptr) {
                 env->SetObjectField(jtransaction, feeField, jfeeAmount);
@@ -1338,10 +1342,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
-    JNIEnv *env,
-    jobject thiz,
-    jstring wallet_id,
-    jobject inputs
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jobject inputs
 ) {
     try {
         // Convert parameters
@@ -1351,12 +1355,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
         std::vector<nunchuk::UnspentOutput> coins = NunchukProvider::get()->nu->GetCoinsFromTxInputs(
                 wallet.get_id(), tx_inputs);
         int64_t max_lock_value = 0;
-        std::vector<nunchuk::UnspentOutput> locked_coins = nunchuk::Utils::GetTimelockedCoins(wallet.get_miniscript(), coins, max_lock_value, NunchukProvider::get()->nu->GetChainTip());
+        std::vector<nunchuk::UnspentOutput> locked_coins = nunchuk::Utils::GetTimelockedCoins(
+                wallet.get_miniscript(), coins, max_lock_value,
+                NunchukProvider::get()->nu->GetChainTip());
         jobject lockedCoinsList = Deserializer::convert2JUnspentOutputs(env, locked_coins);
         jclass pairClass = env->FindClass("kotlin/Pair");
-        jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
-        jobject maxLockValueObj = env->NewObject(env->FindClass("java/lang/Long"), env->GetMethodID(env->FindClass("java/lang/Long"), "<init>", "(J)V"), static_cast<jlong>(max_lock_value));
-        jobject pairObj = env->NewObject(pairClass, pairConstructor, maxLockValueObj, lockedCoinsList);
+        jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>",
+                                                     "(Ljava/lang/Object;Ljava/lang/Object;)V");
+        jobject maxLockValueObj = env->NewObject(env->FindClass("java/lang/Long"),
+                                                 env->GetMethodID(env->FindClass("java/lang/Long"),
+                                                                  "<init>", "(J)V"),
+                                                 static_cast<jlong>(max_lock_value));
+        jobject pairObj = env->NewObject(pairClass, pairConstructor, maxLockValueObj,
+                                         lockedCoinsList);
         env->DeleteLocalRef(maxLockValueObj);
         env->DeleteLocalRef(lockedCoinsList);
         return pairObj;
@@ -1369,26 +1380,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFeeForSigningPaths(
-    JNIEnv *env,
-    jobject thiz,
-    jstring wallet_id,
-    jobject outputs,
-    jobject inputs,
-    jobject fee_rate,
-    jboolean subtract_fee_from_amount,
-    jstring replace_tx_id
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jobject outputs,
+        jobject inputs,
+        jobject fee_rate,
+        jboolean subtract_fee_from_amount,
+        jstring replace_tx_id
 ) {
     try {
         auto c_wallet_id = StringWrapper(env, wallet_id);
         auto c_outputs = Serializer::convert2CAmountsMap(env, outputs);
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
         auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
-            c_wallet_id,
-            txInputs);
+                c_wallet_id,
+                txInputs);
         Amount c_fee_rate = Serializer::convert2CAmount(env, fee_rate);
         auto c_replace_tx_id = StringWrapper(env, replace_tx_id);
         auto result = NunchukProvider::get()->nu->EstimateFeeForSigningPaths(
-            c_wallet_id, c_outputs, txInputUnspentOutputs, c_fee_rate, subtract_fee_from_amount, c_replace_tx_id);
+                c_wallet_id, c_outputs, txInputUnspentOutputs, c_fee_rate, subtract_fee_from_amount,
+                c_replace_tx_id);
         return Deserializer::convert2JSigningPathAmountPairs(env, result);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -1402,19 +1414,68 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFeeForSigningPaths(
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isPreimageRevealed(
-    JNIEnv *env,
-    jobject thiz,
-    jstring psbt,
-    jbyteArray hash
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring tx_id,
+        jbyteArray hash
 ) {
     try {
-        auto c_psbt = StringWrapper(env, psbt);
+        auto c_wallet_id = StringWrapper(env, wallet_id);
+        auto c_tx_id = StringWrapper(env, tx_id);
+
+        // Get transaction to access PSBT
+        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
+        std::string psbt = tx.get_psbt();
+
+        // Convert hash byte array
         jsize hash_len = env->GetArrayLength(hash);
         std::vector<uint8_t> hash_vec(hash_len);
         env->GetByteArrayRegion(hash, 0, hash_len, reinterpret_cast<jbyte *>(hash_vec.data()));
-        bool result = nunchuk::Utils::IsPreimageRevealed(c_psbt, hash_vec);
+
+        bool result = nunchuk::Utils::IsPreimageRevealed(psbt, hash_vec);
         return result ? JNI_TRUE : JNI_FALSE;
-    } catch (const std::exception &e) {
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_revealPreimage(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring tx_id,
+        jbyteArray hash,
+        jbyteArray preimage
+) {
+    try {
+        auto c_wallet_id = StringWrapper(env, wallet_id);
+        auto c_tx_id = StringWrapper(env, tx_id);
+
+        // Convert hash byte array
+        jsize hash_len = env->GetArrayLength(hash);
+        std::vector<uint8_t> hash_vec(hash_len);
+        env->GetByteArrayRegion(hash, 0, hash_len, reinterpret_cast<jbyte *>(hash_vec.data()));
+
+        // Convert preimage byte array
+        jsize preimage_len = env->GetArrayLength(preimage);
+        std::vector<uint8_t> preimage_vec(preimage_len);
+        env->GetByteArrayRegion(preimage, 0, preimage_len,
+                                reinterpret_cast<jbyte *>(preimage_vec.data()));
+
+        bool result = NunchukProvider::get()->nu->RevealPreimage(c_wallet_id, c_tx_id, hash_vec,
+                                                                 preimage_vec);
+        return result ? JNI_TRUE : JNI_FALSE;
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
     }
@@ -1423,11 +1484,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isPreimageRevealed(
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
-    JNIEnv *env,
-    jobject thiz,
-    jstring wallet_id,
-    jintArray node_id,
-    jstring tx_id
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jintArray node_id,
+        jstring tx_id
 ) {
     try {
         // Convert wallet_id and tx_id
@@ -1454,17 +1515,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
                 auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
                 std::string miniscript = wallet.get_miniscript();
                 std::vector<std::string> keypath;
-                auto root_node = std::make_shared<nunchuk::ScriptNode>(nunchuk::Utils::GetScriptNode(miniscript, keypath));
+                auto root_node = std::make_shared<nunchuk::ScriptNode>(
+                        nunchuk::Utils::GetScriptNode(miniscript, keypath));
                 script_node_cache[c_wallet_id] = root_node;
                 root_node_ptr = root_node;
             }
         }
 
         // Traverse ScriptNode tree by node_path
-        const nunchuk::ScriptNode* node = root_node_ptr.get();
+        const nunchuk::ScriptNode *node = root_node_ptr.get();
         for (size_t depth = 1; depth < node_path.size(); ++depth) {
             size_t idx = node_path[depth];
-            const auto& subs = node->get_subs();
+            const auto &subs = node->get_subs();
             if (idx == 0 || idx > subs.size()) {
                 // Invalid path
                 return JNI_FALSE;
@@ -1492,10 +1554,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedUntil(
-    JNIEnv *env,
-    jobject thiz,
-    jstring wallet_id,
-    jstring tx_id
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring tx_id
 ) {
     try {
         auto c_wallet_id = StringWrapper(env, wallet_id);
@@ -1514,9 +1576,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedUntil(
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearScriptNodeCache(
-    JNIEnv *env,
-    jobject thiz,
-    jstring wallet_id
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id
 ) {
     try {
         std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);

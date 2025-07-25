@@ -1459,10 +1459,10 @@ internal class LibNunchukAndroid {
     ): List<Pair<SigningPath, Amount>>
 
     @Throws(NCNativeException::class)
-    external fun isPreimageRevealed(
-        psbt: String,
-        hash: ByteArray
-    ): Boolean
+    external fun isPreimageRevealed(walletId: String, txId: String, hash: ByteArray): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun revealPreimage(walletId: String, txId: String, hash: ByteArray, preimage: ByteArray): Boolean
 
     @Throws(NCNativeException::class)
     external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
