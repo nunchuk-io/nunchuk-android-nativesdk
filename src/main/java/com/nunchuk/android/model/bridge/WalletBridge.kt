@@ -35,7 +35,8 @@ data class WalletBridge(
     var description: String = "",
     var gapLimit: Int = 0,
     var needBackup: Boolean = false,
-    var archived: Boolean = false
+    var archived: Boolean = false,
+    var miniscript: String = ""
 )
 
 internal fun Wallet.toBridge() = WalletBridge(
@@ -50,5 +51,6 @@ internal fun Wallet.toBridge() = WalletBridge(
     description = description,
     gapLimit = gapLimit,
     needBackup = needBackup,
-    archived = archived
+    archived = archived,
+    miniscript = miniscript
 )

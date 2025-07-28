@@ -479,14 +479,27 @@ Wallet Serializer::convert2CWallet(JNIEnv *env, jobject wallet) {
     jfieldID fieldCreateDate = env->GetFieldID(clazz, "createDate", "J");
     auto create_date = env->GetLongField(wallet, fieldCreateDate);
 
-    Wallet updateWallet = Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, create_date);
+    jfieldID fieldMiniscript = env->GetFieldID(clazz, "miniscript", "Ljava/lang/String;");
+    auto miniscriptVal = (jstring) env->GetObjectField(wallet, fieldMiniscript);
+    const char *miniscript = env->GetStringUTFChars(miniscriptVal, nullptr);
+
+    Wallet updateWallet = (miniscript && strlen(miniscript) > 0) 
+        ? Wallet(miniscript, signers, address_type, total_required_signs)  // Use miniscript constructor with keypath_m=0
+        : Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, create_date);
+    
     updateWallet.set_name(name);
     updateWallet.set_gap_limit(gap_limit);
     updateWallet.set_need_backup(need_backup);
     updateWallet.set_archived(archived);
+    
+    // Only set miniscript if not using miniscript constructor
+    if (!(miniscript && strlen(miniscript) > 0)) {
+        updateWallet.set_miniscript(miniscript);
+    }
 
     env->ReleaseStringUTFChars(nameVal, name);
     env->ReleaseStringUTFChars(idVal, id);
+    env->ReleaseStringUTFChars(miniscriptVal, miniscript);
 
     return updateWallet;
 }
