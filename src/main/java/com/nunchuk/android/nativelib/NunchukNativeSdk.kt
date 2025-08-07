@@ -1614,7 +1614,12 @@ class NunchukNativeSdk {
         m: Int,
         n: Int,
         addressType: AddressType,
-    ) = nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
+        scriptTmpl: String = "",
+    ) = if (scriptTmpl.isNotEmpty()) {
+        nunchukAndroid.createGroupSandboxWithScript(name, scriptTmpl, addressType.ordinal)
+    } else {
+        nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
+    }
 
     @Throws(NCNativeException::class)
     fun deleteGroupSandbox(

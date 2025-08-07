@@ -1341,6 +1341,13 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun createGroupSandboxWithScript(
+        name: String,
+        scriptTmpl: String,
+        addressType: Int,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
     external fun deleteGroupSandbox(
         groupId: String,
     ): Boolean

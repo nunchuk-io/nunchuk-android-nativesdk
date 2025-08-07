@@ -43,6 +43,12 @@ public:
 
     static jobject convert2JAddressType(JNIEnv *env, const AddressType &type);
 
+    static jobject convert2JWalletType(JNIEnv *env, const WalletType &type);
+
+    static jobject convert2JNamedSignersMap(JNIEnv *env, const std::map<std::string, SingleSigner> &namedSigners);
+
+    static jobject convert2JNamedOccupiedMap(JNIEnv *env, const std::map<std::string, std::pair<time_t, std::string>> &namedOccupied);
+
     static jobject convert2JSignerType(JNIEnv *env, const SignerType &type);
 
     static jobject convert2JTransactionStatus(JNIEnv *env, const TransactionStatus &status);

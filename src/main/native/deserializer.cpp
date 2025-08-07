@@ -206,6 +206,19 @@ jobject Deserializer::convert2JAddressType(JNIEnv *env, const AddressType &type)
     return env->CallStaticObjectMethod(clazz, staticMethod, (int) type);
 }
 
+jobject Deserializer::convert2JWalletType(JNIEnv *env, const WalletType &type) {
+    syslog(LOG_DEBUG, "[JNI] convert2JWalletType()");
+    jstring className = env->NewStringUTF("com/nunchuk/android/type/WalletTypeHelper");
+    jclass clazz = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                             Initializer::get()->loadClassMethod,
+                                                             className));
+    env->DeleteLocalRef(className);
+
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "from",
+                                                    "(I)Lcom/nunchuk/android/type/WalletType;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, (int) type);
+}
+
 jobject Deserializer::convert2JSignerType(JNIEnv *env, const SignerType &type) {
     syslog(LOG_DEBUG, "[JNI] convert2JSignerType()");
     jstring className = env->NewStringUTF("com/nunchuk/android/type/SignerTypeHelper");
@@ -1267,7 +1280,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
 
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
-                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;)V");
+                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;Lcom/nunchuk/android/type/WalletType;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;)V");
 
     className = env->NewStringUTF("com/nunchuk/android/model/OccupiedSlot");
     jclass occupiedSlotClass = reinterpret_cast<jclass>(env->CallObjectMethod(
@@ -1313,7 +1326,11 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             convert2JSigners(env, sandbox.get_signers()),
             sandbox.is_finalized(),
             env->NewStringUTF(sandbox.get_wallet_id().c_str()),
-            occupiedSlots
+            occupiedSlots,
+            convert2JWalletType(env, sandbox.get_wallet_type()),
+            env->NewStringUTF(sandbox.get_miniscript_template().c_str()),
+            convert2JNamedSignersMap(env, sandbox.get_named_signers()),
+            convert2JNamedOccupiedMap(env, sandbox.get_named_occupied())
     );
     return instance;
 }
@@ -1462,7 +1479,7 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
     if (!dataVec.empty()) {
         env->SetByteArrayRegion(dataArray, 0, dataVec.size(), reinterpret_cast<const jbyte*>(dataVec.data()));
     }
-    
+
     // Extract timelock information for AFTER and OLDER types
     jobject timeLockObj = nullptr;
     if (node.get_type() == ScriptNode::Type::AFTER) {
@@ -1472,7 +1489,7 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
         Timelock timelock = Timelock::FromK(false, node.get_k());
         timeLockObj = convert2JTimeLock(env, timelock);
     }
-    
+
     // Construct Kotlin ScriptNode object
     jobject instance = env->NewObject(clazz, constructor, idList, typeStr, keysList, subsList, kValue, dataArray, timeLockObj);
     // Cleanup
@@ -1505,16 +1522,16 @@ jobject Deserializer::convert2JScriptNodeResult(JNIEnv *env, const ScriptNode &n
     syslog(LOG_DEBUG, "[JNI] convert2JScriptNodeResult()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/ScriptNodeResult");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Lcom/nunchuk/android/model/ScriptNode;Ljava/util/List;)V");
-    
+
     jobject scriptNodeObj = convert2JScriptNode(env, node);
     jobject keyPathList = convert2JListString(env, keyPath);
-    
+
     jobject instance = env->NewObject(clazz, constructor, scriptNodeObj, keyPathList);
-    
+
     // Cleanup
     env->DeleteLocalRef(scriptNodeObj);
     env->DeleteLocalRef(keyPathList);
-    
+
     return instance;
 }
 
@@ -1591,38 +1608,80 @@ jobject Deserializer::convert2JTimeLock(JNIEnv *env, const nunchuk::Timelock &ti
     syslog(LOG_DEBUG, "[JNI] convert2JTimeLock()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/TimeLock");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Lcom/nunchuk/android/type/MiniscriptTimelockBased;Lcom/nunchuk/android/type/MiniscriptTimelockType;J)V");
-    
+
     jobject basedObj = convert2JMiniscriptTimelockBased(env, timeLock.based());
     jobject typeObj = convert2JMiniscriptTimelockType(env, timeLock.type());
     jlong valueVal = static_cast<jlong>(timeLock.value());
-    
+
     jobject instance = env->NewObject(clazz, constructor, basedObj, typeObj, valueVal);
-    
+
     // Cleanup
     env->DeleteLocalRef(basedObj);
     env->DeleteLocalRef(typeObj);
-    
+
     return instance;
 }
 
 jobject Deserializer::convert2JPairLongMiniscriptTimelockBased(JNIEnv *env, const std::pair<int64_t, nunchuk::Timelock::Based> &pair) {
     jclass pairClass = env->FindClass("kotlin/Pair");
     jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
-    
+
     // Create Long object for the first element
     jclass longClass = env->FindClass("java/lang/Long");
     jmethodID longConstructor = env->GetMethodID(longClass, "<init>", "(J)V");
     jobject longObj = env->NewObject(longClass, longConstructor, static_cast<jlong>(pair.first));
-    
+
     // Create MiniscriptTimelockBased object for the second element
     jobject timelockBasedObj = convert2JMiniscriptTimelockBased(env, pair.second);
-    
+
     // Create Pair object
     jobject pairObj = env->NewObject(pairClass, pairConstructor, longObj, timelockBasedObj);
-    
+
     // Cleanup
     env->DeleteLocalRef(longObj);
     env->DeleteLocalRef(timelockBasedObj);
-    
+
     return pairObj;
+}
+
+jobject Deserializer::convert2JNamedSignersMap(JNIEnv *env, const std::map<std::string, SingleSigner> &namedSigners) {
+    syslog(LOG_DEBUG, "[JNI] convert2JNamedSignersMap()");
+    jclass hashMapClass = env->FindClass("java/util/HashMap");
+    jmethodID hashMapConstructor = env->GetMethodID(hashMapClass, "<init>", "()V");
+    jobject hashMap = env->NewObject(hashMapClass, hashMapConstructor);
+    jmethodID putMethod = env->GetMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+    for (const auto& pair : namedSigners) {
+        jobject key = env->NewStringUTF(pair.first.c_str());
+        jobject value = convert2JSigner(env, pair.second);
+        env->CallObjectMethod(hashMap, putMethod, key, value);
+        env->DeleteLocalRef(key);
+        env->DeleteLocalRef(value);
+    }
+    return hashMap;
+}
+
+jobject Deserializer::convert2JNamedOccupiedMap(JNIEnv *env, const std::map<std::string, std::pair<time_t, std::string>> &namedOccupied) {
+    syslog(LOG_DEBUG, "[JNI] convert2JNamedOccupiedMap()");
+    jclass hashMapClass = env->FindClass("java/util/HashMap");
+    jmethodID hashMapConstructor = env->GetMethodID(hashMapClass, "<init>", "()V");
+    jobject hashMap = env->NewObject(hashMapClass, hashMapConstructor);
+    jmethodID putMethod = env->GetMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+    // Create Pair class
+    jclass pairClass = env->FindClass("kotlin/Pair");
+    jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+
+    for (const auto& pair : namedOccupied) {
+        jobject key = env->NewStringUTF(pair.first.c_str());
+        jobject first = env->NewStringUTF(std::to_string(pair.second.first).c_str());
+        jobject second = env->NewStringUTF(pair.second.second.c_str());
+        jobject pairObject = env->NewObject(pairClass, pairConstructor, first, second);
+        env->CallObjectMethod(hashMap, putMethod, key, pairObject);
+        env->DeleteLocalRef(key);
+        env->DeleteLocalRef(first);
+        env->DeleteLocalRef(second);
+        env->DeleteLocalRef(pairObject);
+    }
+    return hashMap;
 }
