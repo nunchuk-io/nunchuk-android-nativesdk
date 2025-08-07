@@ -890,6 +890,8 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLockBased",
                                                        "(Lcom/nunchuk/android/type/MiniscriptTimelockBased;)V"),
                             convert2JMiniscriptTimelockBased(env, output.get_lock_based()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTimelocks", "(Ljava/util/List;)V"),
+                            convert2JLongs(env, output.get_timelocks()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JUnspentOutput error::%s", e.what());
     }
@@ -1088,6 +1090,25 @@ jobject Deserializer::convert2JInts(JNIEnv *env, const std::vector<int> &value) 
         env->CallBooleanMethod(setInstance, addMethod, convert2JInt(env, i));
     }
     return setInstance;
+}
+
+jobject Deserializer::convert2JLong(JNIEnv *env, const int64_t value) {
+    jclass clazz = env->FindClass("java/lang/Long");
+    jmethodID staticMethod = env->GetStaticMethodID(clazz, "valueOf", "(J)Ljava/lang/Long;");
+    return env->CallStaticObjectMethod(clazz, staticMethod, value);
+}
+
+jobject Deserializer::convert2JLongs(JNIEnv *env, const std::vector<int64_t> &value) {
+    syslog(LOG_DEBUG, "[JNI] convert2JLongs()");
+    static auto listClass = static_cast<jclass>(env->NewGlobalRef(
+            env->FindClass("java/util/ArrayList")));
+    static jmethodID constructor = env->GetMethodID(listClass, "<init>", "()V");
+    jmethodID addMethod = env->GetMethodID(listClass, "add", "(Ljava/lang/Object;)Z");
+    jobject listInstance = env->NewObject(listClass, constructor);
+    for (auto i: value) {
+        env->CallBooleanMethod(listInstance, addMethod, convert2JLong(env, i));
+    }
+    return listInstance;
 }
 
 jobject Deserializer::convert2JCoinTag(JNIEnv *env, const CoinTag &tag) {

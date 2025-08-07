@@ -117,6 +117,10 @@ public:
 
     static jobject convert2JInts(JNIEnv *env, const std::vector<int> &tags);
 
+    static jobject convert2JLong(JNIEnv *env, const int64_t value);
+
+    static jobject convert2JLongs(JNIEnv *env, const std::vector<int64_t> &value);
+
     static jobject convert2JCoinTag(JNIEnv *env, const CoinTag &tag);
 
     static jobject convert2JCoinTags(JNIEnv *env, const std::vector<CoinTag> &tags);

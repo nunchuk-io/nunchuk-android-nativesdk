@@ -40,4 +40,5 @@ data class UnspentOutput(
     var scheduleTime: Long = 0L,
     var status: CoinStatus = CoinStatus.SPENT,
     var lockBased: MiniscriptTimelockBased = MiniscriptTimelockBased.NONE,
+    var timelocks: List<Long> = emptyList(),
 ) : Parcelable
