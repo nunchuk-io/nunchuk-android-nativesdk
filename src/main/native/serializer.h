@@ -77,6 +77,8 @@ public:
 
     static std::vector<SignerTag> convert2CSignerTags(JNIEnv *env, jobject tags);
 
+    static DescriptorPath convert2CDescriptorPath(jint ordinal);
+
     static CoinTag convert2CCoinTag(JNIEnv *env, jobject tag);
 
     static CoinCollection convert2CCoinCollection(JNIEnv *env, jobject collection);

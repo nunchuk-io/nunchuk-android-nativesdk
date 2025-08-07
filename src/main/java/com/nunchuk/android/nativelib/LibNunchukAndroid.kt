@@ -1348,6 +1348,12 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun getWalletDescriptor(
+        walletId: String,
+        descriptorPath: Int,
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun deleteGroupSandbox(
         groupId: String,
     ): Boolean

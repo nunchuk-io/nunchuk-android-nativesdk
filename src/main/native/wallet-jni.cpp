@@ -953,3 +953,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptWallet(JNIE
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWalletDescriptor(JNIEnv *env, jobject thiz,
+                                                                         jstring wallet_id,
+                                                                         jint descriptor_path) {
+    try {
+        auto descriptor = NunchukProvider::get()->nu->GetWallet(
+                StringWrapper(env, wallet_id)
+        ).get_descriptor(Serializer::convert2CDescriptorPath(descriptor_path));
+        return env->NewStringUTF(descriptor.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->NewStringUTF("");
+    }
+}

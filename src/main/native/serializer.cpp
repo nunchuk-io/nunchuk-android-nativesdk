@@ -171,6 +171,45 @@ Chain Serializer::convert2CChain(jint ordinal) {
     return chain;
 }
 
+DescriptorPath Serializer::convert2CDescriptorPath(jint ordinal) {
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CDescriptorPath]ordinal:: %d", ordinal);
+    DescriptorPath path;
+    switch (ordinal) {
+        case 0:
+            path = DescriptorPath::ANY;
+            break;
+        case 1:
+            path = DescriptorPath::INTERNAL_ALL;
+            break;
+        case 2:
+            path = DescriptorPath::INTERNAL_PUBKEY;
+            break;
+        case 3:
+            path = DescriptorPath::INTERNAL_XPUB;
+            break;
+        case 4:
+            path = DescriptorPath::EXTERNAL_ALL;
+            break;
+        case 5:
+            path = DescriptorPath::EXTERNAL_PUBKEY;
+            break;
+        case 6:
+            path = DescriptorPath::EXTERNAL_XPUB;
+            break;
+        case 7:
+            path = DescriptorPath::TEMPLATE;
+            break;
+        case 8:
+            path = DescriptorPath::EXTERNAL_INTERNAL;
+            break;
+        default:
+            path = DescriptorPath::ANY;
+            break;
+    }
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CDescriptorPath]path:: %d", path);
+    return path;
+}
+
 BackendType Serializer::convert2CBackendType(jint ordinal) {
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CBackendType]ordinal:: %d", ordinal);
     return ordinal == 0 ? BackendType::ELECTRUM : BackendType::CORERPC;

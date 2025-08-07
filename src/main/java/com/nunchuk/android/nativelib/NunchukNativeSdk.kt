@@ -48,6 +48,7 @@ import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 import com.nunchuk.android.type.WalletType
+import com.nunchuk.android.type.DescriptorPath
 
 @Suppress("Unused")
 class NunchukNativeSdk {
@@ -1620,6 +1621,12 @@ class NunchukNativeSdk {
     } else {
         nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
     }
+
+    @Throws(NCNativeException::class)
+    fun getWalletDescriptor(
+        walletId: String,
+        descriptorPath: DescriptorPath,
+    ) = nunchukAndroid.getWalletDescriptor(walletId, descriptorPath.ordinal)
 
     @Throws(NCNativeException::class)
     fun deleteGroupSandbox(
