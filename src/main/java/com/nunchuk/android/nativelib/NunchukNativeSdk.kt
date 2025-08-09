@@ -1735,7 +1735,10 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
-    fun createMiniscriptTemplateByCustom(input: String, addressType: Int,): MiniscriptTemplateResult =
+    fun createMiniscriptTemplateByCustom(
+        input: String,
+        addressType: Int,
+    ): MiniscriptTemplateResult =
         nunchukAndroid.createMiniscriptTemplateByCustom(input, addressType)
 
     @Throws(NCNativeException::class)
@@ -1766,7 +1769,10 @@ class NunchukNativeSdk {
         nunchukAndroid.getCurrentIndexFromMasterSigner(mastersignerId, walletType, addressType)
 
     @Throws(NCNativeException::class)
-    fun getTimelockedCoins(walletId: String, inputs: List<TxInput>): Pair<Long, List<UnspentOutput>> =
+    fun getTimelockedCoins(
+        walletId: String,
+        inputs: List<TxInput>
+    ): Pair<Long, List<UnspentOutput>> =
         nunchukAndroid.getTimelockedCoins(walletId, inputs)
 
     @Throws(NCNativeException::class)
@@ -1792,7 +1798,12 @@ class NunchukNativeSdk {
         nunchukAndroid.isPreimageRevealed(walletId, txId, hash)
 
     @Throws(NCNativeException::class)
-    fun revealPreimage(walletId: String, txId: String, hash: ByteArray, preimage: ByteArray): Boolean =
+    fun revealPreimage(
+        walletId: String,
+        txId: String,
+        hash: ByteArray,
+        preimage: ByteArray
+    ): Boolean =
         nunchukAndroid.revealPreimage(walletId, txId, hash, preimage)
 
     @Throws(NCNativeException::class)
@@ -1800,8 +1811,13 @@ class NunchukNativeSdk {
         nunchukAndroid.isSatisfiable(walletId, nodeId, txId)
 
     @Throws(NCNativeException::class)
-    fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased> = nunchukAndroid.getTimelockedUntil(walletId, txId)
+    fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased> =
+        nunchukAndroid.getTimelockedUntil(walletId, txId)
 
     @Throws(NCNativeException::class)
     fun clearScriptNodeCache(walletId: String) = nunchukAndroid.clearScriptNodeCache(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getKeySetStatus(walletId: String, nodeId: IntArray, txId: String) =
+        nunchukAndroid.getKeySetStatus(walletId, nodeId, txId)
 }

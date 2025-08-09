@@ -144,6 +144,7 @@ public:
     static jobject convert2JDraftRollOverTransaction(JNIEnv *env, const Transaction &transaction, const std::vector<int> &tagIds, const std::vector<int> &collectionIds);
     static jobjectArray convert2JDraftRollOverTransactions(JNIEnv *env, std::map<std::pair<std::set<int>, std::set<int>>, Transaction> txs);
     static jobject convert2JKeySetStatus(JNIEnv *env, const std::vector<KeysetStatus> &keySetStatus);
+    static jobject convert2JKeySetStatusSingle(JNIEnv *env, const KeysetStatus &keySetStatus);
     static jobject convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &groupSandbox);
     static jobject convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox);
     static jobject convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType);

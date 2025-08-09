@@ -1685,3 +1685,18 @@ jobject Deserializer::convert2JNamedOccupiedMap(JNIEnv *env, const std::map<std:
     }
     return hashMap;
 }
+
+jobject Deserializer::convert2JKeySetStatusSingle(JNIEnv *env, const KeysetStatus &keySetStatus) {
+    jclass keySetStatusClass = env->FindClass("com/nunchuk/android/model/KeySetStatus");
+    jmethodID keySetStatusConstructor = env->GetMethodID(keySetStatusClass, "<init>", "()V");
+    jobject keySetStatusInstance = env->NewObject(keySetStatusClass, keySetStatusConstructor);
+
+    env->CallVoidMethod(keySetStatusInstance, env->GetMethodID(keySetStatusClass, "setStatus",
+                                                               "(Lcom/nunchuk/android/type/TransactionStatus;)V"),
+                        convert2JTransactionStatus(env, keySetStatus.first));
+    env->CallVoidMethod(keySetStatusInstance,
+                        env->GetMethodID(keySetStatusClass, "setSignerStatus",
+                                         "(Ljava/util/Map;)V"),
+                        convert2JStringBooleanMap(env, keySetStatus.second));
+    return keySetStatusInstance;
+}

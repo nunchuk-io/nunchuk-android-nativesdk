@@ -1553,6 +1553,76 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getKeySetStatus(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jintArray node_id,
+        jstring tx_id
+) {
+    try {
+        // Convert wallet_id and tx_id
+        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
+
+        // Convert node_id (jintArray) to std::vector<size_t>
+        jsize node_id_len = env->GetArrayLength(node_id);
+        std::vector<size_t> node_path(node_id_len);
+        jint *node_id_elements = env->GetIntArrayElements(node_id, nullptr);
+        for (jsize i = 0; i < node_id_len; ++i) {
+            node_path[i] = static_cast<size_t>(node_id_elements[i]);
+        }
+        env->ReleaseIntArrayElements(node_id, node_id_elements, JNI_ABORT);
+
+        std::shared_ptr<nunchuk::ScriptNode> root_node_ptr;
+        {
+            std::lock_guard<std::mutex> lock(script_node_cache_mutex);
+            auto it = script_node_cache.find(c_wallet_id);
+            if (it != script_node_cache.end()) {
+                root_node_ptr = it->second;
+            } else {
+                // Get Wallet and miniscript
+                auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
+                std::string miniscript = wallet.get_miniscript();
+                std::vector<std::string> keypath;
+                auto root_node = std::make_shared<nunchuk::ScriptNode>(
+                        nunchuk::Utils::GetScriptNode(miniscript, keypath));
+                script_node_cache[c_wallet_id] = root_node;
+                root_node_ptr = root_node;
+            }
+        }
+
+        // Traverse ScriptNode tree by node_path
+        const nunchuk::ScriptNode *node = root_node_ptr.get();
+        for (size_t depth = 1; depth < node_path.size(); ++depth) {
+            size_t idx = node_path[depth];
+            const auto &subs = node->get_subs();
+            if (idx == 0 || idx > subs.size()) {
+                // Invalid path
+                return nullptr;
+            }
+            node = &subs[idx - 1];
+        }
+
+        // Get Transaction
+        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
+
+        // Get keyset status from node
+        nunchuk::KeysetStatus ks = node->get_keyset_status(tx);
+
+        // Build KeySetStatus Kotlin object via converter
+        return Deserializer::convert2JKeySetStatusSingle(env, ks);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedUntil(
         JNIEnv *env,
         jobject thiz,

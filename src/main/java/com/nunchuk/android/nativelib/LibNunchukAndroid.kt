@@ -35,6 +35,7 @@ import com.nunchuk.android.model.FreeGroupMessage
 import com.nunchuk.android.model.FreeGroupWalletConfig
 import com.nunchuk.android.model.GlobalGroupWalletConfig
 import com.nunchuk.android.model.GroupSandbox
+import com.nunchuk.android.model.KeySetStatus
 import com.nunchuk.android.model.MasterSigner
 import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.NunchukMatrixEvent
@@ -1479,6 +1480,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getKeySetStatus(walletId: String, nodeId: IntArray, txId: String): KeySetStatus
 
     @Throws(NCNativeException::class)
     external fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased>
