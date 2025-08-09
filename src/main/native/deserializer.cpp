@@ -1313,6 +1313,27 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             }
         }
     }
+    // Check if miniscript template is not empty before calling get_named_signers and get_named_occupied
+    std::string miniscript_template = sandbox.get_miniscript_template();
+    jobject namedSignersMap = nullptr;
+    jobject namedOccupiedMap = nullptr;
+    
+    if (!miniscript_template.empty()) {
+        try {
+            namedSignersMap = convert2JNamedSignersMap(env, sandbox.get_named_signers());
+            namedOccupiedMap = convert2JNamedOccupiedMap(env, sandbox.get_named_occupied());
+        } catch (const std::exception &e) {
+            syslog(LOG_DEBUG, "[JNI] convert2JGroupSandbox error getting named data::%s", e.what());
+            // Create empty maps as fallback
+            namedSignersMap = convert2JNamedSignersMap(env, std::map<std::string, SingleSigner>{});
+            namedOccupiedMap = convert2JNamedOccupiedMap(env, std::map<std::string, std::pair<time_t, std::string>>{});
+        }
+    } else {
+        // Create empty maps when miniscript template is empty
+        namedSignersMap = convert2JNamedSignersMap(env, std::map<std::string, SingleSigner>{});
+        namedOccupiedMap = convert2JNamedOccupiedMap(env, std::map<std::string, std::pair<time_t, std::string>>{});
+    }
+    
     jobject instance = env->NewObject(
             clazz,
             constructor,
@@ -1328,9 +1349,9 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             env->NewStringUTF(sandbox.get_wallet_id().c_str()),
             occupiedSlots,
             convert2JWalletType(env, sandbox.get_wallet_type()),
-            env->NewStringUTF(sandbox.get_miniscript_template().c_str()),
-            convert2JNamedSignersMap(env, sandbox.get_named_signers()),
-            convert2JNamedOccupiedMap(env, sandbox.get_named_occupied())
+            env->NewStringUTF(miniscript_template.c_str()),
+            namedSignersMap,
+            namedOccupiedMap
     );
     return instance;
 }
