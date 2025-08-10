@@ -815,6 +815,32 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateGroupSandbox(JNIEnv *
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateGroupSandboxWithScript(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jstring group_id,
+                                                                                  jstring name,
+                                                                                  jstring script_tmpl,
+                                                                                  jint address_type) {
+    try {
+        auto addressType = Serializer::convert2CAddressType(address_type);
+        auto groupSandbox = NunchukProvider::get()->nu->UpdateGroup(
+                StringWrapper(env, group_id),
+                StringWrapper(env, name),
+                StringWrapper(env, script_tmpl),
+                addressType
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateBySelection(

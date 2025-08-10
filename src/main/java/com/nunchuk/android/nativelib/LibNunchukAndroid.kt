@@ -1259,6 +1259,14 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun updateGroupSandboxWithScript(
+        groupId: String,
+        name: String,
+        scriptTmpl: String,
+        addressType: Int,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
     external fun recoverFreeGroupWallet(walletId: String)
 
     @Throws(NCNativeException::class)

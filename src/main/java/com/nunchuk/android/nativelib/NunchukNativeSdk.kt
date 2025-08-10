@@ -1524,7 +1524,12 @@ class NunchukNativeSdk {
         m: Int,
         n: Int,
         addressType: Int,
-    ) = nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
+        scriptTmpl: String = "",
+    ) = if (scriptTmpl.isNotEmpty()) {
+        nunchukAndroid.updateGroupSandboxWithScript(groupId, name, scriptTmpl, addressType)
+    } else {
+        nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
+    }
 
     @Throws(NCNativeException::class)
     fun recoverFreeGroupWallet(walletId: String) =
