@@ -162,4 +162,6 @@ public:
     static jobject convert2JSigningPath(JNIEnv *env, const SigningPath &signingPath);
     static jobject convert2JSigningPathAmountPairs(JNIEnv *env, const std::vector<std::pair<SigningPath, Amount>> &pairs);
     static jobject convert2JPairLongMiniscriptTimelockBased(JNIEnv *env, const std::pair<int64_t, nunchuk::Timelock::Based> &pair);
+    static jobject convert2JCoinsGroup(JNIEnv *env, const CoinsGroup &group);
+    static jobject convert2JCoinsGroups(JNIEnv *env, const std::vector<CoinsGroup> &groups);
 };

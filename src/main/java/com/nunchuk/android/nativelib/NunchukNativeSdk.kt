@@ -26,6 +26,7 @@ import com.nunchuk.android.model.Amount
 import com.nunchuk.android.model.AppSettings
 import com.nunchuk.android.model.CoinCollection
 import com.nunchuk.android.model.CoinTag
+import com.nunchuk.android.model.CoinsGroup
 import com.nunchuk.android.model.ColdCardHealth
 import com.nunchuk.android.model.Device
 import com.nunchuk.android.model.GlobalGroupWalletConfig
@@ -1820,4 +1821,9 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getKeySetStatus(walletId: String, nodeId: IntArray, txId: String) =
         nunchukAndroid.getKeySetStatus(walletId, nodeId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getCoinsGroupedBySubPolicies(walletId: String, nodeId: IntArray, txId: String) =
+        nunchukAndroid.getCoinsGroupedBySubPolicies(walletId, nodeId, txId)
+
 }

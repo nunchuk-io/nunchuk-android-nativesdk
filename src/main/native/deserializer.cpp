@@ -1721,3 +1721,32 @@ jobject Deserializer::convert2JKeySetStatusSingle(JNIEnv *env, const KeysetStatu
                         convert2JStringBooleanMap(env, keySetStatus.second));
     return keySetStatusInstance;
 }
+
+jobject Deserializer::convert2JCoinsGroup(JNIEnv *env, const CoinsGroup &group) {
+    // Resolve Kotlin CoinsGroup class and constructor
+    jclass coinsGroupClass = env->FindClass("com/nunchuk/android/model/CoinsGroup");
+    if (coinsGroupClass == nullptr) return nullptr;
+    jmethodID ctor = env->GetMethodID(coinsGroupClass, "<init>", "(Ljava/util/List;JJ)V");
+    if (ctor == nullptr) return nullptr;
+
+    // Convert fields
+    jobject jCoins = convert2JUnspentOutputs(env, group.first);
+    jlong jStart = static_cast<jlong>(group.second.first);
+    jlong jEnd = static_cast<jlong>(group.second.second);
+
+    // Create Kotlin object
+    return env->NewObject(coinsGroupClass, ctor, jCoins, jStart, jEnd);
+}
+
+jobject Deserializer::convert2JCoinsGroups(JNIEnv *env, const std::vector<CoinsGroup> &groups) {
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListCtor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject list = env->NewObject(arrayListClass, arrayListCtor);
+
+    for (const auto &g : groups) {
+        jobject jg = convert2JCoinsGroup(env, g);
+        env->CallBooleanMethod(list, arrayListAdd, jg);
+    }
+    return list;
+}

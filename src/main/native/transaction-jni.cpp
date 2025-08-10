@@ -17,6 +17,47 @@ using namespace nunchuk;
 static std::unordered_map<std::string, std::shared_ptr<nunchuk::ScriptNode>> script_node_cache;
 static std::mutex script_node_cache_mutex;
 
+// Helpers to reduce duplication across JNI calls operating on ScriptNode trees
+static std::vector<size_t> ToNodePath(JNIEnv *env, jintArray node_id_java) {
+    jsize len = env->GetArrayLength(node_id_java);
+    std::vector<size_t> path(static_cast<size_t>(len));
+    jint *elems = env->GetIntArrayElements(node_id_java, nullptr);
+    for (jsize i = 0; i < len; ++i) {
+        path[static_cast<size_t>(i)] = static_cast<size_t>(elems[i]);
+    }
+    env->ReleaseIntArrayElements(node_id_java, elems, JNI_ABORT);
+    return path;
+}
+
+static std::shared_ptr<nunchuk::ScriptNode> GetOrBuildRootNode(const std::string &wallet_id) {
+    std::lock_guard<std::mutex> lock(script_node_cache_mutex);
+    auto it = script_node_cache.find(wallet_id);
+    if (it != script_node_cache.end()) {
+        return it->second;
+    }
+    auto wallet = NunchukProvider::get()->nu->GetWallet(wallet_id);
+    std::string miniscript = wallet.get_miniscript();
+    std::vector<std::string> keypath;
+    auto root_node = std::make_shared<nunchuk::ScriptNode>(
+            nunchuk::Utils::GetScriptNode(miniscript, keypath));
+    script_node_cache[wallet_id] = root_node;
+    return root_node;
+}
+
+static const nunchuk::ScriptNode *GetNodeAtPath(const std::shared_ptr<nunchuk::ScriptNode> &root,
+                                                const std::vector<size_t> &path) {
+    const nunchuk::ScriptNode *node = root.get();
+    for (size_t depth = 1; depth < path.size(); ++depth) {
+        size_t idx = path[depth];
+        const auto &subs = node->get_subs();
+        if (idx == 0 || idx > subs.size()) {
+            return nullptr;
+        }
+        node = &subs[idx - 1];
+    }
+    return node;
+}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastTransaction(
@@ -1491,50 +1532,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
         jstring tx_id
 ) {
     try {
-        // Convert wallet_id and tx_id
         std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
         std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
-
-        // Convert node_id (jintArray) to std::vector<size_t>
-        jsize node_id_len = env->GetArrayLength(node_id);
-        std::vector<size_t> node_path(node_id_len);
-        jint *node_id_elements = env->GetIntArrayElements(node_id, nullptr);
-        for (jsize i = 0; i < node_id_len; ++i) {
-            node_path[i] = static_cast<size_t>(node_id_elements[i]);
-        }
-        env->ReleaseIntArrayElements(node_id, node_id_elements, JNI_ABORT);
-
-        std::shared_ptr<nunchuk::ScriptNode> root_node_ptr;
-        {
-            std::lock_guard<std::mutex> lock(script_node_cache_mutex);
-            auto it = script_node_cache.find(c_wallet_id);
-            if (it != script_node_cache.end()) {
-                root_node_ptr = it->second;
-            } else {
-                // Get Wallet and miniscript
-                auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
-                std::string miniscript = wallet.get_miniscript();
-                std::vector<std::string> keypath;
-                auto root_node = std::make_shared<nunchuk::ScriptNode>(
-                        nunchuk::Utils::GetScriptNode(miniscript, keypath));
-                script_node_cache[c_wallet_id] = root_node;
-                root_node_ptr = root_node;
-            }
-        }
-
-        // Traverse ScriptNode tree by node_path
-        const nunchuk::ScriptNode *node = root_node_ptr.get();
-        for (size_t depth = 1; depth < node_path.size(); ++depth) {
-            size_t idx = node_path[depth];
-            const auto &subs = node->get_subs();
-            if (idx == 0 || idx > subs.size()) {
-                // Invalid path
-                return JNI_FALSE;
-            }
-            node = &subs[idx - 1];
-        }
-
-        // Get Transaction
+        auto node_path = ToNodePath(env, node_id);
+        auto root_node_ptr = GetOrBuildRootNode(c_wallet_id);
+        const nunchuk::ScriptNode *node = GetNodeAtPath(root_node_ptr, node_path);
+        if (node == nullptr) return JNI_FALSE;
         auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
 
         // Call is_satisfiable
@@ -1561,50 +1564,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getKeySetStatus(
         jstring tx_id
 ) {
     try {
-        // Convert wallet_id and tx_id
         std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
         std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
-
-        // Convert node_id (jintArray) to std::vector<size_t>
-        jsize node_id_len = env->GetArrayLength(node_id);
-        std::vector<size_t> node_path(node_id_len);
-        jint *node_id_elements = env->GetIntArrayElements(node_id, nullptr);
-        for (jsize i = 0; i < node_id_len; ++i) {
-            node_path[i] = static_cast<size_t>(node_id_elements[i]);
-        }
-        env->ReleaseIntArrayElements(node_id, node_id_elements, JNI_ABORT);
-
-        std::shared_ptr<nunchuk::ScriptNode> root_node_ptr;
-        {
-            std::lock_guard<std::mutex> lock(script_node_cache_mutex);
-            auto it = script_node_cache.find(c_wallet_id);
-            if (it != script_node_cache.end()) {
-                root_node_ptr = it->second;
-            } else {
-                // Get Wallet and miniscript
-                auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
-                std::string miniscript = wallet.get_miniscript();
-                std::vector<std::string> keypath;
-                auto root_node = std::make_shared<nunchuk::ScriptNode>(
-                        nunchuk::Utils::GetScriptNode(miniscript, keypath));
-                script_node_cache[c_wallet_id] = root_node;
-                root_node_ptr = root_node;
-            }
-        }
-
-        // Traverse ScriptNode tree by node_path
-        const nunchuk::ScriptNode *node = root_node_ptr.get();
-        for (size_t depth = 1; depth < node_path.size(); ++depth) {
-            size_t idx = node_path[depth];
-            const auto &subs = node->get_subs();
-            if (idx == 0 || idx > subs.size()) {
-                // Invalid path
-                return nullptr;
-            }
-            node = &subs[idx - 1];
-        }
-
-        // Get Transaction
+        auto node_path = ToNodePath(env, node_id);
+        auto root_node_ptr = GetOrBuildRootNode(c_wallet_id);
+        const nunchuk::ScriptNode *node = GetNodeAtPath(root_node_ptr, node_path);
+        if (node == nullptr) return nullptr;
         auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
 
         // Get keyset status from node
@@ -1612,6 +1577,40 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getKeySetStatus(
 
         // Build KeySetStatus Kotlin object via converter
         return Deserializer::convert2JKeySetStatusSingle(env, ks);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinsGroupedBySubPolicies(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jintArray node_id,
+        jstring tx_id
+) {
+    try {
+        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
+        auto node_path = ToNodePath(env, node_id);
+        auto root_node_ptr = GetOrBuildRootNode(c_wallet_id);
+        const nunchuk::ScriptNode *node = GetNodeAtPath(root_node_ptr, node_path);
+        if (node == nullptr) return nullptr;
+        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
+        auto coins = NunchukProvider::get()->nu->GetCoinsFromTxInputs(c_wallet_id, tx.get_inputs());
+
+        // Group coins by sub-policies
+        int chain_tip = NunchukProvider::get()->nu->GetChainTip();
+        auto groups = nunchuk::Utils::GetCoinsGroupedBySubPolicies(*node, coins, chain_tip);
+
+        // Convert to Kotlin List<CoinsGroup>
+        return Deserializer::convert2JCoinsGroups(env, groups);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return env->ExceptionOccurred();

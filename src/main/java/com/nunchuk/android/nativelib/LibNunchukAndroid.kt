@@ -28,6 +28,7 @@ import com.nunchuk.android.model.BtcUri
 import com.nunchuk.android.model.CardStatus
 import com.nunchuk.android.model.CoinCollection
 import com.nunchuk.android.model.CoinTag
+import com.nunchuk.android.model.CoinsGroup
 import com.nunchuk.android.model.ColdCardHealth
 import com.nunchuk.android.model.Device
 import com.nunchuk.android.model.DraftRollOverTransaction
@@ -1489,6 +1490,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun clearScriptNodeCache(walletId: String)
+
+    @Throws(NCNativeException::class)
+    external fun getCoinsGroupedBySubPolicies(walletId: String, nodeId: IntArray, txId: String): List<CoinsGroup>
 
     companion object {
         init {
