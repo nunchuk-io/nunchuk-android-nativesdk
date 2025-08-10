@@ -52,6 +52,49 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_removeSignerFromGroup(JNIEn
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addSignerToGroupWithName(JNIEnv *env, jobject thiz,
+                                                                              jstring group_id,
+                                                                              jobject signer,
+                                                                              jstring name) {
+    try {
+        auto cSigner = Serializer::convert2CSigner(env, signer);
+        auto groupSandbox = NunchukProvider::get()->nu->AddSignerToGroup(
+                StringWrapper(env, group_id),
+                cSigner,
+                StringWrapper(env, name)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_removeSignerFromGroupWithName(JNIEnv *env, jobject thiz,
+                                                                                   jstring group_id,
+                                                                                   jstring name) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->RemoveSignerFromGroup(
+                StringWrapper(env, group_id),
+                StringWrapper(env, name)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_finalizeGroup(JNIEnv *env, jobject thiz,
                                                                    jstring group_id,
                                                                    jobject key_set_indexes) {

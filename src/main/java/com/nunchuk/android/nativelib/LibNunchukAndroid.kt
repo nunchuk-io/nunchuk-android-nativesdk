@@ -1280,9 +1280,22 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun addSignerToGroupWithName(
+        groupId: String,
+        signer: SingleSigner,
+        name: String
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
     external fun removeSignerFromGroup(
         groupId: String,
         index: Int
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun removeSignerFromGroupWithName(
+        groupId: String,
+        name: String
     ): GroupSandbox
 
     @Throws(NCNativeException::class)

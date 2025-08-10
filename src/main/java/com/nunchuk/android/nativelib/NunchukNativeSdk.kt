@@ -1542,14 +1542,24 @@ class NunchukNativeSdk {
     fun addSignerToGroup(
         groupId: String,
         signer: SingleSigner,
-        index: Int
-    ) = nunchukAndroid.addSignerToGroup(groupId, signer, index)
+        index: Int,
+        keyName: String = ""
+    ) = if (keyName.isNotEmpty()) {
+        nunchukAndroid.addSignerToGroupWithName(groupId, signer, keyName)
+    } else {
+        nunchukAndroid.addSignerToGroup(groupId, signer, index)
+    }
 
     @Throws(NCNativeException::class)
     fun removeSignerFromGroup(
         groupId: String,
-        index: Int
-    ) = nunchukAndroid.removeSignerFromGroup(groupId, index)
+        index: Int,
+        keyName: String = ""
+    ) = if (keyName.isNotEmpty()) {
+        nunchukAndroid.removeSignerFromGroupWithName(groupId, keyName)
+    } else {
+        nunchukAndroid.removeSignerFromGroup(groupId, index)
+    }
 
     @Throws(NCNativeException::class)
     fun finalizeGroup(
