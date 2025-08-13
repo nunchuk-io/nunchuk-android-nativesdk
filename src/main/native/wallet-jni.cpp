@@ -998,3 +998,50 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getWalletDescriptor(JNIEnv 
         return env->NewStringUTF("");
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSpendableNowAmount(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id
+) {
+    try {
+        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
+        std::vector<UnspentOutput> coins = NunchukProvider::get()->nu->GetUnspentOutputs(c_wallet_id);
+        int64_t max_lock_value;
+        std::vector<UnspentOutput> locked_coins = nunchuk::Utils::GetTimelockedCoins(
+            wallet.get_miniscript(), 
+            coins, 
+            max_lock_value, 
+            NunchukProvider::get()->nu->GetChainTip()
+        );
+        
+        // If no locked coins, all coins are spendable now
+        if (locked_coins.empty()) {
+            return Deserializer::convert2JAmount(env, 0);
+        }
+        
+        // Calculate spendable amount: total - locked
+        int64_t total_amount = 0;
+        for (const auto& coin : coins) {
+            total_amount += coin.get_amount();
+        }
+        
+        int64_t locked_amount = 0;
+        for (const auto& locked_coin : locked_coins) {
+            locked_amount += locked_coin.get_amount();
+        }
+        
+        int64_t spendable_amount = total_amount - locked_amount;
+        return Deserializer::convert2JAmount(env, spendable_amount);
+        
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}

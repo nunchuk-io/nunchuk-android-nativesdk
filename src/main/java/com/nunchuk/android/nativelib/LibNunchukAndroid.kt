@@ -1515,6 +1515,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getCoinsGroupedBySubPolicies(walletId: String, nodeId: IntArray, txId: String): List<CoinsGroup>
 
+    @Throws(NCNativeException::class)
+    external fun getSpendableNowAmount(walletId: String): Amount
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

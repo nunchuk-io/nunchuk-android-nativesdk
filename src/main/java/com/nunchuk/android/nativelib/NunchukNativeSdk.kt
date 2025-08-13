@@ -1841,4 +1841,8 @@ class NunchukNativeSdk {
     fun getCoinsGroupedBySubPolicies(walletId: String, nodeId: IntArray, txId: String) =
         nunchukAndroid.getCoinsGroupedBySubPolicies(walletId, nodeId, txId)
 
+    @Throws(NCNativeException::class)
+    fun getSpendableNowAmount(walletId: String): Amount =
+        nunchukAndroid.getSpendableNowAmount(walletId)
+
 }

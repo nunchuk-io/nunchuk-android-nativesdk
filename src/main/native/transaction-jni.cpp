@@ -1498,20 +1498,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_revealPreimage(
     try {
         auto c_wallet_id = StringWrapper(env, wallet_id);
         auto c_tx_id = StringWrapper(env, tx_id);
-
-        // Convert hash byte array
-        jsize hash_len = env->GetArrayLength(hash);
-        std::vector<uint8_t> hash_vec(hash_len);
-        env->GetByteArrayRegion(hash, 0, hash_len, reinterpret_cast<jbyte *>(hash_vec.data()));
-
-        // Convert preimage byte array
-        jsize preimage_len = env->GetArrayLength(preimage);
-        std::vector<uint8_t> preimage_vec(preimage_len);
-        env->GetByteArrayRegion(preimage, 0, preimage_len,
-                                reinterpret_cast<jbyte *>(preimage_vec.data()));
+        std::vector<uint8_t> hash_vec = Serializer::convert2CByteArray(env, hash);
+        std::vector<uint8_t> preimage_vec = Serializer::convert2CByteArray(env, preimage);
 
         bool result = NunchukProvider::get()->nu->RevealPreimage(c_wallet_id, c_tx_id, hash_vec,
-                                                                 preimage_vec);
+                                                               preimage_vec);
         return result ? JNI_TRUE : JNI_FALSE;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
