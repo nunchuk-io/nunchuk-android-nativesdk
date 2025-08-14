@@ -1601,8 +1601,25 @@ jobject Deserializer::convert2JSigningPathAmountPairs(JNIEnv *env, const std::ve
     jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
     jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
-    jclass pairClass = env->FindClass("kotlin/Pair");
+    
+    // Create Pair class using the correct class path for Kotlin
+    jstring className = env->NewStringUTF("kotlin/Pair");
+    jclass pairClass = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                                 Initializer::get()->loadClassMethod,
+                                                                 className));
+    env->DeleteLocalRef(className);
+    
+    if (pairClass == nullptr) {
+        syslog(LOG_DEBUG, "[JNI] convert2JSigningPathAmountPairs: Could not find kotlin.Pair class");
+        return arrayList; // Return empty list
+    }
+    
     jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+    if (pairConstructor == nullptr) {
+        syslog(LOG_DEBUG, "[JNI] convert2JSigningPathAmountPairs: Could not find Pair constructor");
+        return arrayList; // Return empty list
+    }
+    
     for (const auto &pair : pairs) {
         jobject signingPathObj = convert2JSigningPath(env, pair.first);
         jobject amountObj = convert2JAmount(env, pair.second);
@@ -1689,13 +1706,27 @@ jobject Deserializer::convert2JNamedOccupiedMap(JNIEnv *env, const std::map<std:
     jobject hashMap = env->NewObject(hashMapClass, hashMapConstructor);
     jmethodID putMethod = env->GetMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
 
-    // Create Pair class
-    jclass pairClass = env->FindClass("kotlin/Pair");
+    // Create Pair class using the correct class path for Kotlin
+    jstring className = env->NewStringUTF("kotlin/Pair");
+    jclass pairClass = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                                 Initializer::get()->loadClassMethod,
+                                                                 className));
+    env->DeleteLocalRef(className);
+    
+    if (pairClass == nullptr) {
+        syslog(LOG_DEBUG, "[JNI] convert2JNamedOccupiedMap: Could not find kotlin.Pair class");
+        return hashMap; // Return empty map
+    }
+    
     jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+    if (pairConstructor == nullptr) {
+        syslog(LOG_DEBUG, "[JNI] convert2JNamedOccupiedMap: Could not find Pair constructor");
+        return hashMap; // Return empty map
+    }
 
     for (const auto& pair : namedOccupied) {
         jobject key = env->NewStringUTF(pair.first.c_str());
-        jobject first = env->NewStringUTF(std::to_string(pair.second.first).c_str());
+        jobject first = convert2JLong(env, static_cast<int64_t>(pair.second.first));
         jobject second = env->NewStringUTF(pair.second.second.c_str());
         jobject pairObject = env->NewObject(pairClass, pairConstructor, first, second);
         env->CallObjectMethod(hashMap, putMethod, key, pairObject);
