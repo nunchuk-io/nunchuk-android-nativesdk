@@ -1686,8 +1686,13 @@ class NunchukNativeSdk {
     fun setSlotOccupied(
         groupId: String,
         index: Int,
-        value: Boolean
-    ) = nunchukAndroid.setSlotOccupied(groupId, index, value)
+        value: Boolean,
+        keyName: String = ""
+    ) = if (keyName.isNotEmpty()) {
+        nunchukAndroid.setSlotOccupiedWithName(groupId, keyName, value)
+    } else {
+        nunchukAndroid.setSlotOccupied(groupId, index, value)
+    }
 
     @Throws(NCNativeException::class)
     fun getSignerFromTapsignerMasterSigner(

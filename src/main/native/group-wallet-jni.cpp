@@ -472,6 +472,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setSlotOccupied(JNIEnv *env
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setSlotOccupiedWithName(JNIEnv *env, jobject thiz,
+                                                                             jstring group_id, jstring name,
+                                                                             jboolean value) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->SetSlotOccupied(
+                StringWrapper(env, group_id),
+                StringWrapper(env, name),
+                value
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_checkGroupWalletExists(JNIEnv *env,

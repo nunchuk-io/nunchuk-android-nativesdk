@@ -1413,6 +1413,13 @@ internal class LibNunchukAndroid {
     ): GroupSandbox?
 
     @Throws(NCNativeException::class)
+    external fun setSlotOccupiedWithName(
+        groupId: String,
+        name: String,
+        value: Boolean
+    ): GroupSandbox?
+
+    @Throws(NCNativeException::class)
     external fun getSignerFromTapsignerMasterSignerByPath(
         isoDep: IsoDep,
         cvc: String,
