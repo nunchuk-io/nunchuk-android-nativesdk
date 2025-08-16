@@ -49,5 +49,6 @@ data class Transaction(
     var cpfpFee: Amount = Amount.ZER0,
     var keySetStatus: List<KeySetStatus> = emptyList(),
     var scriptPathFee: Amount = Amount.ZER0,
-    var lockTime: Long = 0L
+    var lockTime: Long = 0L,
+    var raw: String = ""
 ) : Parcelable

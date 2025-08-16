@@ -515,6 +515,8 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             convert2JKeySetStatus(env, transaction.get_keyset_status()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLockTime", "(J)V"),
                             static_cast<jlong>(transaction.get_lock_time()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRaw", "(Ljava/lang/String;)V"),
+                            env->NewStringUTF(transaction.get_raw().c_str()));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
