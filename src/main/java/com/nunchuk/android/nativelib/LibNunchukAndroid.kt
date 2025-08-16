@@ -1525,6 +1525,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getSpendableNowAmount(walletId: String): Amount
 
+    @Throws(NCNativeException::class)
+    external fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner>
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

@@ -1850,4 +1850,8 @@ class NunchukNativeSdk {
     fun getSpendableNowAmount(walletId: String): Amount =
         nunchukAndroid.getSpendableNowAmount(walletId)
 
+    @Throws(NCNativeException::class)
+    fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner> =
+        nunchukAndroid.getTransactionSigners(walletId, txId)
+
 }
