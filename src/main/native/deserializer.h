@@ -155,7 +155,7 @@ public:
     static jobject convert2JScriptNode(JNIEnv *env, const ScriptNode &node);
     static jobject convert2JScriptNodes(JNIEnv *env, const std::vector<ScriptNode> &nodes);
     static jobject convert2JScriptNodeResult(JNIEnv *env, const ScriptNode &node, const std::vector<std::string> &keyPath);
-    static jobject convert2JMiniscriptTemplateResult(JNIEnv *env, const std::string &template_str, bool isValidTapscript);
+    static jobject convert2JMiniscriptTemplateResult(JNIEnv *env, const std::string &template_str, bool isValidTapscript, bool isValidPolicy, bool isValidMiniscriptTemplate);
     static jobject convert2JMiniscriptTimelockBased(JNIEnv *env, nunchuk::Timelock::Based based);
     static jobject convert2JMiniscriptTimelockType(JNIEnv *env, nunchuk::Timelock::Type type);
     static jobject convert2JTimeLock(JNIEnv *env, const nunchuk::Timelock &timeLock);

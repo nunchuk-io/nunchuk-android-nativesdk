@@ -903,13 +903,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByC
         std::string miniscript_template;
         std::string error;
         bool is_valid_tapscript = false;
+        bool is_valid_policy = false;
+        bool is_valid_miniscript_template = false;
         std::string user_input = env->GetStringUTFChars(input, JNI_FALSE);
         AddressType addressType = Serializer::convert2CAddressType(address_type);
         
         if (Utils::IsValidMiniscriptTemplate(user_input, addressType)) {
             miniscript_template = user_input;
+            is_valid_miniscript_template = true;
         } else if (Utils::IsValidPolicy(user_input)) {
             miniscript_template = Utils::PolicyToMiniscript(user_input, {}, addressType);
+            is_valid_policy = true;
         } else if (Utils::IsValidTapscriptTemplate(user_input, error)) {
             miniscript_template = user_input;
             is_valid_tapscript = true;
@@ -917,7 +921,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByC
             miniscript_template = "";
         }
         
-        return Deserializer::convert2JMiniscriptTemplateResult(env, miniscript_template, is_valid_tapscript);
+        return Deserializer::convert2JMiniscriptTemplateResult(env, miniscript_template, is_valid_tapscript, is_valid_policy, is_valid_miniscript_template);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;
