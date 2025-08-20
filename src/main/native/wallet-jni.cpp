@@ -1024,7 +1024,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSpendableNowAmount(
         
         // If no locked coins, all coins are spendable now
         if (locked_coins.empty()) {
-            return Deserializer::convert2JAmount(env, 0);
+            return Deserializer::convert2JAmount(env, -1);
         }
         
         // Calculate spendable amount: total - locked
