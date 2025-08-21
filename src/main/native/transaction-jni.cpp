@@ -1362,7 +1362,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
         }
 
         auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
-        if (wallet.get_address_type() == AddressType::TAPROOT && wallet.get_signers().size() > 1) {
+        if (wallet.get_address_type() == AddressType::TAPROOT && wallet.get_wallet_type() == WalletType::MULTI_SIG) {
             auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, transaction);
 
             jclass txClass = env->GetObjectClass(jtransaction);
