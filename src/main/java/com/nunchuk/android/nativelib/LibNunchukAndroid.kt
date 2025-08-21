@@ -287,7 +287,9 @@ internal class LibNunchukAndroid {
         walletId: String,
         txId: String,
         newFeeRate: Amount,
-        antiFeeSniping: Boolean
+        antiFeeSniping: Boolean,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
     ): Transaction
 
     @Throws(NCNativeException::class)

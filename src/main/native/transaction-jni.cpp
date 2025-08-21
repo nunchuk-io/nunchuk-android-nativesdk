@@ -295,14 +295,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransaction(
         jstring wallet_id,
         jstring tx_id,
         jobject new_fee_rate,
-        jboolean anti_fee_sniping
+        jboolean anti_fee_sniping,
+        jboolean use_script_path,
+        jobject signing_path
 ) {
     try {
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->ReplaceTransaction(
                 env->GetStringUTFChars(wallet_id, JNI_FALSE),
                 env->GetStringUTFChars(tx_id, JNI_FALSE),
                 Serializer::convert2CAmount(env, new_fee_rate),
-                anti_fee_sniping
+                anti_fee_sniping,
+                use_script_path,
+                c_signing_path
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
