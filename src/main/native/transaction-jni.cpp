@@ -1326,7 +1326,9 @@ JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv *env, jobject thiz,
                                                                          jstring wallet_id,
                                                                          jobject fee_rate,
-                                                                         jstring replace_tx_id) {
+                                                                         jstring replace_tx_id,
+                                                                         jboolean use_script_path,
+                                                                         jobject signing_path) {
     try {
         auto c_wallet_id = StringWrapper(env, wallet_id);
         auto original_tx = NunchukProvider::get()->nu->GetTransaction(
@@ -1339,6 +1341,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
         for (const auto &output: original_tx.get_user_outputs()) {
             mapOut[output.first] = output.second;
         }
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
                 c_wallet_id,
                 mapOut,
@@ -1346,7 +1349,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
                 Serializer::convert2CAmount(env, fee_rate),
                 original_tx.subtract_fee_from_amount(),
                 StringWrapper(env, replace_tx_id),
-                false
+                use_script_path,
+                c_signing_path
         );
         Amount packageFeeRate{0};
         jobject jtransaction;

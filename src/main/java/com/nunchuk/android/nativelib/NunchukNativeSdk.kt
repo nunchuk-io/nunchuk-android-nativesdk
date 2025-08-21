@@ -346,10 +346,14 @@ class NunchukNativeSdk {
         walletId: String,
         feeRate: Amount,
         replaceTxId: String,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
     ): Transaction = nunchukAndroid.draftRbfTransaction(
         walletId = walletId,
         feeRate = feeRate,
         replaceTxId = replaceTxId,
+        useScriptPath = useScriptPath,
+        signingPath = signingPath,
     )
 
     @Throws(NCNativeException::class)
