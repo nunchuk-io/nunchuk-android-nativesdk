@@ -848,12 +848,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByS
         jint timelock_type, jint time_unit, jlong time, jint address_type, jboolean reuse_signer) {
     try {
         Timelock::Based based;
-        Timelock::Type type = Timelock::Type::ABSOLUTE;
+        Timelock::Type type = Timelock::Type::LOCKTYPE_ABSOLUTE;
 
         if (timelock_type == 0) {
-            type = Timelock::Type::ABSOLUTE;
+            type = Timelock::Type::LOCKTYPE_ABSOLUTE;
         } else if (timelock_type == 1) {
-            type = Timelock::Type::RELATIVE;
+            type = Timelock::Type::LOCKTYPE_RELATIVE;
         }
 
         if (time_unit == 0) {
