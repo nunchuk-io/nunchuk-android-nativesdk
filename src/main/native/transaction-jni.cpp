@@ -1474,16 +1474,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isPreimageRevealed(
         auto c_wallet_id = StringWrapper(env, wallet_id);
         auto c_tx_id = StringWrapper(env, tx_id);
 
-        // Get transaction to access PSBT
+        // Get transaction to access PSBT or raw transaction
         auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
-        std::string psbt = tx.get_psbt();
-
+        
         // Convert hash byte array
         jsize hash_len = env->GetArrayLength(hash);
         std::vector<uint8_t> hash_vec(hash_len);
         env->GetByteArrayRegion(hash, 0, hash_len, reinterpret_cast<jbyte *>(hash_vec.data()));
 
-        bool result = nunchuk::Utils::IsPreimageRevealed(psbt, hash_vec);
+        bool result;
+        
+        // For finalized transaction (!tx.get_raw().empty()), check hash from raw transaction
+        std::string rawtx = tx.get_raw();
+        if (!rawtx.empty()) {
+            result = nunchuk::Utils::IsPreimageRevealed(rawtx, hash_vec);
+        } else {
+            // For non-finalized transaction, check hash from PSBT
+            std::string psbt = tx.get_psbt();
+            result = nunchuk::Utils::IsPreimageRevealed(psbt, hash_vec);
+        }
+        
         return result ? JNI_TRUE : JNI_FALSE;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
