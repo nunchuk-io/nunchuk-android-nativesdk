@@ -675,9 +675,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
                                                                                        jstring fee,
                                                                                        jboolean is_draft) {
     try {
-        Wallet dummy_wallet = Wallet(false);
         auto singleSigners = Serializer::convert2CSigners(env, signers);
-        dummy_wallet.set_signers(singleSigners);
+        int m = singleSigners.size();
+        int n = singleSigners.size();
+        Wallet dummy_wallet = Wallet("", m, n, singleSigners, AddressType::NATIVE_SEGWIT, false, 0, true);
         Transaction tx = Utils::DecodeTx(dummy_wallet, StringWrapper(env, psbt),
                                          Utils::AmountFromValue(StringWrapper(env, sub_amount)),
                                          Utils::AmountFromValue(StringWrapper(env, fee)),
