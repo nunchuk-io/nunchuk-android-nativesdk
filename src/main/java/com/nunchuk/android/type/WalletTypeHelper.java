@@ -17,31 +17,19 @@
  *                                                                        *
  **************************************************************************/
 
-package com.nunchuk.android.model
+package com.nunchuk.android.type;
 
-import android.os.Parcelable
-import com.nunchuk.android.type.AddressType
-import com.nunchuk.android.type.WalletTemplate
-import kotlinx.parcelize.Parcelize
+// This class should be kept in java since jni can't access object class
+public final class WalletTypeHelper {
 
-@Parcelize
-data class Wallet(
-    var id: String = "",
-    var name: String = "",
-    var totalRequireSigns: Int = 0,
-    var signers: List<SingleSigner> = emptyList(),
-    var addressType: AddressType = AddressType.NESTED_SEGWIT,
-    var escrow: Boolean = false,
-    var balance: Amount = Amount.ZER0,
-    var createDate: Long = 0L,
-    var description: String = "",
-    var gapLimit: Int = 0,
-    var needBackup: Boolean = false,
-    var walletTemplate: WalletTemplate = WalletTemplate.DEFAULT,
-    var archived: Boolean = false,
-    var miniscript: String = "",
-) : Parcelable {
-    companion object {
-        val EMPTY = Wallet()
+    private WalletTypeHelper() {
     }
-}
+
+    public static WalletType from(final int ordinal) {
+        return CollectionUtil.fromOrdinal(WalletType.values(),
+                ordinal,
+                WalletType.MULTI_SIG
+        );
+    }
+
+} 

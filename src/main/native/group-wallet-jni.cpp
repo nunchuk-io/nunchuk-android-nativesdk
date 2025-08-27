@@ -52,6 +52,49 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_removeSignerFromGroup(JNIEn
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_addSignerToGroupWithName(JNIEnv *env, jobject thiz,
+                                                                              jstring group_id,
+                                                                              jobject signer,
+                                                                              jstring name) {
+    try {
+        auto cSigner = Serializer::convert2CSigner(env, signer);
+        auto groupSandbox = NunchukProvider::get()->nu->AddSignerToGroup(
+                StringWrapper(env, group_id),
+                cSigner,
+                StringWrapper(env, name)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_removeSignerFromGroupWithName(JNIEnv *env, jobject thiz,
+                                                                                   jstring group_id,
+                                                                                   jstring name) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->RemoveSignerFromGroup(
+                StringWrapper(env, group_id),
+                StringWrapper(env, name)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_finalizeGroup(JNIEnv *env, jobject thiz,
                                                                    jstring group_id,
                                                                    jobject key_set_indexes) {
@@ -263,6 +306,28 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createGroupSandbox(JNIEnv *
     }
 }
 
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createGroupSandboxWithScript(JNIEnv *env, jobject thiz,
+                                                                                  jstring name, jstring script_tmpl,
+                                                                                  jint address_type) {
+    try {
+        auto addressType = Serializer::convert2CAddressType(address_type);
+        auto wallet = NunchukProvider::get()->nu->CreateGroup(
+                StringWrapper(env, name),
+                StringWrapper(env, script_tmpl),
+                addressType
+        );
+        return Deserializer::convert2JGroupSandbox(env, wallet);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
 
 extern "C"
 JNIEXPORT jboolean JNICALL
@@ -396,6 +461,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setSlotOccupied(JNIEnv *env
         auto groupSandbox = NunchukProvider::get()->nu->SetSlotOccupied(
                 StringWrapper(env, group_id),
                 index,
+                value
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setSlotOccupiedWithName(JNIEnv *env, jobject thiz,
+                                                                             jstring group_id, jstring name,
+                                                                             jboolean value) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->SetSlotOccupied(
+                StringWrapper(env, group_id),
+                StringWrapper(env, name),
                 value
         );
         return Deserializer::convert2JGroupSandbox(env, groupSandbox);

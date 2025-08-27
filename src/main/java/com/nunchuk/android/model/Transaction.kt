@@ -48,5 +48,7 @@ data class Transaction(
     var psbt: String = "",
     var cpfpFee: Amount = Amount.ZER0,
     var keySetStatus: List<KeySetStatus> = emptyList(),
-    var scriptPathFee: Amount = Amount.ZER0
+    var scriptPathFee: Amount = Amount.ZER0,
+    var lockTime: Long = 0L,
+    var raw: String = ""
 ) : Parcelable

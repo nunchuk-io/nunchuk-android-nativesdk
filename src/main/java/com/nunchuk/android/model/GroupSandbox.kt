@@ -2,6 +2,7 @@ package com.nunchuk.android.model
 
 import android.os.Parcelable
 import com.nunchuk.android.type.AddressType
+import com.nunchuk.android.type.WalletType
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -17,4 +18,8 @@ data class GroupSandbox(
     val finalized: Boolean,
     val walletId: String,
     val occupiedSlots: List<OccupiedSlot?>,
+    val walletType: WalletType,
+    val miniscriptTemplate: String,
+    val namedSigners: Map<String, SingleSigner>,
+    val namedOccupied: Map<String, Pair<Long, String>>,
 ) : Parcelable

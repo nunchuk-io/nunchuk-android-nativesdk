@@ -28,6 +28,7 @@ import com.nunchuk.android.model.BtcUri
 import com.nunchuk.android.model.CardStatus
 import com.nunchuk.android.model.CoinCollection
 import com.nunchuk.android.model.CoinTag
+import com.nunchuk.android.model.CoinsGroup
 import com.nunchuk.android.model.ColdCardHealth
 import com.nunchuk.android.model.Device
 import com.nunchuk.android.model.DraftRollOverTransaction
@@ -35,7 +36,9 @@ import com.nunchuk.android.model.FreeGroupMessage
 import com.nunchuk.android.model.FreeGroupWalletConfig
 import com.nunchuk.android.model.GlobalGroupWalletConfig
 import com.nunchuk.android.model.GroupSandbox
+import com.nunchuk.android.model.KeySetStatus
 import com.nunchuk.android.model.MasterSigner
+import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.NunchukMatrixEvent
 import com.nunchuk.android.model.PairAmount
 import com.nunchuk.android.model.PrimaryKey
@@ -43,7 +46,9 @@ import com.nunchuk.android.model.RoomTransaction
 import com.nunchuk.android.model.RoomWallet
 import com.nunchuk.android.model.SatsCardSlot
 import com.nunchuk.android.model.SatsCardStatus
+import com.nunchuk.android.model.ScriptNodeResult
 import com.nunchuk.android.model.SignedMessage
+import com.nunchuk.android.model.SigningPath
 import com.nunchuk.android.model.SingleSigner
 import com.nunchuk.android.model.TapSignerStatus
 import com.nunchuk.android.model.Transaction
@@ -52,6 +57,7 @@ import com.nunchuk.android.model.UnspentOutput
 import com.nunchuk.android.model.Wallet
 import com.nunchuk.android.model.bridge.WalletBridge
 import com.nunchuk.android.type.HealthStatus
+import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 
@@ -225,7 +231,8 @@ internal class LibNunchukAndroid {
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
         antiFeeSniping: Boolean,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -246,7 +253,8 @@ internal class LibNunchukAndroid {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -254,6 +262,8 @@ internal class LibNunchukAndroid {
         walletId: String,
         feeRate: Amount,
         replaceTxId: String,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -277,7 +287,9 @@ internal class LibNunchukAndroid {
         walletId: String,
         txId: String,
         newFeeRate: Amount,
-        antiFeeSniping: Boolean
+        antiFeeSniping: Boolean,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -1251,6 +1263,14 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun updateGroupSandboxWithScript(
+        groupId: String,
+        name: String,
+        scriptTmpl: String,
+        addressType: Int,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
     external fun recoverFreeGroupWallet(walletId: String)
 
     @Throws(NCNativeException::class)
@@ -1264,9 +1284,22 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun addSignerToGroupWithName(
+        groupId: String,
+        signer: SingleSigner,
+        name: String
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
     external fun removeSignerFromGroup(
         groupId: String,
         index: Int
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun removeSignerFromGroupWithName(
+        groupId: String,
+        name: String
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
@@ -1335,6 +1368,19 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
+    external fun createGroupSandboxWithScript(
+        name: String,
+        scriptTmpl: String,
+        addressType: Int,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun getWalletDescriptor(
+        walletId: String,
+        descriptorPath: Int,
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun deleteGroupSandbox(
         groupId: String,
     ): Boolean
@@ -1371,6 +1417,13 @@ internal class LibNunchukAndroid {
     ): GroupSandbox?
 
     @Throws(NCNativeException::class)
+    external fun setSlotOccupiedWithName(
+        groupId: String,
+        name: String,
+        value: Boolean
+    ): GroupSandbox?
+
+    @Throws(NCNativeException::class)
     external fun getSignerFromTapsignerMasterSignerByPath(
         isoDep: IsoDep,
         cvc: String,
@@ -1401,6 +1454,83 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getMnemonicFromHotKey(signerId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun createMiniscriptTemplateBySelection(
+        multisignType: Int,
+        m: Int,
+        n: Int,
+        newM: Int,
+        newN: Int,
+        timelockType: Int,
+        timeUnit: Int,
+        time: Long,
+        addressType: Int,
+        reuseSigner: Boolean,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun createMiniscriptTemplateByCustom(input: String, addressType: Int): MiniscriptTemplateResult
+
+    @Throws(NCNativeException::class)
+    external fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNodeResult
+
+    @Throws(NCNativeException::class)
+    external fun createMiniscriptWallet(
+        miniscriptTemplate: String,
+        signerMap: Map<String, SingleSigner>,
+        name: String,
+        description: String,
+        addressType: Int,
+        allowUsedSigner: Boolean,
+        decoyPin: String,
+    ): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun getCurrentIndexFromMasterSigner(mastersignerId: String, walletType: Int, addressType: Int): Int
+
+    @Throws(NCNativeException::class)
+    external fun getTimelockedCoins(
+        walletId: String,
+        inputs: List<TxInput>
+    ): Pair<Long, List<UnspentOutput>>
+
+    @Throws(NCNativeException::class)
+    external fun estimateFeeForSigningPaths(
+        walletId: String,
+        outputs: Map<String, Amount>,
+        inputs: List<TxInput>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+        replaceTxId: String
+    ): List<Pair<SigningPath, Amount>>
+
+    @Throws(NCNativeException::class)
+    external fun isPreimageRevealed(walletId: String, txId: String, hash: ByteArray): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun revealPreimage(walletId: String, txId: String, hash: ByteArray, preimage: ByteArray): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getKeySetStatus(walletId: String, nodeId: IntArray, txId: String): KeySetStatus
+
+    @Throws(NCNativeException::class)
+    external fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased>
+
+    @Throws(NCNativeException::class)
+    external fun clearScriptNodeCache(walletId: String)
+
+    @Throws(NCNativeException::class)
+    external fun getCoinsGroupedBySubPolicies(walletId: String, nodeId: IntArray, txId: String): List<CoinsGroup>
+
+    @Throws(NCNativeException::class)
+    external fun getSpendableNowAmount(walletId: String): Amount
+
+    @Throws(NCNativeException::class)
+    external fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner>
 
     companion object {
         init {

@@ -7,6 +7,8 @@
 
 using namespace nunchuk;
 using namespace nunchuk::ndef;
+#include <vector>
+#include <string>
 
 /**
  * Used to convert C++ Classes into Java models
@@ -40,6 +42,12 @@ public:
     static jobject convert2JTxOutputs(JNIEnv *env, const std::vector<TxOutput> &outputs);
 
     static jobject convert2JAddressType(JNIEnv *env, const AddressType &type);
+
+    static jobject convert2JWalletType(JNIEnv *env, const WalletType &type);
+
+    static jobject convert2JNamedSignersMap(JNIEnv *env, const std::map<std::string, SingleSigner> &namedSigners);
+
+    static jobject convert2JNamedOccupiedMap(JNIEnv *env, const std::map<std::string, std::pair<time_t, std::string>> &namedOccupied);
 
     static jobject convert2JSignerType(JNIEnv *env, const SignerType &type);
 
@@ -115,6 +123,10 @@ public:
 
     static jobject convert2JInts(JNIEnv *env, const std::vector<int> &tags);
 
+    static jobject convert2JLong(JNIEnv *env, const int64_t value);
+
+    static jobject convert2JLongs(JNIEnv *env, const std::vector<int64_t> &value);
+
     static jobject convert2JCoinTag(JNIEnv *env, const CoinTag &tag);
 
     static jobject convert2JCoinTags(JNIEnv *env, const std::vector<CoinTag> &tags);
@@ -132,6 +144,7 @@ public:
     static jobject convert2JDraftRollOverTransaction(JNIEnv *env, const Transaction &transaction, const std::vector<int> &tagIds, const std::vector<int> &collectionIds);
     static jobjectArray convert2JDraftRollOverTransactions(JNIEnv *env, std::map<std::pair<std::set<int>, std::set<int>>, Transaction> txs);
     static jobject convert2JKeySetStatus(JNIEnv *env, const std::vector<KeysetStatus> &keySetStatus);
+    static jobject convert2JKeySetStatusSingle(JNIEnv *env, const KeysetStatus &keySetStatus);
     static jobject convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &groupSandbox);
     static jobject convert2JGroupsSandbox(JNIEnv *env, const std::vector<GroupSandbox> &groupSandbox);
     static jobject convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config, const AddressType &addressType);
@@ -139,4 +152,16 @@ public:
     static jobject convert2JGroupMessages(JNIEnv *env, const std::vector<GroupMessage> &messages);
     static jobject convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config);
     static jobject convert2JWalletTemplate(JNIEnv *env, const WalletTemplate &wallet_template);
+    static jobject convert2JScriptNode(JNIEnv *env, const ScriptNode &node);
+    static jobject convert2JScriptNodes(JNIEnv *env, const std::vector<ScriptNode> &nodes);
+    static jobject convert2JScriptNodeResult(JNIEnv *env, const ScriptNode &node, const std::vector<std::string> &keyPath);
+    static jobject convert2JMiniscriptTemplateResult(JNIEnv *env, const std::string &template_str, bool isValidTapscript, bool isValidPolicy, bool isValidMiniscriptTemplate);
+    static jobject convert2JMiniscriptTimelockBased(JNIEnv *env, nunchuk::Timelock::Based based);
+    static jobject convert2JMiniscriptTimelockType(JNIEnv *env, nunchuk::Timelock::Type type);
+    static jobject convert2JTimeLock(JNIEnv *env, const nunchuk::Timelock &timeLock);
+    static jobject convert2JSigningPath(JNIEnv *env, const SigningPath &signingPath);
+    static jobject convert2JSigningPathAmountPairs(JNIEnv *env, const std::vector<std::pair<SigningPath, Amount>> &pairs);
+    static jobject convert2JPairLongMiniscriptTimelockBased(JNIEnv *env, const std::pair<int64_t, nunchuk::Timelock::Based> &pair);
+    static jobject convert2JCoinsGroup(JNIEnv *env, const CoinsGroup &group);
+    static jobject convert2JCoinsGroups(JNIEnv *env, const std::vector<CoinsGroup> &groups);
 };

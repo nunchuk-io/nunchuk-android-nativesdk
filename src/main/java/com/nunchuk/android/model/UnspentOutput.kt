@@ -21,6 +21,7 @@ package com.nunchuk.android.model
 
 import android.os.Parcelable
 import com.nunchuk.android.type.CoinStatus
+import com.nunchuk.android.type.MiniscriptTimelockBased
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -38,4 +39,6 @@ data class UnspentOutput(
     var time: Long = 0L,
     var scheduleTime: Long = 0L,
     var status: CoinStatus = CoinStatus.SPENT,
+    var lockBased: MiniscriptTimelockBased = MiniscriptTimelockBased.NONE,
+    var timelocks: List<Long> = emptyList(),
 ) : Parcelable

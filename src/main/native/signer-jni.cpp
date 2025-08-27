@@ -883,3 +883,24 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromHotKey(JNIEn
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCurrentIndexFromMasterSigner(JNIEnv *env,
+                                                                                     jobject thiz,
+                                                                                     jstring mastersigner_id,
+                                                                                     jint wallet_type,
+                                                                                     jint address_type) {
+    try {
+        return NunchukProvider::get()->nu->GetCurrentIndexFromMasterSigner(
+                StringWrapper(env, mastersigner_id),
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}

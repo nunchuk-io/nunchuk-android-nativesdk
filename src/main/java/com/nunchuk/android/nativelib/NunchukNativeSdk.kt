@@ -19,13 +19,37 @@
 
 package com.nunchuk.android.nativelib
 
-import android.R.attr.name
 import android.nfc.NdefRecord
 import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
-import com.nunchuk.android.model.*
+import com.nunchuk.android.model.Amount
+import com.nunchuk.android.model.AppSettings
+import com.nunchuk.android.model.CoinCollection
+import com.nunchuk.android.model.CoinTag
+import com.nunchuk.android.model.CoinsGroup
+import com.nunchuk.android.model.ColdCardHealth
+import com.nunchuk.android.model.Device
+import com.nunchuk.android.model.GlobalGroupWalletConfig
+import com.nunchuk.android.model.GroupSandbox
+import com.nunchuk.android.model.MasterSigner
+import com.nunchuk.android.model.MiniscriptTemplateResult
+import com.nunchuk.android.model.NunchukMatrixEvent
+import com.nunchuk.android.model.SatsCardSlot
+import com.nunchuk.android.model.ScriptNodeResult
+import com.nunchuk.android.model.SigningPath
+import com.nunchuk.android.model.SingleSigner
+import com.nunchuk.android.model.Transaction
+import com.nunchuk.android.model.TxInput
+import com.nunchuk.android.model.UnspentOutput
+import com.nunchuk.android.model.Wallet
 import com.nunchuk.android.model.bridge.toBridge
-import com.nunchuk.android.type.*
+import com.nunchuk.android.type.AddressType
+import com.nunchuk.android.type.ExportFormat
+import com.nunchuk.android.type.MiniscriptTimelockBased
+import com.nunchuk.android.type.SignerTag
+import com.nunchuk.android.type.SignerType
+import com.nunchuk.android.type.WalletType
+import com.nunchuk.android.type.DescriptorPath
 
 @Suppress("Unused")
 class NunchukNativeSdk {
@@ -264,7 +288,8 @@ class NunchukNativeSdk {
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
         antiFeeSniping: Boolean,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ) = nunchukAndroid.createTransaction(
         walletId = walletId,
         outputs = outputs,
@@ -274,7 +299,8 @@ class NunchukNativeSdk {
         subtractFeeFromAmount = subtractFeeFromAmount,
         replaceTxId = replaceTxId,
         antiFeeSniping = antiFeeSniping,
-        useScriptPath = useScriptPath
+        useScriptPath = useScriptPath,
+        signingPath = signingPath
     )
 
     @Throws(NCNativeException::class)
@@ -302,7 +328,8 @@ class NunchukNativeSdk {
         feeRate: Amount,
         subtractFeeFromAmount: Boolean,
         replaceTxId: String,
-        useScriptPath: Boolean
+        useScriptPath: Boolean,
+        signingPath: SigningPath? = null
     ) = nunchukAndroid.draftTransaction(
         walletId = walletId,
         outputs = outputs,
@@ -310,7 +337,8 @@ class NunchukNativeSdk {
         feeRate = feeRate,
         subtractFeeFromAmount = subtractFeeFromAmount,
         replaceTxId = replaceTxId,
-        useScriptPath = useScriptPath
+        useScriptPath = useScriptPath,
+        signingPath = signingPath
     )
 
     @Throws(NCNativeException::class)
@@ -318,10 +346,14 @@ class NunchukNativeSdk {
         walletId: String,
         feeRate: Amount,
         replaceTxId: String,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
     ): Transaction = nunchukAndroid.draftRbfTransaction(
         walletId = walletId,
         feeRate = feeRate,
         replaceTxId = replaceTxId,
+        useScriptPath = useScriptPath,
+        signingPath = signingPath,
     )
 
     @Throws(NCNativeException::class)
@@ -361,11 +393,15 @@ class NunchukNativeSdk {
         txId: String,
         newFeeRate: Amount,
         antiFeeSniping: Boolean,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
     ) = nunchukAndroid.replaceTransaction(
         walletId = walletId,
         txId = txId,
         newFeeRate = newFeeRate,
-        antiFeeSniping = antiFeeSniping
+        antiFeeSniping = antiFeeSniping,
+        useScriptPath = useScriptPath,
+        signingPath = signingPath
     )
 
     @Throws(NCNativeException::class)
@@ -1380,7 +1416,13 @@ class NunchukNativeSdk {
         isPrimary: Boolean,
         replace: Boolean,
         primaryDecoyPin: String
-    ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(name, xprv, isPrimary, replace, primaryDecoyPin)
+    ) = nunchukAndroid.createSoftwareSignerFromMasterXprv(
+        name,
+        xprv,
+        isPrimary,
+        replace,
+        primaryDecoyPin
+    )
 
     @Throws(NCNativeException::class)
     fun isValidXPrv(xprv: String) = nunchukAndroid.isValidXPrv(xprv)
@@ -1428,7 +1470,14 @@ class NunchukNativeSdk {
         collections: List<CoinCollection>,
         feeRate: Amount,
         antiFeeSniping: Boolean
-    ) = nunchukAndroid.createRollOverTransactions(walletId, newWalletId, tags, collections, feeRate, antiFeeSniping)
+    ) = nunchukAndroid.createRollOverTransactions(
+        walletId,
+        newWalletId,
+        tags,
+        collections,
+        feeRate,
+        antiFeeSniping
+    )
 
     @Throws(NCNativeException::class)
     fun exportWalletToPortal(
@@ -1483,7 +1532,12 @@ class NunchukNativeSdk {
         m: Int,
         n: Int,
         addressType: Int,
-    ) = nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
+        scriptTmpl: String = "",
+    ) = if (scriptTmpl.isNotEmpty()) {
+        nunchukAndroid.updateGroupSandboxWithScript(groupId, name, scriptTmpl, addressType)
+    } else {
+        nunchukAndroid.updateGroupSandbox(groupId, name, m, n, addressType)
+    }
 
     @Throws(NCNativeException::class)
     fun recoverFreeGroupWallet(walletId: String) =
@@ -1496,14 +1550,24 @@ class NunchukNativeSdk {
     fun addSignerToGroup(
         groupId: String,
         signer: SingleSigner,
-        index: Int
-    ) = nunchukAndroid.addSignerToGroup(groupId, signer, index)
+        index: Int,
+        keyName: String = ""
+    ) = if (keyName.isNotEmpty()) {
+        nunchukAndroid.addSignerToGroupWithName(groupId, signer, keyName)
+    } else {
+        nunchukAndroid.addSignerToGroup(groupId, signer, index)
+    }
 
     @Throws(NCNativeException::class)
     fun removeSignerFromGroup(
         groupId: String,
-        index: Int
-    ) = nunchukAndroid.removeSignerFromGroup(groupId, index)
+        index: Int,
+        keyName: String = ""
+    ) = if (keyName.isNotEmpty()) {
+        nunchukAndroid.removeSignerFromGroupWithName(groupId, keyName)
+    } else {
+        nunchukAndroid.removeSignerFromGroup(groupId, index)
+    }
 
     @Throws(NCNativeException::class)
     fun finalizeGroup(
@@ -1575,7 +1639,18 @@ class NunchukNativeSdk {
         m: Int,
         n: Int,
         addressType: AddressType,
-    ) = nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
+        scriptTmpl: String = "",
+    ) = if (scriptTmpl.isNotEmpty()) {
+        nunchukAndroid.createGroupSandboxWithScript(name, scriptTmpl, addressType.ordinal)
+    } else {
+        nunchukAndroid.createGroupSandbox(name, m, n, addressType.ordinal)
+    }
+
+    @Throws(NCNativeException::class)
+    fun getWalletDescriptor(
+        walletId: String,
+        descriptorPath: DescriptorPath,
+    ) = nunchukAndroid.getWalletDescriptor(walletId, descriptorPath.ordinal)
 
     @Throws(NCNativeException::class)
     fun deleteGroupSandbox(
@@ -1619,8 +1694,13 @@ class NunchukNativeSdk {
     fun setSlotOccupied(
         groupId: String,
         index: Int,
-        value: Boolean
-    ) = nunchukAndroid.setSlotOccupied(groupId, index, value)
+        value: Boolean,
+        keyName: String = ""
+    ) = if (keyName.isNotEmpty()) {
+        nunchukAndroid.setSlotOccupiedWithName(groupId, keyName, value)
+    } else {
+        nunchukAndroid.setSlotOccupied(groupId, index, value)
+    }
 
     @Throws(NCNativeException::class)
     fun getSignerFromTapsignerMasterSigner(
@@ -1634,10 +1714,12 @@ class NunchukNativeSdk {
     fun createReplaceGroup(walletId: String) = nunchukAndroid.createReplaceGroup(walletId)
 
     @Throws(NCNativeException::class)
-    fun acceptReplaceGroup(walletId: String, groupId: String) = nunchukAndroid.acceptReplaceGroup(walletId, groupId)
+    fun acceptReplaceGroup(walletId: String, groupId: String) =
+        nunchukAndroid.acceptReplaceGroup(walletId, groupId)
 
     @Throws(NCNativeException::class)
-    fun declineReplaceGroup(walletId: String, groupId: String) = nunchukAndroid.declineReplaceGroup(walletId, groupId)
+    fun declineReplaceGroup(walletId: String, groupId: String) =
+        nunchukAndroid.declineReplaceGroup(walletId, groupId)
 
     @Throws(NCNativeException::class)
     fun getReplaceGroups(walletId: String) = nunchukAndroid.getReplaceGroups(walletId)
@@ -1646,7 +1728,8 @@ class NunchukNativeSdk {
     fun decryptGroupWalletId(walletId: String) = nunchukAndroid.decryptGroupWalletId(walletId)
 
     @Throws(NCNativeException::class)
-    fun decryptGroupTxId(walletId: String, txId: String) = nunchukAndroid.decryptGroupTxId(walletId, txId)
+    fun decryptGroupTxId(walletId: String, txId: String) =
+        nunchukAndroid.decryptGroupTxId(walletId, txId)
 
     @Throws(NCNativeException::class)
     fun getDeprecatedGroupWallets(): List<String> = nunchukAndroid.getDeprecatedGroupWallets()
@@ -1654,4 +1737,129 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getMnemonicFromHotKey(signerId: String) =
         nunchukAndroid.getMnemonicFromHotKey(signerId)
+
+    @Throws(NCNativeException::class)
+    fun createMiniscriptTemplateBySelection(
+        multisignType: Int,
+        m: Int,
+        n: Int,
+        newM: Int,
+        newN: Int,
+        timelockType: Int,
+        timeUnit: Int,
+        time: Long,
+        addressType: Int,
+        reuseSigner: Boolean,
+    ): String = nunchukAndroid.createMiniscriptTemplateBySelection(
+        multisignType = multisignType,
+        m = m,
+        n = n,
+        newM = newM,
+        newN = newN,
+        timelockType = timelockType,
+        timeUnit = timeUnit,
+        time = time,
+        addressType = addressType,
+        reuseSigner = reuseSigner
+    )
+
+    @Throws(NCNativeException::class)
+    fun createMiniscriptTemplateByCustom(
+        input: String,
+        addressType: Int,
+    ): MiniscriptTemplateResult =
+        nunchukAndroid.createMiniscriptTemplateByCustom(input, addressType)
+
+    @Throws(NCNativeException::class)
+    fun getScriptNodeFromMiniscript(miniscriptTemplate: String): ScriptNodeResult =
+        nunchukAndroid.getScriptNodeFromMiniscript(miniscriptTemplate)
+
+    @Throws(NCNativeException::class)
+    fun createMiniscriptWallet(
+        miniscriptTemplate: String,
+        signerMap: Map<String, SingleSigner>,
+        name: String,
+        description: String,
+        addressType: Int,
+        allowUsedSigner: Boolean,
+        decoyPin: String,
+    ): Wallet = nunchukAndroid.createMiniscriptWallet(
+        miniscriptTemplate = miniscriptTemplate,
+        signerMap = signerMap,
+        name = name,
+        description = description,
+        addressType = addressType,
+        allowUsedSigner = allowUsedSigner,
+        decoyPin = decoyPin
+    )
+
+    @Throws(NCNativeException::class)
+    fun getCurrentIndexFromMasterSigner(mastersignerId: String, walletType: Int, addressType: Int) =
+        nunchukAndroid.getCurrentIndexFromMasterSigner(mastersignerId, walletType, addressType)
+
+    @Throws(NCNativeException::class)
+    fun getTimelockedCoins(
+        walletId: String,
+        inputs: List<TxInput>
+    ): Pair<Long, List<UnspentOutput>> =
+        nunchukAndroid.getTimelockedCoins(walletId, inputs)
+
+    @Throws(NCNativeException::class)
+    fun estimateFeeForSigningPaths(
+        walletId: String,
+        outputs: Map<String, Amount>,
+        inputs: List<TxInput>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+        replaceTxId: String
+    ): List<Pair<SigningPath, Amount>> =
+        nunchukAndroid.estimateFeeForSigningPaths(
+            walletId,
+            outputs,
+            inputs,
+            feeRate,
+            subtractFeeFromAmount,
+            replaceTxId
+        )
+
+    @Throws(NCNativeException::class)
+    fun isPreimageRevealed(walletId: String, txId: String, hash: ByteArray): Boolean =
+        nunchukAndroid.isPreimageRevealed(walletId, txId, hash)
+
+    @Throws(NCNativeException::class)
+    fun revealPreimage(
+        walletId: String,
+        txId: String,
+        hash: ByteArray,
+        preimage: ByteArray
+    ): Boolean =
+        nunchukAndroid.revealPreimage(walletId, txId, hash, preimage)
+
+    @Throws(NCNativeException::class)
+    fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean =
+        nunchukAndroid.isSatisfiable(walletId, nodeId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased> =
+        nunchukAndroid.getTimelockedUntil(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun clearScriptNodeCache(walletId: String) = nunchukAndroid.clearScriptNodeCache(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getKeySetStatus(walletId: String, nodeId: IntArray, txId: String) =
+        nunchukAndroid.getKeySetStatus(walletId, nodeId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getCoinsGroupedBySubPolicies(walletId: String, nodeId: IntArray, txId: String) =
+        nunchukAndroid.getCoinsGroupedBySubPolicies(walletId, nodeId, txId)
+
+    @Throws(NCNativeException::class)
+    fun getSpendableNowAmount(walletId: String): Amount =
+        nunchukAndroid.getSpendableNowAmount(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner> =
+        nunchukAndroid.getTransactionSigners(walletId, txId)
+
 }

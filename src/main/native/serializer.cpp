@@ -171,6 +171,45 @@ Chain Serializer::convert2CChain(jint ordinal) {
     return chain;
 }
 
+DescriptorPath Serializer::convert2CDescriptorPath(jint ordinal) {
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CDescriptorPath]ordinal:: %d", ordinal);
+    DescriptorPath path;
+    switch (ordinal) {
+        case 0:
+            path = DescriptorPath::ANY;
+            break;
+        case 1:
+            path = DescriptorPath::INTERNAL_ALL;
+            break;
+        case 2:
+            path = DescriptorPath::INTERNAL_PUBKEY;
+            break;
+        case 3:
+            path = DescriptorPath::INTERNAL_XPUB;
+            break;
+        case 4:
+            path = DescriptorPath::EXTERNAL_ALL;
+            break;
+        case 5:
+            path = DescriptorPath::EXTERNAL_PUBKEY;
+            break;
+        case 6:
+            path = DescriptorPath::EXTERNAL_XPUB;
+            break;
+        case 7:
+            path = DescriptorPath::TEMPLATE;
+            break;
+        case 8:
+            path = DescriptorPath::EXTERNAL_INTERNAL;
+            break;
+        default:
+            path = DescriptorPath::ANY;
+            break;
+    }
+    syslog(LOG_DEBUG, "[JNI][Serializer::convert2CDescriptorPath]path:: %d", path);
+    return path;
+}
+
 BackendType Serializer::convert2CBackendType(jint ordinal) {
     syslog(LOG_DEBUG, "[JNI][Serializer::convert2CBackendType]ordinal:: %d", ordinal);
     return ordinal == 0 ? BackendType::ELECTRUM : BackendType::CORERPC;
@@ -238,22 +277,49 @@ std::vector<int> Serializer::convert2CListInt(JNIEnv *env, jobject values) {
 
 std::vector<int> Serializer::convert2CSetInt(JNIEnv *env, jobject values) {
     jclass cSet = env->FindClass("java/util/Set");
+    jmethodID sizeMethod = env->GetMethodID(cSet, "size", "()I");
+    jmethodID toArrayMethod = env->GetMethodID(cSet, "toArray", "()[Ljava/lang/Object;");
+    jint size = env->CallIntMethod(values, sizeMethod);
+    jobjectArray array = (jobjectArray) env->CallObjectMethod(values, toArrayMethod);
+    std::vector<int> result;
+    for (jint i = 0; i < size; i++) {
+        jobject item = env->GetObjectArrayElement(array, i);
+        jclass cInteger = env->FindClass("java/lang/Integer");
+        jmethodID intValueMethod = env->GetMethodID(cInteger, "intValue", "()I");
+        jint value = env->CallIntMethod(item, intValueMethod);
+        result.push_back(value);
+    }
+    return result;
+}
 
+std::map<std::string, SingleSigner> Serializer::convert2CSignerMap(JNIEnv *env, jobject signer_map) {
+    jclass cMap = env->FindClass("java/util/Map");
+    jmethodID entrySetMethod = env->GetMethodID(cMap, "entrySet", "()Ljava/util/Set;");
+    jobject entrySet = env->CallObjectMethod(signer_map, entrySetMethod);
+
+    jclass cSet = env->FindClass("java/util/Set");
     jmethodID iteratorMethod = env->GetMethodID(cSet, "iterator", "()Ljava/util/Iterator;");
-    jobject iterator = env->CallObjectMethod(values, iteratorMethod);
+    jobject iterator = env->CallObjectMethod(entrySet, iteratorMethod);
 
     jclass cIterator = env->FindClass("java/util/Iterator");
     jmethodID hasNextMethod = env->GetMethodID(cIterator, "hasNext", "()Z");
     jmethodID nextMethod = env->GetMethodID(cIterator, "next", "()Ljava/lang/Object;");
 
-    std::vector<int> result;
+    jclass cMapEntry = env->FindClass("java/util/Map$Entry");
+    jmethodID getKeyMethod = env->GetMethodID(cMapEntry, "getKey", "()Ljava/lang/Object;");
+    jmethodID getValueMethod = env->GetMethodID(cMapEntry, "getValue", "()Ljava/lang/Object;");
 
+    std::map<std::string, SingleSigner> result;
     while (env->CallBooleanMethod(iterator, hasNextMethod)) {
-        jobject item = env->CallObjectMethod(iterator, nextMethod);
-        jint intValue = env->CallIntMethod(item, env->GetMethodID(env->FindClass("java/lang/Integer"), "intValue", "()I"));
-        result.push_back(intValue);
-    }
+        jobject entry = env->CallObjectMethod(iterator, nextMethod);
+        jstring key = (jstring) env->CallObjectMethod(entry, getKeyMethod);
+        jobject value = env->CallObjectMethod(entry, getValueMethod);
 
+        const char* keyStr = env->GetStringUTFChars(key, nullptr);
+        SingleSigner signer = convert2CSigner(env, value);
+        result[keyStr] = signer;
+        env->ReleaseStringUTFChars(key, keyStr);
+    }
     return result;
 }
 
@@ -452,14 +518,27 @@ Wallet Serializer::convert2CWallet(JNIEnv *env, jobject wallet) {
     jfieldID fieldCreateDate = env->GetFieldID(clazz, "createDate", "J");
     auto create_date = env->GetLongField(wallet, fieldCreateDate);
 
-    Wallet updateWallet = Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, create_date);
+    jfieldID fieldMiniscript = env->GetFieldID(clazz, "miniscript", "Ljava/lang/String;");
+    auto miniscriptVal = (jstring) env->GetObjectField(wallet, fieldMiniscript);
+    const char *miniscript = env->GetStringUTFChars(miniscriptVal, nullptr);
+
+    Wallet updateWallet = (miniscript && strlen(miniscript) > 0) 
+        ? Wallet(miniscript, signers, address_type, total_required_signs)  // Use miniscript constructor with keypath_m=0
+        : Wallet(id, total_required_signs, signers.size(), signers, address_type, escrow, create_date);
+    
     updateWallet.set_name(name);
     updateWallet.set_gap_limit(gap_limit);
     updateWallet.set_need_backup(need_backup);
     updateWallet.set_archived(archived);
+    
+    // Only set miniscript if not using miniscript constructor
+    if (!(miniscript && strlen(miniscript) > 0)) {
+        updateWallet.set_miniscript(miniscript);
+    }
 
     env->ReleaseStringUTFChars(nameVal, name);
     env->ReleaseStringUTFChars(idVal, id);
+    env->ReleaseStringUTFChars(miniscriptVal, miniscript);
 
     return updateWallet;
 }
@@ -876,6 +955,37 @@ std::vector<CoinCollection> Serializer::convert2CCoinCollections(JNIEnv *env, jo
         auto item = (jobject) env->CallObjectMethod(collections, getMethod, i);
         auto collection = Serializer::convert2CCoinCollection(env, item);
         result.push_back(collection);
+    }
+    return result;
+}
+
+SigningPath Serializer::convert2CSigningPath(JNIEnv *env, jobject signingPathObj) {
+    SigningPath result;
+    if (signingPathObj == nullptr) {
+        return result;
+    }
+    jclass signingPathClass = env->GetObjectClass(signingPathObj);
+    jfieldID pathField = env->GetFieldID(signingPathClass, "path", "Ljava/util/List;");
+    jobject pathList = env->GetObjectField(signingPathObj, pathField);
+    if (pathList == nullptr) {
+        return result;
+    }
+    jclass listClass = env->FindClass("java/util/List");
+    jmethodID sizeMethod = env->GetMethodID(listClass, "size", "()I");
+    jmethodID getMethod = env->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
+    jint outerSize = env->CallIntMethod(pathList, sizeMethod);
+    for (jint i = 0; i < outerSize; ++i) {
+        jobject innerList = env->CallObjectMethod(pathList, getMethod, i);
+        jint innerSize = env->CallIntMethod(innerList, sizeMethod);
+        std::vector<size_t> innerVec;
+        for (jint j = 0; j < innerSize; ++j) {
+            jobject intObj = env->CallObjectMethod(innerList, getMethod, j);
+            jclass integerClass = env->FindClass("java/lang/Integer");
+            jmethodID intValueMethod = env->GetMethodID(integerClass, "intValue", "()I");
+            jint value = env->CallIntMethod(intObj, intValueMethod);
+            innerVec.push_back(static_cast<size_t>(value));
+        }
+        result.push_back(innerVec);
     }
     return result;
 }
