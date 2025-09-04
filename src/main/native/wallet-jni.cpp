@@ -194,19 +194,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneWallet(
         );
         return Deserializer::convert2JWallet(env, wallet);
     } catch (BaseException &e) {
-        try {
-            if (cQrData.size() != 1) {
-                Deserializer::convert2JException(env, e);
-                return JNI_FALSE;
-            }
-            auto wallet = Utils::ParseWalletDescriptor(cQrData[0]);
-            wallet.set_create_date(std::time(nullptr));
-            NunchukProvider::get()->nu->CreateWallet(wallet, true);
-            return Deserializer::convert2JWallet(env, wallet);
-        } catch (BaseException &e) {
-            Deserializer::convert2JException(env, e);
-            return JNI_FALSE;
-        }
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return JNI_FALSE;
@@ -907,7 +896,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByC
         bool is_valid_miniscript_template = false;
         std::string user_input = env->GetStringUTFChars(input, JNI_FALSE);
         AddressType addressType = Serializer::convert2CAddressType(address_type);
-        
+
         if (Utils::IsValidMiniscriptTemplate(user_input, addressType)) {
             miniscript_template = user_input;
             is_valid_miniscript_template = true;
@@ -920,7 +909,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByC
         } else {
             miniscript_template = "";
         }
-        
+
         return Deserializer::convert2JMiniscriptTemplateResult(env, miniscript_template, is_valid_tapscript, is_valid_policy, is_valid_miniscript_template);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -939,7 +928,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getScriptNodeFromMiniscript
         std::map<std::string, SingleSigner> signers{};
         std::vector<std::string> keypath;
         ScriptNode script_node = Utils::GetScriptNode(env->GetStringUTFChars(miniscript_template, JNI_FALSE), keypath);
-        
+
         return Deserializer::convert2JScriptNodeResult(env, script_node, keypath);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -1016,31 +1005,31 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSpendableNowAmount(
         std::vector<UnspentOutput> coins = NunchukProvider::get()->nu->GetUnspentOutputs(c_wallet_id);
         int64_t max_lock_value;
         std::vector<UnspentOutput> locked_coins = nunchuk::Utils::GetTimelockedCoins(
-            wallet.get_miniscript(), 
-            coins, 
-            max_lock_value, 
+            wallet.get_miniscript(),
+            coins,
+            max_lock_value,
             NunchukProvider::get()->nu->GetChainTip()
         );
-        
+
         // If no locked coins, all coins are spendable now
         if (locked_coins.empty()) {
             return Deserializer::convert2JAmount(env, -1);
         }
-        
+
         // Calculate spendable amount: total - locked
         int64_t total_amount = 0;
         for (const auto& coin : coins) {
             total_amount += coin.get_amount();
         }
-        
+
         int64_t locked_amount = 0;
         for (const auto& locked_coin : locked_coins) {
             locked_amount += locked_coin.get_amount();
         }
-        
+
         int64_t spendable_amount = total_amount - locked_amount;
         return Deserializer::convert2JAmount(env, spendable_amount);
-        
+
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return env->ExceptionOccurred();
