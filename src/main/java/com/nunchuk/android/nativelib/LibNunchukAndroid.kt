@@ -718,6 +718,11 @@ internal class LibNunchukAndroid {
     ): String
 
     @Throws(NCNativeException::class)
+    external fun exportWalletToQRDescriptor(
+        walletId: String,
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun exportWalletToBsms(
         wallet: WalletBridge,
     ): String

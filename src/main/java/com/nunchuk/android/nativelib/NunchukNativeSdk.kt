@@ -909,6 +909,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.exportWalletToBsmsById(walletId)
 
     @Throws(NCNativeException::class)
+    fun exportWalletToQRDescriptor(
+        walletId: String,
+    ) = nunchukAndroid.exportWalletToQRDescriptor(walletId)
+
+    @Throws(NCNativeException::class)
     fun exportWalletToBsms(
         wallet: Wallet,
     ) = nunchukAndroid.exportWalletToBsms(wallet.toBridge())
