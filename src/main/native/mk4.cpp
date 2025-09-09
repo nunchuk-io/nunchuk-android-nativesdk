@@ -59,7 +59,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToMk4(JNIEnv *e
                                                                        jstring wallet_id) {
     try {
         auto wallet = NunchukProvider::get()->nu->GetWallet(StringWrapper(env, wallet_id));
-        auto data = wallet.get_descriptor(DescriptorPath::EXTERNAL_ALL);
+        std::string data;
+        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
+            data = wallet.get_descriptor(DescriptorPath::EXTERNAL_ALL);
+        } else {
+            data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
+                                                                   ExportFormat::COLDCARD);
+        }
         auto cRecords = NDEFRecordsFromStr(data);
         return Deserializer::convert2JRecords(env, cRecords);
     } catch (BaseException &e) {
