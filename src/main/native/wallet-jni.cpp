@@ -891,6 +891,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByS
                                                                             reuse_signer,
                                                                             expand_time,
                                                                             addressType);
+        } else if (multisign_type == 3) {
+            miniscript_template = Utils::ZenHodlMiniscriptTemplate(m, n,expand_time,addressType);
         } else {
             return env->NewStringUTF("");
         }
