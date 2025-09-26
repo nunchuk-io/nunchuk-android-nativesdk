@@ -342,6 +342,23 @@ SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     auto derivationPathVal = (jstring) env->GetObjectField(signer, fieldDerivationPath);
     const char *derivation_path = env->GetStringUTFChars(derivationPathVal, nullptr);
 
+    // Get external_internal_index from Kotlin Pair
+    jfieldID fieldExternalInternalIndex = env->GetFieldID(clazz, "externalInternalIndex", "Lkotlin/Pair;");
+    jobject externalInternalIndexVal = env->GetObjectField(signer, fieldExternalInternalIndex);
+    std::pair<int, int> external_internal_index = {0, 0};
+    if (externalInternalIndexVal != nullptr) {
+        jclass pairClass = env->GetObjectClass(externalInternalIndexVal);
+        jfieldID firstField = env->GetFieldID(pairClass, "first", "Ljava/lang/Object;");
+        jfieldID secondField = env->GetFieldID(pairClass, "second", "Ljava/lang/Object;");
+        jobject firstObj = env->GetObjectField(externalInternalIndexVal, firstField);
+        jobject secondObj = env->GetObjectField(externalInternalIndexVal, secondField);
+        
+        jclass integerClass = env->FindClass("java/lang/Integer");
+        jmethodID intValueMethod = env->GetMethodID(integerClass, "intValue", "()I");
+        external_internal_index.first = env->CallIntMethod(firstObj, intValueMethod);
+        external_internal_index.second = env->CallIntMethod(secondObj, intValueMethod);
+    }
+
     jfieldID fieldMasterFingerprint = env->GetFieldID(clazz, "masterFingerprint", "Ljava/lang/String;");
     auto masterFingerprintVal = (jstring) env->GetObjectField(signer, fieldMasterFingerprint);
     const char *master_fingerprint = env->GetStringUTFChars(masterFingerprintVal, nullptr);
@@ -353,7 +370,7 @@ SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     jfieldID fieldVisible = env->GetFieldID(clazz, "isVisible", "Z");
     auto isVisible = env->GetBooleanField(signer, fieldVisible);
 
-    auto singleSigner = SingleSigner(name, xpub, public_key, derivation_path, master_fingerprint, 0);
+    auto singleSigner = SingleSigner(name, xpub, public_key, derivation_path, external_internal_index, master_fingerprint, 0);
     singleSigner.set_type(signer_type);
     jfieldID fieldTagsId = env->GetFieldID(clazz, "tags", "Ljava/util/List;");
     auto tags = (jobject) env->GetObjectField(signer, fieldTagsId);

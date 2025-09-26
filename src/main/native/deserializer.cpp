@@ -318,6 +318,35 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setDerivationPath", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(signer.get_derivation_path().c_str()));
+        
+        // Set external_internal_index
+        auto external_internal_index = signer.get_external_internal_index();
+        // Create Kotlin Pair object
+        jstring pairClassName = env->NewStringUTF("kotlin/Pair");
+        jclass pairClass = static_cast<jclass>(env->CallObjectMethod(Initializer::get()->classLoader,
+                                                                     Initializer::get()->loadClassMethod,
+                                                                     pairClassName));
+        env->DeleteLocalRef(pairClassName);
+        jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+        
+        jclass integerClass = env->FindClass("java/lang/Integer");
+        jmethodID integerConstructor = env->GetMethodID(integerClass, "<init>", "(I)V");
+        jobject firstInt = env->NewObject(integerClass, integerConstructor, external_internal_index.first);
+        jobject secondInt = env->NewObject(integerClass, integerConstructor, external_internal_index.second);
+        
+        // Create the Pair object
+        jobject pairObject = env->NewObject(pairClass, pairConstructor, firstInt, secondInt);
+        
+        // Set the external_internal_index
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setExternalInternalIndex", "(Lkotlin/Pair;)V"),
+                            pairObject);
+        
+        // Clean up local references
+        env->DeleteLocalRef(pairClass);
+        env->DeleteLocalRef(firstInt);
+        env->DeleteLocalRef(secondInt);
+        env->DeleteLocalRef(pairObject);
+        
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterFingerprint",
                                                        "(Ljava/lang/String;)V"),
                             env->NewStringUTF(signer.get_master_fingerprint().c_str()));

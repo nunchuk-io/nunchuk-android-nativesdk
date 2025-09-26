@@ -30,6 +30,7 @@ data class SingleSigner(
     var xpub: String = "",
     var publicKey: String = "",
     var derivationPath: String = "",
+    var externalInternalIndex: Pair<Int, Int> = Pair(0, 0),
     var masterFingerprint: String = "",
     var lastHealthCheck: Long = 0L,
     var masterSignerId: String = "",
