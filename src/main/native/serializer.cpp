@@ -345,7 +345,7 @@ SingleSigner Serializer::convert2CSigner(JNIEnv *env, jobject signer) {
     // Get external_internal_index from Kotlin Pair
     jfieldID fieldExternalInternalIndex = env->GetFieldID(clazz, "externalInternalIndex", "Lkotlin/Pair;");
     jobject externalInternalIndexVal = env->GetObjectField(signer, fieldExternalInternalIndex);
-    std::pair<int, int> external_internal_index = {0, 0};
+    std::pair<int, int> external_internal_index = {0, 1};
     if (externalInternalIndexVal != nullptr) {
         jclass pairClass = env->GetObjectClass(externalInternalIndexVal);
         jfieldID firstField = env->GetFieldID(pairClass, "first", "Ljava/lang/Object;");
