@@ -371,8 +371,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToQRDescriptor(
                                                                                jobject thiz,
                                                                                jstring wallet_id) {
     try {
-        auto data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
-                                                                    ExportFormat::DESCRIPTOR_EXTERNAL_ALL);
+        auto wallet = NunchukProvider::get()->nu->GetWallet(StringWrapper(env, wallet_id));
+        std::string data;
+        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
+            data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
+                    ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL);
+        } else {
+            data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
+                    ExportFormat::DESCRIPTOR_EXTERNAL_ALL);
+        }
         return env->NewStringUTF(data.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -669,7 +676,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRWallet(JNIEnv *en
         auto cWallet = Serializer::convert2CWallet(env, wallet);
         std::vector<std::string> data;
         if (cWallet.get_wallet_type() == WalletType::MINISCRIPT) {
-            data = Utils::ExportBBQRWallet(cWallet, ExportFormat::DESCRIPTOR_EXTERNAL_ALL, 1, density);
+            data = Utils::ExportBBQRWallet(cWallet, ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL, 1, density);
         } else {
             data = Utils::ExportBBQRWallet(cWallet, ExportFormat::COLDCARD, 1, density);
         }
