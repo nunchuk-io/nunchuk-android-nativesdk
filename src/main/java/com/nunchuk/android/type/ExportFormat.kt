@@ -25,5 +25,7 @@ enum class ExportFormat {
     COLDCARD,
     COBO,
     CSV,
-    BSMS
+    BSMS,
+    DESCRIPTOR_EXTERNAL_ALL,
+    DESCRIPTOR_EXTERNAL_INTERNAL
 }

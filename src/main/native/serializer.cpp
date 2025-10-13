@@ -234,6 +234,15 @@ ExportFormat Serializer::convert2CExportFormat(jint ordinal) {
         case 4:
             format = ExportFormat::CSV;
             break;
+        case 5:
+            format = ExportFormat::BSMS;
+            break;
+        case 6:
+            format = ExportFormat::DESCRIPTOR_EXTERNAL_ALL;
+            break;
+        case 7:
+            format = ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL;
+            break;
         default:
             format = ExportFormat::BSMS;
             break;
