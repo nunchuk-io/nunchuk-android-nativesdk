@@ -371,15 +371,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToQRDescriptor(
                                                                                jobject thiz,
                                                                                jstring wallet_id) {
     try {
-        auto wallet = NunchukProvider::get()->nu->GetWallet(StringWrapper(env, wallet_id));
-        std::string data;
-        if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
-            data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
-                    ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL);
-        } else {
-            data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
-                    ExportFormat::DESCRIPTOR_EXTERNAL_ALL);
-        }
+        auto data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
+                ExportFormat::DESCRIPTOR_EXTERNAL_ALL);
         return env->NewStringUTF(data.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
