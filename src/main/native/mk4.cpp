@@ -61,7 +61,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportWalletToMk4(JNIEnv *e
         auto wallet = NunchukProvider::get()->nu->GetWallet(StringWrapper(env, wallet_id));
         std::string data;
         if (wallet.get_wallet_type() == WalletType::MINISCRIPT) {
-            data = wallet.get_descriptor(DescriptorPath::EXTERNAL_ALL);
+            data = wallet.get_descriptor(DescriptorPath::EXTERNAL_INTERNAL);
         } else {
             data = NunchukProvider::get()->nu->GetWalletExportData(StringWrapper(env, wallet_id),
                                                                    ExportFormat::COLDCARD);
