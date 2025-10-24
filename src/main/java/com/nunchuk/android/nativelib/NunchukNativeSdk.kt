@@ -1841,8 +1841,8 @@ class NunchukNativeSdk {
         nunchukAndroid.revealPreimage(walletId, txId, hash, preimage)
 
     @Throws(NCNativeException::class)
-    fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean =
-        nunchukAndroid.isSatisfiable(walletId, nodeId, txId)
+    fun isSatisfiable(walletId: String, nodeId: IntArray, psbt: String): Boolean =
+        nunchukAndroid.isSatisfiable(walletId, nodeId, psbt)
 
     @Throws(NCNativeException::class)
     fun getTimelockedUntil(walletId: String, txId: String): Pair<Long, MiniscriptTimelockBased> =

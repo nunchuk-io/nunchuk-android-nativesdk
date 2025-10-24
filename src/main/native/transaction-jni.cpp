@@ -1540,19 +1540,18 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSatisfiable(
         jobject thiz,
         jstring wallet_id,
         jintArray node_id,
-        jstring tx_id
+        jstring psbt
 ) {
     try {
-        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
-        std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
+        auto c_wallet_id = StringWrapper(env, wallet_id);
+        auto c_psbt = StringWrapper(env, psbt);
         auto node_path = ToNodePath(env, node_id);
         auto root_node_ptr = GetOrBuildRootNode(c_wallet_id);
         const nunchuk::ScriptNode *node = GetNodeAtPath(root_node_ptr, node_path);
         if (node == nullptr) return JNI_FALSE;
-        auto tx = NunchukProvider::get()->nu->GetTransaction(c_wallet_id, c_tx_id);
 
         // Call is_satisfiable
-        bool result = node->is_satisfiable(tx);
+        bool result = node->is_satisfiable(c_psbt);
         return result ? JNI_TRUE : JNI_FALSE;
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);

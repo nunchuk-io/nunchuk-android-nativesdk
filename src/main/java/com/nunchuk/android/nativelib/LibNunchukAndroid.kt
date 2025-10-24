@@ -1517,7 +1517,7 @@ internal class LibNunchukAndroid {
     external fun revealPreimage(walletId: String, txId: String, hash: ByteArray, preimage: ByteArray): Boolean
 
     @Throws(NCNativeException::class)
-    external fun isSatisfiable(walletId: String, nodeId: IntArray, txId: String): Boolean
+    external fun isSatisfiable(walletId: String, nodeId: IntArray, psbt: String): Boolean
 
     @Throws(NCNativeException::class)
     external fun getKeySetStatus(walletId: String, nodeId: IntArray, txId: String): KeySetStatus
