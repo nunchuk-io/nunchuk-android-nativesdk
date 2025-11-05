@@ -50,5 +50,6 @@ data class Transaction(
     var keySetStatus: List<KeySetStatus> = emptyList(),
     var scriptPathFee: Amount = Amount.ZER0,
     var lockTime: Long = 0L,
-    var raw: String = ""
+    var raw: String = "",
+    var signedSigner: List<SingleSigner> = emptyList(),
 ) : Parcelable

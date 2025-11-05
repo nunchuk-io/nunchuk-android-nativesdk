@@ -546,6 +546,8 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             static_cast<jlong>(transaction.get_lock_time()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRaw", "(Ljava/lang/String;)V"),
                             env->NewStringUTF(transaction.get_raw().c_str()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSignedSigner", "(Ljava/util/List;)V"),
+                            convert2JSigners(env, transaction.get_signed()));
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTransaction error::%s", e.what());
     }
