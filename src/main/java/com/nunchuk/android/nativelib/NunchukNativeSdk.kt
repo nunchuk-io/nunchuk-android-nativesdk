@@ -1485,6 +1485,58 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun estimateRollOver11TransactionCount(
+        walletId: String,
+    ) = nunchukAndroid.estimateRollOver11TransactionCount(walletId)
+
+    @Throws(NCNativeException::class)
+    fun estimateRollOver11Amount(
+        walletId: String,
+        newWalletId: String,
+        feeRate: Amount,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
+    ) = nunchukAndroid.estimateRollOver11Amount(
+        walletId,
+        newWalletId,
+        feeRate,
+        useScriptPath,
+        signingPath
+    )
+
+    @Throws(NCNativeException::class)
+    fun draftRollOver11Transactions(
+        walletId: String,
+        newWalletId: String,
+        feeRate: Amount,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
+    ) = nunchukAndroid.draftRollOver11Transactions(
+        walletId,
+        newWalletId,
+        feeRate,
+        useScriptPath,
+        signingPath
+    )
+
+    @Throws(NCNativeException::class)
+    fun createRollOver11Transactions(
+        walletId: String,
+        newWalletId: String,
+        feeRate: Amount,
+        antiFeeSniping: Boolean = false,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null,
+    ) = nunchukAndroid.createRollOver11Transactions(
+        walletId,
+        newWalletId,
+        feeRate,
+        antiFeeSniping,
+        useScriptPath,
+        signingPath
+    )
+
+    @Throws(NCNativeException::class)
     fun exportWalletToPortal(
         walletId: String,
     ) = nunchukAndroid.exportWalletToPortal(walletId)

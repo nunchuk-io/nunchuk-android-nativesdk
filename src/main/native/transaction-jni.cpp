@@ -1327,6 +1327,106 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOver11TransactionCount(JNIEnv *env,
+                                                                                         jobject thiz,
+                                                                                         jstring wallet_id) {
+    try {
+        return NunchukProvider::get()->nu->EstimateRollOver11TransactionCount(
+                StringWrapper(env, wallet_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return -1;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return -1;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOver11Amount(JNIEnv *env,
+                                                                               jobject thiz,
+                                                                               jstring wallet_id,
+                                                                               jstring new_wallet_id,
+                                                                               jobject fee_rate,
+                                                                               jboolean use_script_path,
+                                                                               jobject signing_path) {
+    try {
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
+        auto value = NunchukProvider::get()->nu->EstimateRollOver11Amount(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                Serializer::convert2CAmount(env, fee_rate),
+                use_script_path,
+                c_signing_path);
+        return Deserializer::convert2JPairAmount(env, value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRollOver11Transactions(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jstring wallet_id,
+                                                                                  jstring new_wallet_id,
+                                                                                  jobject fee_rate,
+                                                                                  jboolean use_script_path,
+                                                                                  jobject signing_path) {
+    try {
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
+        auto txs = NunchukProvider::get()->nu->DraftRollOver11Transactions(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                Serializer::convert2CAmount(env, fee_rate),
+                use_script_path,
+                c_signing_path);
+        return Deserializer::convert2JTransactions(env, txs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOver11Transactions(JNIEnv *env,
+                                                                                   jobject thiz,
+                                                                                   jstring wallet_id,
+                                                                                   jstring new_wallet_id,
+                                                                                   jobject fee_rate,
+                                                                                   jboolean anti_fee_sniping,
+                                                                                   jboolean use_script_path,
+                                                                                   jobject signing_path) {
+    try {
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
+        auto txs = NunchukProvider::get()->nu->CreateRollOver11Transactions(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                Serializer::convert2CAmount(env, fee_rate),
+                anti_fee_sniping,
+                use_script_path,
+                c_signing_path);
+        return Deserializer::convert2JTransactions(env, txs);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv *env, jobject thiz,
