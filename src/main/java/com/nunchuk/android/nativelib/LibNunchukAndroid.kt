@@ -243,6 +243,7 @@ internal class LibNunchukAndroid {
         feeRate: String,
         fee: String,
         isDraft: Boolean,
+        bsms: String? = null,
     ): Transaction
 
     @Throws(NCNativeException::class)

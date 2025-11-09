@@ -673,13 +673,22 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
                                                                                        jstring sub_amount,
                                                                                        jstring fee_rate,
                                                                                        jstring fee,
-                                                                                       jboolean is_draft) {
+                                                                                       jboolean is_draft,
+                                                                                       jstring bsms) {
     try {
         auto singleSigners = Serializer::convert2CSigners(env, signers);
-        int m = singleSigners.size();
-        int n = singleSigners.size();
-        Wallet dummy_wallet = Wallet("", m, n, singleSigners, AddressType::NATIVE_SEGWIT, false, 0, true);
-        Transaction tx = Utils::DecodeTx(dummy_wallet, StringWrapper(env, psbt),
+        Wallet wallet;
+        if (bsms != nullptr && env->GetStringLength(bsms) > 0) {
+            // Use ParseWalletDescriptor if bsms is provided
+            wallet = Utils::ParseWalletDescriptor(
+                    StringWrapper(env, bsms));
+        } else {
+            // Build dummy wallet from signers
+            int m = singleSigners.size();
+            int n = singleSigners.size();
+            wallet = Wallet("", m, n, singleSigners, AddressType::NATIVE_SEGWIT, false, 0, true);
+        }
+        Transaction tx = Utils::DecodeTx(wallet, StringWrapper(env, psbt),
                                          Utils::AmountFromValue(StringWrapper(env, sub_amount)),
                                          Utils::AmountFromValue(StringWrapper(env, fee)),
                                          Utils::AmountFromValue(StringWrapper(env, fee_rate)));
@@ -689,7 +698,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
         }
         Transaction signed_tx = tx;
         for (auto &&single_signer: singleSigners) {
-            signed_tx = NunchukProvider::get()->nu->SignTransaction(dummy_wallet, signed_tx,
+            signed_tx = NunchukProvider::get()->nu->SignTransaction(wallet, signed_tx,
                                                                     Device(single_signer.get_master_fingerprint()));
         }
         return Deserializer::convert2JTransaction(env, signed_tx);
