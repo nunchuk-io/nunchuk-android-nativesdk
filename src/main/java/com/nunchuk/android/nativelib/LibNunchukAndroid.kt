@@ -244,6 +244,7 @@ internal class LibNunchukAndroid {
         fee: String,
         isDraft: Boolean,
         bsms: String? = null,
+        subtractFeeFromAmount: Boolean = true,
     ): Transaction
 
     @Throws(NCNativeException::class)

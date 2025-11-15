@@ -674,7 +674,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
                                                                                        jstring fee_rate,
                                                                                        jstring fee,
                                                                                        jboolean is_draft,
-                                                                                       jstring bsms) {
+                                                                                       jstring bsms,
+                                                                                       jboolean subtract_fee_from_amount) {
     try {
         auto singleSigners = Serializer::convert2CSigners(env, signers);
         Wallet wallet;
@@ -691,7 +692,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
         Transaction tx = Utils::DecodeTx(wallet, StringWrapper(env, psbt),
                                          Utils::AmountFromValue(StringWrapper(env, sub_amount)),
                                          Utils::AmountFromValue(StringWrapper(env, fee)),
-                                         Utils::AmountFromValue(StringWrapper(env, fee_rate)));
+                                         Utils::AmountFromValue(StringWrapper(env, fee_rate)),
+                                         subtract_fee_from_amount);
         auto draft_tx = Deserializer::convert2JTransaction(env, tx);
         if (is_draft) {
             return draft_tx;
