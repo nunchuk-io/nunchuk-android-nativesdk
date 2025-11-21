@@ -75,27 +75,30 @@ jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
     syslog(LOG_DEBUG, "[JNI] convert2JDevice()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/Device");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jmethodID setMasterFingerprintMethod = env->GetMethodID(clazz, "setMasterFingerprint", "(Ljava/lang/String;)V");
+    jmethodID setTypeMethod = env->GetMethodID(clazz, "setType", "(Ljava/lang/String;)V");
+    jmethodID setModelMethod = env->GetMethodID(clazz, "setModel", "(Ljava/lang/String;)V");
+    jmethodID setPathMethod = env->GetMethodID(clazz, "setPath", "(Ljava/lang/String;)V");
+    jmethodID setConnectedMethod = env->GetMethodID(clazz, "setConnected", "(Z)V");
+    jmethodID setNeedPassPhraseSentMethod = env->GetMethodID(clazz, "setNeedPassPhraseSent", "(Z)V");
+    jmethodID setNeedPinSetMethod = env->GetMethodID(clazz, "setNeedPinSet", "(Z)V");
+    jmethodID setInitializedMethod = env->GetMethodID(clazz, "setInitialized", "(Z)V");
+    jmethodID setTapsignerMethod = env->GetMethodID(clazz, "setTapsigner", "(Z)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterFingerprint",
-                                                       "(Ljava/lang/String;)V"),
+        env->CallVoidMethod(instance, setMasterFingerprintMethod,
                             env->NewStringUTF(device.get_master_fingerprint().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Ljava/lang/String;)V"),
+        env->CallVoidMethod(instance, setTypeMethod,
                             env->NewStringUTF(device.get_type().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setModel", "(Ljava/lang/String;)V"),
+        env->CallVoidMethod(instance, setModelMethod,
                             env->NewStringUTF(device.get_model().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPath", "(Ljava/lang/String;)V"),
+        env->CallVoidMethod(instance, setPathMethod,
                             env->NewStringUTF(device.get_path().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setConnected", "(Z)V"),
-                            device.connected());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedPassPhraseSent", "(Z)V"),
-                            device.needs_pass_phrase_sent());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedPinSet", "(Z)V"),
-                            device.needs_pin_sent());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInitialized", "(Z)V"),
-                            device.initialized());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTapsigner", "(Z)V"),
-                            device.is_tapsigner());
+        env->CallVoidMethod(instance, setConnectedMethod, device.connected());
+        env->CallVoidMethod(instance, setNeedPassPhraseSentMethod, device.needs_pass_phrase_sent());
+        env->CallVoidMethod(instance, setNeedPinSetMethod, device.needs_pin_sent());
+        env->CallVoidMethod(instance, setInitializedMethod, device.initialized());
+        env->CallVoidMethod(instance, setTapsignerMethod, device.is_tapsigner());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JDevice error::%s", e.what());
     }
@@ -120,12 +123,12 @@ jobject Deserializer::convert2JAmount(JNIEnv *env, const Amount amount) {
     syslog(LOG_DEBUG, "[JNI] convert2JAmount()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/Amount");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jmethodID setValueMethod = env->GetMethodID(clazz, "setValue", "(J)V");
+    jmethodID setFormattedValueMethod = env->GetMethodID(clazz, "setFormattedValue", "(Ljava/lang/String;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setValue", "(J)V"),
-                            (int64_t) amount);
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setFormattedValue", "(Ljava/lang/String;)V"),
+        env->CallVoidMethod(instance, setValueMethod, (int64_t) amount);
+        env->CallVoidMethod(instance, setFormattedValueMethod,
                             env->NewStringUTF(Utils::ValueFromAmount(amount).c_str()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JAmount error::%s", e.what());
@@ -137,11 +140,12 @@ jobject Deserializer::convert2JTxInput(JNIEnv *env, const TxInput &input) {
     syslog(LOG_DEBUG, "[JNI] convert2JTxInput()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/TxInput");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jmethodID setFirstMethod = env->GetMethodID(clazz, "setFirst", "(Ljava/lang/String;)V");
+    jmethodID setSecondMethod = env->GetMethodID(clazz, "setSecond", "(I)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFirst", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(input.txid.c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSecond", "(I)V"), input.vout);
+        env->CallVoidMethod(instance, setFirstMethod, env->NewStringUTF(input.txid.c_str()));
+        env->CallVoidMethod(instance, setSecondMethod, input.vout);
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxInput error::%s", e.what());
     }
@@ -166,13 +170,12 @@ jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput &output) {
     syslog(LOG_DEBUG, "[JNI] convert2JTxOutput()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/TxOutput");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jmethodID setFirstMethod = env->GetMethodID(clazz, "setFirst", "(Ljava/lang/String;)V");
+    jmethodID setSecondMethod = env->GetMethodID(clazz, "setSecond", "(Lcom/nunchuk/android/model/Amount;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFirst", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(output.first.c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSecond",
-                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
-                            convert2JAmount(env, output.second));
+        env->CallVoidMethod(instance, setFirstMethod, env->NewStringUTF(output.first.c_str()));
+        env->CallVoidMethod(instance, setSecondMethod, convert2JAmount(env, output.second));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxOutput error::%s", e.what());
     }
@@ -249,20 +252,16 @@ jobject Deserializer::convert2JBSMSData(JNIEnv *env, const BSMSData &data) {
     syslog(LOG_DEBUG, "[JNI] convert2JBSMSData()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/BSMSData");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jmethodID setVersionMethod = env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V");
+    jmethodID setDescriptorMethod = env->GetMethodID(clazz, "setDescriptor", "(Ljava/lang/String;)V");
+    jmethodID setPathRestrictionsMethod = env->GetMethodID(clazz, "setPathRestrictions", "(Ljava/lang/String;)V");
+    jmethodID setFirstAddressMethod = env->GetMethodID(clazz, "setFirstAddress", "(Ljava/lang/String;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(data.version.c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setDescriptor", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(data.descriptor.c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setPathRestrictions", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(data.path_restrictions.c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setFirstAddress", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(data.first_address.c_str()));
+        env->CallVoidMethod(instance, setVersionMethod, env->NewStringUTF(data.version.c_str()));
+        env->CallVoidMethod(instance, setDescriptorMethod, env->NewStringUTF(data.descriptor.c_str()));
+        env->CallVoidMethod(instance, setPathRestrictionsMethod, env->NewStringUTF(data.path_restrictions.c_str()));
+        env->CallVoidMethod(instance, setFirstAddressMethod, env->NewStringUTF(data.first_address.c_str()));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -273,28 +272,26 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
     syslog(LOG_DEBUG, "[JNI] convert2JMasterSigner()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/MasterSigner");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
+    jmethodID setIdMethod = env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V");
+    jmethodID setNameMethod = env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V");
+    jmethodID setDeviceMethod = env->GetMethodID(clazz, "setDevice", "(Lcom/nunchuk/android/model/Device;)V");
+    jmethodID setLastHealthCheckMethod = env->GetMethodID(clazz, "setLastHealthCheck", "(J)V");
+    jmethodID setSoftwareMethod = env->GetMethodID(clazz, "setSoftware", "(Z)V");
+    jmethodID setTypeMethod = env->GetMethodID(clazz, "setType", "(Lcom/nunchuk/android/type/SignerType;)V");
+    jmethodID setTagsMethod = env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V");
+    jmethodID setVisibleMethod = env->GetMethodID(clazz, "setVisible", "(Z)V");
+    jmethodID setNeedBackupMethod = env->GetMethodID(clazz, "setNeedBackup", "(Z)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_id().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_name().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setDevice",
-                                                       "(Lcom/nunchuk/android/model/Device;)V"),
-                            convert2JDevice(env, signer.get_device()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLastHealthCheck", "(J)V"),
-                            signer.get_last_health_check());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSoftware", "(Z)V"),
-                            signer.is_software());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType",
-                                                       "(Lcom/nunchuk/android/type/SignerType;)V"),
-                            convert2JSignerType(env, signer.get_type()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V"),
-                            convert2JSignerTags(env, signer.get_tags()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVisible", "(Z)V"),
-                            signer.is_visible());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedBackup", "(Z)V"),
-                            signer.need_backup());
+        env->CallVoidMethod(instance, setIdMethod, env->NewStringUTF(signer.get_id().c_str()));
+        env->CallVoidMethod(instance, setNameMethod, env->NewStringUTF(signer.get_name().c_str()));
+        env->CallVoidMethod(instance, setDeviceMethod, convert2JDevice(env, signer.get_device()));
+        env->CallVoidMethod(instance, setLastHealthCheckMethod, signer.get_last_health_check());
+        env->CallVoidMethod(instance, setSoftwareMethod, signer.is_software());
+        env->CallVoidMethod(instance, setTypeMethod, convert2JSignerType(env, signer.get_type()));
+        env->CallVoidMethod(instance, setTagsMethod, convert2JSignerTags(env, signer.get_tags()));
+        env->CallVoidMethod(instance, setVisibleMethod, signer.is_visible());
+        env->CallVoidMethod(instance, setNeedBackupMethod, signer.need_backup());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -562,17 +559,17 @@ Deserializer::convert2JKeySetStatus(JNIEnv *env, const std::vector<KeysetStatus>
     jmethodID arrayListAddMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
     jobject arrayListInstance = env->NewObject(arrayListClass, arrayListConstructor);
 
+    jclass keySetStatusClass = env->FindClass("com/nunchuk/android/model/KeySetStatus");
+    jmethodID keySetStatusConstructor = env->GetMethodID(keySetStatusClass, "<init>", "()V");
+    jmethodID setStatusMethod = env->GetMethodID(keySetStatusClass, "setStatus", "(Lcom/nunchuk/android/type/TransactionStatus;)V");
+    jmethodID setSignerStatusMethod = env->GetMethodID(keySetStatusClass, "setSignerStatus", "(Ljava/util/Map;)V");
+    
     for (const auto &status: keySetStatus) {
-        jclass keySetStatusClass = env->FindClass("com/nunchuk/android/model/KeySetStatus");
-        jmethodID keySetStatusConstructor = env->GetMethodID(keySetStatusClass, "<init>", "()V");
         jobject keySetStatusInstance = env->NewObject(keySetStatusClass, keySetStatusConstructor);
 
-        env->CallVoidMethod(keySetStatusInstance, env->GetMethodID(keySetStatusClass, "setStatus",
-                                                                   "(Lcom/nunchuk/android/type/TransactionStatus;)V"),
+        env->CallVoidMethod(keySetStatusInstance, setStatusMethod,
                             convert2JTransactionStatus(env, status.first));
-        env->CallVoidMethod(keySetStatusInstance,
-                            env->GetMethodID(keySetStatusClass, "setSignerStatus",
-                                             "(Ljava/util/Map;)V"),
+        env->CallVoidMethod(keySetStatusInstance, setSignerStatusMethod,
                             convert2JStringBooleanMap(env, status.second));
 
         env->CallBooleanMethod(arrayListInstance, arrayListAddMethod, keySetStatusInstance);
@@ -1133,7 +1130,9 @@ jobject Deserializer::convert2JInts(JNIEnv *env, const std::vector<int> &value) 
     jmethodID addMethod = env->GetMethodID(setClass, "add", "(Ljava/lang/Object;)Z");
     jobject setInstance = env->NewObject(setClass, constructor);
     for (auto i: value) {
-        env->CallBooleanMethod(setInstance, addMethod, convert2JInt(env, i));
+        jobject intObj = convert2JInt(env, i);
+        env->CallBooleanMethod(setInstance, addMethod, intObj);
+        env->DeleteLocalRef(intObj);
     }
     return setInstance;
 }
@@ -1152,7 +1151,9 @@ jobject Deserializer::convert2JLongs(JNIEnv *env, const std::vector<int64_t> &va
     jmethodID addMethod = env->GetMethodID(listClass, "add", "(Ljava/lang/Object;)Z");
     jobject listInstance = env->NewObject(listClass, constructor);
     for (auto i: value) {
-        env->CallBooleanMethod(listInstance, addMethod, convert2JLong(env, i));
+        jobject longObj = convert2JLong(env, i);
+        env->CallBooleanMethod(listInstance, addMethod, longObj);
+        env->DeleteLocalRef(longObj);
     }
     return listInstance;
 }
@@ -1298,6 +1299,7 @@ jobjectArray Deserializer::convert2JDraftRollOverTransactions(JNIEnv *env,
                                                                     tx.first.second.begin(),
                                                                     tx.first.second.end()));
         env->SetObjectArrayElement(ret, i++, element);
+        env->DeleteLocalRef(element);
     }
     return ret;
 }
@@ -1511,9 +1513,11 @@ jobject Deserializer::convert2JScriptNode(JNIEnv *env, const ScriptNode &node) {
     jclass arrayListClass = env->FindClass("java/util/ArrayList");
     jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jclass integerClass = env->FindClass("java/lang/Integer");
+    jmethodID integerConstructor = env->GetMethodID(integerClass, "<init>", "(I)V");
     jobject idList = env->NewObject(arrayListClass, arrayListConstructor);
     for (size_t idx : node.get_id()) {
-        jobject integerObj = env->NewObject(env->FindClass("java/lang/Integer"), env->GetMethodID(env->FindClass("java/lang/Integer"), "<init>", "(I)V"), static_cast<jint>(idx));
+        jobject integerObj = env->NewObject(integerClass, integerConstructor, static_cast<jint>(idx));
         env->CallBooleanMethod(idList, arrayListAdd, integerObj);
         env->DeleteLocalRef(integerObj);
     }
@@ -1613,11 +1617,13 @@ jobject Deserializer::convert2JSigningPath(JNIEnv *env, const SigningPath &signi
     jclass arrayListClass = env->FindClass("java/util/ArrayList");
     jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
     jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jclass integerClass = env->FindClass("java/lang/Integer");
+    jmethodID integerConstructor = env->GetMethodID(integerClass, "<init>", "(I)V");
     jobject outerList = env->NewObject(arrayListClass, arrayListConstructor);
     for (const auto &scriptNodeId : signingPath) {
         jobject innerList = env->NewObject(arrayListClass, arrayListConstructor);
         for (size_t idx : scriptNodeId) {
-            jobject integerObj = env->NewObject(env->FindClass("java/lang/Integer"), env->GetMethodID(env->FindClass("java/lang/Integer"), "<init>", "(I)V"), static_cast<jint>(idx));
+            jobject integerObj = env->NewObject(integerClass, integerConstructor, static_cast<jint>(idx));
             env->CallBooleanMethod(innerList, arrayListAdd, integerObj);
             env->DeleteLocalRef(integerObj);
         }
@@ -1774,14 +1780,13 @@ jobject Deserializer::convert2JNamedOccupiedMap(JNIEnv *env, const std::map<std:
 jobject Deserializer::convert2JKeySetStatusSingle(JNIEnv *env, const KeysetStatus &keySetStatus) {
     jclass keySetStatusClass = env->FindClass("com/nunchuk/android/model/KeySetStatus");
     jmethodID keySetStatusConstructor = env->GetMethodID(keySetStatusClass, "<init>", "()V");
+    jmethodID setStatusMethod = env->GetMethodID(keySetStatusClass, "setStatus", "(Lcom/nunchuk/android/type/TransactionStatus;)V");
+    jmethodID setSignerStatusMethod = env->GetMethodID(keySetStatusClass, "setSignerStatus", "(Ljava/util/Map;)V");
     jobject keySetStatusInstance = env->NewObject(keySetStatusClass, keySetStatusConstructor);
 
-    env->CallVoidMethod(keySetStatusInstance, env->GetMethodID(keySetStatusClass, "setStatus",
-                                                               "(Lcom/nunchuk/android/type/TransactionStatus;)V"),
+    env->CallVoidMethod(keySetStatusInstance, setStatusMethod,
                         convert2JTransactionStatus(env, keySetStatus.first));
-    env->CallVoidMethod(keySetStatusInstance,
-                        env->GetMethodID(keySetStatusClass, "setSignerStatus",
-                                         "(Ljava/util/Map;)V"),
+    env->CallVoidMethod(keySetStatusInstance, setSignerStatusMethod,
                         convert2JStringBooleanMap(env, keySetStatus.second));
     return keySetStatusInstance;
 }
@@ -1811,6 +1816,7 @@ jobject Deserializer::convert2JCoinsGroups(JNIEnv *env, const std::vector<CoinsG
     for (const auto &g : groups) {
         jobject jg = convert2JCoinsGroup(env, g);
         env->CallBooleanMethod(list, arrayListAdd, jg);
+        env->DeleteLocalRef(jg);
     }
     return list;
 }
