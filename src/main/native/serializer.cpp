@@ -260,7 +260,7 @@ std::vector<std::string> Serializer::convert2CListString(JNIEnv *env, jobject va
     std::vector<std::string> result;
     for (jint i = 0; i < size; i++) {
         auto item = (jstring) env->CallObjectMethod(values, getMethod, i);
-        auto value = env->GetStringUTFChars(item, JNI_FALSE);
+        auto value = StringWrapper(env, item);
         result.emplace_back(value);
     }
     return result;
@@ -275,10 +275,13 @@ std::vector<int> Serializer::convert2CListInt(JNIEnv *env, jobject values) {
     std::vector<int> result;
     result.reserve(size);
 
+    jclass integerClass = env->FindClass("java/lang/Integer");
+    jmethodID intValueMethod = env->GetMethodID(integerClass, "intValue", "()I");
     for (jint i = 0; i < size; i++) {
         jobject item = env->CallObjectMethod(values, getMethod, i);
-        jint intValue = env->CallIntMethod(item, env->GetMethodID(env->FindClass("java/lang/Integer"), "intValue", "()I"));
+        jint intValue = env->CallIntMethod(item, intValueMethod);
         result.push_back(intValue);
+        env->DeleteLocalRef(item);
     }
 
     return result;
@@ -291,12 +294,13 @@ std::vector<int> Serializer::convert2CSetInt(JNIEnv *env, jobject values) {
     jint size = env->CallIntMethod(values, sizeMethod);
     jobjectArray array = (jobjectArray) env->CallObjectMethod(values, toArrayMethod);
     std::vector<int> result;
+    jclass cInteger = env->FindClass("java/lang/Integer");
+    jmethodID intValueMethod = env->GetMethodID(cInteger, "intValue", "()I");
     for (jint i = 0; i < size; i++) {
         jobject item = env->GetObjectArrayElement(array, i);
-        jclass cInteger = env->FindClass("java/lang/Integer");
-        jmethodID intValueMethod = env->GetMethodID(cInteger, "intValue", "()I");
         jint value = env->CallIntMethod(item, intValueMethod);
         result.push_back(value);
+        env->DeleteLocalRef(item);
     }
     return result;
 }
@@ -603,12 +607,10 @@ TxOutput Serializer::convert2CTxOutput(JNIEnv *env, jobject input) {
 
     jfieldID fieldFirst = env->GetFieldID(clazz, "first", "Ljava/lang/String;");
     auto firstVal = (jstring) env->GetObjectField(input, fieldFirst);
-    auto first = env->GetStringUTFChars(firstVal, JNI_FALSE);
+    auto first = StringWrapper(env, firstVal);
 
     jfieldID fieldSecond = env->GetFieldID(clazz, "second", "Lcom/nunchuk/android/model/Amount;");
     auto secondVal = env->GetObjectField(input, fieldSecond);
-
-    env->ReleaseStringUTFChars(firstVal, first);
 
     return TxOutput(first, Serializer::convert2CAmount(env, secondVal));
 }
@@ -793,7 +795,7 @@ SatscardSlot Serializer::convert2CSatsCardSlot(JNIEnv *env, jobject slot) {
 
     jfieldID fieldAddress = env->GetFieldID(clazz, "address", "Ljava/lang/String;");
     auto addressVal = (jstring) env->GetObjectField(slot, fieldAddress);
-    auto address = env->GetStringUTFChars(addressVal, JNI_FALSE);
+    auto address = StringWrapper(env, addressVal);
 
     jfieldID fieldIndex = env->GetFieldID(clazz, "index", "I");
     auto index = env->GetIntField(slot, fieldIndex);
@@ -875,35 +877,33 @@ std::vector<unsigned char> Serializer::convert2CByteArray(JNIEnv *env, jbyteArra
 std::vector<NDEFRecord> Serializer::convert2CRecords(JNIEnv *env, jobjectArray records) {
     static auto NdefRecordClass = (jclass) env->NewGlobalRef(
             env->FindClass("android/nfc/NdefRecord"));
+    static jmethodID getIdMethod = env->GetMethodID(NdefRecordClass, "getId", "()[B");
+    static jmethodID getPayloadMethod = env->GetMethodID(NdefRecordClass, "getPayload", "()[B");
+    static jmethodID getTnfMethod = env->GetMethodID(NdefRecordClass, "getTnf", "()S");
+    static jmethodID getTypeMethod = env->GetMethodID(NdefRecordClass, "getType", "()[B");
+    
     int length = env->GetArrayLength(records);
     std::vector<NDEFRecord> ret;
     ret.reserve(length);
 
     for (int i = 0; i < length; ++i) {
         auto record = env->GetObjectArrayElement(records, i);
-        auto id = (jbyteArray) env->CallObjectMethod(
-                record,
-                env->GetMethodID(NdefRecordClass, "getId", "()[B")
-        );
-        auto payload = (jbyteArray) env->CallObjectMethod(
-                record,
-                env->GetMethodID(NdefRecordClass,
-                                 "getPayload", "()[B")
-        );
-        auto tnf = env->CallShortMethod(
-                record,
-                env->GetMethodID(NdefRecordClass, "getTnf", "()S")
-        );
-        auto type = (jbyteArray) env->CallObjectMethod(
-                record,
-                env->GetMethodID(NdefRecordClass, "getType", "()[B")
-        );
+        auto id = (jbyteArray) env->CallObjectMethod(record, getIdMethod);
+        auto payload = (jbyteArray) env->CallObjectMethod(record, getPayloadMethod);
+        auto tnf = env->CallShortMethod(record, getTnfMethod);
+        auto type = (jbyteArray) env->CallObjectMethod(record, getTypeMethod);
+        
         ret.push_back(NDEFRecord{
                 static_cast<unsigned char>(tnf),
                 convert2CByteArray(env, type),
                 convert2CByteArray(env, id),
                 convert2CByteArray(env, payload),
         });
+        
+        env->DeleteLocalRef(record);
+        env->DeleteLocalRef(id);
+        env->DeleteLocalRef(payload);
+        env->DeleteLocalRef(type);
     }
     return ret;
 }
@@ -916,14 +916,11 @@ CoinTag Serializer::convert2CCoinTag(JNIEnv *env, jobject tag) {
 
     jfieldID fieldName = env->GetFieldID(clazz, "name", "Ljava/lang/String;");
     auto nameVal = (jstring) env->GetObjectField(tag, fieldName);
-    auto name = env->GetStringUTFChars(nameVal, JNI_FALSE);
+    auto name = StringWrapper(env, nameVal);
 
     jfieldID fieldColor = env->GetFieldID(clazz, "color", "Ljava/lang/String;");
     auto colorVal = (jstring) env->GetObjectField(tag, fieldColor);
-    auto color = env->GetStringUTFChars(colorVal, JNI_FALSE);
-
-    env->ReleaseStringUTFChars(nameVal, name);
-    env->ReleaseStringUTFChars(colorVal, color);
+    auto color = StringWrapper(env, colorVal);
 
     return CoinTag(id, name, color);
 }
@@ -997,6 +994,9 @@ SigningPath Serializer::convert2CSigningPath(JNIEnv *env, jobject signingPathObj
     jclass listClass = env->FindClass("java/util/List");
     jmethodID sizeMethod = env->GetMethodID(listClass, "size", "()I");
     jmethodID getMethod = env->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
+    jclass integerClass = env->FindClass("java/lang/Integer");
+    jmethodID intValueMethod = env->GetMethodID(integerClass, "intValue", "()I");
+    
     jint outerSize = env->CallIntMethod(pathList, sizeMethod);
     for (jint i = 0; i < outerSize; ++i) {
         jobject innerList = env->CallObjectMethod(pathList, getMethod, i);
@@ -1004,12 +1004,12 @@ SigningPath Serializer::convert2CSigningPath(JNIEnv *env, jobject signingPathObj
         std::vector<size_t> innerVec;
         for (jint j = 0; j < innerSize; ++j) {
             jobject intObj = env->CallObjectMethod(innerList, getMethod, j);
-            jclass integerClass = env->FindClass("java/lang/Integer");
-            jmethodID intValueMethod = env->GetMethodID(integerClass, "intValue", "()I");
             jint value = env->CallIntMethod(intObj, intValueMethod);
             innerVec.push_back(static_cast<size_t>(value));
+            env->DeleteLocalRef(intObj);
         }
         result.push_back(innerVec);
+        env->DeleteLocalRef(innerList);
     }
     return result;
 }
