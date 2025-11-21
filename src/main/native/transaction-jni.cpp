@@ -140,14 +140,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         jobject signing_path
 ) {
     try {
-        auto c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        std::string wallet_id_str = StringWrapper(env, wallet_id);
         auto txInputs = Serializer::convert2CTxInputs(env, inputs);
         auto txInputUnspentOutputs = NunchukProvider::get()->nu->GetUnspentOutputsFromTxInputs(
-                c_wallet_id,
+                wallet_id_str,
                 txInputs);
         SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(
-                c_wallet_id,
+                wallet_id_str,
                 Serializer::convert2CAmountsMap(env, outputs),
                 txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
@@ -158,17 +158,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftTransaction(
         );
         Amount packageFeeRate{0};
         jobject jtransaction;
-        if (NunchukProvider::get()->nu->IsCPFP(c_wallet_id, transaction,
+        if (NunchukProvider::get()->nu->IsCPFP(wallet_id_str, transaction,
                                                packageFeeRate)) {
             jtransaction = Deserializer::convert2JTransaction(env, transaction, packageFeeRate);
         } else {
             jtransaction = Deserializer::convert2JTransaction(env, transaction);
         }
 
-        auto wallet = NunchukProvider::get()->nu->GetWallet(c_wallet_id);
+        auto wallet = NunchukProvider::get()->nu->GetWallet(wallet_id_str);
         if (wallet.get_address_type() == AddressType::TAPROOT &&
             wallet.get_wallet_type() == WalletType::MULTI_SIG) {
-            auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(c_wallet_id, transaction);
+            auto fee = NunchukProvider::get()->nu->GetScriptPathFeeRate(wallet_id_str, transaction);
 
             jclass txClass = env->GetObjectClass(jtransaction);
             jfieldID feeField = env->GetFieldID(txClass, "scriptPathFee",

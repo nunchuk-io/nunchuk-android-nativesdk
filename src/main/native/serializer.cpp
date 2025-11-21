@@ -574,13 +574,12 @@ TxInput Serializer::convert2CTxInput(JNIEnv *env, jobject input) {
 
     jfieldID fieldFirst = env->GetFieldID(clazz, "first", "Ljava/lang/String;");
     auto firstVal = (jstring) env->GetObjectField(input, fieldFirst);
-    auto first = env->GetStringUTFChars(firstVal, JNI_FALSE);
+    auto firstStr = StringWrapper(env, firstVal);
 
     jfieldID fieldSecond = env->GetFieldID(clazz, "second", "I");
     auto secondVal = env->GetIntField(input, fieldSecond);
 
-    env->ReleaseStringUTFChars(firstVal, first);
-    return TxInput(first, secondVal);
+    return TxInput(firstStr, secondVal);
 }
 
 std::vector<TxInput> Serializer::convert2CTxInputs(JNIEnv *env, jobject inputs) {
@@ -706,11 +705,10 @@ std::map<std::string, Amount> Serializer::convert2CAmountsMap(JNIEnv *env, jobje
         jobject entry = env->CallObjectMethod(iterator, next);
         auto key = (jstring) env->CallObjectMethod(entry, getKey);
         auto value = (jobject) env->CallObjectMethod(entry, getValue);
-        const char *keyStr = env->GetStringUTFChars(key, JNI_FALSE);
+        auto keyStr = StringWrapper(env, key);
         Amount valueStr = Serializer::convert2CAmount(env, value);
 
-        mapOut.insert(std::make_pair(std::string(keyStr), valueStr));
-
+        mapOut.insert(std::make_pair(keyStr, valueStr));
     }
     return mapOut;
 }
