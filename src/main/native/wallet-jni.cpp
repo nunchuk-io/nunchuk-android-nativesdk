@@ -667,12 +667,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRWallet(JNIEnv *en
                                                                       jint density) {
     try {
         auto cWallet = Serializer::convert2CWallet(env, wallet);
-        std::vector<std::string> data;
-        if (cWallet.get_wallet_type() == WalletType::MINISCRIPT) {
-            data = Utils::ExportBBQRWallet(cWallet, ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL, 1, density);
-        } else {
-            data = Utils::ExportBBQRWallet(cWallet, ExportFormat::COLDCARD, 1, density);
-        }
+        std::vector<std::string> data = Utils::ExportBBQRWallet(cWallet, ExportFormat::DESCRIPTOR_EXTERNAL_INTERNAL, 1, density);
         return Deserializer::convert2JListString(env, data);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
