@@ -1255,6 +1255,22 @@ internal class LibNunchukAndroid {
     ): List<Transaction>
 
     @Throws(NCNativeException::class)
+    external fun estimateRollOverFeeForSigningPaths(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): List<Pair<SigningPath, Amount>>
+
+    @Throws(NCNativeException::class)
+    external fun estimateRollOver11FeeForSigningPaths(
+        walletId: String,
+        newWalletId: String,
+        feeRate: Amount
+    ): List<Pair<SigningPath, Amount>>
+
+    @Throws(NCNativeException::class)
     external fun exportWalletToPortal(
         walletId: String,
     ): BSMSData?

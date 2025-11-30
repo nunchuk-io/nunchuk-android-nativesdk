@@ -1549,6 +1549,34 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun estimateRollOverFeeForSigningPaths(
+        walletId: String,
+        newWalletId: String,
+        tags: List<CoinTag>,
+        collections: List<CoinCollection>,
+        feeRate: Amount
+    ): List<Pair<SigningPath, Amount>> =
+        nunchukAndroid.estimateRollOverFeeForSigningPaths(
+            walletId,
+            newWalletId,
+            tags,
+            collections,
+            feeRate
+        )
+
+    @Throws(NCNativeException::class)
+    fun estimateRollOver11FeeForSigningPaths(
+        walletId: String,
+        newWalletId: String,
+        feeRate: Amount
+    ): List<Pair<SigningPath, Amount>> =
+        nunchukAndroid.estimateRollOver11FeeForSigningPaths(
+            walletId,
+            newWalletId,
+            feeRate
+        )
+
+    @Throws(NCNativeException::class)
     fun exportWalletToPortal(
         walletId: String,
     ) = nunchukAndroid.exportWalletToPortal(walletId)
