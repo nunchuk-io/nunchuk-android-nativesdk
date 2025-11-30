@@ -1193,7 +1193,9 @@ internal class LibNunchukAndroid {
         newWalletId: String,
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
-        feeRate: Amount
+        feeRate: Amount,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null
     ): PairAmount
 
     @Throws(NCNativeException::class)
@@ -1202,7 +1204,9 @@ internal class LibNunchukAndroid {
         newWalletId: String,
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
-        feeRate: Amount
+        feeRate: Amount,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null
     ): Array<DraftRollOverTransaction>
 
     @Throws(NCNativeException::class)
@@ -1213,6 +1217,8 @@ internal class LibNunchukAndroid {
         collections: List<CoinCollection>,
         feeRate: Amount,
         antiFeeSniping: Boolean,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null
     ): List<Transaction>
 
     @Throws(NCNativeException::class)

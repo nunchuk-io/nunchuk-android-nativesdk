@@ -1459,8 +1459,10 @@ class NunchukNativeSdk {
         newWalletId: String,
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
-        feeRate: Amount
-    ) = nunchukAndroid.estimateRollOverAmount(walletId, newWalletId, tags, collections, feeRate)
+        feeRate: Amount,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null
+    ) = nunchukAndroid.estimateRollOverAmount(walletId, newWalletId, tags, collections, feeRate, useScriptPath, signingPath)
 
     @Throws(NCNativeException::class)
     fun draftRollOverTransactions(
@@ -1468,8 +1470,10 @@ class NunchukNativeSdk {
         newWalletId: String,
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
-        feeRate: Amount
-    ) = nunchukAndroid.draftRollOverTransactions(walletId, newWalletId, tags, collections, feeRate)
+        feeRate: Amount,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null
+    ) = nunchukAndroid.draftRollOverTransactions(walletId, newWalletId, tags, collections, feeRate, useScriptPath, signingPath)
 
     @Throws(NCNativeException::class)
     fun createRollOverTransactions(
@@ -1478,14 +1482,18 @@ class NunchukNativeSdk {
         tags: List<CoinTag>,
         collections: List<CoinCollection>,
         feeRate: Amount,
-        antiFeeSniping: Boolean
+        antiFeeSniping: Boolean,
+        useScriptPath: Boolean = false,
+        signingPath: SigningPath? = null
     ) = nunchukAndroid.createRollOverTransactions(
         walletId,
         newWalletId,
         tags,
         collections,
         feeRate,
-        antiFeeSniping
+        antiFeeSniping,
+        useScriptPath,
+        signingPath
     )
 
     @Throws(NCNativeException::class)

@@ -1244,7 +1244,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOverAmount(JNIE
                                                                             jstring new_wallet_id,
                                                                             jobject tags,
                                                                             jobject collections,
-                                                                            jobject fee_rate) {
+                                                                            jobject fee_rate,
+                                                                            jboolean use_script_path,
+                                                                            jobject signing_path) {
     try {
         auto coinTags = Serializer::convert2CCoinTags(env, tags);
         auto tagIds = std::set<int>();
@@ -1256,11 +1258,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOverAmount(JNIE
         for (auto &collection: coinCollections) {
             collectionIds.insert(collection.get_id());
         }
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto value = NunchukProvider::get()->nu->EstimateRollOverAmount(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, new_wallet_id),
                 tagIds, collectionIds,
-                Serializer::convert2CAmount(env, fee_rate));
+                Serializer::convert2CAmount(env, fee_rate),
+                use_script_path,
+                c_signing_path);
         return Deserializer::convert2JPairAmount(env, value);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -1278,7 +1283,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRollOverTransactions(J
                                                                                jstring new_wallet_id,
                                                                                jobject tags,
                                                                                jobject collections,
-                                                                               jobject fee_rate) {
+                                                                               jobject fee_rate,
+                                                                               jboolean use_script_path,
+                                                                               jobject signing_path) {
     try {
         auto coinTags = Serializer::convert2CCoinTags(env, tags);
         auto tagIds = std::set<int>();
@@ -1290,10 +1297,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRollOverTransactions(J
         for (auto &collection: coinCollections) {
             collectionIds.insert(collection.get_id());
         }
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto txs = NunchukProvider::get()->nu->DraftRollOverTransactions(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, new_wallet_id),
-                tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate));
+                tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate),
+                use_script_path,
+                c_signing_path);
         return Deserializer::convert2JDraftRollOverTransactions(env, txs);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -1312,7 +1322,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
                                                                                 jobject tags,
                                                                                 jobject collections,
                                                                                 jobject fee_rate,
-                                                                                jboolean anti_fee_sniping) {
+                                                                                jboolean anti_fee_sniping,
+                                                                                jboolean use_script_path,
+                                                                                jobject signing_path) {
     try {
         auto coinTags = Serializer::convert2CCoinTags(env, tags);
         auto tagIds = std::set<int>();
@@ -1324,11 +1336,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createRollOverTransactions(
         for (auto &collection: coinCollections) {
             collectionIds.insert(collection.get_id());
         }
+        SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto txs = NunchukProvider::get()->nu->CreateRollOverTransactions(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, new_wallet_id),
                 tagIds, collectionIds, Serializer::convert2CAmount(env, fee_rate),
-                anti_fee_sniping);
+                anti_fee_sniping,
+                use_script_path,
+                c_signing_path);
         return Deserializer::convert2JTransactions(env, txs);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
