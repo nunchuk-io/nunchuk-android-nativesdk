@@ -1518,6 +1518,67 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
 
 extern "C"
 JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOverFeeForSigningPaths(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring new_wallet_id,
+        jobject tags,
+        jobject collections,
+        jobject fee_rate
+) {
+    try {
+        auto coinTags = Serializer::convert2CCoinTags(env, tags);
+        auto tagIds = std::set<int>();
+        for (auto &tag: coinTags) {
+            tagIds.insert(tag.get_id());
+        }
+        auto coinCollections = Serializer::convert2CCoinCollections(env, collections);
+        auto collectionIds = std::set<int>();
+        for (auto &collection: coinCollections) {
+            collectionIds.insert(collection.get_id());
+        }
+        auto result = NunchukProvider::get()->nu->EstimateRollOverFeeForSigningPaths(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                tagIds, collectionIds,
+                Serializer::convert2CAmount(env, fee_rate));
+        return Deserializer::convert2JSigningPathAmountPairs(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateRollOver11FeeForSigningPaths(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring new_wallet_id,
+        jobject fee_rate
+) {
+    try {
+        auto result = NunchukProvider::get()->nu->EstimateRollOver11FeeForSigningPaths(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, new_wallet_id),
+                Serializer::convert2CAmount(env, fee_rate));
+        return Deserializer::convert2JSigningPathAmountPairs(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockedCoins(
         JNIEnv *env,
         jobject thiz,
