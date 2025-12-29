@@ -443,6 +443,103 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearSignerPassphrase(JNIEn
     }
 }
 extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidSignerPassphrase(JNIEnv *env,
+                                                                              jobject thiz,
+                                                                              jstring master_signer_id,
+                                                                              jstring passphrase) {
+    try {
+        return NunchukProvider::get()->nu->IsValidSignerPassphrase(
+                StringWrapper(env, master_signer_id),
+                StringWrapper(env, passphrase)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerMnemonic(JNIEnv *env,
+                                                                       jobject thiz,
+                                                                       jstring signer_id,
+                                                                       jstring passphrase) {
+    try {
+        std::string mnemonic = NunchukProvider::get()->nu->GetSignerMnemonic(
+                StringWrapper(env, signer_id),
+                StringWrapper(env, passphrase)
+        );
+        return env->NewStringUTF(mnemonic.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerMasterXprv(JNIEnv *env,
+                                                                          jobject thiz,
+                                                                          jstring signer_id) {
+    try {
+        std::string xprv = NunchukProvider::get()->nu->GetSignerMasterXprv(
+                StringWrapper(env, signer_id)
+        );
+        return env->NewStringUTF(xprv.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hasSignerMnemonic(JNIEnv *env,
+                                                                       jobject thiz,
+                                                                       jstring signer_id) {
+    try {
+        return NunchukProvider::get()->nu->HasSignerMnemonic(
+                StringWrapper(env, signer_id)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
+}
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hasSignerMasterXprv(JNIEnv *env,
+                                                                        jobject thiz,
+                                                                        jstring signer_id) {
+    try {
+        return NunchukProvider::get()->nu->HasSignerMasterXprv(
+                StringWrapper(env, signer_id)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
+}
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getPrimaryKeyAddress(JNIEnv *env, jobject thiz,
                                                                           jstring mnemonic,

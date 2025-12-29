@@ -361,6 +361,21 @@ internal class LibNunchukAndroid {
     external fun clearSignerPassphrase(masterSignerId: String)
 
     @Throws(NCNativeException::class)
+    external fun isValidSignerPassphrase(masterSignerId: String, passphrase: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun getSignerMnemonic(signerId: String, passphrase: String = ""): String
+
+    @Throws(NCNativeException::class)
+    external fun getSignerMasterXprv(signerId: String): String
+
+    @Throws(NCNativeException::class)
+    external fun hasSignerMnemonic(signerId: String): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun hasSignerMasterXprv(signerId: String): Boolean
+
+    @Throws(NCNativeException::class)
     external fun deleteWallet(walletId: String): Boolean
 
     // SHARED WALLET

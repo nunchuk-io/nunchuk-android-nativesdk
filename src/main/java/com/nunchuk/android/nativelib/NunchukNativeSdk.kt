@@ -533,6 +533,26 @@ class NunchukNativeSdk {
         nunchukAndroid.clearSignerPassphrase(masterSignerId)
 
     @Throws(NCNativeException::class)
+    fun isValidSignerPassphrase(masterSignerId: String, passphrase: String): Boolean =
+        nunchukAndroid.isValidSignerPassphrase(masterSignerId, passphrase)
+
+    @Throws(NCNativeException::class)
+    fun getSignerMnemonic(signerId: String, passphrase: String = ""): String =
+        nunchukAndroid.getSignerMnemonic(signerId, passphrase)
+
+    @Throws(NCNativeException::class)
+    fun getSignerMasterXprv(signerId: String): String =
+        nunchukAndroid.getSignerMasterXprv(signerId)
+
+    @Throws(NCNativeException::class)
+    fun hasSignerMnemonic(signerId: String): Boolean =
+        nunchukAndroid.hasSignerMnemonic(signerId)
+
+    @Throws(NCNativeException::class)
+    fun hasSignerMasterXprv(signerId: String): Boolean =
+        nunchukAndroid.hasSignerMasterXprv(signerId)
+
+    @Throws(NCNativeException::class)
     fun deleteWallet(walletId: String) = nunchukAndroid.deleteWallet(walletId)
 
     @Throws(NCNativeException::class)
