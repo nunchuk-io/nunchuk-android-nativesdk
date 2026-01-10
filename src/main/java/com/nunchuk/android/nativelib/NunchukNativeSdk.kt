@@ -325,6 +325,63 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun decodeTx(
+        signers: List<SingleSigner>,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String,
+        subtractFeeFromAmount: Boolean = true,
+    ) = nunchukAndroid.decodeTx(
+        signers = signers,
+        psbt = psbt,
+        subAmount = subAmount,
+        feeRate = feeRate,
+        fee = fee,
+        subtractFeeFromAmount = subtractFeeFromAmount
+    )
+
+    @Throws(NCNativeException::class)
+    fun signSoftwarePsbt(
+        masterSignerId: String,
+        signers: List<SingleSigner>,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String,
+        subtractFeeFromAmount: Boolean = true,
+    ) = nunchukAndroid.signSoftwarePsbt(
+        masterSignerId = masterSignerId,
+        signers = signers,
+        psbt = psbt,
+        subAmount = subAmount,
+        feeRate = feeRate,
+        fee = fee,
+        subtractFeeFromAmount = subtractFeeFromAmount
+    )
+
+    @Throws(NCNativeException::class)
+    fun signTapSignerPsbt(
+        isoDep: IsoDep,
+        cvc: String,
+        signers: List<SingleSigner>,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String,
+        subtractFeeFromAmount: Boolean = true,
+    ) = nunchukAndroid.signTapSignerPsbt(
+        isoDep = isoDep,
+        cvc = cvc,
+        signers = signers,
+        psbt = psbt,
+        subAmount = subAmount,
+        feeRate = feeRate,
+        fee = fee,
+        subtractFeeFromAmount = subtractFeeFromAmount
+    )
+
+    @Throws(NCNativeException::class)
     fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
@@ -931,6 +988,11 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.exportWalletToMk4(walletId)
 
     @Throws(NCNativeException::class)
+    fun sendDataToMk4(
+        data: String,
+    ): Array<NdefRecord> = nunchukAndroid.sendDataToMk4(data)
+
+    @Throws(NCNativeException::class)
     fun exportWalletToBsmsById(
         walletId: String,
     ) = nunchukAndroid.exportWalletToBsmsById(walletId)
@@ -961,6 +1023,11 @@ class NunchukNativeSdk {
         walletId: String,
         records: Array<NdefRecord>,
     ) = nunchukAndroid.importTransactionFromMk4(walletId, records)
+
+    /** Converts MK4 NDEF records to a PSBT string (no wallet import). */
+    @Throws(NCNativeException::class)
+    fun getPsbtFromMk4(records: Array<NdefRecord>): String? =
+        nunchukAndroid.getPsbtFromMk4(records)
 
     fun parseWalletFromMk4(
         chain: Int,
@@ -1032,6 +1099,34 @@ class NunchukNativeSdk {
         message: String? = null,
     ): Array<NdefRecord> =
         nunchukAndroid.generateColdCardHealthCheckMessage(derivationPath, message)
+
+    @Throws(NCNativeException::class)
+    fun generateColdCardHealthCheckMessageString(
+        derivationPath: String,
+        message: String = "",
+        addressType: AddressType = AddressType.LEGACY,
+    ): String =
+        nunchukAndroid.generateColdCardHealthCheckMessageString(
+            derivationPath,
+            message,
+            addressType.ordinal
+        )
+
+    @Throws(NCNativeException::class)
+    fun extractColdcardMessageSignatureFromQr(qrData: List<String>): String =
+        nunchukAndroid.extractColdcardMessageSignatureFromQr(qrData)
+
+    @Throws(NCNativeException::class)
+    fun extractColdcardMessageSignature(value: String): String =
+        nunchukAndroid.extractColdcardMessageSignature(value)
+
+    @Throws(NCNativeException::class)
+    fun exportBBQRJSON(
+        value: String,
+        minVersion: Int = 1,
+        maxVersion: Int = 40,
+    ): List<String> =
+        nunchukAndroid.exportBBQRJSON(value, minVersion, maxVersion)
 
     @Throws(NCNativeException::class)
     fun healthCheckColdCard(signer: SingleSigner, records: Array<NdefRecord>): ColdCardHealth =
@@ -1211,6 +1306,10 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getColdcardSignatureFromPsbt(signer: SingleSigner, records: Array<NdefRecord>) =
         nunchukAndroid.getColdcardSignatureFromPsbt(signer, records)
+
+    @Throws(NCNativeException::class)
+    fun extractColdcardSignatureFromRecords(records: Array<NdefRecord>): String =
+        nunchukAndroid.extractColdcardSignatureFromRecords(records)
 
     fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long) =
         nunchukAndroid.updateTransactionSchedule(walletId, txId, broadcastTime)

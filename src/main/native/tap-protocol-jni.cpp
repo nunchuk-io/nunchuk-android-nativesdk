@@ -510,3 +510,46 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignerFromTapsignerMaste
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTapSignerPsbt(JNIEnv *env,
+                                                                        jobject thiz,
+                                                                        jobject iso_dep,
+                                                                        jstring cvc,
+                                                                        jobject signers,
+                                                                        jstring psbt,
+                                                                        jstring sub_amount,
+                                                                        jstring fee_rate,
+                                                                        jstring fee,
+                                                                        jboolean subtract_fee_from_amount) {
+    try {
+        auto singleSigners = Serializer::convert2CSigners(env, signers);
+        // Build dummy wallet from signers
+        int m = singleSigners.size();
+        int n = singleSigners.size();
+        Wallet wallet = Wallet("", m, n, singleSigners, AddressType::NATIVE_SEGWIT, false, 0, true);
+        Transaction tx = Utils::DecodeTx(wallet, StringWrapper(env, psbt),
+                                         Utils::AmountFromValue(StringWrapper(env, sub_amount)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee_rate)),
+                                         subtract_fee_from_amount);
+        // Get PSBT from transaction and sign it with TapSigner
+        std::string tx_psbt = tx.get_psbt();
+        auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
+        std::string signed_psbt = Utils::SignPsbt(ts.get(),
+                                                  StringWrapper(env, cvc),
+                                                  tx_psbt);
+        // Decode the signed PSBT to get the transaction
+        Transaction decoded_tx = Utils::DecodeTx(wallet, signed_psbt,
+                                                 Utils::AmountFromValue(StringWrapper(env, sub_amount)),
+                                                 Utils::AmountFromValue(StringWrapper(env, fee)),
+                                                 Utils::AmountFromValue(StringWrapper(env, fee_rate)),
+                                                 subtract_fee_from_amount);
+        return Deserializer::convert2JTransaction(env, decoded_tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}

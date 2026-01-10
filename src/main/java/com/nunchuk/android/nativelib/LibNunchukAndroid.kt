@@ -248,6 +248,39 @@ internal class LibNunchukAndroid {
     ): Transaction
 
     @Throws(NCNativeException::class)
+    external fun decodeTx(
+        signers: List<SingleSigner>,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String,
+        subtractFeeFromAmount: Boolean = true,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun signSoftwarePsbt(
+        masterSignerId: String,
+        signers: List<SingleSigner>,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String,
+        subtractFeeFromAmount: Boolean = true,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun signTapSignerPsbt(
+        isoDep: IsoDep,
+        cvc: String,
+        signers: List<SingleSigner>,
+        psbt: String,
+        subAmount: String,
+        feeRate: String,
+        fee: String,
+        subtractFeeFromAmount: Boolean = true,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
     external fun draftTransaction(
         walletId: String,
         outputs: Map<String, Amount>,
@@ -733,6 +766,11 @@ internal class LibNunchukAndroid {
     ): Array<NdefRecord>
 
     @Throws(NCNativeException::class)
+    external fun sendDataToMk4(
+        data: String,
+    ): Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
     external fun exportWalletToBsmsById(
         walletId: String,
     ): String
@@ -763,6 +801,9 @@ internal class LibNunchukAndroid {
         walletId: String,
         records: Array<NdefRecord>,
     ): Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun getPsbtFromMk4(records: Array<NdefRecord>): String?
 
     @Throws(NCNativeException::class)
     external fun importWalletFromMk4(
@@ -826,6 +867,26 @@ internal class LibNunchukAndroid {
         derivationPath: String,
         message: String?,
     ): Array<NdefRecord>
+
+    @Throws(NCNativeException::class)
+    external fun generateColdCardHealthCheckMessageString(
+        derivationPath: String,
+        message: String = "",
+        addressType: Int = 1,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun extractColdcardMessageSignatureFromQr(qrData: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun extractColdcardMessageSignature(value: String): String
+
+    @Throws(NCNativeException::class)
+    external fun exportBBQRJSON(
+        value: String,
+        minVersion: Int = 1,
+        maxVersion: Int = 40,
+    ): List<String>
 
     @Throws(NCNativeException::class)
     external fun healthCheckColdCard(
@@ -965,6 +1026,11 @@ internal class LibNunchukAndroid {
         signer: SingleSigner,
         records: Array<NdefRecord>,
     ): String?
+
+    @Throws(NCNativeException::class)
+    external fun extractColdcardSignatureFromRecords(
+        records: Array<NdefRecord>,
+    ): String
 
     external fun updateTransactionSchedule(walletId: String, txId: String, broadcastTime: Long)
 

@@ -39,3 +39,5 @@ deploy:
     - ./gradlew clean assembleArm64_v8aRelease --stacktrace
     - ./gradlew publish
 # python3 push_code.py upload_aar.py
+# fast local command
+# ./gradlew assembleArm64_v8aRelease

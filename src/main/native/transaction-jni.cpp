@@ -712,6 +712,76 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createInheritanceClaimTrans
     return nullptr;
 }
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decodeTx(JNIEnv *env,
+                                                               jobject thiz,
+                                                               jobject signers,
+                                                               jstring psbt,
+                                                               jstring sub_amount,
+                                                               jstring fee_rate,
+                                                               jstring fee,
+                                                               jboolean subtract_fee_from_amount) {
+    try {
+        auto singleSigners = Serializer::convert2CSigners(env, signers);
+        // Build dummy wallet from signers
+        int m = singleSigners.size();
+        int n = singleSigners.size();
+        Wallet wallet = Wallet("", m, n, singleSigners, AddressType::NATIVE_SEGWIT, false, 0, true);
+        Transaction tx = Utils::DecodeTx(wallet, StringWrapper(env, psbt),
+                                         Utils::AmountFromValue(StringWrapper(env, sub_amount)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee_rate)),
+                                         subtract_fee_from_amount);
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signSoftwarePsbt(JNIEnv *env,
+                                                                      jobject thiz,
+                                                                      jstring master_signer_id,
+                                                                      jobject signers,
+                                                                      jstring psbt,
+                                                                      jstring sub_amount,
+                                                                      jstring fee_rate,
+                                                                      jstring fee,
+                                                                      jboolean subtract_fee_from_amount) {
+    try {
+        auto singleSigners = Serializer::convert2CSigners(env, signers);
+        // Build dummy wallet from signers
+        int m = singleSigners.size();
+        int n = singleSigners.size();
+        Wallet wallet = Wallet("", m, n, singleSigners, AddressType::NATIVE_SEGWIT, false, 0, true);
+        Transaction tx = Utils::DecodeTx(wallet, StringWrapper(env, psbt),
+                                         Utils::AmountFromValue(StringWrapper(env, sub_amount)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee)),
+                                         Utils::AmountFromValue(StringWrapper(env, fee_rate)),
+                                         subtract_fee_from_amount);
+        // Get PSBT from transaction and sign it
+        std::string tx_psbt = tx.get_psbt();
+        Device device(StringWrapper(env, master_signer_id));
+        Transaction signed_tx = NunchukProvider::get()->nu->SignTransaction(wallet, tx, device);
+        // Get signed PSBT from signed transaction and decode it
+        std::string signed_psbt = signed_tx.get_psbt();
+        Transaction decoded_tx = Utils::DecodeTx(wallet, signed_psbt,
+                                                 Utils::AmountFromValue(StringWrapper(env, sub_amount)),
+                                                 Utils::AmountFromValue(StringWrapper(env, fee)),
+                                                 Utils::AmountFromValue(StringWrapper(env, fee_rate)),
+                                                 subtract_fee_from_amount);
+        return Deserializer::convert2JTransaction(env, decoded_tx);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+    return nullptr;
+}
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransactionSchedule(JNIEnv *env,
                                                                                jobject thiz,
