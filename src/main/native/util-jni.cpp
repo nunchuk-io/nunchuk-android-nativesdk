@@ -54,6 +54,26 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidAddress(
 }
 
 extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSilentPaymentAddress(
+        JNIEnv *env,
+        jobject thiz,
+        jstring address
+) {
+    try {
+        return Utils::IsSilentPaymentAddress(env->GetStringUTFChars(address, JNI_FALSE));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        env->ExceptionOccurred();
+        return JNI_FALSE;
+    }
+}
+
+extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getDevices(
         JNIEnv *env,
