@@ -287,7 +287,14 @@ JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTx(JNIEnv *env, jobject thiz,
                                                                       jstring psbt) {
     try {
-        auto tx = Utils::DecodeDummyTx(Wallet(false), StringWrapper(env, psbt));
+        std::string psbt_str = StringWrapper(env, psbt);
+        Wallet wallet(false);
+        try {
+            wallet = Utils::ParseWalletDescriptor(psbt_str);
+        } catch (...) {
+            // Fall back to Wallet(false) if ParseWalletDescriptor fails
+        }
+        auto tx = Utils::DecodeDummyTx(wallet, psbt_str);
         return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -321,7 +328,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignInDummyTxByByteArray
         auto len = env->GetArrayLength(file_data);
         std::string psbt = std::string(first, first + len);
         env->ReleaseByteArrayElements(file_data, first, JNI_ABORT);
-        auto tx = Utils::DecodeDummyTx(Wallet(false), psbt);
+        Wallet wallet(false);
+        try {
+            wallet = Utils::ParseWalletDescriptor(psbt);
+        } catch (...) {
+            // Fall back to Wallet(false) if ParseWalletDescriptor fails
+        }
+        auto tx = Utils::DecodeDummyTx(wallet, psbt);
         return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
