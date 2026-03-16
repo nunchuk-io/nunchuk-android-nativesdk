@@ -758,6 +758,7 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun createMk4Signer(
         signer: SingleSigner,
+        replaced: Boolean,
     ): SingleSigner
 
     @Throws(NCNativeException::class)

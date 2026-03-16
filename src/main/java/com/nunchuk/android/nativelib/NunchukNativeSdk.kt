@@ -980,7 +980,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun createMk4Signer(
         signer: SingleSigner,
-    ) = nunchukAndroid.createMk4Signer(signer)
+        replaced: Boolean = false,
+    ) = nunchukAndroid.createMk4Signer(signer, replaced)
 
     @Throws(NCNativeException::class)
     fun exportWalletToMk4(

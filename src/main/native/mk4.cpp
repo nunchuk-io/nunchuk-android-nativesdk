@@ -33,7 +33,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMk4Signers(JNIEnv *env, 
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMk4Signer(JNIEnv *env, jobject thiz,
-                                                                     jobject signer) {
+                                                                     jobject signer,
+                                                                     jboolean replaced) {
     try {
         auto cSigner = Serializer::convert2CSigner(env, signer);
         auto newSigner = NunchukProvider::get()->nu->CreateSigner(
@@ -42,7 +43,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMk4Signer(JNIEnv *env
                 cSigner.get_public_key(),
                 cSigner.get_derivation_path(),
                 cSigner.get_master_fingerprint(),
-                cSigner.get_type()
+                cSigner.get_type(),
+                cSigner.get_tags(),
+                replaced
         );
         return Deserializer::convert2JSigner(env, newSigner);
     } catch (BaseException &e) {
