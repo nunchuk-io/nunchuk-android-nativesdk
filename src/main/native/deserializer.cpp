@@ -1820,3 +1820,292 @@ jobject Deserializer::convert2JCoinsGroups(JNIEnv *env, const std::vector<CoinsG
     }
     return list;
 }
+
+jobject Deserializer::convert2JGroupSpendingLimit(JNIEnv *env, const GroupSpendingLimit &limit) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupSpendingLimit()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSpendingLimit");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Lcom/nunchuk/android/type/GroupSpendingLimitInterval;Ljava/lang/String;Ljava/lang/String;)V");
+
+    jclass helperClazz = env->FindClass("com/nunchuk/android/type/GroupSpendingLimitIntervalHelper");
+    jmethodID fromMethod = env->GetStaticMethodID(helperClazz, "from",
+                                                   "(I)Lcom/nunchuk/android/type/GroupSpendingLimitInterval;");
+    jobject intervalObj = env->CallStaticObjectMethod(helperClazz, fromMethod,
+                                                      (int) limit.get_interval());
+    jstring amount = env->NewStringUTF(limit.get_amount().c_str());
+    jstring currency = env->NewStringUTF(limit.get_currency().c_str());
+
+    jobject instance = env->NewObject(clazz, constructor, intervalObj, amount, currency);
+
+    env->DeleteLocalRef(intervalObj);
+    env->DeleteLocalRef(helperClazz);
+    env->DeleteLocalRef(amount);
+    env->DeleteLocalRef(currency);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupPlatformKeyPolicy(JNIEnv *env,
+                                                       const GroupPlatformKeyPolicy &policy) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeyPolicy()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKeyPolicy");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(ZILcom/nunchuk/android/model/GroupSpendingLimit;)V");
+
+    jobject limitObj = nullptr;
+    const auto &spendingLimit = policy.get_spending_limit();
+    if (spendingLimit.has_value()) {
+        limitObj = convert2JGroupSpendingLimit(env, spendingLimit.value());
+    }
+
+    jobject instance = env->NewObject(clazz, constructor,
+            policy.get_auto_broadcast_transaction(),
+            policy.get_signing_delay_seconds(),
+            limitObj);
+
+    if (limitObj != nullptr) env->DeleteLocalRef(limitObj);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupPlatformKeySignerPolicy(JNIEnv *env,
+                                                             const GroupPlatformKeySignerPolicy &policy) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeySignerPolicy()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKeySignerPolicy");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Ljava/lang/String;Lcom/nunchuk/android/model/GroupPlatformKeyPolicy;)V");
+
+    jstring fingerprint = env->NewStringUTF(policy.get_master_fingerprint().c_str());
+    jobject policyObj = convert2JGroupPlatformKeyPolicy(env, policy.get_policy());
+
+    jobject instance = env->NewObject(clazz, constructor, fingerprint, policyObj);
+
+    env->DeleteLocalRef(fingerprint);
+    env->DeleteLocalRef(policyObj);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupPlatformKeyPolicies(JNIEnv *env,
+                                                         const GroupPlatformKeyPolicies &policies) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeyPolicies()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKeyPolicies");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicy;Ljava/util/List;)V");
+
+    jobject globalObj = nullptr;
+    const auto &global = policies.get_global();
+    if (global.has_value()) {
+        globalObj = convert2JGroupPlatformKeyPolicy(env, global.value());
+    }
+
+    const auto &signers = policies.get_signers();
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    for (const auto &signer : signers) {
+        jobject signerObj = convert2JGroupPlatformKeySignerPolicy(env, signer);
+        env->CallBooleanMethod(arrayList, arrayListAdd, signerObj);
+        env->DeleteLocalRef(signerObj);
+    }
+
+    jobject instance = env->NewObject(clazz, constructor, globalObj, arrayList);
+
+    if (globalObj != nullptr) env->DeleteLocalRef(globalObj);
+    env->DeleteLocalRef(arrayList);
+    env->DeleteLocalRef(arrayListClass);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupDummyTransactionSignature(JNIEnv *env,
+                                                               const GroupDummyTransactionSignature &sig) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactionSignature()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupDummyTransactionSignature");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Ljava/lang/String;Ljava/lang/String;)V");
+
+    jstring fingerprint = env->NewStringUTF(sig.get_master_fingerprint().c_str());
+    jstring signature = env->NewStringUTF(sig.get_signature().c_str());
+
+    jobject instance = env->NewObject(clazz, constructor, fingerprint, signature);
+
+    env->DeleteLocalRef(fingerprint);
+    env->DeleteLocalRef(signature);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupDummyTransactionPlatformKeyPolicyData(
+        JNIEnv *env, const GroupDummyTransactionPlatformKeyPolicyData &data) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactionPlatformKeyPolicyData()");
+    jclass clazz = env->FindClass(
+            "com/nunchuk/android/model/GroupDummyTransactionPlatformKeyPolicyData");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;)V");
+
+    jobject oldPolicies = convert2JGroupPlatformKeyPolicies(env, data.get_old_policies());
+    jobject newPolicies = convert2JGroupPlatformKeyPolicies(env, data.get_new_policies());
+
+    jobject instance = env->NewObject(clazz, constructor, oldPolicies, newPolicies);
+
+    env->DeleteLocalRef(oldPolicies);
+    env->DeleteLocalRef(newPolicies);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupDummyTransaction(JNIEnv *env,
+                                                      const GroupDummyTransaction &tx) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransaction()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupDummyTransaction");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Ljava/lang/String;Ljava/lang/String;"
+            "Lcom/nunchuk/android/type/GroupDummyTransactionType;"
+            "Lcom/nunchuk/android/type/GroupDummyTransactionStatus;"
+            "Lcom/nunchuk/android/model/GroupDummyTransactionPlatformKeyPolicyData;"
+            "IILjava/lang/String;Ljava/util/List;J)V");
+
+    jstring id = env->NewStringUTF(tx.get_id().c_str());
+    jstring walletId = env->NewStringUTF(tx.get_wallet_id().c_str());
+
+    jclass typeHelperClazz = env->FindClass(
+            "com/nunchuk/android/type/GroupDummyTransactionTypeHelper");
+    jmethodID typeFromMethod = env->GetStaticMethodID(typeHelperClazz, "from",
+            "(I)Lcom/nunchuk/android/type/GroupDummyTransactionType;");
+    jobject typeObj = env->CallStaticObjectMethod(typeHelperClazz, typeFromMethod,
+                                                   (int) tx.get_type());
+
+    jclass statusHelperClazz = env->FindClass(
+            "com/nunchuk/android/type/GroupDummyTransactionStatusHelper");
+    jmethodID statusFromMethod = env->GetStaticMethodID(statusHelperClazz, "from",
+            "(I)Lcom/nunchuk/android/type/GroupDummyTransactionStatus;");
+    jobject statusObj = env->CallStaticObjectMethod(statusHelperClazz, statusFromMethod,
+                                                     (int) tx.get_status());
+
+    jobject payloadObj = nullptr;
+    const auto &payload = tx.get_payload();
+    if (payload.has_value()) {
+        payloadObj = convert2JGroupDummyTransactionPlatformKeyPolicyData(env, payload.value());
+    }
+
+    jstring requestBody = env->NewStringUTF(tx.get_request_body().c_str());
+
+    // signatures list
+    const auto &signatures = tx.get_signatures();
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject sigList = env->NewObject(arrayListClass, arrayListConstructor);
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    for (const auto &sig : signatures) {
+        jobject sigObj = convert2JGroupDummyTransactionSignature(env, sig);
+        env->CallBooleanMethod(sigList, arrayListAdd, sigObj);
+        env->DeleteLocalRef(sigObj);
+    }
+
+    jobject instance = env->NewObject(clazz, constructor,
+            id, walletId, typeObj, statusObj, payloadObj,
+            tx.get_required_signatures(), tx.get_pending_signatures(),
+            requestBody, sigList, (jlong) tx.get_created_at());
+
+    env->DeleteLocalRef(id);
+    env->DeleteLocalRef(walletId);
+    env->DeleteLocalRef(typeObj);
+    env->DeleteLocalRef(typeHelperClazz);
+    env->DeleteLocalRef(statusObj);
+    env->DeleteLocalRef(statusHelperClazz);
+    if (payloadObj != nullptr) env->DeleteLocalRef(payloadObj);
+    env->DeleteLocalRef(requestBody);
+    env->DeleteLocalRef(sigList);
+    env->DeleteLocalRef(arrayListClass);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupDummyTransactions(JNIEnv *env,
+                                                       const std::vector<GroupDummyTransaction> &txs) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactions()");
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    for (const auto &tx : txs) {
+        jobject txObj = convert2JGroupDummyTransaction(env, tx);
+        env->CallBooleanMethod(arrayList, arrayListAdd, txObj);
+        env->DeleteLocalRef(txObj);
+    }
+    env->DeleteLocalRef(arrayListClass);
+    return arrayList;
+}
+
+jobject Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(
+        JNIEnv *env, const GroupPlatformKeyPolicyUpdateRequirement &req) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeyPolicyUpdateRequirement()");
+    jclass clazz = env->FindClass(
+            "com/nunchuk/android/model/GroupPlatformKeyPolicyUpdateRequirement");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(ZZLcom/nunchuk/android/model/GroupDummyTransaction;)V");
+
+    jobject dummyTxObj = nullptr;
+    const auto &dummyTx = req.get_dummy_transaction();
+    if (dummyTx.has_value()) {
+        dummyTxObj = convert2JGroupDummyTransaction(env, dummyTx.value());
+    }
+
+    jobject instance = env->NewObject(clazz, constructor,
+            req.get_success(), req.requires_dummy_transaction(), dummyTxObj);
+
+    if (dummyTxObj != nullptr) env->DeleteLocalRef(dummyTxObj);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAlert &alert) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletAlert()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupWalletAlert");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Ljava/lang/String;Lcom/nunchuk/android/type/GroupWalletAlertType;"
+            "ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;J)V");
+
+    jstring id = env->NewStringUTF(alert.get_id().c_str());
+
+    jclass helperClazz = env->FindClass("com/nunchuk/android/type/GroupWalletAlertTypeHelper");
+    jmethodID fromMethod = env->GetStaticMethodID(helperClazz, "from",
+            "(I)Lcom/nunchuk/android/type/GroupWalletAlertType;");
+    jobject typeObj = env->CallStaticObjectMethod(helperClazz, fromMethod,
+                                                   (int) alert.get_type());
+
+    jstring title = env->NewStringUTF(alert.get_title().c_str());
+    jstring body = env->NewStringUTF(alert.get_body().c_str());
+    jstring dummyTxId = env->NewStringUTF(alert.get_dummy_transaction_id().c_str());
+
+    jobject instance = env->NewObject(clazz, constructor,
+            id, typeObj, alert.get_viewable(), title, body, dummyTxId,
+            (jlong) alert.get_created_at());
+
+    env->DeleteLocalRef(id);
+    env->DeleteLocalRef(typeObj);
+    env->DeleteLocalRef(helperClazz);
+    env->DeleteLocalRef(title);
+    env->DeleteLocalRef(body);
+    env->DeleteLocalRef(dummyTxId);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupWalletAlerts(JNIEnv *env,
+                                                  const std::vector<GroupWalletAlert> &alerts) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletAlerts()");
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject arrayList = env->NewObject(arrayListClass, arrayListConstructor);
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    for (const auto &alert : alerts) {
+        jobject alertObj = convert2JGroupWalletAlert(env, alert);
+        env->CallBooleanMethod(arrayList, arrayListAdd, alertObj);
+        env->DeleteLocalRef(alertObj);
+    }
+    env->DeleteLocalRef(arrayListClass);
+    return arrayList;
+}

@@ -670,3 +670,172 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoverFreeGroupWallet(JNIE
         Deserializer::convertStdException2JException(env, e);
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_previewGroupPlatformKeyPolicyUpdate(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jobject policies) {
+    try {
+        auto result = NunchukProvider::get()->nu->PreviewGroupPlatformKeyPolicyUpdate(
+                StringWrapper(env, wallet_id),
+                Serializer::convert2CGroupPlatformKeyPolicies(env, policies));
+        return Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_requestGroupPlatformKeyPolicyUpdate(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jobject policies) {
+    try {
+        auto result = NunchukProvider::get()->nu->RequestGroupPlatformKeyPolicyUpdate(
+                StringWrapper(env, wallet_id),
+                Serializer::convert2CGroupPlatformKeyPolicies(env, policies));
+        return Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupDummyTransactions(
+        JNIEnv *env, jobject thiz, jstring wallet_id) {
+    try {
+        auto result = NunchukProvider::get()->nu->GetGroupDummyTransactions(
+                StringWrapper(env, wallet_id));
+        return Deserializer::convert2JGroupDummyTransactions(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupDummyTransaction(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring dummy_transaction_id) {
+    try {
+        auto result = NunchukProvider::get()->nu->GetGroupDummyTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, dummy_transaction_id));
+        return Deserializer::convert2JGroupDummyTransaction(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signGroupDummyTransaction(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring dummy_transaction_id,
+        jstring signature) {
+    try {
+        auto result = NunchukProvider::get()->nu->SignGroupDummyTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, dummy_transaction_id),
+                StringWrapper(env, signature));
+        return Deserializer::convert2JGroupDummyTransaction(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cancelGroupDummyTransaction(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring dummy_transaction_id) {
+    try {
+        NunchukProvider::get()->nu->CancelGroupDummyTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, dummy_transaction_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletAlertCount(
+        JNIEnv *env, jobject thiz, jstring wallet_id) {
+    try {
+        return NunchukProvider::get()->nu->GetGroupWalletAlertCount(
+                StringWrapper(env, wallet_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return 0;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return 0;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletAlerts(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jint page, jint page_size) {
+    try {
+        auto result = NunchukProvider::get()->nu->GetGroupWalletAlerts(
+                StringWrapper(env, wallet_id), page, page_size);
+        return Deserializer::convert2JGroupWalletAlerts(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_markGroupWalletAlertViewed(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring alert_id) {
+    try {
+        NunchukProvider::get()->nu->MarkGroupWalletAlertViewed(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, alert_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_dismissGroupWalletAlert(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring alert_id) {
+    try {
+        NunchukProvider::get()->nu->DismissGroupWalletAlert(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, alert_id));
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
+}

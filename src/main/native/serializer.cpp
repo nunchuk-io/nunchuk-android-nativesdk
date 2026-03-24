@@ -1013,3 +1013,127 @@ SigningPath Serializer::convert2CSigningPath(JNIEnv *env, jobject signingPathObj
     }
     return result;
 }
+
+GroupSpendingLimit Serializer::convert2CGroupSpendingLimit(JNIEnv *env, jobject obj) {
+    GroupSpendingLimit result;
+    if (obj == nullptr) return result;
+    jclass clazz = env->GetObjectClass(obj);
+
+    jfieldID fieldInterval = env->GetFieldID(clazz, "interval",
+                                             "Lcom/nunchuk/android/type/GroupSpendingLimitInterval;");
+    jobject intervalObj = env->GetObjectField(obj, fieldInterval);
+    if (intervalObj != nullptr) {
+        jclass enumClazz = env->GetObjectClass(intervalObj);
+        jmethodID ordinalMethod = env->GetMethodID(enumClazz, "ordinal", "()I");
+        jint ordinal = env->CallIntMethod(intervalObj, ordinalMethod);
+        result.set_interval(static_cast<GroupSpendingLimitInterval>(ordinal));
+        env->DeleteLocalRef(enumClazz);
+        env->DeleteLocalRef(intervalObj);
+    }
+
+    jfieldID fieldAmount = env->GetFieldID(clazz, "amount", "Ljava/lang/String;");
+    auto amountVal = (jstring) env->GetObjectField(obj, fieldAmount);
+    if (amountVal != nullptr) {
+        const char *amount = env->GetStringUTFChars(amountVal, nullptr);
+        result.set_amount(amount);
+        env->ReleaseStringUTFChars(amountVal, amount);
+        env->DeleteLocalRef(amountVal);
+    }
+
+    jfieldID fieldCurrency = env->GetFieldID(clazz, "currency", "Ljava/lang/String;");
+    auto currencyVal = (jstring) env->GetObjectField(obj, fieldCurrency);
+    if (currencyVal != nullptr) {
+        const char *currency = env->GetStringUTFChars(currencyVal, nullptr);
+        result.set_currency(currency);
+        env->ReleaseStringUTFChars(currencyVal, currency);
+        env->DeleteLocalRef(currencyVal);
+    }
+
+    env->DeleteLocalRef(clazz);
+    return result;
+}
+
+GroupPlatformKeyPolicy Serializer::convert2CGroupPlatformKeyPolicy(JNIEnv *env, jobject obj) {
+    GroupPlatformKeyPolicy result;
+    if (obj == nullptr) return result;
+    jclass clazz = env->GetObjectClass(obj);
+
+    jfieldID fieldAutoBroadcast = env->GetFieldID(clazz, "autoBroadcastTransaction", "Z");
+    result.set_auto_broadcast_transaction(env->GetBooleanField(obj, fieldAutoBroadcast));
+
+    jfieldID fieldDelay = env->GetFieldID(clazz, "signingDelaySeconds", "I");
+    result.set_signing_delay_seconds(env->GetIntField(obj, fieldDelay));
+
+    jfieldID fieldLimit = env->GetFieldID(clazz, "spendingLimit",
+                                          "Lcom/nunchuk/android/model/GroupSpendingLimit;");
+    jobject limitObj = env->GetObjectField(obj, fieldLimit);
+    if (limitObj != nullptr) {
+        result.set_spending_limit(convert2CGroupSpendingLimit(env, limitObj));
+        env->DeleteLocalRef(limitObj);
+    }
+
+    env->DeleteLocalRef(clazz);
+    return result;
+}
+
+GroupPlatformKeySignerPolicy Serializer::convert2CGroupPlatformKeySignerPolicy(JNIEnv *env,
+                                                                                jobject obj) {
+    GroupPlatformKeySignerPolicy result;
+    if (obj == nullptr) return result;
+    jclass clazz = env->GetObjectClass(obj);
+
+    jfieldID fieldFingerprint = env->GetFieldID(clazz, "masterFingerprint", "Ljava/lang/String;");
+    auto fingerprintVal = (jstring) env->GetObjectField(obj, fieldFingerprint);
+    if (fingerprintVal != nullptr) {
+        const char *fingerprint = env->GetStringUTFChars(fingerprintVal, nullptr);
+        result.set_master_fingerprint(fingerprint);
+        env->ReleaseStringUTFChars(fingerprintVal, fingerprint);
+        env->DeleteLocalRef(fingerprintVal);
+    }
+
+    jfieldID fieldPolicy = env->GetFieldID(clazz, "policy",
+                                           "Lcom/nunchuk/android/model/GroupPlatformKeyPolicy;");
+    jobject policyObj = env->GetObjectField(obj, fieldPolicy);
+    if (policyObj != nullptr) {
+        result.set_policy(convert2CGroupPlatformKeyPolicy(env, policyObj));
+        env->DeleteLocalRef(policyObj);
+    }
+
+    env->DeleteLocalRef(clazz);
+    return result;
+}
+
+GroupPlatformKeyPolicies Serializer::convert2CGroupPlatformKeyPolicies(JNIEnv *env, jobject obj) {
+    GroupPlatformKeyPolicies result;
+    if (obj == nullptr) return result;
+    jclass clazz = env->GetObjectClass(obj);
+
+    jfieldID fieldGlobal = env->GetFieldID(clazz, "global",
+                                           "Lcom/nunchuk/android/model/GroupPlatformKeyPolicy;");
+    jobject globalObj = env->GetObjectField(obj, fieldGlobal);
+    if (globalObj != nullptr) {
+        result.set_global(convert2CGroupPlatformKeyPolicy(env, globalObj));
+        env->DeleteLocalRef(globalObj);
+    }
+
+    jfieldID fieldSigners = env->GetFieldID(clazz, "signers", "Ljava/util/List;");
+    jobject signersList = env->GetObjectField(obj, fieldSigners);
+    if (signersList != nullptr) {
+        jclass listClass = env->FindClass("java/util/List");
+        jmethodID sizeMethod = env->GetMethodID(listClass, "size", "()I");
+        jmethodID getMethod = env->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
+        jint size = env->CallIntMethod(signersList, sizeMethod);
+        std::vector<GroupPlatformKeySignerPolicy> signers;
+        for (jint i = 0; i < size; i++) {
+            jobject item = env->CallObjectMethod(signersList, getMethod, i);
+            signers.push_back(convert2CGroupPlatformKeySignerPolicy(env, item));
+            env->DeleteLocalRef(item);
+        }
+        result.set_signers(signers);
+        env->DeleteLocalRef(listClass);
+        env->DeleteLocalRef(signersList);
+    }
+
+    env->DeleteLocalRef(clazz);
+    return result;
+}

@@ -86,4 +86,9 @@ public:
     static std::vector<CoinTag> convert2CCoinTags(JNIEnv *env, jobject tags);
     static std::vector<CoinCollection> convert2CCoinCollections(JNIEnv *env, jobject collections);
     static SigningPath convert2CSigningPath(JNIEnv *env, jobject signingPathObj);
+
+    static GroupSpendingLimit convert2CGroupSpendingLimit(JNIEnv *env, jobject obj);
+    static GroupPlatformKeyPolicy convert2CGroupPlatformKeyPolicy(JNIEnv *env, jobject obj);
+    static GroupPlatformKeySignerPolicy convert2CGroupPlatformKeySignerPolicy(JNIEnv *env, jobject obj);
+    static GroupPlatformKeyPolicies convert2CGroupPlatformKeyPolicies(JNIEnv *env, jobject obj);
 };

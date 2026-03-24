@@ -30,6 +30,7 @@ import com.nunchuk.android.model.CoinsGroup
 import com.nunchuk.android.model.ColdCardHealth
 import com.nunchuk.android.model.Device
 import com.nunchuk.android.model.GlobalGroupWalletConfig
+import com.nunchuk.android.model.GroupPlatformKeyPolicies
 import com.nunchuk.android.model.GroupSandbox
 import com.nunchuk.android.model.MasterSigner
 import com.nunchuk.android.model.MiniscriptTemplateResult
@@ -1953,6 +1954,53 @@ class NunchukNativeSdk {
 
     @Throws(NCNativeException::class)
     fun getDeprecatedGroupWallets(): List<String> = nunchukAndroid.getDeprecatedGroupWallets()
+
+    @Throws(NCNativeException::class)
+    fun previewGroupPlatformKeyPolicyUpdate(
+        walletId: String,
+        policies: GroupPlatformKeyPolicies,
+    ) = nunchukAndroid.previewGroupPlatformKeyPolicyUpdate(walletId, policies)
+
+    @Throws(NCNativeException::class)
+    fun requestGroupPlatformKeyPolicyUpdate(
+        walletId: String,
+        policies: GroupPlatformKeyPolicies,
+    ) = nunchukAndroid.requestGroupPlatformKeyPolicyUpdate(walletId, policies)
+
+    @Throws(NCNativeException::class)
+    fun getGroupDummyTransactions(walletId: String) =
+        nunchukAndroid.getGroupDummyTransactions(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getGroupDummyTransaction(walletId: String, dummyTransactionId: String) =
+        nunchukAndroid.getGroupDummyTransaction(walletId, dummyTransactionId)
+
+    @Throws(NCNativeException::class)
+    fun signGroupDummyTransaction(
+        walletId: String,
+        dummyTransactionId: String,
+        signature: String,
+    ) = nunchukAndroid.signGroupDummyTransaction(walletId, dummyTransactionId, signature)
+
+    @Throws(NCNativeException::class)
+    fun cancelGroupDummyTransaction(walletId: String, dummyTransactionId: String) =
+        nunchukAndroid.cancelGroupDummyTransaction(walletId, dummyTransactionId)
+
+    @Throws(NCNativeException::class)
+    fun getGroupWalletAlertCount(walletId: String) =
+        nunchukAndroid.getGroupWalletAlertCount(walletId)
+
+    @Throws(NCNativeException::class)
+    fun getGroupWalletAlerts(walletId: String, page: Int, pageSize: Int) =
+        nunchukAndroid.getGroupWalletAlerts(walletId, page, pageSize)
+
+    @Throws(NCNativeException::class)
+    fun markGroupWalletAlertViewed(walletId: String, alertId: String) =
+        nunchukAndroid.markGroupWalletAlertViewed(walletId, alertId)
+
+    @Throws(NCNativeException::class)
+    fun dismissGroupWalletAlert(walletId: String, alertId: String) =
+        nunchukAndroid.dismissGroupWalletAlert(walletId, alertId)
 
     @Throws(NCNativeException::class)
     fun getMnemonicFromHotKey(signerId: String) =

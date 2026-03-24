@@ -35,7 +35,11 @@ import com.nunchuk.android.model.DraftRollOverTransaction
 import com.nunchuk.android.model.FreeGroupMessage
 import com.nunchuk.android.model.FreeGroupWalletConfig
 import com.nunchuk.android.model.GlobalGroupWalletConfig
+import com.nunchuk.android.model.GroupDummyTransaction
+import com.nunchuk.android.model.GroupPlatformKeyPolicies
+import com.nunchuk.android.model.GroupPlatformKeyPolicyUpdateRequirement
 import com.nunchuk.android.model.GroupSandbox
+import com.nunchuk.android.model.GroupWalletAlert
 import com.nunchuk.android.model.KeySetStatus
 import com.nunchuk.android.model.MasterSigner
 import com.nunchuk.android.model.MiniscriptTemplateResult
@@ -1598,6 +1602,62 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getDeprecatedGroupWallets(): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun previewGroupPlatformKeyPolicyUpdate(
+        walletId: String,
+        policies: GroupPlatformKeyPolicies,
+    ): GroupPlatformKeyPolicyUpdateRequirement
+
+    @Throws(NCNativeException::class)
+    external fun requestGroupPlatformKeyPolicyUpdate(
+        walletId: String,
+        policies: GroupPlatformKeyPolicies,
+    ): GroupPlatformKeyPolicyUpdateRequirement
+
+    @Throws(NCNativeException::class)
+    external fun getGroupDummyTransactions(walletId: String): List<GroupDummyTransaction>
+
+    @Throws(NCNativeException::class)
+    external fun getGroupDummyTransaction(
+        walletId: String,
+        dummyTransactionId: String,
+    ): GroupDummyTransaction
+
+    @Throws(NCNativeException::class)
+    external fun signGroupDummyTransaction(
+        walletId: String,
+        dummyTransactionId: String,
+        signature: String,
+    ): GroupDummyTransaction
+
+    @Throws(NCNativeException::class)
+    external fun cancelGroupDummyTransaction(
+        walletId: String,
+        dummyTransactionId: String,
+    )
+
+    @Throws(NCNativeException::class)
+    external fun getGroupWalletAlertCount(walletId: String): Int
+
+    @Throws(NCNativeException::class)
+    external fun getGroupWalletAlerts(
+        walletId: String,
+        page: Int,
+        pageSize: Int,
+    ): List<GroupWalletAlert>
+
+    @Throws(NCNativeException::class)
+    external fun markGroupWalletAlertViewed(
+        walletId: String,
+        alertId: String,
+    )
+
+    @Throws(NCNativeException::class)
+    external fun dismissGroupWalletAlert(
+        walletId: String,
+        alertId: String,
+    )
 
     @Throws(NCNativeException::class)
     external fun getMnemonicFromHotKey(signerId: String): String
