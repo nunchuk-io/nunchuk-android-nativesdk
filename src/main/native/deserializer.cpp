@@ -1315,7 +1315,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
     syslog(LOG_DEBUG, "[JNI] id::%s", sandbox.get_id().c_str());
 
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
-                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;Lcom/nunchuk/android/type/WalletType;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;)V");
+                                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILcom/nunchuk/android/type/AddressType;Ljava/util/List;ZLjava/lang/String;Ljava/util/List;Lcom/nunchuk/android/type/WalletType;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/nunchuk/android/model/GroupPlatformKey;ILjava/util/List;)V");
 
     className = env->NewStringUTF("com/nunchuk/android/model/OccupiedSlot");
     jclass occupiedSlotClass = reinterpret_cast<jclass>(env->CallObjectMethod(
@@ -1369,6 +1369,17 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
         namedOccupiedMap = convert2JNamedOccupiedMap(env, std::map<std::string, std::pair<time_t, std::string>>{});
     }
     
+    jobject platformKeyObj = nullptr;
+    const auto &platformKey = sandbox.get_platform_key();
+    if (platformKey.has_value()) {
+        platformKeyObj = convert2JGroupPlatformKey(env, platformKey.value());
+    }
+
+    auto platformKeyIndex = sandbox.get_platform_key_index();
+    jint jPlatformKeyIndex = platformKeyIndex.has_value() ? platformKeyIndex.value() : -1;
+
+    jobject platformKeySlots = convert2JListString(env, sandbox.get_platform_key_slots());
+
     jobject instance = env->NewObject(
             clazz,
             constructor,
@@ -1386,7 +1397,10 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             convert2JWalletType(env, sandbox.get_wallet_type()),
             env->NewStringUTF(miniscript_template.c_str()),
             namedSignersMap,
-            namedOccupiedMap
+            namedOccupiedMap,
+            platformKeyObj,
+            jPlatformKeyIndex,
+            platformKeySlots
     );
     return instance;
 }
@@ -1915,6 +1929,20 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicies(JNIEnv *env,
     if (globalObj != nullptr) env->DeleteLocalRef(globalObj);
     env->DeleteLocalRef(arrayList);
     env->DeleteLocalRef(arrayListClass);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
+jobject Deserializer::convert2JGroupPlatformKey(JNIEnv *env, const GroupPlatformKey &key) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKey()");
+    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKey");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;)V");
+
+    jobject policiesObj = convert2JGroupPlatformKeyPolicies(env, key.get_policies());
+    jobject instance = env->NewObject(clazz, constructor, policiesObj);
+
+    env->DeleteLocalRef(policiesObj);
     env->DeleteLocalRef(clazz);
     return instance;
 }

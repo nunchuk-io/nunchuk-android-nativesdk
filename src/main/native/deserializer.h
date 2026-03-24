@@ -168,6 +168,7 @@ public:
     static jobject convert2JGroupPlatformKeyPolicy(JNIEnv *env, const GroupPlatformKeyPolicy &policy);
     static jobject convert2JGroupPlatformKeySignerPolicy(JNIEnv *env, const GroupPlatformKeySignerPolicy &policy);
     static jobject convert2JGroupPlatformKeyPolicies(JNIEnv *env, const GroupPlatformKeyPolicies &policies);
+    static jobject convert2JGroupPlatformKey(JNIEnv *env, const GroupPlatformKey &key);
     static jobject convert2JGroupDummyTransactionSignature(JNIEnv *env, const GroupDummyTransactionSignature &sig);
     static jobject convert2JGroupDummyTransactionPlatformKeyPolicyData(JNIEnv *env, const GroupDummyTransactionPlatformKeyPolicyData &data);
     static jobject convert2JGroupDummyTransaction(JNIEnv *env, const GroupDummyTransaction &tx);

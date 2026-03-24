@@ -22,4 +22,7 @@ data class GroupSandbox(
     val miniscriptTemplate: String,
     val namedSigners: Map<String, SingleSigner>,
     val namedOccupied: Map<String, Pair<Long, String>>,
+    val platformKey: GroupPlatformKey? = null,
+    val platformKeyIndex: Int = -1,
+    val platformKeySlots: List<String> = emptyList(),
 ) : Parcelable
