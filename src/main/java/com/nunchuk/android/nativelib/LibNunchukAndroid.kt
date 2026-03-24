@@ -1660,6 +1660,23 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun enableGroupPlatformKey(
+        groupId: String,
+        names: List<String>,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun disableGroupPlatformKey(
+        groupId: String,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
+    external fun setGroupPlatformKeyPolicies(
+        groupId: String,
+        policies: GroupPlatformKeyPolicies,
+    ): GroupSandbox
+
+    @Throws(NCNativeException::class)
     external fun getMnemonicFromHotKey(signerId: String): String
 
     @Throws(NCNativeException::class)

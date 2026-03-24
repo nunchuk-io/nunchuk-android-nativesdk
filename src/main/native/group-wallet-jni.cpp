@@ -839,3 +839,65 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_dismissGroupWalletAlert(
         Deserializer::convertStdException2JException(env, e);
     }
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_enableGroupPlatformKey(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jstring group_id,
+                                                                            jobject names) {
+    try {
+        auto cNames = Serializer::convert2CListString(env, names);
+        auto groupSandbox = NunchukProvider::get()->nu->EnableGroupPlatformKey(
+                StringWrapper(env, group_id),
+                cNames
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_disableGroupPlatformKey(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jstring group_id) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->DisableGroupPlatformKey(
+                StringWrapper(env, group_id)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setGroupPlatformKeyPolicies(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jstring group_id,
+                                                                                  jobject policies) {
+    try {
+        auto groupSandbox = NunchukProvider::get()->nu->SetGroupPlatformKeyPolicies(
+                StringWrapper(env, group_id),
+                Serializer::convert2CGroupPlatformKeyPolicies(env, policies)
+        );
+        return Deserializer::convert2JGroupSandbox(env, groupSandbox);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

@@ -2003,6 +2003,22 @@ class NunchukNativeSdk {
         nunchukAndroid.dismissGroupWalletAlert(walletId, alertId)
 
     @Throws(NCNativeException::class)
+    fun enableGroupPlatformKey(
+        groupId: String,
+        names: List<String> = emptyList(),
+    ): GroupSandbox = nunchukAndroid.enableGroupPlatformKey(groupId, names)
+
+    @Throws(NCNativeException::class)
+    fun disableGroupPlatformKey(groupId: String): GroupSandbox =
+        nunchukAndroid.disableGroupPlatformKey(groupId)
+
+    @Throws(NCNativeException::class)
+    fun setGroupPlatformKeyPolicies(
+        groupId: String,
+        policies: GroupPlatformKeyPolicies,
+    ): GroupSandbox = nunchukAndroid.setGroupPlatformKeyPolicies(groupId, policies)
+
+    @Throws(NCNativeException::class)
     fun getMnemonicFromHotKey(signerId: String) =
         nunchukAndroid.getMnemonicFromHotKey(signerId)
 
