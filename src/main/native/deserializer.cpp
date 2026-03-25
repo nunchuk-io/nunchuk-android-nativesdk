@@ -1380,6 +1380,28 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
 
     jobject platformKeySlots = convert2JListString(env, sandbox.get_platform_key_slots());
 
+    const auto &signers = sandbox.get_signers();
+    jmethodID signersAddMethod = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    jobject signersList = env->NewObject(arrayListClass, arrayListConstructor);
+    for (int i = 0; i < signers.size(); i++) {
+        jobject jSigner = convert2JSigner(env, signers[i]);
+        if (platformKeyIndex.has_value() && i == platformKeyIndex.value()) {
+            jstring signerClassName = env->NewStringUTF("com/nunchuk/android/model/SingleSigner");
+            jclass signerClazz = static_cast<jclass>(env->CallObjectMethod(
+                    Initializer::get()->classLoader,
+                    Initializer::get()->loadClassMethod,
+                    signerClassName));
+            env->DeleteLocalRef(signerClassName);
+            env->CallVoidMethod(jSigner,
+                    env->GetMethodID(signerClazz, "setType",
+                            "(Lcom/nunchuk/android/type/SignerType;)V"),
+                    convert2JSignerType(env, SignerType::PLATFORM));
+            env->DeleteLocalRef(signerClazz);
+        }
+        env->CallBooleanMethod(signersList, signersAddMethod, jSigner);
+        env->DeleteLocalRef(jSigner);
+    }
+
     jobject instance = env->NewObject(
             clazz,
             constructor,
@@ -1390,7 +1412,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
             sandbox.get_m(),
             sandbox.get_n(),
             convert2JAddressType(env, sandbox.get_address_type()),
-            convert2JSigners(env, sandbox.get_signers()),
+            signersList,
             sandbox.is_finalized(),
             env->NewStringUTF(sandbox.get_wallet_id().c_str()),
             occupiedSlots,
