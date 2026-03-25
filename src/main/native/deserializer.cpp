@@ -1408,7 +1408,7 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
 jobject Deserializer::convert2JFreeGroupConfig(JNIEnv *env, const GroupConfig &config,
                                                const AddressType &addressType) {
     syslog(LOG_DEBUG, "[JNI] convert2JFreeGroupConfig()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GlobalGroupWalletConfig");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GlobalGroupWalletConfig");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
@@ -1492,7 +1492,7 @@ jobject Deserializer::convert2JGroupMessages(JNIEnv *env,
 
 jobject Deserializer::convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupWalletConfig");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/FreeGroupWalletConfig");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(ILcom/nunchuk/android/model/GroupPlatformKey;Ljava/lang/String;)V");
 
@@ -1848,11 +1848,11 @@ jobject Deserializer::convert2JCoinsGroups(JNIEnv *env, const std::vector<CoinsG
 
 jobject Deserializer::convert2JGroupSpendingLimit(JNIEnv *env, const GroupSpendingLimit &limit) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupSpendingLimit()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupSpendingLimit");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupSpendingLimit");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Lcom/nunchuk/android/type/GroupSpendingLimitInterval;Ljava/lang/String;Ljava/lang/String;)V");
 
-    jclass helperClazz = env->FindClass("com/nunchuk/android/type/GroupSpendingLimitIntervalHelper");
+    jclass helperClazz = Initializer::get()->getClass(env, "com/nunchuk/android/type/GroupSpendingLimitIntervalHelper");
     jmethodID fromMethod = env->GetStaticMethodID(helperClazz, "from",
                                                    "(I)Lcom/nunchuk/android/type/GroupSpendingLimitInterval;");
     jobject intervalObj = env->CallStaticObjectMethod(helperClazz, fromMethod,
@@ -1873,7 +1873,7 @@ jobject Deserializer::convert2JGroupSpendingLimit(JNIEnv *env, const GroupSpendi
 jobject Deserializer::convert2JGroupPlatformKeyPolicy(JNIEnv *env,
                                                        const GroupPlatformKeyPolicy &policy) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeyPolicy()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKeyPolicy");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupPlatformKeyPolicy");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(ZILcom/nunchuk/android/model/GroupSpendingLimit;)V");
 
@@ -1896,7 +1896,7 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicy(JNIEnv *env,
 jobject Deserializer::convert2JGroupPlatformKeySignerPolicy(JNIEnv *env,
                                                              const GroupPlatformKeySignerPolicy &policy) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeySignerPolicy()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKeySignerPolicy");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupPlatformKeySignerPolicy");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Ljava/lang/String;Lcom/nunchuk/android/model/GroupPlatformKeyPolicy;)V");
 
@@ -1914,7 +1914,7 @@ jobject Deserializer::convert2JGroupPlatformKeySignerPolicy(JNIEnv *env,
 jobject Deserializer::convert2JGroupPlatformKeyPolicies(JNIEnv *env,
                                                          const GroupPlatformKeyPolicies &policies) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeyPolicies()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKeyPolicies");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupPlatformKeyPolicies");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicy;Ljava/util/List;)V");
 
@@ -1946,7 +1946,7 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicies(JNIEnv *env,
 
 jobject Deserializer::convert2JGroupPlatformKey(JNIEnv *env, const GroupPlatformKey &key) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKey()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupPlatformKey");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupPlatformKey");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;)V");
 
@@ -1961,7 +1961,7 @@ jobject Deserializer::convert2JGroupPlatformKey(JNIEnv *env, const GroupPlatform
 jobject Deserializer::convert2JGroupDummyTransactionSignature(JNIEnv *env,
                                                                const GroupDummyTransactionSignature &sig) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactionSignature()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupDummyTransactionSignature");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupDummyTransactionSignature");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;)V");
 
@@ -1979,7 +1979,7 @@ jobject Deserializer::convert2JGroupDummyTransactionSignature(JNIEnv *env,
 jobject Deserializer::convert2JGroupDummyTransactionPlatformKeyPolicyData(
         JNIEnv *env, const GroupDummyTransactionPlatformKeyPolicyData &data) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactionPlatformKeyPolicyData()");
-    jclass clazz = env->FindClass(
+    jclass clazz = Initializer::get()->getClass(env,
             "com/nunchuk/android/model/GroupDummyTransactionPlatformKeyPolicyData");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;)V");
@@ -1998,7 +1998,7 @@ jobject Deserializer::convert2JGroupDummyTransactionPlatformKeyPolicyData(
 jobject Deserializer::convert2JGroupDummyTransaction(JNIEnv *env,
                                                       const GroupDummyTransaction &tx) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransaction()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupDummyTransaction");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupDummyTransaction");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;"
             "Lcom/nunchuk/android/type/GroupDummyTransactionType;"
@@ -2009,14 +2009,14 @@ jobject Deserializer::convert2JGroupDummyTransaction(JNIEnv *env,
     jstring id = env->NewStringUTF(tx.get_id().c_str());
     jstring walletId = env->NewStringUTF(tx.get_wallet_id().c_str());
 
-    jclass typeHelperClazz = env->FindClass(
+    jclass typeHelperClazz = Initializer::get()->getClass(env,
             "com/nunchuk/android/type/GroupDummyTransactionTypeHelper");
     jmethodID typeFromMethod = env->GetStaticMethodID(typeHelperClazz, "from",
             "(I)Lcom/nunchuk/android/type/GroupDummyTransactionType;");
     jobject typeObj = env->CallStaticObjectMethod(typeHelperClazz, typeFromMethod,
                                                    (int) tx.get_type());
 
-    jclass statusHelperClazz = env->FindClass(
+    jclass statusHelperClazz = Initializer::get()->getClass(env,
             "com/nunchuk/android/type/GroupDummyTransactionStatusHelper");
     jmethodID statusFromMethod = env->GetStaticMethodID(statusHelperClazz, "from",
             "(I)Lcom/nunchuk/android/type/GroupDummyTransactionStatus;");
@@ -2081,7 +2081,7 @@ jobject Deserializer::convert2JGroupDummyTransactions(JNIEnv *env,
 jobject Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(
         JNIEnv *env, const GroupPlatformKeyPolicyUpdateRequirement &req) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupPlatformKeyPolicyUpdateRequirement()");
-    jclass clazz = env->FindClass(
+    jclass clazz = Initializer::get()->getClass(env,
             "com/nunchuk/android/model/GroupPlatformKeyPolicyUpdateRequirement");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(ZZLcom/nunchuk/android/model/GroupDummyTransaction;)V");
@@ -2102,14 +2102,14 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(
 
 jobject Deserializer::convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAlert &alert) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletAlert()");
-    jclass clazz = env->FindClass("com/nunchuk/android/model/GroupWalletAlert");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupWalletAlert");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Ljava/lang/String;Lcom/nunchuk/android/type/GroupWalletAlertType;"
             "ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;J)V");
 
     jstring id = env->NewStringUTF(alert.get_id().c_str());
 
-    jclass helperClazz = env->FindClass("com/nunchuk/android/type/GroupWalletAlertTypeHelper");
+    jclass helperClazz = Initializer::get()->getClass(env, "com/nunchuk/android/type/GroupWalletAlertTypeHelper");
     jmethodID fromMethod = env->GetStaticMethodID(helperClazz, "from",
             "(I)Lcom/nunchuk/android/type/GroupWalletAlertType;");
     jobject typeObj = env->CallStaticObjectMethod(helperClazz, fromMethod,
