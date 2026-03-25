@@ -31,5 +31,6 @@ enum class SignerType {
     NFC,
     COLDCARD_NFC,
     SERVER,
-    PORTAL_NFC
+    PORTAL_NFC,
+    PLATFORM
 }
