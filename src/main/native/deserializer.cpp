@@ -1493,14 +1493,25 @@ jobject Deserializer::convert2JGroupMessages(JNIEnv *env,
 jobject Deserializer::convert2JGroupWalletConfig(JNIEnv *env, const GroupWalletConfig &config) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/FreeGroupWalletConfig");
-    jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
-    jobject instance = env->NewObject(clazz, constructor);
-    try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChatRetentionDays", "(I)V"),
-                            config.get_chat_retention_days());
-    } catch (const std::exception &e) {
-        syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletConfig error::%s", e.what());
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(ILcom/nunchuk/android/model/GroupPlatformKey;Ljava/lang/String;)V");
+
+    jobject platformKeyObj = nullptr;
+    const auto &platformKey = config.get_platform_key();
+    if (platformKey.has_value()) {
+        platformKeyObj = convert2JGroupPlatformKey(env, platformKey.value());
     }
+
+    jstring fingerprint = env->NewStringUTF(config.get_platform_key_fingerprint().c_str());
+
+    jobject instance = env->NewObject(clazz, constructor,
+            config.get_chat_retention_days(),
+            platformKeyObj,
+            fingerprint);
+
+    if (platformKeyObj != nullptr) env->DeleteLocalRef(platformKeyObj);
+    env->DeleteLocalRef(fingerprint);
+    env->DeleteLocalRef(clazz);
     return instance;
 }
 

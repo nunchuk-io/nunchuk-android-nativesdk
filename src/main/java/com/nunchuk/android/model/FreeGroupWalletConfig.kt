@@ -5,5 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class FreeGroupWalletConfig(
-    var chatRetentionDays: Int,
+    val chatRetentionDays: Int,
+    val platformKey: GroupPlatformKey? = null,
+    val platformKeyFingerprint: String = "",
 ) : Parcelable
