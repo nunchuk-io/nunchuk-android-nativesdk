@@ -2106,7 +2106,7 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(
     jclass clazz = Initializer::get()->getClass(env,
             "com/nunchuk/android/model/GroupPlatformKeyPolicyUpdateRequirement");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
-            "(ZZLcom/nunchuk/android/model/GroupDummyTransaction;)V");
+            "(ZIZLcom/nunchuk/android/model/GroupDummyTransaction;)V");
 
     jobject dummyTxObj = nullptr;
     const auto &dummyTx = req.get_dummy_transaction();
@@ -2115,7 +2115,8 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(
     }
 
     jobject instance = env->NewObject(clazz, constructor,
-            req.get_success(), req.requires_dummy_transaction(), dummyTxObj);
+            req.get_success(), req.get_delay_apply_in_seconds(),
+            req.requires_dummy_transaction(), dummyTxObj);
 
     if (dummyTxObj != nullptr) env->DeleteLocalRef(dummyTxObj);
     env->DeleteLocalRef(clazz);
