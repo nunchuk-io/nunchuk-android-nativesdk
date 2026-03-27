@@ -1140,3 +1140,127 @@ GroupPlatformKeyPolicies Serializer::convert2CGroupPlatformKeyPolicies(JNIEnv *e
     env->DeleteLocalRef(clazz);
     return result;
 }
+
+GroupDummyTransactionSignature Serializer::convert2CGroupDummyTransactionSignature(JNIEnv *env,
+                                                                                    jobject obj) {
+    GroupDummyTransactionSignature result;
+    if (obj == nullptr) return result;
+    jclass clazz = env->GetObjectClass(obj);
+
+    jfieldID fieldFingerprint = env->GetFieldID(clazz, "masterFingerprint", "Ljava/lang/String;");
+    auto fingerprintVal = (jstring) env->GetObjectField(obj, fieldFingerprint);
+    if (fingerprintVal != nullptr) {
+        const char *fingerprint = env->GetStringUTFChars(fingerprintVal, nullptr);
+        result.set_master_fingerprint(fingerprint);
+        env->ReleaseStringUTFChars(fingerprintVal, fingerprint);
+        env->DeleteLocalRef(fingerprintVal);
+    }
+
+    jfieldID fieldSignature = env->GetFieldID(clazz, "signature", "Ljava/lang/String;");
+    auto signatureVal = (jstring) env->GetObjectField(obj, fieldSignature);
+    if (signatureVal != nullptr) {
+        const char *signature = env->GetStringUTFChars(signatureVal, nullptr);
+        result.set_signature(signature);
+        env->ReleaseStringUTFChars(signatureVal, signature);
+        env->DeleteLocalRef(signatureVal);
+    }
+
+    env->DeleteLocalRef(clazz);
+    return result;
+}
+
+GroupDummyTransaction Serializer::convert2CGroupDummyTransaction(JNIEnv *env, jobject obj) {
+    GroupDummyTransaction result;
+    if (obj == nullptr) return result;
+    jclass clazz = env->GetObjectClass(obj);
+
+    // id
+    jfieldID fieldId = env->GetFieldID(clazz, "id", "Ljava/lang/String;");
+    auto idVal = (jstring) env->GetObjectField(obj, fieldId);
+    if (idVal != nullptr) {
+        const char *id = env->GetStringUTFChars(idVal, nullptr);
+        result.set_id(id);
+        env->ReleaseStringUTFChars(idVal, id);
+        env->DeleteLocalRef(idVal);
+    }
+
+    // walletId
+    jfieldID fieldWalletId = env->GetFieldID(clazz, "walletId", "Ljava/lang/String;");
+    auto walletIdVal = (jstring) env->GetObjectField(obj, fieldWalletId);
+    if (walletIdVal != nullptr) {
+        const char *walletId = env->GetStringUTFChars(walletIdVal, nullptr);
+        result.set_wallet_id(walletId);
+        env->ReleaseStringUTFChars(walletIdVal, walletId);
+        env->DeleteLocalRef(walletIdVal);
+    }
+
+    // type (enum ordinal)
+    jfieldID fieldType = env->GetFieldID(clazz, "type",
+                                         "Lcom/nunchuk/android/type/GroupDummyTransactionType;");
+    jobject typeObj = env->GetObjectField(obj, fieldType);
+    if (typeObj != nullptr) {
+        jclass enumClazz = env->GetObjectClass(typeObj);
+        jmethodID ordinalMethod = env->GetMethodID(enumClazz, "ordinal", "()I");
+        jint ordinal = env->CallIntMethod(typeObj, ordinalMethod);
+        result.set_type(static_cast<GroupDummyTransactionType>(ordinal));
+        env->DeleteLocalRef(enumClazz);
+        env->DeleteLocalRef(typeObj);
+    }
+
+    // status (enum ordinal)
+    jfieldID fieldStatus = env->GetFieldID(clazz, "status",
+                                           "Lcom/nunchuk/android/type/GroupDummyTransactionStatus;");
+    jobject statusObj = env->GetObjectField(obj, fieldStatus);
+    if (statusObj != nullptr) {
+        jclass enumClazz = env->GetObjectClass(statusObj);
+        jmethodID ordinalMethod = env->GetMethodID(enumClazz, "ordinal", "()I");
+        jint ordinal = env->CallIntMethod(statusObj, ordinalMethod);
+        result.set_status(static_cast<GroupDummyTransactionStatus>(ordinal));
+        env->DeleteLocalRef(enumClazz);
+        env->DeleteLocalRef(statusObj);
+    }
+
+    // requiredSignatures
+    jfieldID fieldRequired = env->GetFieldID(clazz, "requiredSignatures", "I");
+    result.set_required_signatures(env->GetIntField(obj, fieldRequired));
+
+    // pendingSignatures
+    jfieldID fieldPending = env->GetFieldID(clazz, "pendingSignatures", "I");
+    result.set_pending_signatures(env->GetIntField(obj, fieldPending));
+
+    // requestBody
+    jfieldID fieldRequestBody = env->GetFieldID(clazz, "requestBody", "Ljava/lang/String;");
+    auto requestBodyVal = (jstring) env->GetObjectField(obj, fieldRequestBody);
+    if (requestBodyVal != nullptr) {
+        const char *requestBody = env->GetStringUTFChars(requestBodyVal, nullptr);
+        result.set_request_body(requestBody);
+        env->ReleaseStringUTFChars(requestBodyVal, requestBody);
+        env->DeleteLocalRef(requestBodyVal);
+    }
+
+    // signatures (List<GroupDummyTransactionSignature>)
+    jfieldID fieldSignatures = env->GetFieldID(clazz, "signatures", "Ljava/util/List;");
+    jobject sigList = env->GetObjectField(obj, fieldSignatures);
+    if (sigList != nullptr) {
+        jclass listClass = env->FindClass("java/util/List");
+        jmethodID sizeMethod = env->GetMethodID(listClass, "size", "()I");
+        jmethodID getMethod = env->GetMethodID(listClass, "get", "(I)Ljava/lang/Object;");
+        jint size = env->CallIntMethod(sigList, sizeMethod);
+        std::vector<GroupDummyTransactionSignature> signatures;
+        for (jint i = 0; i < size; i++) {
+            jobject item = env->CallObjectMethod(sigList, getMethod, i);
+            signatures.push_back(convert2CGroupDummyTransactionSignature(env, item));
+            env->DeleteLocalRef(item);
+        }
+        result.set_signatures(signatures);
+        env->DeleteLocalRef(listClass);
+        env->DeleteLocalRef(sigList);
+    }
+
+    // createdAt
+    jfieldID fieldCreatedAt = env->GetFieldID(clazz, "createdAt", "J");
+    result.set_created_at((time_t) env->GetLongField(obj, fieldCreatedAt));
+
+    env->DeleteLocalRef(clazz);
+    return result;
+}

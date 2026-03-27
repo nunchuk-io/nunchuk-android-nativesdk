@@ -26,10 +26,10 @@ import com.nunchuk.android.model.Amount
 import com.nunchuk.android.model.AppSettings
 import com.nunchuk.android.model.CoinCollection
 import com.nunchuk.android.model.CoinTag
-import com.nunchuk.android.model.CoinsGroup
 import com.nunchuk.android.model.ColdCardHealth
 import com.nunchuk.android.model.Device
 import com.nunchuk.android.model.GlobalGroupWalletConfig
+import com.nunchuk.android.model.GroupDummyTransaction
 import com.nunchuk.android.model.GroupPlatformKeyPolicies
 import com.nunchuk.android.model.GroupSandbox
 import com.nunchuk.android.model.MasterSigner
@@ -45,12 +45,12 @@ import com.nunchuk.android.model.UnspentOutput
 import com.nunchuk.android.model.Wallet
 import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
+import com.nunchuk.android.type.DescriptorPath
 import com.nunchuk.android.type.ExportFormat
 import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
 import com.nunchuk.android.type.WalletType
-import com.nunchuk.android.type.DescriptorPath
 
 @Suppress("Unused")
 class NunchukNativeSdk {
@@ -1985,6 +1985,10 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun cancelGroupDummyTransaction(walletId: String, dummyTransactionId: String) =
         nunchukAndroid.cancelGroupDummyTransaction(walletId, dummyTransactionId)
+
+    @Throws(NCNativeException::class)
+    fun importGroupDummyTx(dummyTransaction: GroupDummyTransaction): Transaction? =
+        nunchukAndroid.importGroupDummyTx(dummyTransaction)
 
     @Throws(NCNativeException::class)
     fun getGroupWalletAlertCount(walletId: String) =

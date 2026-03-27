@@ -1638,6 +1638,9 @@ internal class LibNunchukAndroid {
     )
 
     @Throws(NCNativeException::class)
+    external fun importGroupDummyTx(dummyTransaction: GroupDummyTransaction): Transaction?
+
+    @Throws(NCNativeException::class)
     external fun getGroupWalletAlertCount(walletId: String): Int
 
     @Throws(NCNativeException::class)

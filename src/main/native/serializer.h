@@ -91,4 +91,7 @@ public:
     static GroupPlatformKeyPolicy convert2CGroupPlatformKeyPolicy(JNIEnv *env, jobject obj);
     static GroupPlatformKeySignerPolicy convert2CGroupPlatformKeySignerPolicy(JNIEnv *env, jobject obj);
     static GroupPlatformKeyPolicies convert2CGroupPlatformKeyPolicies(JNIEnv *env, jobject obj);
+
+    static GroupDummyTransactionSignature convert2CGroupDummyTransactionSignature(JNIEnv *env, jobject obj);
+    static GroupDummyTransaction convert2CGroupDummyTransaction(JNIEnv *env, jobject obj);
 };
