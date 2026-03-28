@@ -1628,7 +1628,7 @@ internal class LibNunchukAndroid {
     external fun signGroupDummyTransaction(
         walletId: String,
         dummyTransactionId: String,
-        signature: String,
+        signatures: List<String>,
     ): GroupDummyTransaction
 
     @Throws(NCNativeException::class)

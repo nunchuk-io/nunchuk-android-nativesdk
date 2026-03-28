@@ -1979,8 +1979,8 @@ class NunchukNativeSdk {
     fun signGroupDummyTransaction(
         walletId: String,
         dummyTransactionId: String,
-        signature: String,
-    ) = nunchukAndroid.signGroupDummyTransaction(walletId, dummyTransactionId, signature)
+        signatures: List<String>,
+    ) = nunchukAndroid.signGroupDummyTransaction(walletId, dummyTransactionId, signatures)
 
     @Throws(NCNativeException::class)
     fun cancelGroupDummyTransaction(walletId: String, dummyTransactionId: String) =

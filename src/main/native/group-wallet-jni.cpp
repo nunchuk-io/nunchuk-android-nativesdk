@@ -746,12 +746,12 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signGroupDummyTransaction(
         JNIEnv *env, jobject thiz, jstring wallet_id, jstring dummy_transaction_id,
-        jstring signature) {
+        jobject signatures) {
     try {
         auto result = NunchukProvider::get()->nu->SignGroupDummyTransaction(
                 StringWrapper(env, wallet_id),
                 StringWrapper(env, dummy_transaction_id),
-                StringWrapper(env, signature));
+                Serializer::convert2CListString(env, signatures));
         return Deserializer::convert2JGroupDummyTransaction(env, result);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
