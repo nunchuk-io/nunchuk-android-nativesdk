@@ -8,7 +8,7 @@ data class GroupDummyTransaction(
     val walletId: String = "",
     val type: GroupDummyTransactionType = GroupDummyTransactionType.UNKNOWN,
     val status: GroupDummyTransactionStatus = GroupDummyTransactionStatus.PENDING_SIGNATURES,
-    val payload: GroupDummyTransactionPlatformKeyPolicyData? = null,
+    val payload: GroupDummyTransactionPayload? = null,
     val requiredSignatures: Int = 0,
     val pendingSignatures: Int = 0,
     val requestBody: String = "",

@@ -1998,11 +1998,11 @@ jobject Deserializer::convert2JGroupDummyTransactionSignature(JNIEnv *env,
     return instance;
 }
 
-jobject Deserializer::convert2JGroupDummyTransactionPlatformKeyPolicyData(
-        JNIEnv *env, const GroupDummyTransactionPlatformKeyPolicyData &data) {
-    syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactionPlatformKeyPolicyData()");
+jobject Deserializer::convert2JGroupDummyTransactionPayload(
+        JNIEnv *env, const GroupDummyTransactionPayload &data) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupDummyTransactionPayload()");
     jclass clazz = Initializer::get()->getClass(env,
-            "com/nunchuk/android/model/GroupDummyTransactionPlatformKeyPolicyData");
+            "com/nunchuk/android/model/GroupDummyTransactionPayload");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;Lcom/nunchuk/android/model/GroupPlatformKeyPolicies;)V");
 
@@ -2025,7 +2025,7 @@ jobject Deserializer::convert2JGroupDummyTransaction(JNIEnv *env,
             "(Ljava/lang/String;Ljava/lang/String;"
             "Lcom/nunchuk/android/type/GroupDummyTransactionType;"
             "Lcom/nunchuk/android/type/GroupDummyTransactionStatus;"
-            "Lcom/nunchuk/android/model/GroupDummyTransactionPlatformKeyPolicyData;"
+            "Lcom/nunchuk/android/model/GroupDummyTransactionPayload;"
             "IILjava/lang/String;Ljava/util/List;J)V");
 
     jstring id = env->NewStringUTF(tx.get_id().c_str());
@@ -2048,7 +2048,7 @@ jobject Deserializer::convert2JGroupDummyTransaction(JNIEnv *env,
     jobject payloadObj = nullptr;
     const auto &payload = tx.get_payload();
     if (payload.has_value()) {
-        payloadObj = convert2JGroupDummyTransactionPlatformKeyPolicyData(env, payload.value());
+        payloadObj = convert2JGroupDummyTransactionPayload(env, payload.value());
     }
 
     jstring requestBody = env->NewStringUTF(tx.get_request_body().c_str());

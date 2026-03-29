@@ -170,7 +170,7 @@ public:
     static jobject convert2JGroupPlatformKeyPolicies(JNIEnv *env, const GroupPlatformKeyPolicies &policies);
     static jobject convert2JGroupPlatformKey(JNIEnv *env, const GroupPlatformKey &key);
     static jobject convert2JGroupDummyTransactionSignature(JNIEnv *env, const GroupDummyTransactionSignature &sig);
-    static jobject convert2JGroupDummyTransactionPlatformKeyPolicyData(JNIEnv *env, const GroupDummyTransactionPlatformKeyPolicyData &data);
+    static jobject convert2JGroupDummyTransactionPayload(JNIEnv *env, const GroupDummyTransactionPayload &data);
     static jobject convert2JGroupDummyTransaction(JNIEnv *env, const GroupDummyTransaction &tx);
     static jobject convert2JGroupDummyTransactions(JNIEnv *env, const std::vector<GroupDummyTransaction> &txs);
     static jobject convert2JGroupPlatformKeyPolicyUpdateRequirement(JNIEnv *env, const GroupPlatformKeyPolicyUpdateRequirement &req);
