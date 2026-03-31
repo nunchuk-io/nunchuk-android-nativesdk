@@ -4,4 +4,5 @@ enum class GroupSpendingLimitInterval {
     DAILY,
     WEEKLY,
     MONTHLY,
+    YEARLY,
 }
