@@ -174,6 +174,7 @@ public:
     static jobject convert2JGroupDummyTransaction(JNIEnv *env, const GroupDummyTransaction &tx);
     static jobject convert2JGroupDummyTransactions(JNIEnv *env, const std::vector<GroupDummyTransaction> &txs);
     static jobject convert2JGroupPlatformKeyPolicyUpdateRequirement(JNIEnv *env, const GroupPlatformKeyPolicyUpdateRequirement &req);
+    static jobject convert2JGroupWalletAlertPayload(JNIEnv *env, const GroupWalletAlertPayload &payload);
     static jobject convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAlert &alert);
     static jobject convert2JGroupWalletAlerts(JNIEnv *env, const std::vector<GroupWalletAlert> &alerts);
 };

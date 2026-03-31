@@ -2123,12 +2123,29 @@ jobject Deserializer::convert2JGroupPlatformKeyPolicyUpdateRequirement(
     return instance;
 }
 
+jobject Deserializer::convert2JGroupWalletAlertPayload(JNIEnv *env, const GroupWalletAlertPayload &payload) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletAlertPayload()");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupWalletAlertPayload");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Ljava/lang/String;Ljava/lang/String;)V");
+
+    jstring dummyTxId = env->NewStringUTF(payload.get_dummy_transaction_id().c_str());
+    jstring replacementGroupId = env->NewStringUTF(payload.get_replacement_group_id().c_str());
+
+    jobject instance = env->NewObject(clazz, constructor, dummyTxId, replacementGroupId);
+
+    env->DeleteLocalRef(dummyTxId);
+    env->DeleteLocalRef(replacementGroupId);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}
+
 jobject Deserializer::convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAlert &alert) {
     syslog(LOG_DEBUG, "[JNI] convert2JGroupWalletAlert()");
     jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupWalletAlert");
     jmethodID constructor = env->GetMethodID(clazz, "<init>",
             "(Ljava/lang/String;Lcom/nunchuk/android/type/GroupWalletAlertType;"
-            "ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;J)V");
+            "ZLjava/lang/String;Ljava/lang/String;Lcom/nunchuk/android/model/GroupWalletAlertPayload;J)V");
 
     jstring id = env->NewStringUTF(alert.get_id().c_str());
 
@@ -2140,10 +2157,15 @@ jobject Deserializer::convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAl
 
     jstring title = env->NewStringUTF(alert.get_title().c_str());
     jstring body = env->NewStringUTF(alert.get_body().c_str());
-    jstring dummyTxId = env->NewStringUTF(alert.get_dummy_transaction_id().c_str());
+
+    jobject payloadObj = nullptr;
+    const auto &payload = alert.get_payload();
+    if (payload.has_value()) {
+        payloadObj = convert2JGroupWalletAlertPayload(env, payload.value());
+    }
 
     jobject instance = env->NewObject(clazz, constructor,
-            id, typeObj, alert.get_viewable(), title, body, dummyTxId,
+            id, typeObj, alert.get_viewable(), title, body, payloadObj,
             (jlong) alert.get_created_at());
 
     env->DeleteLocalRef(id);
@@ -2151,7 +2173,7 @@ jobject Deserializer::convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAl
     env->DeleteLocalRef(helperClazz);
     env->DeleteLocalRef(title);
     env->DeleteLocalRef(body);
-    env->DeleteLocalRef(dummyTxId);
+    if (payloadObj != nullptr) env->DeleteLocalRef(payloadObj);
     env->DeleteLocalRef(clazz);
     return instance;
 }

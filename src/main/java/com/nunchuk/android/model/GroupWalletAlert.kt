@@ -8,6 +8,6 @@ data class GroupWalletAlert(
     val viewable: Boolean = false,
     val title: String = "",
     val body: String = "",
-    val dummyTransactionId: String = "",
+    val payload: GroupWalletAlertPayload? = null,
     val createdAt: Long = 0,
 )
