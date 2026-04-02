@@ -177,4 +177,5 @@ public:
     static jobject convert2JGroupWalletAlertPayload(JNIEnv *env, const GroupWalletAlertPayload &payload);
     static jobject convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAlert &alert);
     static jobject convert2JGroupWalletAlerts(JNIEnv *env, const std::vector<GroupWalletAlert> &alerts);
+    static jobject convert2JGroupTransactionState(JNIEnv *env, const GroupTransactionState &state);
 };

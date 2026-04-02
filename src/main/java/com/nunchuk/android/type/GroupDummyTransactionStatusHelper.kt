@@ -1,15 +1,7 @@
-package com.nunchuk.android.type;
+package com.nunchuk.android.type
 
-public final class GroupDummyTransactionStatusHelper {
-
-    private GroupDummyTransactionStatusHelper() {
-    }
-
-    public static GroupDummyTransactionStatus from(final int ordinal) {
-        return CollectionUtil.fromOrdinal(GroupDummyTransactionStatus.values(),
-                ordinal,
-                GroupDummyTransactionStatus.PENDING_SIGNATURES
-        );
-    }
-
+object GroupDummyTransactionStatusHelper {
+    @JvmStatic
+    fun from(ordinal: Int): GroupDummyTransactionStatus =
+        CollectionUtil.fromOrdinal(GroupDummyTransactionStatus.entries, ordinal, GroupDummyTransactionStatus.PENDING_SIGNATURES)
 }

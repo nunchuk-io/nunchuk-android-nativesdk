@@ -1991,6 +1991,10 @@ class NunchukNativeSdk {
         nunchukAndroid.importGroupDummyTx(dummyTransaction)
 
     @Throws(NCNativeException::class)
+    fun getGroupTransactionState(walletId: String, txId: String) =
+        nunchukAndroid.getGroupTransactionState(walletId, txId)
+
+    @Throws(NCNativeException::class)
     fun getGroupWalletAlertCount(walletId: String) =
         nunchukAndroid.getGroupWalletAlertCount(walletId)
 

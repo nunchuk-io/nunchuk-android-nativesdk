@@ -2193,3 +2193,29 @@ jobject Deserializer::convert2JGroupWalletAlerts(JNIEnv *env,
     env->DeleteLocalRef(arrayListClass);
     return arrayList;
 }
+
+jobject Deserializer::convert2JGroupTransactionState(JNIEnv *env,
+                                                      const GroupTransactionState &state) {
+    syslog(LOG_DEBUG, "[JNI] convert2JGroupTransactionState()");
+    jclass clazz = Initializer::get()->getClass(env, "com/nunchuk/android/model/GroupTransactionState");
+    jmethodID constructor = env->GetMethodID(clazz, "<init>",
+            "(Lcom/nunchuk/android/type/GroupTransactionStatus;Ljava/lang/String;J)V");
+
+    jclass helperClazz = Initializer::get()->getClass(env,
+            "com/nunchuk/android/type/GroupTransactionStatusHelper");
+    jmethodID fromMethod = env->GetStaticMethodID(helperClazz, "from",
+            "(I)Lcom/nunchuk/android/type/GroupTransactionStatus;");
+    jobject statusObj = env->CallStaticObjectMethod(helperClazz, fromMethod,
+                                                     (int) state.get_status());
+
+    jstring message = env->NewStringUTF(state.get_message().c_str());
+
+    jobject instance = env->NewObject(clazz, constructor,
+            statusObj, message, (jlong) state.get_cosign_at());
+
+    env->DeleteLocalRef(statusObj);
+    env->DeleteLocalRef(helperClazz);
+    env->DeleteLocalRef(message);
+    env->DeleteLocalRef(clazz);
+    return instance;
+}

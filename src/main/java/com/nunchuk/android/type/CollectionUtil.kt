@@ -23,7 +23,7 @@ object CollectionUtil {
 
     @JvmStatic
     fun <T : Enum<T>> fromOrdinal(
-        values: Array<T>,
+        values: List<T>,
         ordinal: Int,
         defaultValue: T
     ) = values.firstOrNull { it.ordinal == ordinal } ?: defaultValue

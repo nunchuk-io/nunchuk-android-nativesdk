@@ -1,16 +1,7 @@
-package com.nunchuk.android.type;
+package com.nunchuk.android.type
 
-// This class should be kept in java since jni can't access object class
-public final class CoinStatusHelper {
-
-    private CoinStatusHelper() {
-    }
-
-    public static CoinStatus from(final int ordinal) {
-        return CollectionUtil.fromOrdinal(CoinStatus.values(),
-                ordinal,
-                CoinStatus.SPENT
-        );
-    }
-
+object CoinStatusHelper {
+    @JvmStatic
+    fun from(ordinal: Int): CoinStatus =
+        CollectionUtil.fromOrdinal(CoinStatus.entries, ordinal, CoinStatus.SPENT)
 }

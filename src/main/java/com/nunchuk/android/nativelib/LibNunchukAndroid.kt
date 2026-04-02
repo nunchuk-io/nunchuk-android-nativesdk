@@ -36,6 +36,7 @@ import com.nunchuk.android.model.FreeGroupMessage
 import com.nunchuk.android.model.FreeGroupWalletConfig
 import com.nunchuk.android.model.GlobalGroupWalletConfig
 import com.nunchuk.android.model.GroupDummyTransaction
+import com.nunchuk.android.model.GroupTransactionState
 import com.nunchuk.android.model.GroupPlatformKeyPolicies
 import com.nunchuk.android.model.GroupPlatformKeyPolicyUpdateRequirement
 import com.nunchuk.android.model.GroupSandbox
@@ -1639,6 +1640,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun importGroupDummyTx(dummyTransaction: GroupDummyTransaction): Transaction?
+
+    @Throws(NCNativeException::class)
+    external fun getGroupTransactionState(walletId: String, txId: String): GroupTransactionState
 
     @Throws(NCNativeException::class)
     external fun getGroupWalletAlertCount(walletId: String): Int

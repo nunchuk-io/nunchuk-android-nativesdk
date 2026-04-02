@@ -796,6 +796,24 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importGroupDummyTx(JNIEnv *
 }
 
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupTransactionState(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring tx_id) {
+    try {
+        auto result = NunchukProvider::get()->nu->GetGroupTransactionState(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id));
+        return Deserializer::convert2JGroupTransactionState(env, result);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
 JNIEXPORT jint JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getGroupWalletAlertCount(
         JNIEnv *env, jobject thiz, jstring wallet_id) {
