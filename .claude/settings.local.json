@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(grep:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(chmod +x:*)",
+      "Bash(./gradlew assembleArm64_v8aRelease --stacktrace)"
     ]
   }
 }

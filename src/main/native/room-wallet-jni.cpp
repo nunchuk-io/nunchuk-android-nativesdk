@@ -5,6 +5,7 @@
 #include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -25,20 +26,23 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initSharedWallet(
     syslog(LOG_DEBUG, "[JNI]initSharedWallet()");
     try {
         AddressType type = Serializer::convert2CAddressType(address_type);
-        syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
-        syslog(LOG_DEBUG, "[JNI]name::%s", env->GetStringUTFChars(name, JNI_FALSE));
+        StringWrapper roomIdStr(env, room_id);
+        StringWrapper nameStr(env, name);
+        StringWrapper desStr(env, des);
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", std::string(roomIdStr).c_str());
+        syslog(LOG_DEBUG, "[JNI]name::%s", std::string(nameStr).c_str());
         syslog(LOG_DEBUG, "[JNI]m::%d", require_signs);
         syslog(LOG_DEBUG, "[JNI]n::%d", total_signs);
         syslog(LOG_DEBUG, "[JNI]address_type::%d", address_type);
         syslog(LOG_DEBUG, "[JNI]is_escrow::%d", is_escrow);
         auto result = NunchukProvider::get()->nuMatrix->InitWallet(
-                env->GetStringUTFChars(room_id, JNI_FALSE),
-                env->GetStringUTFChars(name, JNI_FALSE),
+                roomIdStr,
+                nameStr,
                 require_signs,
                 total_signs,
                 type,
                 is_escrow,
-                env->GetStringUTFChars(des, JNI_FALSE),
+                desStr,
                 Serializer::convert2CSigners(env, signers)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
@@ -62,11 +66,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_joinSharedWallet(
 ) {
     syslog(LOG_DEBUG, "[JNI]joinSharedWallet()");
     try {
-        syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
+        StringWrapper roomIdStr(env, room_id);
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", std::string(roomIdStr).c_str());
         SingleSigner singleSigner = Serializer::convert2CSigner(env, signer);
         syslog(LOG_DEBUG, "[JNI]masterSignerId::%s", singleSigner.get_master_signer_id().c_str());
         auto result = NunchukProvider::get()->nuMatrix->JoinWallet(
-                env->GetStringUTFChars(room_id, JNI_FALSE),
+                roomIdStr,
                 singleSigner
         );
         return Deserializer::convert2JMatrixEvent(env, result);
@@ -91,13 +96,16 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_leaveSharedWallet(
 ) {
     syslog(LOG_DEBUG, "[JNI]leaveSharedWallet()");
     try {
-        syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
-        syslog(LOG_DEBUG, "[JNI]join_event_id::%s", env->GetStringUTFChars(join_event_id, JNI_FALSE));
-        syslog(LOG_DEBUG, "[JNI]reason::%s", env->GetStringUTFChars(reason, JNI_FALSE));
+        StringWrapper roomIdStr(env, room_id);
+        StringWrapper joinEventIdStr(env, join_event_id);
+        StringWrapper reasonStr(env, reason);
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", std::string(roomIdStr).c_str());
+        syslog(LOG_DEBUG, "[JNI]join_event_id::%s", std::string(joinEventIdStr).c_str());
+        syslog(LOG_DEBUG, "[JNI]reason::%s", std::string(reasonStr).c_str());
         auto result = NunchukProvider::get()->nuMatrix->LeaveWallet(
-                env->GetStringUTFChars(room_id, JNI_FALSE),
-                env->GetStringUTFChars(join_event_id, JNI_FALSE),
-                env->GetStringUTFChars(reason, JNI_FALSE)
+                roomIdStr,
+                joinEventIdStr,
+                reasonStr
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {
@@ -120,11 +128,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cancelSharedWallet(
 ) {
     syslog(LOG_DEBUG, "[JNI]cancelSharedWallet()");
     try {
-        syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
-        syslog(LOG_DEBUG, "[JNI]reason::%s", env->GetStringUTFChars(reason, JNI_FALSE));
+        StringWrapper roomIdStr(env, room_id);
+        StringWrapper reasonStr(env, reason);
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", std::string(roomIdStr).c_str());
+        syslog(LOG_DEBUG, "[JNI]reason::%s", std::string(reasonStr).c_str());
         auto result = NunchukProvider::get()->nuMatrix->CancelWallet(
-                env->GetStringUTFChars(room_id, JNI_FALSE),
-                env->GetStringUTFChars(reason, JNI_FALSE)
+                roomIdStr,
+                reasonStr
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {
@@ -146,10 +156,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createSharedWallet(
 ) {
     syslog(LOG_DEBUG, "[JNI]createSharedWallet()");
     try {
-        syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
+        StringWrapper roomIdStr(env, room_id);
+        syslog(LOG_DEBUG, "[JNI]roomId::%s", std::string(roomIdStr).c_str());
         auto result = NunchukProvider::get()->nuMatrix->CreateWallet(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(room_id, JNI_FALSE)
+                roomIdStr
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {
@@ -195,7 +206,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_hasRoomWallet(
 ) {
     try {
         return NunchukProvider::get()->nuMatrix->HasRoomWallet(
-                env->GetStringUTFChars(room_id, JNI_FALSE)
+                StringWrapper(env, room_id)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -214,10 +225,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRoomWallet(
         jstring room_id
 ) {
     syslog(LOG_DEBUG, "[JNI]getRoomWallet()");
-    syslog(LOG_DEBUG, "[JNI]roomId::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
+    StringWrapper roomIdStr(env, room_id);
+    syslog(LOG_DEBUG, "[JNI]roomId::%s", std::string(roomIdStr).c_str());
     try {
         auto roomWallet = NunchukProvider::get()->nuMatrix->GetRoomWallet(
-                env->GetStringUTFChars(room_id, JNI_FALSE)
+                roomIdStr
         );
         return Deserializer::convert2JRoomWallet(env, roomWallet);
     } catch (BaseException &e) {

@@ -6,6 +6,7 @@
 #include "initializer.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -83,18 +84,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
         env->GetJavaVM(&Initializer::get()->jvm);
 
         int len = env->GetArrayLength (file_data);
-        auto* buf = new unsigned char[len];
-        env->GetByteArrayRegion (file_data, 0, len, reinterpret_cast<jbyte*>(buf));
-
-        std::vector<unsigned char> data;
-        data.reserve(len);
-        for (int i = 0; i < len; i++) {
-            data.push_back(buf[i]);
-        }
+        std::vector<unsigned char> data(len);
+        env->GetByteArrayRegion (file_data, 0, len, reinterpret_cast<jbyte*>(data.data()));
 
         NunchukProvider::get()->nuMatrix->DownloadFileCallback(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(file_json_info, JNI_FALSE),
+                StringWrapper(env, file_json_info),
                 data,
                 [&](int percent) {
                     syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
@@ -154,8 +149,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_writeFileCallback(
 
         NunchukProvider::get()->nuMatrix->WriteFileCallback(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(file_json_info, JNI_FALSE),
-                env->GetStringUTFChars(file_path, JNI_FALSE),
+                StringWrapper(env, file_json_info),
+                StringWrapper(env, file_path),
                 [&](int percent) {
                     syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
                     JNIEnv *g_env;
@@ -236,8 +231,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerAutoBackUp(
 
         NunchukProvider::get()->nuMatrix->RegisterAutoBackup(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(sync_room_id, JNI_FALSE),
-                env->GetStringUTFChars(access_token, JNI_FALSE)
+                StringWrapper(env, sync_room_id),
+                StringWrapper(env, access_token)
         );
 
     } catch (std::exception &e) {
@@ -282,8 +277,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_uploadFileCallback(
     syslog(LOG_DEBUG, "[JNI]UploadFileCallback()");
     try {
         NunchukProvider::get()->nuMatrix->UploadFileCallback(
-                env->GetStringUTFChars(file_json_info, JNI_FALSE),
-                env->GetStringUTFChars(file_url, JNI_FALSE)
+                StringWrapper(env, file_json_info),
+                StringWrapper(env, file_url)
         );
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] UploadFileCallback error::%s", e.what());

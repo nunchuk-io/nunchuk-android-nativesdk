@@ -8,6 +8,16 @@ $ARGUMENTS - The C++ method name to bind (e.g. `Utils::ParseBtcUri`, `CreateWall
 
 ## Steps
 
+### 0. Pull latest libnunchuk submodule
+
+Before doing anything else, pull the latest code for the current branch of the `libnunchuk` submodule so that `nunchuk.h` is up-to-date:
+
+```bash
+cd src/main/native/libnunchuk && git pull && cd -
+```
+
+This ensures the C++ method signatures you read are the latest available.
+
 ### 1. Look up the C++ method signature
 
 - If the method name contains `Utils::`, look up the method in `src/main/native/libnunchuk/include/nunchuk.h` (under the `Utils` class) AND `src/main/native/libnunchuk/src/nunchukutils.cpp` for the full implementation details and parameter types.

@@ -5,6 +5,7 @@
 #include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -20,10 +21,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_sendErrorEvent(
 ) {
     try {
         NunchukProvider::get()->nuMatrix->SendErrorEvent(
-                env->GetStringUTFChars(room_id, JNI_FALSE),
-                env->GetStringUTFChars(platform, JNI_FALSE),
-                env->GetStringUTFChars(code, JNI_FALSE),
-                env->GetStringUTFChars(message, JNI_FALSE)
+                StringWrapper(env, room_id),
+                StringWrapper(env, platform),
+                StringWrapper(env, code),
+                StringWrapper(env, message)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -38,7 +39,7 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMatrixEvent(JNIEnv *env, jobject thiz, jstring event_id) {
     try {
-        auto result = NunchukProvider::get()->nuMatrix->GetEvent(env->GetStringUTFChars(event_id, JNI_FALSE));
+        auto result = NunchukProvider::get()->nuMatrix->GetEvent(StringWrapper(env, event_id));
 
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {

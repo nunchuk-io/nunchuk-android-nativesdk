@@ -41,7 +41,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidAddress(
         jstring address
 ) {
     try {
-        return Utils::IsValidAddress(env->GetStringUTFChars(address, JNI_FALSE));
+        return Utils::IsValidAddress(StringWrapper(env, address));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
@@ -61,7 +61,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isSilentPaymentAddress(
         jstring address
 ) {
     try {
-        return Utils::IsSilentPaymentAddress(env->GetStringUTFChars(address, JNI_FALSE));
+        return Utils::IsSilentPaymentAddress(StringWrapper(env, address));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();

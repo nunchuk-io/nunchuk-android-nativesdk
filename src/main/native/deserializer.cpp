@@ -12,6 +12,13 @@
 using namespace nunchuk;
 using namespace nunchuk::ndef;
 
+// Helper: call a setter method with a temporary jstring, then delete the local ref
+static inline void callSetString(JNIEnv *env, jobject obj, jmethodID method, const char *value) {
+    jstring jstr = env->NewStringUTF(value);
+    env->CallVoidMethod(obj, method, jstr);
+    env->DeleteLocalRef(jstr);
+}
+
 jobject Deserializer::convert2JBoolean(JNIEnv *env, const bool value) {
     jclass clazz = env->FindClass("java/lang/Boolean");
     jmethodID methodId = env->GetMethodID(clazz, "<init>", "(Z)V");
@@ -86,14 +93,10 @@ jobject Deserializer::convert2JDevice(JNIEnv *env, const Device &device) {
     jmethodID setTapsignerMethod = env->GetMethodID(clazz, "setTapsigner", "(Z)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, setMasterFingerprintMethod,
-                            env->NewStringUTF(device.get_master_fingerprint().c_str()));
-        env->CallVoidMethod(instance, setTypeMethod,
-                            env->NewStringUTF(device.get_type().c_str()));
-        env->CallVoidMethod(instance, setModelMethod,
-                            env->NewStringUTF(device.get_model().c_str()));
-        env->CallVoidMethod(instance, setPathMethod,
-                            env->NewStringUTF(device.get_path().c_str()));
+        callSetString(env, instance, setMasterFingerprintMethod, device.get_master_fingerprint().c_str());
+        callSetString(env, instance, setTypeMethod, device.get_type().c_str());
+        callSetString(env, instance, setModelMethod, device.get_model().c_str());
+        callSetString(env, instance, setPathMethod, device.get_path().c_str());
         env->CallVoidMethod(instance, setConnectedMethod, device.connected());
         env->CallVoidMethod(instance, setNeedPassPhraseSentMethod, device.needs_pass_phrase_sent());
         env->CallVoidMethod(instance, setNeedPinSetMethod, device.needs_pin_sent());
@@ -128,8 +131,7 @@ jobject Deserializer::convert2JAmount(JNIEnv *env, const Amount amount) {
     jobject instance = env->NewObject(clazz, constructor);
     try {
         env->CallVoidMethod(instance, setValueMethod, (int64_t) amount);
-        env->CallVoidMethod(instance, setFormattedValueMethod,
-                            env->NewStringUTF(Utils::ValueFromAmount(amount).c_str()));
+        callSetString(env, instance, setFormattedValueMethod, Utils::ValueFromAmount(amount).c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JAmount error::%s", e.what());
     }
@@ -144,7 +146,7 @@ jobject Deserializer::convert2JTxInput(JNIEnv *env, const TxInput &input) {
     jmethodID setSecondMethod = env->GetMethodID(clazz, "setSecond", "(I)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, setFirstMethod, env->NewStringUTF(input.txid.c_str()));
+        callSetString(env, instance, setFirstMethod, input.txid.c_str());
         env->CallVoidMethod(instance, setSecondMethod, input.vout);
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxInput error::%s", e.what());
@@ -174,7 +176,7 @@ jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput &output) {
     jmethodID setSecondMethod = env->GetMethodID(clazz, "setSecond", "(Lcom/nunchuk/android/model/Amount;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, setFirstMethod, env->NewStringUTF(output.first.c_str()));
+        callSetString(env, instance, setFirstMethod, output.first.c_str());
         env->CallVoidMethod(instance, setSecondMethod, convert2JAmount(env, output.second));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxOutput error::%s", e.what());
@@ -258,10 +260,10 @@ jobject Deserializer::convert2JBSMSData(JNIEnv *env, const BSMSData &data) {
     jmethodID setFirstAddressMethod = env->GetMethodID(clazz, "setFirstAddress", "(Ljava/lang/String;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, setVersionMethod, env->NewStringUTF(data.version.c_str()));
-        env->CallVoidMethod(instance, setDescriptorMethod, env->NewStringUTF(data.descriptor.c_str()));
-        env->CallVoidMethod(instance, setPathRestrictionsMethod, env->NewStringUTF(data.path_restrictions.c_str()));
-        env->CallVoidMethod(instance, setFirstAddressMethod, env->NewStringUTF(data.first_address.c_str()));
+        callSetString(env, instance, setVersionMethod, data.version.c_str());
+        callSetString(env, instance, setDescriptorMethod, data.descriptor.c_str());
+        callSetString(env, instance, setPathRestrictionsMethod, data.path_restrictions.c_str());
+        callSetString(env, instance, setFirstAddressMethod, data.first_address.c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -283,8 +285,8 @@ jobject Deserializer::convert2JMasterSigner(JNIEnv *env, const MasterSigner &sig
     jmethodID setNeedBackupMethod = env->GetMethodID(clazz, "setNeedBackup", "(Z)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, setIdMethod, env->NewStringUTF(signer.get_id().c_str()));
-        env->CallVoidMethod(instance, setNameMethod, env->NewStringUTF(signer.get_name().c_str()));
+        callSetString(env, instance, setIdMethod, signer.get_id().c_str());
+        callSetString(env, instance, setNameMethod, signer.get_name().c_str());
         env->CallVoidMethod(instance, setDeviceMethod, convert2JDevice(env, signer.get_device()));
         env->CallVoidMethod(instance, setLastHealthCheckMethod, signer.get_last_health_check());
         env->CallVoidMethod(instance, setSoftwareMethod, signer.is_software());
@@ -308,13 +310,12 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_name().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setXpub", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_xpub().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setDerivationPath", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_derivation_path().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
+                      signer.get_name().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setXpub", "(Ljava/lang/String;)V"),
+                      signer.get_xpub().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setDerivationPath", "(Ljava/lang/String;)V"),
+                      signer.get_derivation_path().c_str());
         
         // Set external_internal_index
         auto external_internal_index = signer.get_external_internal_index();
@@ -344,15 +345,12 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
         env->DeleteLocalRef(secondInt);
         env->DeleteLocalRef(pairObject);
         
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterFingerprint",
-                                                       "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_master_fingerprint().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setPublicKey", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_public_key().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_master_signer_id().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setMasterFingerprint", "(Ljava/lang/String;)V"),
+                      signer.get_master_fingerprint().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setPublicKey", "(Ljava/lang/String;)V"),
+                      signer.get_public_key().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"),
+                      signer.get_master_signer_id().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLastHealthCheck", "(J)V"),
                             signer.get_last_health_check());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setUsed", "(Z)V"), signer.is_used());
@@ -361,9 +359,8 @@ jobject Deserializer::convert2JSigner(JNIEnv *env, const SingleSigner &signer) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType",
                                                        "(Lcom/nunchuk/android/type/SignerType;)V"),
                             convert2JSignerType(env, signer.get_type()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setDescriptor", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signer.get_descriptor().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setDescriptor", "(Ljava/lang/String;)V"),
+                      signer.get_descriptor().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTags", "(Ljava/util/List;)V"),
                             convert2JSignerTags(env, signer.get_tags()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVisible", "(Z)V"),
@@ -413,10 +410,10 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
     jobject instance = env->NewObject(clazz, constructor);
     try {
         jobject signers = convert2JSigners(env, wallet.get_signers());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_id().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_name().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"),
+                      wallet.get_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
+                      wallet.get_name().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalRequireSigns", "(I)V"),
                             wallet.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/List;)V"),
@@ -431,9 +428,8 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
                             convert2JAddressType(env, wallet.get_address_type()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCreateDate", "(J)V"),
                             wallet.get_create_date());
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setDescription", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_description().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setDescription", "(Ljava/lang/String;)V"),
+                      wallet.get_description().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setGapLimit", "(I)V"),
                             wallet.get_gap_limit());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setNeedBackup", "(Z)V"),
@@ -442,9 +438,8 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
                                                        "(Lcom/nunchuk/android/type/WalletTemplate;)V"),
                             convert2JWalletTemplate(env, wallet.get_wallet_template()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setArchived", "(Z)V"), wallet.is_archived());
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setMiniscript", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_miniscript().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setMiniscript", "(Ljava/lang/String;)V"),
+                      wallet.get_miniscript().c_str());
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s",
                Utils::ValueFromAmount(wallet.get_balance()).c_str());
     } catch (std::exception &e) {
@@ -483,8 +478,8 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
     try {
         Amount total = (transaction.is_receive() ? transaction.get_sub_amount() : (
                 transaction.get_sub_amount() + transaction.get_fee()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_txid().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"),
+                      transaction.get_txid().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"),
                             transaction.get_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInputs", "(Ljava/util/List;)V"),
@@ -502,17 +497,15 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setM", "(I)V"), transaction.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/Map;)V"),
                             convert2JStringBooleanMap(env, transaction.get_signers()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_memo().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"),
+                      transaction.get_memo().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
                                                        "(Lcom/nunchuk/android/type/TransactionStatus;)V"),
                             convert2JTransactionStatus(env, transaction.get_status()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setReplacedByTxid", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_replaced_by_txid().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setReplacedTxid", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_replace_txid().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setReplacedByTxid", "(Ljava/lang/String;)V"),
+                      transaction.get_replaced_by_txid().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setReplacedTxid", "(Ljava/lang/String;)V"),
+                      transaction.get_replace_txid().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setFee",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, transaction.get_fee()));
@@ -531,8 +524,8 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTotalAmount",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, total));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setPsbt", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_psbt().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setPsbt", "(Ljava/lang/String;)V"),
+                      transaction.get_psbt().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setCpfpFee",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, amount));
@@ -541,8 +534,8 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             convert2JKeySetStatus(env, transaction.get_keyset_status()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLockTime", "(J)V"),
                             static_cast<jlong>(transaction.get_lock_time()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRaw", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_raw().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setRaw", "(Ljava/lang/String;)V"),
+                      transaction.get_raw().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSignedSigner", "(Ljava/util/List;)V"),
                             convert2JSigners(env, transaction.get_signed()));
     } catch (std::exception &e) {
@@ -609,18 +602,16 @@ jobject Deserializer::convert2JMatrixEvent(JNIEnv *env, const NunchukMatrixEvent
         syslog(LOG_DEBUG, "[JNI]roomId::%s", event.get_room_id().c_str());
         syslog(LOG_DEBUG, "[JNI]sender::%s", event.get_sender().c_str());
         syslog(LOG_DEBUG, "[JNI]time::%ld", event.get_ts());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setType", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(event.get_type().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(event.get_content().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(event.get_event_id().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(event.get_room_id().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSender", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(event.get_sender().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setType", "(Ljava/lang/String;)V"),
+                      event.get_type().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"),
+                      event.get_content().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setEventId", "(Ljava/lang/String;)V"),
+                      event.get_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"),
+                      event.get_room_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setSender", "(Ljava/lang/String;)V"),
+                      event.get_sender().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTime", "(J)V"), event.get_ts());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JMatrixEvent error::%s", e.what());
@@ -637,35 +628,28 @@ jobject Deserializer::convert2JRoomWallet(JNIEnv *env, const RoomWallet &wallet)
         syslog(LOG_DEBUG, "[JNI]walletId::%s", wallet.get_wallet_id().c_str());
         syslog(LOG_DEBUG, "[JNI]roomId::%s", wallet.get_room_id().c_str());
         syslog(LOG_DEBUG, "[JNI]jsonContent::%s", wallet.get_json_content().c_str());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_room_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_wallet_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setInitEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_init_event_id().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"),
+                      wallet.get_room_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
+                      wallet.get_wallet_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setInitEventId", "(Ljava/lang/String;)V"),
+                      wallet.get_init_event_id().c_str());
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setJoinEventIds", "(Ljava/util/List;)V"),
                             convert2JListString(env, wallet.get_join_event_ids()));
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setLeaveEventIds", "(Ljava/util/List;)V"),
                             convert2JListString(env, wallet.get_leave_event_ids()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setFinalizeEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_finalize_event_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_cancel_event_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_ready_event_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setDeleteEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_delete_event_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setJsonContent", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(wallet.get_json_content().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setFinalizeEventId", "(Ljava/lang/String;)V"),
+                      wallet.get_finalize_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"),
+                      wallet.get_cancel_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"),
+                      wallet.get_ready_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setDeleteEventId", "(Ljava/lang/String;)V"),
+                      wallet.get_delete_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setJsonContent", "(Ljava/lang/String;)V"),
+                      wallet.get_json_content().c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JRoomWallet error::%s", e.what());
     }
@@ -696,31 +680,26 @@ jobject Deserializer::convert2JRoomTransaction(JNIEnv *env, const RoomTransactio
         syslog(LOG_DEBUG, "[JNI]walletId::%s", transaction.get_wallet_id().c_str());
         syslog(LOG_DEBUG, "[JNI]roomId::%s", transaction.get_room_id().c_str());
         syslog(LOG_DEBUG, "[JNI]txId::%s", transaction.get_tx_id().c_str());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_room_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_wallet_id().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_tx_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setInitEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_init_event_id().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setRoomId", "(Ljava/lang/String;)V"),
+                      transaction.get_room_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
+                      transaction.get_wallet_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setTxId", "(Ljava/lang/String;)V"),
+                      transaction.get_tx_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setInitEventId", "(Ljava/lang/String;)V"),
+                      transaction.get_init_event_id().c_str());
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setSignEventIds", "(Ljava/util/List;)V"),
                             convert2JListString(env, transaction.get_sign_event_ids()));
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setRejectEventIds", "(Ljava/util/List;)V"),
                             convert2JListString(env, transaction.get_reject_event_ids()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setBroadcastEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_broadcast_event_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_cancel_event_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(transaction.get_ready_event_id().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setBroadcastEventId", "(Ljava/lang/String;)V"),
+                      transaction.get_broadcast_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setCancelEventId", "(Ljava/lang/String;)V"),
+                      transaction.get_cancel_event_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setReadyEventId", "(Ljava/lang/String;)V"),
+                      transaction.get_ready_event_id().c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JRoomTransaction error::%s", e.what());
     }
@@ -775,14 +754,12 @@ jobject Deserializer::convert2JTapSignerStatus(JNIEnv *env, const TapsignerStatu
                             status.get_auth_delay());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBirthHeight", "(I)V"),
                             status.get_birth_height());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(status.get_card_ident().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(status.get_master_signer_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(status.get_version().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"),
+                      status.get_card_ident().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setMasterSignerId", "(Ljava/lang/String;)V"),
+                      status.get_master_signer_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setVersion", "(Ljava/lang/String;)V"),
+                      status.get_version().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTestNet", "(Z)V"),
                             status.is_testnet());
     } catch (const std::exception &e) {
@@ -807,9 +784,8 @@ jobject Deserializer::convert2JSatsCardSlot(JNIEnv *env, const SatscardSlot &slo
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIndex", "(I)V"),
                             slot.get_index());
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(slot.get_address().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+                      slot.get_address().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
                                                        "(Lcom/nunchuk/android/type/SatsCardSlotStatus;)V"),
                             convert2JSatsCardSlotStatus(env, slot.get_status()));
@@ -867,8 +843,8 @@ jobject Deserializer::convert2JSatsCardStatus(JNIEnv *env, const SatscardStatus 
                             status.get_number_of_slots());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setUsedUp", "(Z)V"),
                             status.is_used_up());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(status.get_card_ident().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setIdent", "(Ljava/lang/String;)V"),
+                      status.get_card_ident().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAuthDelayInSecond", "(I)V"),
                             status.get_auth_delay());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSlots", "(Ljava/util/List;)V"),
@@ -899,17 +875,16 @@ jobject Deserializer::convert2JUnspentOutput(JNIEnv *env, const UnspentOutput &o
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTxid", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(output.get_txid().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(output.get_address().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setTxid", "(Ljava/lang/String;)V"),
+                      output.get_txid().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+                      output.get_address().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setVout", "(I)V"),
                             output.get_vout());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setHeight", "(I)V"),
                             output.get_height());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(output.get_memo().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setMemo", "(Ljava/lang/String;)V"),
+                      output.get_memo().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChange", "(Z)V"),
                             output.is_change());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLocked", "(Z)V"),
@@ -1006,20 +981,16 @@ jobject Deserializer::convert2JPrimaryKey(JNIEnv *env, const PrimaryKey &key) {
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(key.get_name().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setMasterFingerprint",
-                                                       "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(key.get_master_fingerprint().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setAccount", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(key.get_account().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(key.get_address().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setDecoyPin", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(key.get_decoy_pin().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
+                      key.get_name().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setMasterFingerprint", "(Ljava/lang/String;)V"),
+                      key.get_master_fingerprint().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setAccount", "(Ljava/lang/String;)V"),
+                      key.get_account().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+                      key.get_address().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setDecoyPin", "(Ljava/lang/String;)V"),
+                      key.get_decoy_pin().c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSigner error::%s", e.what());
     }
@@ -1035,14 +1006,12 @@ jobject Deserializer::convert2JBtcUri(JNIEnv *env, const BtcUri &btcUri) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAmount",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, btcUri.amount));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(btcUri.address.c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLabel", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(btcUri.label.c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setMessage", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(btcUri.message.c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+                      btcUri.address.c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setLabel", "(Ljava/lang/String;)V"),
+                      btcUri.label.c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setMessage", "(Ljava/lang/String;)V"),
+                      btcUri.message.c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JBtcUri error::%s", e.what());
     }
@@ -1057,15 +1026,12 @@ jobject Deserializer::convert2JSignedMessage(JNIEnv *env, const std::string &add
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddress",
-                                                       "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(address.c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSignature",
-                                                       "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signature.c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setRfc2440",
-                                                       "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(rfc2440.c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setAddress", "(Ljava/lang/String;)V"),
+                      address.c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setSignature", "(Ljava/lang/String;)V"),
+                      signature.c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setRfc2440", "(Ljava/lang/String;)V"),
+                      rfc2440.c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JSignedMessage error::%s", e.what());
     }
@@ -1078,9 +1044,8 @@ jobject Deserializer::convert2JColdCardHealth(JNIEnv *env, const HealthStatus &s
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setSignature", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(signature.c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setSignature", "(Ljava/lang/String;)V"),
+                      signature.c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setStatus",
                                                        "(Lcom/nunchuk/android/type/HealthStatus;)V"),
                             convert2JHealthStatus(env, status));
@@ -1165,10 +1130,10 @@ jobject Deserializer::convert2JCoinTag(JNIEnv *env, const CoinTag &tag) {
     jobject instance = env->NewObject(clazz, constructor);
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"), tag.get_id());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(tag.get_name().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setColor", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(tag.get_color().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
+                      tag.get_name().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setColor", "(Ljava/lang/String;)V"),
+                      tag.get_color().c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JCoinTag error::%s", e.what());
     }
@@ -1198,8 +1163,8 @@ jobject Deserializer::convert2JCoinCollection(JNIEnv *env, const CoinCollection 
     try {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(I)V"),
                             collection.get_id());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(collection.get_name().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setName", "(Ljava/lang/String;)V"),
+                      collection.get_name().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddNewCoin", "(Z)V"),
                             collection.is_add_new_coin());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAutoLock", "(Z)V"),
@@ -1340,9 +1305,11 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
         if (sandbox.get_signers()[index].get_master_fingerprint().empty()) {
             if (sandbox.get_occupied().contains(index)) {
                 std::pair<time_t, std::string> ts_uid = sandbox.get_occupied().at(index);
+                jstring uidStr = env->NewStringUTF(ts_uid.second.c_str());
                 jobject occupiedSlot = env->NewObject(occupiedSlotClass, occupiedSlotConstructor,
                                                       static_cast<jlong>(ts_uid.first),
-                                                      env->NewStringUTF(ts_uid.second.c_str()));
+                                                      uidStr);
+                env->DeleteLocalRef(uidStr);
                 env->CallVoidMethod(occupiedSlots, addMethod, index, occupiedSlot);
                 env->DeleteLocalRef(occupiedSlot);
             }
@@ -1402,28 +1369,42 @@ jobject Deserializer::convert2JGroupSandbox(JNIEnv *env, const GroupSandbox &san
         env->DeleteLocalRef(jSigner);
     }
 
+    jstring jId = env->NewStringUTF(sandbox.get_id().c_str());
+    jstring jReplaceWalletId = env->NewStringUTF(sandbox.get_replace_wallet_id().c_str());
+    jstring jName = env->NewStringUTF(sandbox.get_name().c_str());
+    jstring jUrl = env->NewStringUTF(sandbox.get_url().c_str());
+    jstring jWalletId = env->NewStringUTF(sandbox.get_wallet_id().c_str());
+    jstring jMiniscript = env->NewStringUTF(miniscript_template.c_str());
+
     jobject instance = env->NewObject(
             clazz,
             constructor,
-            env->NewStringUTF(sandbox.get_id().c_str()),
-            env->NewStringUTF(sandbox.get_replace_wallet_id().c_str()),
-            env->NewStringUTF(sandbox.get_name().c_str()),
-            env->NewStringUTF(sandbox.get_url().c_str()),
+            jId,
+            jReplaceWalletId,
+            jName,
+            jUrl,
             sandbox.get_m(),
             sandbox.get_n(),
             convert2JAddressType(env, sandbox.get_address_type()),
             signersList,
             sandbox.is_finalized(),
-            env->NewStringUTF(sandbox.get_wallet_id().c_str()),
+            jWalletId,
             occupiedSlots,
             convert2JWalletType(env, sandbox.get_wallet_type()),
-            env->NewStringUTF(miniscript_template.c_str()),
+            jMiniscript,
             namedSignersMap,
             namedOccupiedMap,
             platformKeyObj,
             jPlatformKeyIndex,
             platformKeySlots
     );
+
+    env->DeleteLocalRef(jId);
+    env->DeleteLocalRef(jReplaceWalletId);
+    env->DeleteLocalRef(jName);
+    env->DeleteLocalRef(jUrl);
+    env->DeleteLocalRef(jWalletId);
+    env->DeleteLocalRef(jMiniscript);
     return instance;
 }
 
@@ -1477,20 +1458,18 @@ jobject Deserializer::convert2JGroupMessage(JNIEnv *env, const nunchuk::GroupMes
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(message.get_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(message.get_wallet_id().c_str()));
-        env->CallVoidMethod(instance,
-                            env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(message.get_content().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setId", "(Ljava/lang/String;)V"),
+                      message.get_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setWalletId", "(Ljava/lang/String;)V"),
+                      message.get_wallet_id().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setContent", "(Ljava/lang/String;)V"),
+                      message.get_content().c_str());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setTimestamp", "(J)V"),
                             message.get_ts());
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSender", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(message.get_sender().c_str()));
-        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigner", "(Ljava/lang/String;)V"),
-                            env->NewStringUTF(message.get_signer().c_str()));
+        callSetString(env, instance, env->GetMethodID(clazz, "setSender", "(Ljava/lang/String;)V"),
+                      message.get_sender().c_str());
+        callSetString(env, instance, env->GetMethodID(clazz, "setSigner", "(Ljava/lang/String;)V"),
+                      message.get_signer().c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JGroupMessage error::%s", e.what());
     }
@@ -1644,7 +1623,9 @@ jobject Deserializer::convert2JMiniscriptTemplateResult(JNIEnv *env, const std::
     syslog(LOG_DEBUG, "[JNI] convert2JMiniscriptTemplateResult()");
     jclass clazz = env->FindClass("com/nunchuk/android/model/MiniscriptTemplateResult");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;ZZZ)V");
-    jobject instance = env->NewObject(clazz, constructor, env->NewStringUTF(template_str.c_str()), isValidTapscript, isValidPolicy, isValidMiniscriptTemplate);
+    jstring jTemplate = env->NewStringUTF(template_str.c_str());
+    jobject instance = env->NewObject(clazz, constructor, jTemplate, isValidTapscript, isValidPolicy, isValidMiniscriptTemplate);
+    env->DeleteLocalRef(jTemplate);
     return instance;
 }
 

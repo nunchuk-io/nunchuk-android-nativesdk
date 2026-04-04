@@ -62,8 +62,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTapSigner(JNIEnv *env
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         auto signer = NunchukProvider::get()->nu->CreateTapsignerMasterSigner(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE),
-                env->GetStringUTFChars(name, JNI_FALSE),
+                StringWrapper(env, cvc),
+                StringWrapper(env, name),
                 [](int percent) { return true; },
                 false,
                 replace
@@ -90,9 +90,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransactionByTapSigner(
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         auto transaction = NunchukProvider::get()->nu->SignTapsignerTransaction(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE),
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE)
+                StringWrapper(env, cvc),
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id)
         );
 
         return Deserializer::convert2JTransaction(env, transaction);
@@ -116,8 +116,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBackupTapSignerKey(JNIEn
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         auto status = NunchukProvider::get()->nu->BackupTapsigner(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE),
-                env->GetStringUTFChars(master_signer_id, JNI_FALSE)
+                StringWrapper(env, cvc),
+                StringWrapper(env, master_signer_id)
         );
 
         return Deserializer::convert2JTapSignerStatus(env, status);
@@ -140,9 +140,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_changeCvcTapSigner(JNIEnv *
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         return NunchukProvider::get()->nu->ChangeTapsignerCVC(
                 ts.get(),
-                env->GetStringUTFChars(old_cvc, JNI_FALSE),
-                env->GetStringUTFChars(new_cvc, JNI_FALSE),
-                env->GetStringUTFChars(master_signer_id, JNI_FALSE)
+                StringWrapper(env, old_cvc),
+                StringWrapper(env, new_cvc),
+                StringWrapper(env, master_signer_id)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -164,16 +164,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckTapSigner(JNIEnv
                                                                           jstring path) {
     try {
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
-        std::string _message = (env)->GetStringUTFChars(message, JNI_FALSE);
-        std::string _signature = (env)->GetStringUTFChars(signature, JNI_FALSE);
-        std::string _path = (env)->GetStringUTFChars(path, JNI_FALSE);
         auto status = NunchukProvider::get()->nu->HealthCheckTapsignerMasterSigner(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE),
-                env->GetStringUTFChars(fingerprint, JNI_FALSE),
-                _message,
-                _signature,
-                _path
+                StringWrapper(env, cvc),
+                StringWrapper(env, fingerprint),
+                StringWrapper(env, message),
+                StringWrapper(env, signature),
+                StringWrapper(env, path)
         );
 
         return Deserializer::convert2JHealthStatus(env, status);
@@ -230,8 +227,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_tapSignerTopUpXpub(JNIEnv *
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         NunchukProvider::get()->nu->CacheTapsignerMasterSignerXPub(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE),
-                env->GetStringUTFChars(master_signer_id, JNI_FALSE),
+                StringWrapper(env, cvc),
+                StringWrapper(env, master_signer_id),
                 [](int percent) { return true; }
         );
     } catch (BaseException &e) {
@@ -249,7 +246,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTapSignerStatusFromMaste
                                                                                         jstring master_signer_id) {
     try {
         auto status = NunchukProvider::get()->nu->GetTapsignerStatusFromMasterSigner(
-                env->GetStringUTFChars(master_signer_id, JNI_FALSE)
+                StringWrapper(env, master_signer_id)
         );
 
         return Deserializer::convert2JTapSignerStatus(env, status);
@@ -272,9 +269,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signRoomTransactionByTapSig
         auto ts = NunchukProvider::get()->nu->CreateTapsigner(NFC::makeTransport(env, iso_dep));
         auto result = NunchukProvider::get()->nuMatrix->SignTapsignerTransaction(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(init_event_id, JNI_FALSE),
+                StringWrapper(env, init_event_id),
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE)
+                StringWrapper(env, cvc)
         );
 
         return Deserializer::convert2JMatrixEvent(env, result);
@@ -294,9 +291,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_decryptBackUpKey(JNIEnv *en
                                                                       jstring raw_name) {
     try {
         auto signer = NunchukProvider::get()->nu->ImportTapsignerMasterSigner(
-                env->GetStringUTFChars(back_up_key, JNI_FALSE),
-                env->GetStringUTFChars(decryption_key, JNI_FALSE),
-                env->GetStringUTFChars(raw_name, JNI_FALSE),
+                StringWrapper(env, back_up_key),
+                StringWrapper(env, decryption_key),
+                StringWrapper(env, raw_name),
                 [](int percent) { return true; }
         );
 

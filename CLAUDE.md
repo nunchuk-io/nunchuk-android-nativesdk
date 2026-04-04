@@ -63,3 +63,87 @@ Product flavors: `arm` (both ARM ABIs), `arm64_v8a`, `armeabi_v7a`, `x86_64`, `u
 - JNI method names must exactly match the package path: `Java_com_nunchuk_android_nativelib_LibNunchukAndroid_<methodName>`
 - C++ exceptions are caught and converted to Java exceptions via `Deserializer::convert2JException`
 - The native library is loaded as `"nunchuk-android"` (defined in `LibNunchukAndroid.kt`)
+
+## JNI coding rules
+
+Follow these rules when writing or modifying C++ JNI code. Violating them causes memory leaks or crashes on Android.
+
+### String handling — always use `StringWrapper`
+
+**Never** call `env->GetStringUTFChars()` directly. Use `StringWrapper(env, jstring)` from `string-wrapper.h` instead. It calls `ReleaseStringUTFChars` automatically in its destructor.
+
+```cpp
+// BAD — leaks the native string pointer
+settings.set_name(env->GetStringUTFChars(name, JNI_FALSE));
+
+// GOOD — RAII, automatically released
+settings.set_name(StringWrapper(env, name));
+```
+
+### Returning strings to Java — always delete the local ref
+
+When creating a `jstring` with `NewStringUTF` to pass to a Java setter, store it, use it, then delete it. In `deserializer.cpp`, use the `callSetString` helper:
+
+```cpp
+// BAD — leaks the jstring local reference
+env->CallVoidMethod(instance, setNameMethod, env->NewStringUTF(name.c_str()));
+
+// GOOD — helper creates, passes, and deletes the jstring
+callSetString(env, instance, setNameMethod, name.c_str());
+```
+
+When passing `NewStringUTF` to a constructor (`NewObject`), store in a variable and `DeleteLocalRef` after:
+
+```cpp
+jstring jName = env->NewStringUTF(name.c_str());
+jobject instance = env->NewObject(clazz, constructor, jName);
+env->DeleteLocalRef(jName);
+```
+
+### Catch blocks — never return `ExceptionOccurred()`
+
+`env->ExceptionOccurred()` returns `jthrowable`, not `jobject`. Return `nullptr` instead:
+
+```cpp
+// BAD — type mismatch, undefined behavior
+} catch (BaseException &e) {
+    Deserializer::convert2JException(env, e);
+    return env->ExceptionOccurred();
+}
+
+// GOOD
+} catch (BaseException &e) {
+    Deserializer::convert2JException(env, e);
+    return nullptr;
+}
+```
+
+### Lambda callbacks — clean up local refs
+
+Listener lambdas (block, transaction, group, etc.) run repeatedly. Any `NewStringUTF` or `NewObject` inside them must be stored and deleted:
+
+```cpp
+jstring jId = g_env->NewStringUTF(id.c_str());
+g_env->CallStaticVoidMethod(clazz, method, jId);
+g_env->DeleteLocalRef(jId);
+```
+
+### FindClass — cache as static global refs for hot paths
+
+`env->FindClass()` returns a local ref. For functions called frequently (e.g., `convert2JBoolean`, `convert2JInt`), cache the result as a `static` global ref:
+
+```cpp
+static auto clazz = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/lang/Boolean")));
+```
+
+### Heap allocations — prefer RAII containers
+
+Use `std::vector` instead of `new[]`/`delete[]`:
+
+```cpp
+// BAD — leak if exception is thrown before delete[]
+auto* buf = new unsigned char[len];
+
+// GOOD
+std::vector<unsigned char> buf(len);
+```

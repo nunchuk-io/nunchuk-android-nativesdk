@@ -137,14 +137,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
     try {
         AppSettings settings;
         settings.set_chain(Serializer::convert2CChain(chain));
-        settings.set_hwi_path(env->GetStringUTFChars(hwi_path, JNI_FALSE));
+        settings.set_hwi_path(StringWrapper(env, hwi_path));
         settings.enable_proxy(enable_proxy);
         settings.set_testnet_servers(Serializer::convert2CListString(env, testnet_servers));
         settings.set_mainnet_servers(Serializer::convert2CListString(env, mainnet_servers));
         settings.set_signet_servers(Serializer::convert2CListString(env, signet_servers));
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
-        settings.set_storage_path(env->GetStringUTFChars(storage_path, JNI_FALSE));
-        settings.set_group_server(env->GetStringUTFChars(base_url_api, JNI_FALSE));
+        settings.set_storage_path(StringWrapper(env, storage_path));
+        settings.set_group_server(StringWrapper(env, base_url_api));
 
         env->GetJavaVM(&Initializer::get()->jvm);
         NunchukProvider::get()->initNunchuk(
@@ -175,14 +175,17 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI]GetEnv: version not supported\n");
                         }
+                        jstring jRoomId = g_env->NewStringUTF(room_id.c_str());
+                        jstring jType = g_env->NewStringUTF(type.c_str());
+                        jstring jContent = g_env->NewStringUTF(content.c_str());
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->sendEventClass,
                                 Initializer::get()->senEventMethod,
-                                g_env->NewStringUTF(room_id.c_str()),
-                                g_env->NewStringUTF(type.c_str()),
-                                g_env->NewStringUTF(content.c_str()),
-                                ignore_error
+                                jRoomId, jType, jContent, ignore_error
                         );
+                        g_env->DeleteLocalRef(jRoomId);
+                        g_env->DeleteLocalRef(jType);
+                        g_env->DeleteLocalRef(jContent);
                     } catch (const std::exception &t) {
                         Deserializer::convertStdException2JException(g_env, t);
                     }
@@ -255,12 +258,14 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
+                        jstring jHexHeader = g_env->NewStringUTF(hex_header.c_str());
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->blockListenerClass,
                                 Initializer::get()->blockListenerMethod,
                                 height,
-                                StringWrapper(hex_header).toJString(g_env)
+                                jHexHeader
                         );
+                        g_env->DeleteLocalRef(jHexHeader);
                     });
         } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] Block listener error::%s", e.what());
@@ -291,12 +296,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         } else if (envState == JNI_EVERSION) {
                             syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                         }
+                        jstring jTxId = g_env->NewStringUTF(tx_id.c_str());
+                        jstring jWalletId = g_env->NewStringUTF(wallet_id.c_str());
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->transactionListenerClass,
                                 Initializer::get()->transactionListenerMethod,
-                                StringWrapper(tx_id).toJString(g_env),
-                                StringWrapper(wallet_id).toJString(g_env)
+                                jTxId, jWalletId
                         );
+                        g_env->DeleteLocalRef(jTxId);
+                        g_env->DeleteLocalRef(jWalletId);
                     });
         } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] Transaction Listener Error::%s", e.what());
@@ -400,12 +408,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
                     } else if (envState == JNI_EVERSION) {
                         syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
                     }
+                    jstring jGroupId = g_env->NewStringUTF(groupId.c_str());
                     g_env->CallStaticVoidMethod(
                             Initializer::get()->groupOnlineListenerClass,
                             Initializer::get()->groupOnlineListenerMethod,
-                            g_env->NewStringUTF(groupId.c_str()),
-                            online
+                            jGroupId, online
                     );
+                    g_env->DeleteLocalRef(jGroupId);
                 });
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] Group Online Listener Error::%s", e.what());
@@ -433,11 +442,13 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
             } else if (envState == JNI_EVERSION) {
                 syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
             }
+            jstring jGroupId = g_env->NewStringUTF(groupId.c_str());
             g_env->CallStaticVoidMethod(
                     Initializer::get()->groupDeleteListenerClass,
                     Initializer::get()->groupDeleteListenerMethod,
-                    g_env->NewStringUTF(groupId.c_str())
+                    jGroupId
             );
+            g_env->DeleteLocalRef(jGroupId);
         });
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] Group Delete Listener Error::%s", e.what());
@@ -466,12 +477,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerGlobalListener(JNIE
             } else if (envState == JNI_EVERSION) {
                 syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
             }
+            jstring jWalletId = g_env->NewStringUTF(walletId.c_str());
+            jstring jReplaceGroupId = g_env->NewStringUTF(replaceGroupId.c_str());
             g_env->CallStaticVoidMethod(
                     Initializer::get()->groupReplaceListenerClass,
                     Initializer::get()->groupReplaceListenerMethod,
-                    g_env->NewStringUTF(walletId.c_str()),
-                    g_env->NewStringUTF(replaceGroupId.c_str())
+                    jWalletId, jReplaceGroupId
             );
+            g_env->DeleteLocalRef(jWalletId);
+            g_env->DeleteLocalRef(jReplaceGroupId);
         });
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] Group Replace Listener Error::%s", e.what());

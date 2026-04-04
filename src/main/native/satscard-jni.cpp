@@ -35,8 +35,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_setupSatsCard(JNIEnv *env, 
         auto ts = NunchukProvider::get()->nu->CreateSatscard(NFC::makeTransport(env, iso_dep));
         auto status = NunchukProvider::get()->nu->SetupSatscard(
                 ts.get(),
-                env->GetStringUTFChars(cvc, JNI_FALSE),
-                env->GetStringUTFChars(chain_code, JNI_FALSE)
+                StringWrapper(env, cvc),
+                StringWrapper(env, chain_code)
         );
         return Deserializer::convert2JSatsCardStatus(env, status);
     } catch (BaseException &e) {
@@ -72,7 +72,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_unsealSatsCard(JNIEnv *env,
     try {
         auto ts = NunchukProvider::get()->nu->CreateSatscard(NFC::makeTransport(env, iso_dep));
         auto slot = Serializer::convert2CSatsCardSlot(env, jSlot);
-        auto returnSlot = NunchukProvider::get()->nu->UnsealSatscard(ts.get(), env->GetStringUTFChars(cvc, JNI_FALSE), slot);
+        auto returnSlot = NunchukProvider::get()->nu->UnsealSatscard(ts.get(), StringWrapper(env, cvc), slot);
         return Deserializer::convert2JSatsCardSlot(env, returnSlot);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);

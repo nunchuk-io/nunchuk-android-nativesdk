@@ -5,6 +5,7 @@
 #include "nunchukprovider.h"
 #include "serializer.h"
 #include "deserializer.h"
+#include "string-wrapper.h"
 
 using namespace nunchuk;
 
@@ -24,9 +25,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initRoomTransaction(
     try {
         auto result = NunchukProvider::get()->nuMatrix->InitTransaction(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(room_id, JNI_FALSE),
+                StringWrapper(env, room_id),
                 Serializer::convert2CAmountsMap(env, outputs),
-                env->GetStringUTFChars(memo, JNI_FALSE),
+                StringWrapper(env, memo),
                 Serializer::convert2CUnspentOutputs(env, inputs),
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount
@@ -54,7 +55,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signRoomTransaction(
     try {
         auto result = NunchukProvider::get()->nuMatrix->SignTransaction(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(init_event_id, JNI_FALSE),
+                StringWrapper(env, init_event_id),
                 Serializer::convert2CDevice(env, device)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
@@ -79,8 +80,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_rejectRoomTransaction(
     syslog(LOG_DEBUG, "[JNI]rejectRoomTransaction()");
     try {
         auto result = NunchukProvider::get()->nuMatrix->RejectTransaction(
-                env->GetStringUTFChars(init_event_id, JNI_FALSE),
-                env->GetStringUTFChars(reason, JNI_FALSE)
+                StringWrapper(env, init_event_id),
+                StringWrapper(env, reason)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {
@@ -104,8 +105,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_cancelRoomTransaction(
     syslog(LOG_DEBUG, "[JNI]cancelRoomTransaction()");
     try {
         auto result = NunchukProvider::get()->nuMatrix->CancelTransaction(
-                env->GetStringUTFChars(init_event_id, JNI_FALSE),
-                env->GetStringUTFChars(reason, JNI_FALSE)
+                StringWrapper(env, init_event_id),
+                StringWrapper(env, reason)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {
@@ -129,7 +130,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastRoomTransaction(
     try {
         auto result = NunchukProvider::get()->nuMatrix->BroadcastTransaction(
                 NunchukProvider::get()->nu,
-                env->GetStringUTFChars(init_event_id, JNI_FALSE)
+                StringWrapper(env, init_event_id)
         );
         return Deserializer::convert2JMatrixEvent(env, result);
     } catch (BaseException &e) {
@@ -150,10 +151,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getRoomTransaction(
         jstring init_event_id
 ) {
     syslog(LOG_DEBUG, "[JNI]getRoomTransaction()");
-    syslog(LOG_DEBUG, "[JNI]init_event_id::%s", env->GetStringUTFChars(init_event_id, JNI_FALSE));
+    StringWrapper initEventIdStr(env, init_event_id);
+    syslog(LOG_DEBUG, "[JNI]init_event_id::%s", std::string(initEventIdStr).c_str());
     try {
         auto result = NunchukProvider::get()->nuMatrix->GetRoomTransaction(
-                env->GetStringUTFChars(init_event_id, JNI_FALSE)
+                initEventIdStr
         );
         return Deserializer::convert2JRoomTransaction(env, result);
     } catch (BaseException &e) {
@@ -174,10 +176,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getPendingTransactions(
         jstring room_id
 ) {
     syslog(LOG_DEBUG, "[JNI]getPendingTransactions()");
-    syslog(LOG_DEBUG, "[JNI]room_id::%s", env->GetStringUTFChars(room_id, JNI_FALSE));
+    StringWrapper roomIdStr(env, room_id);
+    syslog(LOG_DEBUG, "[JNI]room_id::%s", std::string(roomIdStr).c_str());
     try {
         auto result = NunchukProvider::get()->nuMatrix->GetPendingTransactions(
-                env->GetStringUTFChars(room_id, JNI_FALSE)
+                roomIdStr
         );
         return Deserializer::convert2JRoomTransactions(env, result);
     } catch (BaseException &e) {
@@ -198,10 +201,11 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransactionId(
         jstring event_id
 ) {
     syslog(LOG_DEBUG, "[JNI]getTransactionId()");
-    syslog(LOG_DEBUG, "[JNI]event_id::%s", env->GetStringUTFChars(event_id, JNI_FALSE));
+    StringWrapper eventIdStr(env, event_id);
+    syslog(LOG_DEBUG, "[JNI]event_id::%s", std::string(eventIdStr).c_str());
     try {
         auto result = NunchukProvider::get()->nuMatrix->GetTransactionId(
-                env->GetStringUTFChars(event_id, JNI_FALSE)
+                eventIdStr
         );
         return env->NewStringUTF(result.c_str());
     } catch (BaseException &e) {

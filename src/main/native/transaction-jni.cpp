@@ -68,8 +68,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_broadcastTransaction(
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->BroadcastTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id)
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
@@ -104,9 +104,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createTransaction(
                 txInputs);
         SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->CreateTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
                 Serializer::convert2CAmountsMap(env, outputs),
-                env->GetStringUTFChars(memo, JNI_FALSE),
+                StringWrapper(env, memo),
                 txInputUnspentOutputs,
                 Serializer::convert2CAmount(env, fee_rate),
                 subtract_fee_from_amount,
@@ -199,8 +199,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_deleteTransaction(
 ) {
     try {
         return NunchukProvider::get()->nu->DeleteTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -224,8 +224,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportKeystoneTransaction(
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->ExportKeystoneTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
                 density
         );
         return Deserializer::convert2JListString(env, transaction);
@@ -249,9 +249,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransaction(
 ) {
     try {
         return NunchukProvider::get()->nu->ExportTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE),
-                env->GetStringUTFChars(file_path, JNI_FALSE)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                StringWrapper(env, file_path)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -274,8 +274,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransaction(
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->GetTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id)
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
@@ -302,8 +302,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_replaceTransaction(
     try {
         SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->ReplaceTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
                 Serializer::convert2CAmount(env, new_fee_rate),
                 anti_fee_sniping,
                 use_script_path,
@@ -329,8 +329,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importTransaction(
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->ImportTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(file_path, JNI_FALSE)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, file_path)
         );
         return Deserializer::convert2JTransaction(env, transaction);
     } catch (BaseException &e) {
@@ -353,7 +353,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTransactionHistory(
 ) {
     try {
         auto transactions = NunchukProvider::get()->nu->GetTransactionHistory(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
                 count,
                 skip
         );
@@ -377,7 +377,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_importKeystoneTransaction(
 ) {
     try {
         auto values = NunchukProvider::get()->nu->ImportKeystoneTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
                 Serializer::convert2CListString(env, qr_data)
         );
         return Deserializer::convert2JTransaction(env, values);
@@ -401,9 +401,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_updateTransactionMemo(
 ) {
     try {
         return NunchukProvider::get()->nu->UpdateTransactionMemo(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE),
-                env->GetStringUTFChars(new_memo, JNI_FALSE)
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                StringWrapper(env, new_memo)
         );
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -427,8 +427,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signTransaction(
 ) {
     try {
         auto transaction = NunchukProvider::get()->nu->SignTransaction(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(tx_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
                 Serializer::convert2CDevice(env, device)
         );
         return Deserializer::convert2JTransaction(env, transaction);
@@ -452,8 +452,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportTransactionHistory(
 ) {
     try {
         NunchukProvider::get()->nu->ExportTransactionHistory(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(file_path, JNI_FALSE),
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, file_path),
                 Serializer::convert2CExportFormat(format)
         );
     } catch (BaseException &e) {
@@ -476,7 +476,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddresses(
 ) {
     try {
         auto values = NunchukProvider::get()->nu->GetAddresses(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
                 used,
                 internal
         );
@@ -500,8 +500,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressBalance(
 ) {
     try {
         auto value = NunchukProvider::get()->nu->GetAddressBalance(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
-                env->GetStringUTFChars(address, JNI_FALSE));
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, address));
         return Deserializer::convert2JAmount(env, value);
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
@@ -541,7 +541,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_newAddress(
 ) {
     try {
         auto value = NunchukProvider::get()->nu->NewAddress(
-                env->GetStringUTFChars(wallet_id, JNI_FALSE),
+                StringWrapper(env, wallet_id),
                 internal);
         return env->NewStringUTF(value.c_str());
     } catch (BaseException &e) {
@@ -1831,8 +1831,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getKeySetStatus(
         jstring tx_id
 ) {
     try {
-        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
-        std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
+        StringWrapper c_wallet_id(env, wallet_id);
+        StringWrapper c_tx_id(env, tx_id);
         auto node_path = ToNodePath(env, node_id);
         auto root_node_ptr = GetOrBuildRootNode(c_wallet_id);
         const nunchuk::ScriptNode *node = GetNodeAtPath(root_node_ptr, node_path);
@@ -1863,8 +1863,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getCoinsGroupedBySubPolicie
         jstring tx_id
 ) {
     try {
-        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
-        std::string c_tx_id = env->GetStringUTFChars(tx_id, JNI_FALSE);
+        StringWrapper c_wallet_id(env, wallet_id);
+        StringWrapper c_tx_id(env, tx_id);
         auto node_path = ToNodePath(env, node_id);
         auto root_node_ptr = GetOrBuildRootNode(c_wallet_id);
         const nunchuk::ScriptNode *node = GetNodeAtPath(root_node_ptr, node_path);
@@ -1917,10 +1917,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearScriptNodeCache(
         jstring wallet_id
 ) {
     try {
-        std::string c_wallet_id = env->GetStringUTFChars(wallet_id, JNI_FALSE);
+        StringWrapper c_wallet_id(env, wallet_id);
         std::lock_guard<std::mutex> lock(script_node_cache_mutex);
         script_node_cache.erase(c_wallet_id);
-        env->ReleaseStringUTFChars(wallet_id, c_wallet_id.c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();
