@@ -26,28 +26,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
                 NunchukProvider::get()->nu,
                 matrixEvent,
                 [&](int percent) {
-
-                    JNIEnv *g_env;
+                    JNIEnvGuard guard;
+                    if (!guard) return percent == 100;
+                    JNIEnv *g_env = guard.get();
                     try {
-                        JavaVMAttachArgs args;
-                        args.version = JNI_VERSION_1_6;
-                        args.name = nullptr;
-                        args.group = nullptr;
-                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        if (envState == JNI_EDETACHED) {
-                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                            } else {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
-                            }
-                        } else if (envState == JNI_OK) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                        } else if (envState == JNI_EVERSION) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                        }
-                        syslog(LOG_DEBUG, "[JNI]percent: %d", percent);
-
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->syncFileClass,
                                 Initializer::get()->syncFileMethod,
@@ -55,8 +37,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_consumeSyncEvent(
                                 percent
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convertStdException2JException(g_env, t);
-                        g_env->ExceptionOccurred();
+                        syslog(LOG_DEBUG, "[JNI] consumeSyncEvent callback error::%s", t.what());
                     }
                     return percent == 100;
                 }
@@ -92,27 +73,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
                 StringWrapper(env, file_json_info),
                 data,
                 [&](int percent) {
-                    syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
-                    JNIEnv *g_env;
+                    JNIEnvGuard guard;
+                    if (!guard) return percent == 100;
+                    JNIEnv *g_env = guard.get();
                     try {
-                        JavaVMAttachArgs args;
-                        args.version = JNI_VERSION_1_6;
-                        args.name = nullptr;
-                        args.group = nullptr;
-                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        if (envState == JNI_EDETACHED) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: not attached\n");
-                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                            } else {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
-                            }
-                        } else if (envState == JNI_OK) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                        } else if (envState == JNI_EVERSION) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                        }
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->syncFileClass,
                                 Initializer::get()->syncFileMethod,
@@ -120,8 +84,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
                                 percent
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convertStdException2JException(g_env, t);
-                        g_env->ExceptionOccurred();
+                        syslog(LOG_DEBUG, "[JNI] downloadFileCallback error::%s", t.what());
                     }
                     return percent == 100;
                 }
@@ -129,7 +92,6 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_downloadFileCallback(
     } catch (std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] consumeSyncFile error::%s", e.what());
         Deserializer::convertStdException2JException(env, e);
-        env->ExceptionOccurred();
     }
 }
 
@@ -152,27 +114,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_writeFileCallback(
                 StringWrapper(env, file_json_info),
                 StringWrapper(env, file_path),
                 [&](int percent) {
-                    syslog(LOG_DEBUG, "[JNI]consumeSyncFile percent() :%d",percent);
-                    JNIEnv *g_env;
+                    JNIEnvGuard guard;
+                    if (!guard) return percent == 100;
+                    JNIEnv *g_env = guard.get();
                     try {
-                        JavaVMAttachArgs args;
-                        args.version = JNI_VERSION_1_6;
-                        args.name = nullptr;
-                        args.group = nullptr;
-                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        if (envState == JNI_EDETACHED) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: not attached\n");
-                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                            } else {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
-                            }
-                        } else if (envState == JNI_OK) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                        } else if (envState == JNI_EVERSION) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                        }
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->syncFileClass,
                                 Initializer::get()->syncFileMethod,
@@ -180,8 +125,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_writeFileCallback(
                                 percent
                         );
                     } catch (const std::exception &t) {
-                        Deserializer::convertStdException2JException(g_env, t);
-                        g_env->ExceptionOccurred();
+                        syslog(LOG_DEBUG, "[JNI] writeFileCallback error::%s", t.what());
                     }
                     return percent == 100;
                 }
@@ -301,89 +245,54 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_registerDownloadFileBackup(
         NunchukProvider::get()->nuMatrix->RegisterFileFunc(
                 [&](const std::string &file_name, const std::string &mine_type, const std::string &file_json_info,
                     const char *data, size_t data_length) {
-                    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp file_name::%s", file_name.c_str());
-                    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp file_json_info::%s", file_json_info.c_str());
-                    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp mine_type::%s", mine_type.c_str());
-                    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp data_length::%d", (int) data_length);
-                    syslog(LOG_DEBUG, "[JNI] enableAutoBackUp data::%s", data);
-                    JNIEnv *g_env;
+                    JNIEnvGuard guard;
+                    if (!guard) return std::string("");
+                    JNIEnv *g_env = guard.get();
                     try {
-                        JavaVMAttachArgs args;
-                        args.version = JNI_VERSION_1_6;
-                        args.name = nullptr;
-                        args.group = nullptr;
-                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        if (envState == JNI_EDETACHED) {
-                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                            } else {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
-                            }
-                        } else if (envState == JNI_OK) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                        } else if (envState == JNI_EVERSION) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                        }
-
                         jbyteArray byteData = g_env->NewByteArray((int) data_length);
                         g_env->SetByteArrayRegion(byteData, 0, (int) data_length, (jbyte *) (data));
 
-
+                        jstring jFileName = g_env->NewStringUTF(file_name.c_str());
+                        jstring jMineType = g_env->NewStringUTF(mine_type.c_str());
+                        jstring jFileJsonInfo = g_env->NewStringUTF(file_json_info.c_str());
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->sendFileClass,
                                 Initializer::get()->sendFileMethod,
-                                g_env->NewStringUTF(file_name.c_str()),
-                                g_env->NewStringUTF(mine_type.c_str()),
-                                g_env->NewStringUTF(file_json_info.c_str()),
-                                byteData,
-                                (int) data_length
+                                jFileName, jMineType, jFileJsonInfo,
+                                byteData, (int) data_length
                         );
+                        g_env->DeleteLocalRef(jFileName);
+                        g_env->DeleteLocalRef(jMineType);
+                        g_env->DeleteLocalRef(jFileJsonInfo);
+                        g_env->DeleteLocalRef(byteData);
                     } catch (const std::exception &t) {
-                        Deserializer::convertStdException2JException(g_env, t);
-                        g_env->ExceptionOccurred();
+                        syslog(LOG_DEBUG, "[JNI] uploadFile error::%s", t.what());
                     }
-                    return "";
+                    return std::string("");
                 },
                 [&](const std::string &file_name, const std::string &mine_type, const std::string &json_info,
                     const std::string &mxc_uri) {
-
-                    JNIEnv *g_env;
+                    JNIEnvGuard guard;
+                    if (!guard) return std::vector<unsigned char>{'0'};
+                    JNIEnv *g_env = guard.get();
                     try {
-                        JavaVMAttachArgs args;
-                        args.version = JNI_VERSION_1_6;
-                        args.name = nullptr;
-                        args.group = nullptr;
-                        Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        int envState = Initializer::get()->jvm->GetEnv((void **) &g_env, JNI_VERSION_1_6);
-                        if (envState == JNI_EDETACHED) {
-                            if (Initializer::get()->jvm->AttachCurrentThread(&g_env, &args) != 0) {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Failed to attach\n");
-                            } else {
-                                syslog(LOG_DEBUG, "[JNI] GetEnv: Attached to current thread\n");
-                            }
-                        } else if (envState == JNI_OK) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: JNI_OK\n");
-                        } else if (envState == JNI_EVERSION) {
-                            syslog(LOG_DEBUG, "[JNI] GetEnv: version not supported\n");
-                        }
-
+                        jstring jFileName = g_env->NewStringUTF(file_name.c_str());
+                        jstring jMineType = g_env->NewStringUTF(mine_type.c_str());
+                        jstring jJsonInfo = g_env->NewStringUTF(json_info.c_str());
+                        jstring jMxcUri = g_env->NewStringUTF(mxc_uri.c_str());
                         g_env->CallStaticVoidMethod(
                                 Initializer::get()->downloadFileClass,
                                 Initializer::get()->downloadFileMethod,
-                                g_env->NewStringUTF(file_name.c_str()),
-                                g_env->NewStringUTF(mine_type.c_str()),
-                                g_env->NewStringUTF(json_info.c_str()),
-                                g_env->NewStringUTF(mxc_uri.c_str())
+                                jFileName, jMineType, jJsonInfo, jMxcUri
                         );
+                        g_env->DeleteLocalRef(jFileName);
+                        g_env->DeleteLocalRef(jMineType);
+                        g_env->DeleteLocalRef(jJsonInfo);
+                        g_env->DeleteLocalRef(jMxcUri);
                     } catch (const std::exception &t) {
-                        Deserializer::convertStdException2JException(g_env, t);
-                        g_env->ExceptionOccurred();
+                        syslog(LOG_DEBUG, "[JNI] downloadFile error::%s", t.what());
                     }
-
-                    std::vector<unsigned char> vect;
-                    vect.push_back('0');
-                    return vect;
+                    return std::vector<unsigned char>{'0'};
                 }
         );
 

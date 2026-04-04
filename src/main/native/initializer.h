@@ -1,6 +1,26 @@
 #include <jni.h>
 #include <iostream>
 #include <string>
+#include <syslog.h>
+
+class Initializer;
+
+// RAII guard: attaches the current thread to the JVM if needed, detaches on destruction.
+class JNIEnvGuard {
+public:
+    JNIEnvGuard();
+    ~JNIEnvGuard();
+
+    JNIEnv *get() const { return env_; }
+    explicit operator bool() const { return env_ != nullptr; }
+
+    JNIEnvGuard(const JNIEnvGuard &) = delete;
+    JNIEnvGuard &operator=(const JNIEnvGuard &) = delete;
+
+private:
+    JNIEnv *env_;
+    bool needsDetach_;
+};
 
 class Initializer {
 private:
