@@ -50,6 +50,13 @@ jobs:
       - name: Install dependencies
         run: |
           docker run  --rm \
+            -e GIT_CONFIG_COUNT=3 \
+            -e GIT_CONFIG_KEY_0=safe.directory \
+            -e GIT_CONFIG_VALUE_0=/nunchuk-android-nativesdk \
+            -e GIT_CONFIG_KEY_1=safe.directory \
+            -e GIT_CONFIG_VALUE_1=/nunchuk-android-nativesdk/src/main/native/libnunchuk \
+            -e GIT_CONFIG_KEY_2=safe.directory \
+            -e GIT_CONFIG_VALUE_2=/nunchuk-android-nativesdk/src/main/native/libnunchuk/contrib/bitcoin \
             -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
             -w /nunchuk-android-nativesdk/src/main/native \
             ghcr.io/${{ github.repository }}/nunchuk-builder \
@@ -58,6 +65,13 @@ jobs:
       - name: Build the sdk
         run: |
           docker run  --rm \
+            -e GIT_CONFIG_COUNT=3 \
+            -e GIT_CONFIG_KEY_0=safe.directory \
+            -e GIT_CONFIG_VALUE_0=/nunchuk-android-nativesdk \
+            -e GIT_CONFIG_KEY_1=safe.directory \
+            -e GIT_CONFIG_VALUE_1=/nunchuk-android-nativesdk/src/main/native/libnunchuk \
+            -e GIT_CONFIG_KEY_2=safe.directory \
+            -e GIT_CONFIG_VALUE_2=/nunchuk-android-nativesdk/src/main/native/libnunchuk/contrib/bitcoin \
             -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
             -w /nunchuk-android-nativesdk \
             ghcr.io/${{ github.repository }}/nunchuk-builder \

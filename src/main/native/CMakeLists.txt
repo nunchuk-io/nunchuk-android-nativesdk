@@ -33,6 +33,13 @@ add_library(nunchuk-android SHARED
 
 add_subdirectory(libnunchuk)
 
+if(TARGET event_core_static AND NOT TARGET libevent::core)
+        add_library(libevent::core ALIAS event_core_static)
+endif()
+if(TARGET event_extra_static AND NOT TARGET libevent::extra)
+        add_library(libevent::extra ALIAS event_extra_static)
+endif()
+
 target_link_libraries(nunchuk-android nunchuk)
 
 target_include_directories(nunchuk-android PUBLIC

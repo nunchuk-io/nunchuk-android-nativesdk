@@ -15,7 +15,20 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-stdlib=libc++"
-                arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                // The Android SDK embeds Bitcoin Core libraries, but does not need
+                // the host executables/tests that trigger host libevent lookup.
+                arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                        "-DBUILD_BITCOIN_BIN=OFF",
+                        "-DBUILD_CLI=OFF",
+                        "-DBUILD_DAEMON=OFF",
+                        "-DBUILD_TESTS=OFF",
+                        "-DBUILD_TX=OFF",
+                        "-DBUILD_UTIL=OFF",
+                        "-DBUILD_BENCH=OFF",
+                        "-DBUILD_FUZZ_BINARY=OFF",
+                        "-DBUILD_UTIL_CHAINSTATE=OFF",
+                        "-DBUILD_KERNEL_LIB=OFF",
+                        "-DBUILD_WALLET_TOOL=OFF"
             }
         }
         javaCompileOptions {
