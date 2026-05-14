@@ -52,7 +52,6 @@ applyBitcoinDependsPatches() {
   patchFile ./patches/random.cpp libnunchuk/contrib/bitcoin/src/random.cpp
   patchFile ./patches/introspection.cmake libnunchuk/contrib/bitcoin/cmake/introspection.cmake
   patchFile ./patches/AddBoostIfNeeded.cmake libnunchuk/contrib/bitcoin/cmake/module/AddBoostIfNeeded.cmake
-  patchFile ./patches/libnunchuk-CMakeLists.txt libnunchuk/CMakeLists.txt
 }
 
 installBitcoinDeps() {
@@ -119,8 +118,6 @@ popd || exit
 
 installLibwally() {
   abi=$1
-  target=$2
-  triplet=$3
   echo "-------------------------------------------------------------------------------"
   echo "                    Building libwally-core for $abi                            "
   echo "-------------------------------------------------------------------------------"
@@ -136,21 +133,12 @@ installLibwally() {
     export PYTHON=/usr/bin/python3
   fi
 
-  AR=$TOOLCHAIN/bin/llvm-ar \
-  CC=$TOOLCHAIN/bin/$target$API-clang \
-  AS=$TOOLCHAIN/bin/$target$API-clang \
-  LD=$TOOLCHAIN/bin/ld \
-  RANLIB=$TOOLCHAIN/bin/llvm-ranlib \
-  STRIP=$TOOLCHAIN/bin/llvm-strip \
-  ./configure --host="$triplet" \
-    --disable-shared \
-    --with-pic \
-    --disable-swig-java \
-    --disable-swig-python \
-    --enable-elements
-
-  PATH="$TOOLCHAIN/bin:$PATH" make -o configure clean || true
-  PATH="$TOOLCHAIN/bin:$PATH" make -o configure -j $num_jobs
+  # android_build_wally hardcodes `--enable-swig-java` into the configure call;
+  # pass `--disable-swig-java` here so it gets appended and overrides (autoconf
+  # honours the last --enable/--disable for a given feature).
+  ANDROID_NDK=$ANDROID_NDK_HOME android_build_wally "$abi" "$TOOLCHAIN" "$API" \
+      --disable-shared --with-pic \
+      --disable-swig-java --enable-elements
 
   local outdir="$PWD/build/$abi"
   mkdir -p "$outdir"
@@ -161,8 +149,9 @@ installLibwally() {
 }
 
 pushd "libnunchuk/contrib/libwally-core" || exit
-installLibwally $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A "armv7-none-linux-androideabi$API"
-installLibwally $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A "aarch64-none-linux-android$API"
+. ./tools/android_helpers.sh
+installLibwally $ANDROID_ABI_ARMEABI_V7A
+installLibwally $ANDROID_ABI_ARM64_V8A
 popd || exit
 
 echo "done"
