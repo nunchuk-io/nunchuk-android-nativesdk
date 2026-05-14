@@ -174,10 +174,25 @@ jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput &output) {
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jmethodID setFirstMethod = env->GetMethodID(clazz, "setFirst", "(Ljava/lang/String;)V");
     jmethodID setSecondMethod = env->GetMethodID(clazz, "setSecond", "(Lcom/nunchuk/android/model/Amount;)V");
+    jmethodID setIsChangeMethod = env->GetMethodID(clazz, "setChange", "(Z)V");
+    jmethodID setIsReceiveMethod = env->GetMethodID(clazz, "setReceive", "(Z)V");
+    jmethodID setUserAmountMethod = env->GetMethodID(clazz, "setUserAmount", "(Lcom/nunchuk/android/model/Amount;)V");
+    jmethodID setAssetIdMethod = env->GetMethodID(clazz, "setAssetId", "(Ljava/lang/String;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        callSetString(env, instance, setFirstMethod, output.first.c_str());
-        env->CallVoidMethod(instance, setSecondMethod, convert2JAmount(env, output.second));
+        callSetString(env, instance, setFirstMethod, output.address.c_str());
+        env->CallVoidMethod(instance, setSecondMethod, convert2JAmount(env, output.amount));
+        env->CallVoidMethod(instance, setIsChangeMethod, output.isChange);
+        env->CallVoidMethod(instance, setIsReceiveMethod, output.isReceive);
+        env->CallVoidMethod(instance, setUserAmountMethod, convert2JAmount(env, output.userAmount));
+        static const char hexmap[] = "0123456789abcdef";
+        std::string assetHex;
+        assetHex.reserve(output.assetId.size() * 2);
+        for (unsigned char c: output.assetId) {
+            assetHex.push_back(hexmap[c >> 4]);
+            assetHex.push_back(hexmap[c & 0x0f]);
+        }
+        callSetString(env, instance, setAssetIdMethod, assetHex.c_str());
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxOutput error::%s", e.what());
     }
@@ -484,16 +499,26 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             transaction.get_height());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setInputs", "(Ljava/util/List;)V"),
                             convert2JTxInputs(env, transaction.get_inputs()));
+        const auto &allOutputs = transaction.get_outputs();
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setOutputs", "(Ljava/util/List;)V"),
-                            convert2JTxOutputs(env, transaction.get_outputs()));
+                            convert2JTxOutputs(env, allOutputs));
+        std::vector<TxOutput> receiveOutputs;
+        std::vector<TxOutput> userOutputs;
+        int changeIndex = -1;
+        for (size_t i = 0; i < allOutputs.size(); ++i) {
+            const auto &o = allOutputs[i];
+            if (o.isReceive) receiveOutputs.push_back(o);
+            if (o.userAmount != 0) userOutputs.push_back(o);
+            if (o.isChange && changeIndex < 0) changeIndex = static_cast<int>(i);
+        }
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setReceiveOutputs", "(Ljava/util/List;)V"),
-                            convert2JTxOutputs(env, transaction.get_receive_outputs()));
+                            convert2JTxOutputs(env, receiveOutputs));
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setUserOutputs", "(Ljava/util/List;)V"),
-                            convert2JTxOutputs(env, transaction.get_user_outputs()));
+                            convert2JTxOutputs(env, userOutputs));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChangeIndex", "(I)V"),
-                            transaction.get_change_index());
+                            changeIndex);
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setM", "(I)V"), transaction.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/Map;)V"),
                             convert2JStringBooleanMap(env, transaction.get_signers()));
@@ -2199,4 +2224,32 @@ jobject Deserializer::convert2JGroupTransactionState(JNIEnv *env,
     env->DeleteLocalRef(message);
     env->DeleteLocalRef(clazz);
     return instance;
+}
+
+jstring Deserializer::convert2JAssetIdHex(JNIEnv *env, const AssetId &assetId) {
+    static const char hexmap[] = "0123456789abcdef";
+    std::string hex;
+    hex.reserve(assetId.size() * 2);
+    for (unsigned char c: assetId) {
+        hex.push_back(hexmap[c >> 4]);
+        hex.push_back(hexmap[c & 0x0f]);
+    }
+    return env->NewStringUTF(hex.c_str());
+}
+
+jobject Deserializer::convert2JAssetAmountMap(JNIEnv *env, const std::map<AssetId, Amount> &assets) {
+    jclass mapClass = env->FindClass("java/util/HashMap");
+    jmethodID constructor = env->GetMethodID(mapClass, "<init>", "()V");
+    jmethodID putMethod = env->GetMethodID(mapClass, "put",
+                                           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+    jobject map = env->NewObject(mapClass, constructor);
+    for (const auto &kv: assets) {
+        jstring key = convert2JAssetIdHex(env, kv.first);
+        jobject val = convert2JAmount(env, kv.second);
+        jobject prev = env->CallObjectMethod(map, putMethod, key, val);
+        if (prev != nullptr) env->DeleteLocalRef(prev);
+        env->DeleteLocalRef(key);
+        env->DeleteLocalRef(val);
+    }
+    return map;
 }

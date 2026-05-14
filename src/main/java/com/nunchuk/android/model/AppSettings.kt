@@ -25,9 +25,8 @@ import com.nunchuk.android.type.Chain
 data class AppSettings(
         val chain: Chain = Chain.TESTNET,
         val backendType: BackendType = BackendType.ELECTRUM,
-        val mainnetServers: List<String> = emptyList(),
-        val testnetServers: List<String> = emptyList(),
-        val signetServers: List<String> = emptyList(),
+        val electrumServers: List<String> = emptyList(),
+        val liquidServers: List<String> = emptyList(),
         val hwiPath: String = "",
         val storagePath: String = "",
         val enableProxy: Boolean = false,

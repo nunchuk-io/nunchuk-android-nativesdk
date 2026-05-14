@@ -70,9 +70,8 @@ class NunchukNativeSdk {
             chain = appSettings.chain.ordinal,
             hwiPath = appSettings.hwiPath,
             enableProxy = appSettings.enableProxy,
-            testnetServers = appSettings.testnetServers,
-            mainnetServers = appSettings.mainnetServers,
-            signetServers = appSettings.signetServers,
+            electrumServers = appSettings.electrumServers,
+            liquidServers = appSettings.liquidServers,
             backendType = appSettings.backendType.ordinal,
             storagePath = appSettings.storagePath,
             passphrase = passphrase,
@@ -2153,5 +2152,46 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner> =
         nunchukAndroid.getTransactionSigners(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun createLiquidWallet(signer: SingleSigner): Wallet =
+        nunchukAndroid.createLiquidWalletFromSigner(signer)
+
+    @Throws(NCNativeException::class)
+    fun createLiquidWallet(mnemonic: String = "", passphrase: String = ""): Wallet =
+        nunchukAndroid.createLiquidWalletFromMnemonic(mnemonic, passphrase)
+
+    @Throws(NCNativeException::class)
+    fun draftLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+    ): Transaction = nunchukAndroid.draftLiquidTransaction(walletId, outputs, feeRate)
+
+    @Throws(NCNativeException::class)
+    fun createLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        memo: String,
+    ): Transaction = nunchukAndroid.createLiquidTransaction(walletId, outputs, feeRate, memo)
+
+    @Throws(NCNativeException::class)
+    fun signLiquidTransaction(walletId: String, txId: String, device: Device): Transaction =
+        nunchukAndroid.signLiquidTransaction(walletId, txId, device)
+
+    @Throws(NCNativeException::class)
+    fun getAddressAssets(walletId: String, address: String): Map<String, Amount> =
+        nunchukAndroid.getAddressAssets(walletId, address)
+
+    @Throws(NCNativeException::class)
+    fun getAssetBalance(walletId: String, assetIdHex: String): Amount =
+        nunchukAndroid.getAssetBalance(walletId, assetIdHex)
+
+    @Throws(NCNativeException::class)
+    fun getUSDTAssetId(): String = nunchukAndroid.getUSDTAssetId()
+
+    @Throws(NCNativeException::class)
+    fun getLBTCAssetId(): String = nunchukAndroid.getLBTCAssetId()
 
 }

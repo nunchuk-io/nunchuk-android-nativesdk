@@ -548,3 +548,32 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRJSON(
         return nullptr;
     }
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getUSDTAssetId(JNIEnv *env, jobject thiz) {
+    try {
+        AssetId asset = Utils::GetUSDTAssetId();
+        return Deserializer::convert2JAssetIdHex(env, asset);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getLBTCAssetId(JNIEnv *env, jobject thiz) {
+    try {
+        AssetId asset = Utils::GetLBTCAssetId();
+        return Deserializer::convert2JAssetIdHex(env, asset);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

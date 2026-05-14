@@ -1540,8 +1540,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
                 c_wallet_id,
                 original_tx.get_inputs());
         auto mapOut = std::map<std::string, Amount>();
-        for (const auto &output: original_tx.get_user_outputs()) {
-            mapOut[output.first] = output.second;
+        for (const auto &output: original_tx.get_outputs()) {
+            if (output.userAmount != 0) {
+                mapOut[output.address] = output.userAmount;
+            }
         }
         SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);
         auto transaction = NunchukProvider::get()->nu->DraftTransaction(

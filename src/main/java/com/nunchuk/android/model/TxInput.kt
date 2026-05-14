@@ -31,5 +31,9 @@ data class TxInput(
 @Parcelize
 data class TxOutput(
     var first: String = "",
-    var second: Amount = Amount.ZER0
+    var second: Amount = Amount.ZER0,
+    var isChange: Boolean = false,
+    var isReceive: Boolean = false,
+    var userAmount: Amount = Amount.ZER0,
+    var assetId: String = ""
 ) : Parcelable

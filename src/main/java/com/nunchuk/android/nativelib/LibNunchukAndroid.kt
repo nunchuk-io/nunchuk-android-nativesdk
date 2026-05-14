@@ -75,9 +75,8 @@ internal class LibNunchukAndroid {
         chain: Int,
         hwiPath: String,
         enableProxy: Boolean,
-        testnetServers: List<String>,
-        mainnetServers: List<String>,
-        signetServers: List<String>,
+        electrumServers: List<String>,
+        liquidServers: List<String>,
         backendType: Int,
         storagePath: String,
         passphrase: String,
@@ -137,6 +136,46 @@ internal class LibNunchukAndroid {
         decoyPin: String,
         disableValueKeyset: Boolean
     ): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun createLiquidWalletFromSigner(signer: SingleSigner): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun createLiquidWalletFromMnemonic(mnemonic: String, passphrase: String): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun draftLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun createLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        memo: String,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun signLiquidTransaction(
+        walletId: String,
+        txId: String,
+        device: Device,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun getAddressAssets(walletId: String, address: String): Map<String, Amount>
+
+    @Throws(NCNativeException::class)
+    external fun getAssetBalance(walletId: String, assetIdHex: String): Amount
+
+    @Throws(NCNativeException::class)
+    external fun getUSDTAssetId(): String
+
+    @Throws(NCNativeException::class)
+    external fun getLBTCAssetId(): String
 
     @Throws(NCNativeException::class)
     external fun getWallets(): List<Wallet>

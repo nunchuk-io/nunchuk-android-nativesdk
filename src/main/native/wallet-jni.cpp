@@ -1044,3 +1044,179 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSpendableNowAmount(
         return env->ExceptionOccurred();
     }
 }
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createLiquidWalletFromSigner(
+        JNIEnv *env,
+        jobject thiz,
+        jobject signer
+) {
+    try {
+        SingleSigner c_signer = Serializer::convert2CSigner(env, signer);
+        Wallet wallet = NunchukProvider::get()->nu->CreateLiquidWallet(c_signer);
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] createLiquidWalletFromSigner error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createLiquidWalletFromMnemonic(
+        JNIEnv *env,
+        jobject thiz,
+        jstring mnemonic,
+        jstring passphrase
+) {
+    try {
+        Wallet wallet = NunchukProvider::get()->nu->CreateLiquidWallet(
+                StringWrapper(env, mnemonic),
+                StringWrapper(env, passphrase)
+        );
+        return Deserializer::convert2JWallet(env, wallet);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] createLiquidWalletFromMnemonic error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftLiquidTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jobject outputs,
+        jobject fee_rate
+) {
+    try {
+        auto c_outputs = Serializer::convert2CLiquidOutputs(env, outputs);
+        Amount c_fee_rate = Serializer::convert2CAmount(env, fee_rate);
+        auto tx = NunchukProvider::get()->nu->DraftLiquidTransaction(
+                StringWrapper(env, wallet_id),
+                c_outputs,
+                c_fee_rate
+        );
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] draftLiquidTransaction error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createLiquidTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jobject outputs,
+        jobject fee_rate,
+        jstring memo
+) {
+    try {
+        auto c_outputs = Serializer::convert2CLiquidOutputs(env, outputs);
+        Amount c_fee_rate = Serializer::convert2CAmount(env, fee_rate);
+        auto tx = NunchukProvider::get()->nu->CreateLiquidTransaction(
+                StringWrapper(env, wallet_id),
+                c_outputs,
+                c_fee_rate,
+                StringWrapper(env, memo)
+        );
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] createLiquidTransaction error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signLiquidTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring tx_id,
+        jobject device
+) {
+    try {
+        Device c_device = Serializer::convert2CDevice(env, device);
+        auto tx = NunchukProvider::get()->nu->SignLiquidTransaction(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, tx_id),
+                c_device
+        );
+        return Deserializer::convert2JTransaction(env, tx);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] signLiquidTransaction error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressAssets(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring address
+) {
+    try {
+        auto assets = NunchukProvider::get()->nu->GetAddressAssets(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, address)
+        );
+        return Deserializer::convert2JAssetAmountMap(env, assets);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] getAddressAssets error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAssetBalance(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jstring asset_id_hex
+) {
+    try {
+        Wallet wallet = NunchukProvider::get()->nu->GetWallet(StringWrapper(env, wallet_id));
+        AssetId asset = Serializer::convert2CAssetId(env, asset_id_hex);
+        Amount amount = wallet.get_asset_balance(asset);
+        return Deserializer::convert2JAmount(env, amount);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] getAssetBalance error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}

@@ -178,4 +178,6 @@ public:
     static jobject convert2JGroupWalletAlert(JNIEnv *env, const GroupWalletAlert &alert);
     static jobject convert2JGroupWalletAlerts(JNIEnv *env, const std::vector<GroupWalletAlert> &alerts);
     static jobject convert2JGroupTransactionState(JNIEnv *env, const GroupTransactionState &state);
+    static jstring convert2JAssetIdHex(JNIEnv *env, const AssetId &assetId);
+    static jobject convert2JAssetAmountMap(JNIEnv *env, const std::map<AssetId, Amount> &assets);
 };

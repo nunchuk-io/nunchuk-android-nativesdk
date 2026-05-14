@@ -20,6 +20,15 @@ WalletType Serializer::convert2CWalletType(jint ordinal) {
         case 1:
             type = WalletType::MULTI_SIG;
             break;
+        case 2:
+            type = WalletType::ESCROW;
+            break;
+        case 3:
+            type = WalletType::MINISCRIPT;
+            break;
+        case 4:
+            type = WalletType::LIQUID;
+            break;
         default:
             type = WalletType::ESCROW;
             break;
@@ -615,7 +624,38 @@ TxOutput Serializer::convert2CTxOutput(JNIEnv *env, jobject input) {
     jfieldID fieldSecond = env->GetFieldID(clazz, "second", "Lcom/nunchuk/android/model/Amount;");
     auto secondVal = env->GetObjectField(input, fieldSecond);
 
-    return TxOutput(first, Serializer::convert2CAmount(env, secondVal));
+    TxOutput out(first, Serializer::convert2CAmount(env, secondVal));
+
+    jfieldID fieldAssetId = env->GetFieldID(clazz, "assetId", "Ljava/lang/String;");
+    if (fieldAssetId != nullptr) {
+        auto assetVal = (jstring) env->GetObjectField(input, fieldAssetId);
+        if (assetVal != nullptr) {
+            auto hex = std::string(StringWrapper(env, assetVal));
+            if (!hex.empty() && hex.size() % 2 == 0) {
+                AssetId asset;
+                asset.reserve(hex.size() / 2);
+                for (size_t i = 0; i < hex.size(); i += 2) {
+                    auto hi = hex[i];
+                    auto lo = hex[i + 1];
+                    auto decode = [](char c) -> int {
+                        if (c >= '0' && c <= '9') return c - '0';
+                        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+                        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+                        return -1;
+                    };
+                    int h = decode(hi), l = decode(lo);
+                    if (h < 0 || l < 0) {
+                        asset.clear();
+                        break;
+                    }
+                    asset.push_back(static_cast<unsigned char>((h << 4) | l));
+                }
+                out.assetId = std::move(asset);
+            }
+        }
+    }
+
+    return out;
 }
 
 std::vector<TxOutput> Serializer::convert2CTxOutputs(JNIEnv *env, jobject outputs) {
@@ -1262,5 +1302,58 @@ GroupDummyTransaction Serializer::convert2CGroupDummyTransaction(JNIEnv *env, jo
     result.set_created_at((time_t) env->GetLongField(obj, fieldCreatedAt));
 
     env->DeleteLocalRef(clazz);
+    return result;
+}
+AssetId Serializer::convert2CAssetId(JNIEnv *env, jstring hex) {
+    AssetId asset;
+    if (hex == nullptr) return asset;
+    auto hexStr = std::string(StringWrapper(env, hex));
+    if (hexStr.empty() || (hexStr.size() % 2) != 0) return asset;
+    auto decode = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        return -1;
+    };
+    asset.reserve(hexStr.size() / 2);
+    for (size_t i = 0; i < hexStr.size(); i += 2) {
+        int h = decode(hexStr[i]);
+        int l = decode(hexStr[i + 1]);
+        if (h < 0 || l < 0) {
+            asset.clear();
+            return asset;
+        }
+        asset.push_back(static_cast<unsigned char>((h << 4) | l));
+    }
+    return asset;
+}
+
+std::map<AssetId, std::map<std::string, Amount>>
+Serializer::convert2CLiquidOutputs(JNIEnv *env, jobject outputs) {
+    std::map<AssetId, std::map<std::string, Amount>> result;
+
+    jclass mapClass = env->FindClass("java/util/Map");
+    jmethodID entrySet = env->GetMethodID(mapClass, "entrySet", "()Ljava/util/Set;");
+    jobject set = env->CallObjectMethod(outputs, entrySet);
+    jclass setClass = env->FindClass("java/util/Set");
+    jmethodID iteratorMethodId = env->GetMethodID(setClass, "iterator", "()Ljava/util/Iterator;");
+    jobject iterator = env->CallObjectMethod(set, iteratorMethodId);
+
+    jclass iteratorClass = env->FindClass("java/util/Iterator");
+    jmethodID hasNext = env->GetMethodID(iteratorClass, "hasNext", "()Z");
+    jmethodID next = env->GetMethodID(iteratorClass, "next", "()Ljava/lang/Object;");
+
+    jclass entryClass = env->FindClass("java/util/Map$Entry");
+    jmethodID getKey = env->GetMethodID(entryClass, "getKey", "()Ljava/lang/Object;");
+    jmethodID getValue = env->GetMethodID(entryClass, "getValue", "()Ljava/lang/Object;");
+
+    while (env->CallBooleanMethod(iterator, hasNext)) {
+        jobject entry = env->CallObjectMethod(iterator, next);
+        auto keyHex = (jstring) env->CallObjectMethod(entry, getKey);
+        auto innerMap = env->CallObjectMethod(entry, getValue);
+        AssetId asset = convert2CAssetId(env, keyHex);
+        result[asset] = convert2CAmountsMap(env, innerMap);
+        env->DeleteLocalRef(entry);
+    }
     return result;
 }
