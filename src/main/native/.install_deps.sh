@@ -49,7 +49,6 @@ applyBitcoinDependsPatches() {
   patchFile ./patches/libevent.mk libnunchuk/contrib/bitcoin/depends/packages/libevent.mk
   patchFile ./patches/boost.mk libnunchuk/contrib/bitcoin/depends/packages/boost.mk
   patchFile ./patches/android.mk libnunchuk/contrib/bitcoin/depends/hosts/android.mk
-  patchFile ./patches/random.cpp libnunchuk/contrib/bitcoin/src/random.cpp
   patchFile ./patches/introspection.cmake libnunchuk/contrib/bitcoin/cmake/introspection.cmake
   patchFile ./patches/AddBoostIfNeeded.cmake libnunchuk/contrib/bitcoin/cmake/module/AddBoostIfNeeded.cmake
 }
