@@ -54,10 +54,18 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     auto tmpBlockListenerClass = env->FindClass("com/nunchuk/android/listener/BlockListener");
     auto tmpBlockListenerMethod = env->GetStaticMethodID(tmpBlockListenerClass, "onBlockUpdate",
-                                                         "(ILjava/lang/String;)V");
+                                                         "(ILjava/lang/String;Z)V");
     Initializer::get()->blockListenerClass = (jclass) env->NewGlobalRef(tmpBlockListenerClass);
     Initializer::get()->blockListenerMethod = tmpBlockListenerMethod;
     env->DeleteLocalRef(tmpBlockListenerClass);
+
+    auto tmpBalancesListenerClass = env->FindClass("com/nunchuk/android/listener/BalancesListener");
+    auto tmpBalancesListenerMethod = env->GetStaticMethodID(
+            tmpBalancesListenerClass, "onBalancesUpdate",
+            "(Ljava/lang/String;JJLjava/util/Map;)V");
+    Initializer::get()->balancesListenerClass = (jclass) env->NewGlobalRef(tmpBalancesListenerClass);
+    Initializer::get()->balancesListenerMethod = tmpBalancesListenerMethod;
+    env->DeleteLocalRef(tmpBalancesListenerClass);
 
     auto tmpTransactionListenerClass = env->FindClass(
             "com/nunchuk/android/listener/TransactionListener");
@@ -213,7 +221,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
 
         try {
             NunchukProvider::get()->nu->AddBlockListener(
-                    [](int height, const std::string &hex_header) {
+                    [](int height, std::string hex_header, bool liquid) {
                         JNIEnvGuard guard;
                         if (!guard) return;
                         JNIEnv *g_env = guard.get();
@@ -223,7 +231,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                                     Initializer::get()->blockListenerClass,
                                     Initializer::get()->blockListenerMethod,
                                     height,
-                                    jHexHeader
+                                    jHexHeader,
+                                    (jboolean) liquid
                             );
                             g_env->DeleteLocalRef(jHexHeader);
                         } catch (const std::exception &t) {
@@ -232,6 +241,67 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     });
         } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] Block listener error::%s", e.what());
+            Deserializer::convert2JException(env, e);
+        }
+
+        try {
+            NunchukProvider::get()->nu->AddBalancesListener(
+                    [](std::string wallet_id, Amount balance, Amount unconfirmed_balance,
+                       const std::map<AssetId, Amount> &asset_balances) {
+                        JNIEnvGuard guard;
+                        if (!guard) return;
+                        JNIEnv *g_env = guard.get();
+                        try {
+                            // Build the Java Map<String, Long> here. Only java.util.HashMap and
+                            // java.lang.Long are referenced — both are in the bootstrap class
+                            // loader, so FindClass is safe from this native IO thread. App
+                            // classes (e.g. com.nunchuk.android.model.Amount) cannot be
+                            // resolved here, which is why amounts are passed as primitive longs.
+                            jclass mapClass = g_env->FindClass("java/util/HashMap");
+                            jmethodID mapCtor = g_env->GetMethodID(mapClass, "<init>", "()V");
+                            jmethodID mapPut = g_env->GetMethodID(
+                                    mapClass, "put",
+                                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+                            jclass longClass = g_env->FindClass("java/lang/Long");
+                            jmethodID longValueOf = g_env->GetStaticMethodID(
+                                    longClass, "valueOf", "(J)Ljava/lang/Long;");
+                            jobject jAssetBalances = g_env->NewObject(mapClass, mapCtor);
+                            static const char hexmap[] = "0123456789abcdef";
+                            for (const auto &kv : asset_balances) {
+                                std::string hex;
+                                hex.reserve(kv.first.size() * 2);
+                                for (unsigned char c : kv.first) {
+                                    hex.push_back(hexmap[c >> 4]);
+                                    hex.push_back(hexmap[c & 0x0f]);
+                                }
+                                jstring jKey = g_env->NewStringUTF(hex.c_str());
+                                jobject jVal = g_env->CallStaticObjectMethod(
+                                        longClass, longValueOf, (jlong) kv.second);
+                                jobject prev = g_env->CallObjectMethod(
+                                        jAssetBalances, mapPut, jKey, jVal);
+                                if (prev != nullptr) g_env->DeleteLocalRef(prev);
+                                g_env->DeleteLocalRef(jKey);
+                                g_env->DeleteLocalRef(jVal);
+                            }
+                            jstring jWalletId = g_env->NewStringUTF(wallet_id.c_str());
+                            g_env->CallStaticVoidMethod(
+                                    Initializer::get()->balancesListenerClass,
+                                    Initializer::get()->balancesListenerMethod,
+                                    jWalletId,
+                                    (jlong) balance,
+                                    (jlong) unconfirmed_balance,
+                                    jAssetBalances
+                            );
+                            g_env->DeleteLocalRef(jWalletId);
+                            g_env->DeleteLocalRef(jAssetBalances);
+                            g_env->DeleteLocalRef(longClass);
+                            g_env->DeleteLocalRef(mapClass);
+                        } catch (const std::exception &t) {
+                            syslog(LOG_DEBUG, "[JNI] balancesListener error::%s", t.what());
+                        }
+                    });
+        } catch (BaseException &e) {
+            syslog(LOG_DEBUG, "[JNI] Balances Listener Error::%s", e.what());
             Deserializer::convert2JException(env, e);
         }
 

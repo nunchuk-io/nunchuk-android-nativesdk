@@ -48,6 +48,9 @@ public:
     jclass blockListenerClass;
     jmethodID blockListenerMethod;
 
+    jclass balancesListenerClass;
+    jmethodID balancesListenerMethod;
+
     jclass transactionListenerClass;
     jmethodID transactionListenerMethod;
 

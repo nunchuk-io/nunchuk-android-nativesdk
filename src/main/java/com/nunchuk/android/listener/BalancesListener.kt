@@ -19,6 +19,7 @@
 
 package com.nunchuk.android.listener
 
+import com.nunchuk.android.model.Amount
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,18 +27,34 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-object BlockListener {
+object BalancesListener {
     private val appScope = CoroutineScope(Job() + Dispatchers.IO)
-    private val blockChainFlow = MutableSharedFlow<BtcBlockInfo>()
+    private val internalBalancesUpdateFlow = MutableSharedFlow<BalancesUpdate>()
+    val balancesUpdateFlow = internalBalancesUpdateFlow.asSharedFlow()
 
     @JvmStatic
-    fun onBlockUpdate(height: Int, hexHeader: String, isLiquid: Boolean) {
+    fun onBalancesUpdate(
+        walletId: String,
+        balance: Long,
+        unconfirmedBalance: Long,
+        assetBalances: Map<String, Long>,
+    ) {
         appScope.launch {
-            blockChainFlow.emit(BtcBlockInfo(height, hexHeader, isLiquid))
+            internalBalancesUpdateFlow.emit(
+                BalancesUpdate(
+                    walletId = walletId,
+                    balance = Amount(value = balance),
+                    unconfirmedBalance = Amount(value = unconfirmedBalance),
+                    assetBalances = assetBalances.mapValues { Amount(value = it.value) },
+                )
+            )
         }
     }
-
-    fun getBlockChainFlow() = blockChainFlow.asSharedFlow()
 }
 
-data class BtcBlockInfo(val height: Int, val hexHeader: String, val isLiquid: Boolean)
+data class BalancesUpdate(
+    val walletId: String,
+    val balance: Amount,
+    val unconfirmedBalance: Amount,
+    val assetBalances: Map<String, Amount>,
+)
