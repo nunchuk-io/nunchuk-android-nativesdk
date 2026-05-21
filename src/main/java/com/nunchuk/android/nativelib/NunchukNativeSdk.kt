@@ -582,7 +582,7 @@ class NunchukNativeSdk {
     fun getDevices() = nunchukAndroid.getDevices()
 
     @Throws(NCNativeException::class)
-    fun getChainTip() = nunchukAndroid.getChainTip()
+    fun getChainTip(liquid: Boolean = false) = nunchukAndroid.getChainTip(liquid)
 
     @Throws(NCNativeException::class)
     fun sendSignerPassphrase(masterSignerId: String, passphrase: String) =

@@ -87,10 +87,11 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getChainTip(
         JNIEnv *env,
-        jobject thiz
+        jobject thiz,
+        jboolean liquid
 ) {
     try {
-        return NunchukProvider::get()->nu->GetChainTip();
+        return NunchukProvider::get()->nu->GetChainTip(static_cast<bool>(liquid));
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         env->ExceptionOccurred();

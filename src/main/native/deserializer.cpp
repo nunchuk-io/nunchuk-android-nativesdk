@@ -438,6 +438,12 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setBalance",
                                                        "(Lcom/nunchuk/android/model/Amount;)V"),
                             convert2JAmount(env, wallet.get_unconfirmed_balance()));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setUsdtBalance",
+                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
+                            convert2JAmount(env, wallet.get_asset_balance(Utils::GetUSDTAssetId())));
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setLbtcBalance",
+                                                       "(Lcom/nunchuk/android/model/Amount;)V"),
+                            convert2JAmount(env, wallet.get_asset_balance(Utils::GetLBTCAssetId())));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setAddressType",
                                                        "(Lcom/nunchuk/android/type/AddressType;)V"),
                             convert2JAddressType(env, wallet.get_address_type()));
@@ -455,6 +461,9 @@ jobject Deserializer::convert2JWallet(JNIEnv *env, const Wallet &wallet) {
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setArchived", "(Z)V"), wallet.is_archived());
         callSetString(env, instance, env->GetMethodID(clazz, "setMiniscript", "(Ljava/lang/String;)V"),
                       wallet.get_miniscript().c_str());
+        env->CallVoidMethod(instance, env->GetMethodID(clazz, "setWalletType",
+                                                       "(Lcom/nunchuk/android/type/WalletType;)V"),
+                            convert2JWalletType(env, wallet.get_wallet_type()));
         syslog(LOG_DEBUG, "[JNI] convert2JWallet balance::%s",
                Utils::ValueFromAmount(wallet.get_balance()).c_str());
     } catch (std::exception &e) {

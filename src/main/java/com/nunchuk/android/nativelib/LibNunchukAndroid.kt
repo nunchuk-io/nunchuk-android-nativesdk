@@ -432,7 +432,7 @@ internal class LibNunchukAndroid {
     external fun getDevices(): List<Device>
 
     @Throws(NCNativeException::class)
-    external fun getChainTip(): Int
+    external fun getChainTip(liquid: Boolean): Int
 
     @Throws(NCNativeException::class)
     external fun sendSignerPassphrase(masterSignerId: String, passphrase: String)
