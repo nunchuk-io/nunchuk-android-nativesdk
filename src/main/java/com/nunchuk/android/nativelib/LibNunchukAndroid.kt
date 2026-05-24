@@ -429,6 +429,9 @@ internal class LibNunchukAndroid {
     external fun isSilentPaymentAddress(address: String): Boolean
 
     @Throws(NCNativeException::class)
+    external fun isLiquidAddress(address: String): Boolean
+
+    @Throws(NCNativeException::class)
     external fun getDevices(): List<Device>
 
     @Throws(NCNativeException::class)

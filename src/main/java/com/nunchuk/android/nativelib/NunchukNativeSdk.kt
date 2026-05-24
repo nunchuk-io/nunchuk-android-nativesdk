@@ -579,6 +579,9 @@ class NunchukNativeSdk {
     fun isSilentPaymentAddress(address: String) = nunchukAndroid.isSilentPaymentAddress(address = address)
 
     @Throws(NCNativeException::class)
+    fun isLiquidAddress(address: String) = nunchukAndroid.isLiquidAddress(address = address)
+
+    @Throws(NCNativeException::class)
     fun getDevices() = nunchukAndroid.getDevices()
 
     @Throws(NCNativeException::class)

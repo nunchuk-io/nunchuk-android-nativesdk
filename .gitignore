@@ -5,3 +5,4 @@
 /.cxx
 *.iml
 local.properties
+.mcp.json
