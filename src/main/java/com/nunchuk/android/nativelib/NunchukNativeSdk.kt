@@ -1524,8 +1524,8 @@ class NunchukNativeSdk {
     fun createHotWallet() = nunchukAndroid.createHotWallet()
 
     @Throws(NCNativeException::class)
-    fun getMnemonicFromHotWallet(walletId: String) =
-        nunchukAndroid.getMnemonicFromHotWallet(walletId)
+    fun getMnemonicFromUnbackedUpWallet(walletId: String) =
+        nunchukAndroid.getMnemonicFromUnbackedUpWallet(walletId)
 
     @Throws(NCNativeException::class)
     fun markHotWalletExported(walletId: String) = nunchukAndroid.markHotWalletExported(walletId)
@@ -2029,8 +2029,8 @@ class NunchukNativeSdk {
     ): GroupSandbox = nunchukAndroid.setGroupPlatformKeyPolicies(groupId, policies)
 
     @Throws(NCNativeException::class)
-    fun getMnemonicFromHotKey(signerId: String) =
-        nunchukAndroid.getMnemonicFromHotKey(signerId)
+    fun getMnemonicFromUnbackedUpKey(signerId: String) =
+        nunchukAndroid.getMnemonicFromUnbackedUpKey(signerId)
 
     @Throws(NCNativeException::class)
     fun createMiniscriptTemplateBySelection(

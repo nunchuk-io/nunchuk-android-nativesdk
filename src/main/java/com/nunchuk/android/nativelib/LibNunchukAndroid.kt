@@ -1271,7 +1271,7 @@ internal class LibNunchukAndroid {
     external fun createHotWallet(): Wallet?
 
     @Throws(NCNativeException::class)
-    external fun getMnemonicFromHotWallet(walletId: String): String
+    external fun getMnemonicFromUnbackedUpWallet(walletId: String): String
 
     @Throws(NCNativeException::class)
     external fun markHotWalletExported(walletId: String)
@@ -1726,7 +1726,7 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
-    external fun getMnemonicFromHotKey(signerId: String): String
+    external fun getMnemonicFromUnbackedUpKey(signerId: String): String
 
     @Throws(NCNativeException::class)
     external fun createMiniscriptTemplateBySelection(

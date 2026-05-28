@@ -968,12 +968,12 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSigner(JNIEnv *env,
 }
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromHotKey(JNIEnv *env,
-                                                                           jobject thiz,
-                                                                           jstring signer_id) {
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromUnbackedUpKey(JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jstring signer_id) {
     try {
         return env->NewStringUTF(
-                NunchukProvider::get()->nu->GetHotKeyMnemonic(
+                NunchukProvider::get()->nu->GetUnbackedUpKeyMnemonic(
                         StringWrapper(env, signer_id)).c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
