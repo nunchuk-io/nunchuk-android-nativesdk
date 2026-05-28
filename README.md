@@ -43,7 +43,7 @@ brew install automake libtool boost pkg-config libevent
 
 Ensure the following packages are installed on your system:
 ```
-make automake ninja-build libtool pkg-config git openjdk-17-jdk
+make automake ninja-build libtool pkg-config git openjdk-21-jdk
 ```
 
 ## Building
