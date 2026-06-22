@@ -1255,6 +1255,9 @@ internal class LibNunchukAndroid {
     external fun getAddressPath(walletId: String, address: String): String
 
     @Throws(NCNativeException::class)
+    external fun getAddressPathBySigner(walletId: String, address: String, signer: SingleSigner): String
+
+    @Throws(NCNativeException::class)
     external fun getCoinsFromTxInputs(
         walletId: String,
         inputs: List<TxInput>,
@@ -1305,6 +1308,62 @@ internal class LibNunchukAndroid {
         walletType: Int,
         addressType: Int,
         index: Int
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorGetPublicKey(
+        walletType: Int,
+        addressType: Int,
+        index: Int,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParsePublicKeyResponse(
+        response: String,
+    ): SingleSigner
+
+    @Throws(NCNativeException::class)
+    external fun trezorSignTransaction(
+        wallet: WalletBridge,
+        psbt: String,
+        xfp: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParseSignTransactionResponse(
+        wallet: WalletBridge,
+        psbt: String,
+        xfp: String,
+        response: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorSignMessage(
+        signer: SingleSigner,
+        message: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorGetSignMessagePath(
+        signer: SingleSigner,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParseSignMessageResponse(
+        response: String,
+        message: String,
+    ): SignedMessage
+
+    @Throws(NCNativeException::class)
+    external fun trezorGetAddress(
+        wallet: WalletBridge,
+        address: String,
+        path: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParseGetAddressResponse(
+        response: String,
     ): String
 
     @Throws(NCNativeException::class)

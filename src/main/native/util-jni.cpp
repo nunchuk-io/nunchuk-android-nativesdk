@@ -7,6 +7,8 @@
 #include "deserializer.h"
 #include "initializer.h"
 #include "string-wrapper.h"
+#include "utils/rfc2440.hpp"
+#include "utils/trezor.hpp"
 
 using namespace nunchuk;
 
@@ -418,6 +420,197 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBip32Path(JNIEnv *env, j
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorGetPublicKey(JNIEnv *env, jobject thiz,
+                                                                         jint wallet_type,
+                                                                         jint address_type,
+                                                                         jint index) {
+    try {
+        return env->NewStringUTF(Utils::TrezorGetPublicKey(
+                Serializer::convert2CWalletType(wallet_type),
+                Serializer::convert2CAddressType(address_type),
+                index
+        ).c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorParsePublicKeyResponse(
+        JNIEnv *env,
+        jobject thiz,
+        jstring response) {
+    try {
+        auto signer = Utils::TrezorParsePublicKeyResponse(StringWrapper(env, response));
+        return Deserializer::convert2JSigner(env, signer);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorSignTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jobject wallet,
+        jstring psbt,
+        jstring xfp) {
+    try {
+        auto signedPsbt = Utils::TrezorSignTransaction(
+                Serializer::convert2CWallet(env, wallet),
+                StringWrapper(env, psbt),
+                StringWrapper(env, xfp));
+        return env->NewStringUTF(signedPsbt.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorParseSignTransactionResponse(
+        JNIEnv *env,
+        jobject thiz,
+        jobject wallet,
+        jstring psbt,
+        jstring xfp,
+        jstring response) {
+    try {
+        auto signedPsbt = Utils::TrezorParseSignTransactionResponse(
+                Serializer::convert2CWallet(env, wallet),
+                StringWrapper(env, psbt),
+                StringWrapper(env, xfp),
+                StringWrapper(env, response));
+        return env->NewStringUTF(signedPsbt.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorSignMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jobject signer,
+        jstring message) {
+    try {
+        auto deeplink = Utils::TrezorSignMessage(
+                Serializer::convert2CSigner(env, signer),
+                StringWrapper(env, message));
+        return env->NewStringUTF(deeplink.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorGetSignMessagePath(
+        JNIEnv *env,
+        jobject thiz,
+        jobject signer) {
+    try {
+        auto path = Utils::TrezorGetSignMessagePath(Serializer::convert2CSigner(env, signer));
+        return env->NewStringUTF(path.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorParseSignMessageResponse(
+        JNIEnv *env,
+        jobject thiz,
+        jstring response,
+        jstring message) {
+    try {
+        auto signedMessage = Utils::TrezorParseSignMessage(StringWrapper(env, response));
+        auto address = signedMessage.first;
+        auto signature = signedMessage.second;
+        auto rfc2440 = ExportBitcoinSignedMessage(
+                BitcoinSignedMessage{StringWrapper(env, message), address, signature});
+        return Deserializer::convert2JSignedMessage(env, address, signature, rfc2440);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorGetAddress(
+        JNIEnv *env,
+        jobject thiz,
+        jobject wallet,
+        jstring address,
+        jstring path) {
+    try {
+        auto deeplink = Utils::TrezorGetAddress(
+                Serializer::convert2CWallet(env, wallet),
+                StringWrapper(env, address),
+                StringWrapper(env, path));
+        return env->NewStringUTF(deeplink.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorParseGetAddressResponse(
+        JNIEnv *env,
+        jobject thiz,
+        jstring response) {
+    try {
+        auto address = Utils::TrezorParseGetAddress(StringWrapper(env, response));
+        return env->NewStringUTF(address.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_parseSignerString(JNIEnv *env, jobject thiz,

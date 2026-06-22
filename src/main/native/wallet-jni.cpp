@@ -565,6 +565,25 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressPath(JNIEnv *env,
 }
 
 extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getAddressPathBySigner(
+        JNIEnv *env, jobject thiz, jstring wallet_id, jstring address, jobject signer) {
+    try {
+        auto path = NunchukProvider::get()->nu->GetAddressPath(
+                StringWrapper(env, wallet_id),
+                StringWrapper(env, address),
+                Serializer::convert2CSigner(env, signer));
+        return env->NewStringUTF(path.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return env->NewStringUTF("");
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->NewStringUTF("");
+    }
+}
+
+extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBCR2020010Wallet(JNIEnv *env,
                                                                             jobject thiz,

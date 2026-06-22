@@ -74,6 +74,7 @@ android {
             version "3.22.1"
         }
     }
+
 }
 
 buildscript {
@@ -119,7 +120,7 @@ if (localProperties.exists()) {
 
 def GROUP_ID = "io.nunchuk.android"
 def ARTIFACT_ID = "nativesdk"
-def VERSION = "1.2.11-usdt"
+def VERSION = "1.2.15"
 
 publishing {
     publications {

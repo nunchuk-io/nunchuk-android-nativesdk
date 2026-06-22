@@ -1508,6 +1508,10 @@ class NunchukNativeSdk {
         nunchukAndroid.getAddressPath(walletId = walletId, address = address)
 
     @Throws(NCNativeException::class)
+    fun getAddressPath(walletId: String, address: String, signer: SingleSigner): String =
+        nunchukAndroid.getAddressPathBySigner(walletId = walletId, address = address, signer = signer)
+
+    @Throws(NCNativeException::class)
     fun getCoinsFromTxInputs(
         walletId: String,
         inputs: List<TxInput>,
@@ -1568,6 +1572,61 @@ class NunchukNativeSdk {
         addressType: AddressType,
         index: Int
     ) = nunchukAndroid.getBip32Path(walletType.ordinal, addressType.ordinal, index)
+
+    @Throws(NCNativeException::class)
+    fun trezorGetPublicKey(
+        walletType: WalletType,
+        addressType: AddressType,
+        index: Int
+    ) = nunchukAndroid.trezorGetPublicKey(walletType.ordinal, addressType.ordinal, index)
+
+    @Throws(NCNativeException::class)
+    fun trezorParsePublicKeyResponse(response: String) =
+        nunchukAndroid.trezorParsePublicKeyResponse(response)
+
+    @Throws(NCNativeException::class)
+    fun trezorSignTransaction(
+        wallet: Wallet,
+        psbt: String,
+        xfp: String
+    ) = nunchukAndroid.trezorSignTransaction(wallet.toBridge(), psbt, xfp)
+
+    @Throws(NCNativeException::class)
+    fun trezorParseSignTransactionResponse(
+        wallet: Wallet,
+        psbt: String,
+        xfp: String,
+        response: String
+    ) = nunchukAndroid.trezorParseSignTransactionResponse(wallet.toBridge(), psbt, xfp, response)
+
+    @Throws(NCNativeException::class)
+    fun trezorSignMessage(
+        signer: SingleSigner,
+        message: String
+    ) = nunchukAndroid.trezorSignMessage(signer, message)
+
+    @Throws(NCNativeException::class)
+    fun trezorGetSignMessagePath(
+        signer: SingleSigner
+    ) = nunchukAndroid.trezorGetSignMessagePath(signer)
+
+    @Throws(NCNativeException::class)
+    fun trezorParseSignMessageResponse(
+        response: String,
+        message: String
+    ) = nunchukAndroid.trezorParseSignMessageResponse(response, message)
+
+    @Throws(NCNativeException::class)
+    fun trezorGetAddress(
+        wallet: Wallet,
+        address: String,
+        path: String
+    ) = nunchukAndroid.trezorGetAddress(wallet.toBridge(), address, path)
+
+    @Throws(NCNativeException::class)
+    fun trezorParseGetAddressResponse(
+        response: String
+    ) = nunchukAndroid.trezorParseGetAddressResponse(response)
 
     @Throws(NCNativeException::class)
     fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)
