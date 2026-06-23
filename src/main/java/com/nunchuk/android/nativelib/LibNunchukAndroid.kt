@@ -1864,6 +1864,9 @@ internal class LibNunchukAndroid {
     @Throws(NCNativeException::class)
     external fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner>
 
+    @Throws(NCNativeException::class)
+    external fun getTimelockTemplate(timelockType: Int, timeUnit: Int, time: Long): String
+
     companion object {
         init {
             System.loadLibrary(LIB_NAME)

@@ -907,6 +907,40 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByS
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getTimelockTemplate(
+        JNIEnv *env, jobject thiz, jint timelock_type, jint time_unit, jlong time) {
+    try {
+        Timelock::Based based;
+        Timelock::Type type = Timelock::Type::LOCKTYPE_ABSOLUTE;
+
+        if (timelock_type == 0) {
+            type = Timelock::Type::LOCKTYPE_ABSOLUTE;
+        } else if (timelock_type == 1) {
+            type = Timelock::Type::LOCKTYPE_RELATIVE;
+        }
+
+        if (time_unit == 0) {
+            based = Timelock::Based::TIME_LOCK;
+        } else if (time_unit == 1) {
+            based = Timelock::Based::HEIGHT_LOCK;
+        }
+
+        auto timelock = Timelock(based, type, static_cast<int64_t>(time));
+        std::string miniscript = timelock.to_miniscript();
+
+        return env->NewStringUTF(miniscript.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
 extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createMiniscriptTemplateByCustom(JNIEnv *env,

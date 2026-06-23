@@ -2256,4 +2256,8 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getLBTCAssetId(): String = nunchukAndroid.getLBTCAssetId()
 
+    @Throws(NCNativeException::class)
+    fun getTimelockTemplate(timelockType: Int, timeUnit: Int, time: Long): String =
+        nunchukAndroid.getTimelockTemplate(timelockType, timeUnit, time)
+
 }
