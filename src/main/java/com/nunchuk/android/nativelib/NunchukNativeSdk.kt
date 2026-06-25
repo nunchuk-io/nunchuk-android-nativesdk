@@ -2228,7 +2228,9 @@ class NunchukNativeSdk {
         walletId: String,
         outputs: Map<String, Map<String, Amount>>,
         feeRate: Amount,
-    ): Transaction = nunchukAndroid.draftLiquidTransaction(walletId, outputs, feeRate)
+        subtractFeeFromAmount: Boolean = false,
+    ): Transaction =
+        nunchukAndroid.draftLiquidTransaction(walletId, outputs, feeRate, subtractFeeFromAmount)
 
     @Throws(NCNativeException::class)
     fun createLiquidTransaction(
@@ -2236,7 +2238,18 @@ class NunchukNativeSdk {
         outputs: Map<String, Map<String, Amount>>,
         feeRate: Amount,
         memo: String,
-    ): Transaction = nunchukAndroid.createLiquidTransaction(walletId, outputs, feeRate, memo)
+        subtractFeeFromAmount: Boolean = false,
+    ): Transaction =
+        nunchukAndroid.createLiquidTransaction(walletId, outputs, feeRate, memo, subtractFeeFromAmount)
+
+    @Throws(NCNativeException::class)
+    fun estimateFeeForLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean = false,
+    ): Amount =
+        nunchukAndroid.estimateFeeForLiquidTransaction(walletId, outputs, feeRate, subtractFeeFromAmount)
 
     @Throws(NCNativeException::class)
     fun signLiquidTransaction(walletId: String, txId: String, device: Device): Transaction =

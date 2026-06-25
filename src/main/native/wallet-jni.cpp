@@ -1149,7 +1149,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftLiquidTransaction(
         jobject thiz,
         jstring wallet_id,
         jobject outputs,
-        jobject fee_rate
+        jobject fee_rate,
+        jboolean subtract_fee_from_amount
 ) {
     try {
         auto c_outputs = Serializer::convert2CLiquidOutputs(env, outputs);
@@ -1157,7 +1158,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftLiquidTransaction(
         auto tx = NunchukProvider::get()->nu->DraftLiquidTransaction(
                 StringWrapper(env, wallet_id),
                 c_outputs,
-                c_fee_rate
+                c_fee_rate,
+                subtract_fee_from_amount
         );
         return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
@@ -1178,7 +1180,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createLiquidTransaction(
         jstring wallet_id,
         jobject outputs,
         jobject fee_rate,
-        jstring memo
+        jstring memo,
+        jboolean subtract_fee_from_amount
 ) {
     try {
         auto c_outputs = Serializer::convert2CLiquidOutputs(env, outputs);
@@ -1187,7 +1190,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_createLiquidTransaction(
                 StringWrapper(env, wallet_id),
                 c_outputs,
                 c_fee_rate,
-                StringWrapper(env, memo)
+                StringWrapper(env, memo),
+                subtract_fee_from_amount
         );
         return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
@@ -1219,6 +1223,35 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_signLiquidTransaction(
         return Deserializer::convert2JTransaction(env, tx);
     } catch (BaseException &e) {
         syslog(LOG_DEBUG, "[JNI] signLiquidTransaction error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_estimateFeeForLiquidTransaction(
+        JNIEnv *env,
+        jobject thiz,
+        jstring wallet_id,
+        jobject outputs,
+        jobject fee_rate,
+        jboolean subtract_fee_from_amount
+) {
+    try {
+        auto c_outputs = Serializer::convert2CLiquidOutputs(env, outputs);
+        Amount c_fee_rate = Serializer::convert2CAmount(env, fee_rate);
+        Amount fee = NunchukProvider::get()->nu->EstimateFeeForLiquidTransaction(
+                StringWrapper(env, wallet_id),
+                c_outputs,
+                c_fee_rate,
+                subtract_fee_from_amount
+        );
+        return Deserializer::convert2JAmount(env, fee);
+    } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);
         return nullptr;
     } catch (std::exception &e) {

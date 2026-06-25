@@ -148,6 +148,7 @@ internal class LibNunchukAndroid {
         walletId: String,
         outputs: Map<String, Map<String, Amount>>,
         feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
     ): Transaction
 
     @Throws(NCNativeException::class)
@@ -156,7 +157,16 @@ internal class LibNunchukAndroid {
         outputs: Map<String, Map<String, Amount>>,
         feeRate: Amount,
         memo: String,
+        subtractFeeFromAmount: Boolean,
     ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun estimateFeeForLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+    ): Amount
 
     @Throws(NCNativeException::class)
     external fun signLiquidTransaction(
