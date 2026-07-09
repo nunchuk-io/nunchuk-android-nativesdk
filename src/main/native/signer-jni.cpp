@@ -430,6 +430,35 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckMasterSigner(
     }
 }
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_healthCheckSingleSigner(
+        JNIEnv *env,
+        jobject thiz,
+        jobject signer,
+        jstring message,
+        jstring signature
+) {
+    syslog(LOG_DEBUG, "[JNI] healthCheckSingleSigner()");
+    try {
+        auto singleSigner = Serializer::convert2CSigner(env, signer);
+        auto _message = StringWrapper(env, message);
+        auto _signature = StringWrapper(env, signature);
+        auto healthStatus = NunchukProvider::get()->nu->HealthCheckSingleSigner(
+                singleSigner,
+                _message,
+                _signature
+        );
+        return Deserializer::convert2JHealthStatus(env, healthStatus);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] healthCheckSingleSigner error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}
+extern "C"
 JNIEXPORT void JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_clearSignerPassphrase(JNIEnv *env,
                                                                            jobject thiz,

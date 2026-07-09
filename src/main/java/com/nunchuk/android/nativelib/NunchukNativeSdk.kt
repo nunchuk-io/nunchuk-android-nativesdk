@@ -789,6 +789,17 @@ class NunchukNativeSdk {
     )
 
     @Throws(NCNativeException::class)
+    fun healthCheckSingleSigner(
+        signer: SingleSigner,
+        message: String,
+        signature: String,
+    ) = nunchukAndroid.healthCheckSingleSigner(
+        signer = signer,
+        message = message,
+        signature = signature
+    )
+
+    @Throws(NCNativeException::class)
     fun sendErrorEvent(
         roomId: String,
         platform: String,

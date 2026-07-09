@@ -612,6 +612,13 @@ internal class LibNunchukAndroid {
     ): HealthStatus
 
     @Throws(NCNativeException::class)
+    external fun healthCheckSingleSigner(
+        signer: SingleSigner,
+        message: String,
+        signature: String,
+    ): HealthStatus
+
+    @Throws(NCNativeException::class)
     external fun sendErrorEvent(
         roomId: String,
         platform: String,
