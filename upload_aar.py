@@ -33,7 +33,9 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
     repo = g.get_repo(repo_name)
     nunchuk_sdk_repo = g.get_repo("nunchuk-io/nunchuk-android-nativesdk")
     release_note = read_file_content('release_note.md')
-    destination_path = "nunchuk-android-nativesdk-arm-release.aar"
+    # Prebuild repo + its jitpack.yml expect the "arm8" name (even though the
+    # build output is "-arm-release.aar", the `arm` flavor = both ABIs).
+    destination_path = "nunchuk-android-nativesdk-arm8-release.aar"
     # Read the file content in binary mode
     with open(file_path, 'rb') as file:
         file_content = file.read()

@@ -66,5 +66,23 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nativesdk-${{ env.GITHUB_SHA }}
+          name: nativesdk-${{ github.sha }}
           path: build/outputs/aar
+
+      # Auto-publish to the prebuild repo + JitPack on a push to main.
+      # Your release flow pushes GitLab -> GitHub main once per release, so a push
+      # to main == a release. Publishes version = `def VERSION` in build.gradle
+      # (no git tag needed). Requires repo secret NATIVESDK_PUBLISH_TOKEN: a PAT
+      # with write access to nunchuk-android-nativesdk-prebuild + nunchuk-android-nativesdk.
+      - name: Publish to prebuild repo + JitPack
+        if: github.ref == 'refs/heads/main'
+        env:
+          PUBLISH_TOKEN: ${{ secrets.NATIVESDK_PUBLISH_TOKEN }}
+        run: |
+          if [ -z "$PUBLISH_TOKEN" ]; then
+            echo "::error title=Missing secret::NATIVESDK_PUBLISH_TOKEN is not set"; exit 1
+          fi
+          sudo chown -R "$USER" build || true
+          python3 -m pip install --quiet --break-system-packages PyGithub
+          echo "githubToken=${PUBLISH_TOKEN}" >> local.properties
+          python3 upload_aar.py true
