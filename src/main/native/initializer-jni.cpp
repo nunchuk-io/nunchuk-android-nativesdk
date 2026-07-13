@@ -47,7 +47,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     // Store ConnectStatus
     jclass tmpConnectionClass = env->FindClass("com/nunchuk/android/model/ConnectionStatusHelper");
     jmethodID tmpConnectionMethod = env->GetStaticMethodID(tmpConnectionClass, "addListener",
-                                                           "(II)V");
+                                                           "(IIZ)V");
     Initializer::get()->connectStatusClass = (jclass) env->NewGlobalRef(tmpConnectionClass);
     Initializer::get()->connectStatusMethod = tmpConnectionMethod;
     env->DeleteLocalRef(tmpConnectionClass);
@@ -198,16 +198,19 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         );
         try {
             NunchukProvider::get()->nu->AddBlockchainConnectionListener(
-                    [](ConnectionStatus connectionStatus, int percent) {
+                    [](ConnectionStatus connectionStatus, int percent, bool liquid) {
                         JNIEnvGuard guard;
                         if (!guard) return;
                         JNIEnv *g_env = guard.get();
+                        syslog(LOG_DEBUG, "[JNI] connectionListener status::%d percent::%d liquid::%d",
+                               (int) connectionStatus, percent, (int) liquid);
                         try {
                             g_env->CallStaticVoidMethod(
                                     Initializer::get()->connectStatusClass,
                                     Initializer::get()->connectStatusMethod,
                                     (int) connectionStatus,
-                                    percent
+                                    percent,
+                                    (jboolean) liquid
                             );
                         } catch (const std::exception &t) {
                             syslog(LOG_DEBUG, "[JNI] connectionListener error::%s", t.what());
