@@ -36,12 +36,11 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
     # Prebuild repo + its jitpack.yml expect the "arm8" name (even though the
     # build output is "-arm-release.aar", the `arm` flavor = both ABIs).
     destination_path = "nunchuk-android-nativesdk-arm8-release.aar"
-    # Read the file content in binary mode
+    # Read the file content in binary mode. PyGithub base64-encodes the content
+    # for the GitHub API itself, so pass the RAW bytes here — encoding it again
+    # would store base64 *text* as the file, producing an invalid (non-zip) aar.
     with open(file_path, 'rb') as file:
         file_content = file.read()
-
-    # Encode file content to base64
-    file_content_base64 = base64.b64encode(file_content).decode()
 
     # Get the existing file if it exists
     existing_file = repo.get_contents(destination_path) if repo.get_contents(destination_path) else None
@@ -52,20 +51,24 @@ def upload_file_to_github(token, repo_name, file_path, commit_message):
         # Determine commit message
         commit_message = "File updated via script"
         # Update the existing file
-        repo.update_file(destination_path, commit_message, file_content_base64, sha)
+        repo.update_file(destination_path, commit_message, file_content, sha)
         print(f"File '{file_path}' updated successfully at '{destination_path}' in '{repo_name}' repository.")
     else:
         # Determine commit message
         commit_message = "File uploaded via script"
         # Create a new file
-        repo.create_file(destination_path, commit_message, file_content_base64)
+        repo.create_file(destination_path, commit_message, file_content)
         print(f"File '{file_path}' uploaded successfully to '{destination_path}' in '{repo_name}' repository.")
 
-    # Create a release
+    # Create a release (idempotent: skip repos that already have this version so
+    # a re-publish of the same VERSION doesn't hard-fail on the existing release)
     if should_create_tag:
-        repo.create_git_release(version, version, release_note, draft=False)
-        nunchuk_sdk_repo.create_git_release(version, version, release_note, draft=False)
-        print(f"Release '{version}' created successfully with tag '{version}'.")
+        for r in (repo, nunchuk_sdk_repo):
+            try:
+                r.create_git_release(version, version, release_note, draft=False)
+                print(f"Release '{version}' created in '{r.full_name}'.")
+            except Exception as e:
+                print(f"Release '{version}' already exists / not created in '{r.full_name}': {e}")
 
 # Usage
 version = get_version_from_gradle()
