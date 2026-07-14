@@ -38,3 +38,14 @@ RUN $ANDROID_HOME/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME \
     "cmake;$ANDROID_CMAKE_VERSION" \
     "platform-tools" \
     "ndk;$ANDROID_NDK_VERSION"
+
+# libwally-core's ./configure (AX_PYTHON_DEVEL) requires a `python` binary with a
+# working `distutils`. Debian trixie ships Python 3.13 (distutils removed) and no
+# `python` symlink, so provide both: python-is-python3 + setuptools (whose vendored
+# _distutils satisfies `import distutils`). Kept as a separate layer so it doesn't
+# invalidate the cached Android SDK/NDK download layers above.
+RUN set -ex; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes -o APT::Install-Suggests=false --no-install-recommends \
+        python-is-python3 python3-setuptools; \
+    rm -rf /var/lib/apt/lists/*;
