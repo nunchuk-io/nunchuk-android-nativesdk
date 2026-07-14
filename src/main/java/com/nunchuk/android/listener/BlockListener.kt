@@ -31,13 +31,13 @@ object BlockListener {
     private val blockChainFlow = MutableSharedFlow<BtcBlockInfo>()
 
     @JvmStatic
-    fun onBlockUpdate(height: Int, hexHeader: String) {
+    fun onBlockUpdate(height: Int, hexHeader: String, isLiquid: Boolean) {
         appScope.launch {
-            blockChainFlow.emit(BtcBlockInfo(height, hexHeader))
+            blockChainFlow.emit(BtcBlockInfo(height, hexHeader, isLiquid))
         }
     }
 
     fun getBlockChainFlow() = blockChainFlow.asSharedFlow()
 }
 
-data class BtcBlockInfo(val height: Int, val hexHeader: String)
+data class BtcBlockInfo(val height: Int, val hexHeader: String, val isLiquid: Boolean)

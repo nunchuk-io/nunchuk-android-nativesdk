@@ -47,17 +47,25 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     // Store ConnectStatus
     jclass tmpConnectionClass = env->FindClass("com/nunchuk/android/model/ConnectionStatusHelper");
     jmethodID tmpConnectionMethod = env->GetStaticMethodID(tmpConnectionClass, "addListener",
-                                                           "(II)V");
+                                                           "(IIZ)V");
     Initializer::get()->connectStatusClass = (jclass) env->NewGlobalRef(tmpConnectionClass);
     Initializer::get()->connectStatusMethod = tmpConnectionMethod;
     env->DeleteLocalRef(tmpConnectionClass);
 
     auto tmpBlockListenerClass = env->FindClass("com/nunchuk/android/listener/BlockListener");
     auto tmpBlockListenerMethod = env->GetStaticMethodID(tmpBlockListenerClass, "onBlockUpdate",
-                                                         "(ILjava/lang/String;)V");
+                                                         "(ILjava/lang/String;Z)V");
     Initializer::get()->blockListenerClass = (jclass) env->NewGlobalRef(tmpBlockListenerClass);
     Initializer::get()->blockListenerMethod = tmpBlockListenerMethod;
     env->DeleteLocalRef(tmpBlockListenerClass);
+
+    auto tmpBalancesListenerClass = env->FindClass("com/nunchuk/android/listener/BalancesListener");
+    auto tmpBalancesListenerMethod = env->GetStaticMethodID(
+            tmpBalancesListenerClass, "onBalancesUpdate",
+            "(Ljava/lang/String;JJLjava/util/Map;)V");
+    Initializer::get()->balancesListenerClass = (jclass) env->NewGlobalRef(tmpBalancesListenerClass);
+    Initializer::get()->balancesListenerMethod = tmpBalancesListenerMethod;
+    env->DeleteLocalRef(tmpBalancesListenerClass);
 
     auto tmpTransactionListenerClass = env->FindClass(
             "com/nunchuk/android/listener/TransactionListener");
@@ -137,9 +145,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jint chain,
         jstring hwi_path,
         jboolean enable_proxy,
-        jobject testnet_servers,
-        jobject mainnet_servers,
-        jobject signet_servers,
+        jobject electrum_servers,
+        jobject liquid_servers,
         jint backend_type,
         jstring storage_path,
         jstring pass_phrase,
@@ -153,20 +160,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_chain(Serializer::convert2CChain(chain));
         settings.set_hwi_path(StringWrapper(env, hwi_path));
         settings.enable_proxy(enable_proxy);
-        // libnunchuk replaced the per-chain server lists (mainnet/signet/testnet)
-        // with a single electrum server list for the active chain (+ a separate
-        // liquid list). Select the list matching the current chain.
-        switch (Serializer::convert2CChain(chain)) {
-            case Chain::TESTNET:
-                settings.set_electrum_servers(Serializer::convert2CListString(env, testnet_servers));
-                break;
-            case Chain::SIGNET:
-                settings.set_electrum_servers(Serializer::convert2CListString(env, signet_servers));
-                break;
-            default:
-                settings.set_electrum_servers(Serializer::convert2CListString(env, mainnet_servers));
-                break;
-        }
+        settings.set_electrum_servers(Serializer::convert2CListString(env, electrum_servers));
+        settings.set_liquid_servers(Serializer::convert2CListString(env, liquid_servers));
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(StringWrapper(env, storage_path));
         settings.set_group_server(StringWrapper(env, base_url_api));
@@ -207,12 +202,15 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                         JNIEnvGuard guard;
                         if (!guard) return;
                         JNIEnv *g_env = guard.get();
+                        syslog(LOG_DEBUG, "[JNI] connectionListener status::%d percent::%d liquid::%d",
+                               (int) connectionStatus, percent, (int) liquid);
                         try {
                             g_env->CallStaticVoidMethod(
                                     Initializer::get()->connectStatusClass,
                                     Initializer::get()->connectStatusMethod,
                                     (int) connectionStatus,
-                                    percent
+                                    percent,
+                                    (jboolean) liquid
                             );
                         } catch (const std::exception &t) {
                             syslog(LOG_DEBUG, "[JNI] connectionListener error::%s", t.what());
@@ -226,7 +224,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
 
         try {
             NunchukProvider::get()->nu->AddBlockListener(
-                    [](int height, const std::string &hex_header, bool liquid) {
+                    [](int height, std::string hex_header, bool liquid) {
                         JNIEnvGuard guard;
                         if (!guard) return;
                         JNIEnv *g_env = guard.get();
@@ -236,7 +234,8 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                                     Initializer::get()->blockListenerClass,
                                     Initializer::get()->blockListenerMethod,
                                     height,
-                                    jHexHeader
+                                    jHexHeader,
+                                    (jboolean) liquid
                             );
                             g_env->DeleteLocalRef(jHexHeader);
                         } catch (const std::exception &t) {
@@ -245,6 +244,67 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     });
         } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] Block listener error::%s", e.what());
+            Deserializer::convert2JException(env, e);
+        }
+
+        try {
+            NunchukProvider::get()->nu->AddBalancesListener(
+                    [](std::string wallet_id, Amount balance, Amount unconfirmed_balance,
+                       const std::map<AssetId, Amount> &asset_balances) {
+                        JNIEnvGuard guard;
+                        if (!guard) return;
+                        JNIEnv *g_env = guard.get();
+                        try {
+                            // Build the Java Map<String, Long> here. Only java.util.HashMap and
+                            // java.lang.Long are referenced — both are in the bootstrap class
+                            // loader, so FindClass is safe from this native IO thread. App
+                            // classes (e.g. com.nunchuk.android.model.Amount) cannot be
+                            // resolved here, which is why amounts are passed as primitive longs.
+                            jclass mapClass = g_env->FindClass("java/util/HashMap");
+                            jmethodID mapCtor = g_env->GetMethodID(mapClass, "<init>", "()V");
+                            jmethodID mapPut = g_env->GetMethodID(
+                                    mapClass, "put",
+                                    "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+                            jclass longClass = g_env->FindClass("java/lang/Long");
+                            jmethodID longValueOf = g_env->GetStaticMethodID(
+                                    longClass, "valueOf", "(J)Ljava/lang/Long;");
+                            jobject jAssetBalances = g_env->NewObject(mapClass, mapCtor);
+                            static const char hexmap[] = "0123456789abcdef";
+                            for (const auto &kv : asset_balances) {
+                                std::string hex;
+                                hex.reserve(kv.first.size() * 2);
+                                for (unsigned char c : kv.first) {
+                                    hex.push_back(hexmap[c >> 4]);
+                                    hex.push_back(hexmap[c & 0x0f]);
+                                }
+                                jstring jKey = g_env->NewStringUTF(hex.c_str());
+                                jobject jVal = g_env->CallStaticObjectMethod(
+                                        longClass, longValueOf, (jlong) kv.second);
+                                jobject prev = g_env->CallObjectMethod(
+                                        jAssetBalances, mapPut, jKey, jVal);
+                                if (prev != nullptr) g_env->DeleteLocalRef(prev);
+                                g_env->DeleteLocalRef(jKey);
+                                g_env->DeleteLocalRef(jVal);
+                            }
+                            jstring jWalletId = g_env->NewStringUTF(wallet_id.c_str());
+                            g_env->CallStaticVoidMethod(
+                                    Initializer::get()->balancesListenerClass,
+                                    Initializer::get()->balancesListenerMethod,
+                                    jWalletId,
+                                    (jlong) balance,
+                                    (jlong) unconfirmed_balance,
+                                    jAssetBalances
+                            );
+                            g_env->DeleteLocalRef(jWalletId);
+                            g_env->DeleteLocalRef(jAssetBalances);
+                            g_env->DeleteLocalRef(longClass);
+                            g_env->DeleteLocalRef(mapClass);
+                        } catch (const std::exception &t) {
+                            syslog(LOG_DEBUG, "[JNI] balancesListener error::%s", t.what());
+                        }
+                    });
+        } catch (BaseException &e) {
+            syslog(LOG_DEBUG, "[JNI] Balances Listener Error::%s", e.what());
             Deserializer::convert2JException(env, e);
         }
 

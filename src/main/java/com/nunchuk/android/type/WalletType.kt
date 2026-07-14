@@ -24,4 +24,5 @@ enum class WalletType {
     MULTI_SIG,
     ESCROW,
     MINISCRIPT,
+    LIQUID,
 }

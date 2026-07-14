@@ -4,5 +4,6 @@ import com.nunchuk.android.type.ConnectionStatus
 
 data class SyncBlockchainStatus(
     val status: ConnectionStatus,
-    val percent: Int
+    val percent: Int,
+    val isLiquid: Boolean = false
 )

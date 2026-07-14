@@ -1540,22 +1540,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_draftRbfTransaction(JNIEnv 
                 c_wallet_id,
                 original_tx.get_inputs());
         auto mapOut = std::map<std::string, Amount>();
-        // get_user_outputs() was removed; reconstruct the user-specified outputs
-        // from the flat outputs list, mirroring libnunchuk's own RBF logic:
-        // prefer per-output userAmount, otherwise fall back to non-change outputs.
-        const auto &original_outputs = original_tx.get_outputs();
-        bool has_user_amount = false;
-        for (const auto &output: original_outputs) {
+        for (const auto &output: original_tx.get_outputs()) {
             if (output.userAmount != 0) {
-                has_user_amount = true;
-                break;
-            }
-        }
-        for (const auto &output: original_outputs) {
-            if (has_user_amount) {
-                if (output.userAmount != 0) mapOut[output.address] = output.userAmount;
-            } else if (!output.isChange) {
-                mapOut[output.address] = output.amount;
+                mapOut[output.address] = output.userAmount;
             }
         }
         SigningPath c_signing_path = Serializer::convert2CSigningPath(env, signing_path);

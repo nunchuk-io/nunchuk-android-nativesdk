@@ -17,23 +17,44 @@
  *                                                                        *
  **************************************************************************/
 
-package com.nunchuk.android.model
+package com.nunchuk.android.listener
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import com.nunchuk.android.model.Amount
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
-@Parcelize
-data class TxInput(
-    var first: String = "",
-    var second: Int = 0
-) : Parcelable
+object BalancesListener {
+    private val appScope = CoroutineScope(Job() + Dispatchers.IO)
+    private val internalBalancesUpdateFlow = MutableSharedFlow<BalancesUpdate>()
+    val balancesUpdateFlow = internalBalancesUpdateFlow.asSharedFlow()
 
-@Parcelize
-data class TxOutput(
-    var first: String = "",
-    var second: Amount = Amount.ZER0,
-    var isChange: Boolean = false,
-    var isReceive: Boolean = false,
-    var userAmount: Amount = Amount.ZER0,
-    var assetId: String = ""
-) : Parcelable
+    @JvmStatic
+    fun onBalancesUpdate(
+        walletId: String,
+        balance: Long,
+        unconfirmedBalance: Long,
+        assetBalances: Map<String, Long>,
+    ) {
+        appScope.launch {
+            internalBalancesUpdateFlow.emit(
+                BalancesUpdate(
+                    walletId = walletId,
+                    balance = Amount(value = balance),
+                    unconfirmedBalance = Amount(value = unconfirmedBalance),
+                    assetBalances = assetBalances.mapValues { Amount(value = it.value) },
+                )
+            )
+        }
+    }
+}
+
+data class BalancesUpdate(
+    val walletId: String,
+    val balance: Amount,
+    val unconfirmedBalance: Amount,
+    val assetBalances: Map<String, Amount>,
+)

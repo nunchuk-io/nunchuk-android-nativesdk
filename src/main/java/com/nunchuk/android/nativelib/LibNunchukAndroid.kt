@@ -75,9 +75,8 @@ internal class LibNunchukAndroid {
         chain: Int,
         hwiPath: String,
         enableProxy: Boolean,
-        testnetServers: List<String>,
-        mainnetServers: List<String>,
-        signetServers: List<String>,
+        electrumServers: List<String>,
+        liquidServers: List<String>,
         backendType: Int,
         storagePath: String,
         passphrase: String,
@@ -137,6 +136,56 @@ internal class LibNunchukAndroid {
         decoyPin: String,
         disableValueKeyset: Boolean
     ): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun createLiquidWalletFromSigner(signer: SingleSigner): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun createLiquidWalletFromMnemonic(mnemonic: String, passphrase: String): Wallet
+
+    @Throws(NCNativeException::class)
+    external fun draftLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun createLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        memo: String,
+        subtractFeeFromAmount: Boolean,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun estimateFeeForLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean,
+    ): Amount
+
+    @Throws(NCNativeException::class)
+    external fun signLiquidTransaction(
+        walletId: String,
+        txId: String,
+        device: Device,
+    ): Transaction
+
+    @Throws(NCNativeException::class)
+    external fun getAddressAssets(walletId: String, address: String): Map<String, Amount>
+
+    @Throws(NCNativeException::class)
+    external fun getAssetBalance(walletId: String, assetIdHex: String): Amount
+
+    @Throws(NCNativeException::class)
+    external fun getUSDTAssetId(): String
+
+    @Throws(NCNativeException::class)
+    external fun getLBTCAssetId(): String
 
     @Throws(NCNativeException::class)
     external fun getWallets(): List<Wallet>
@@ -390,10 +439,13 @@ internal class LibNunchukAndroid {
     external fun isSilentPaymentAddress(address: String): Boolean
 
     @Throws(NCNativeException::class)
+    external fun isLiquidAddress(address: String): Boolean
+
+    @Throws(NCNativeException::class)
     external fun getDevices(): List<Device>
 
     @Throws(NCNativeException::class)
-    external fun getChainTip(): Int
+    external fun getChainTip(liquid: Boolean): Int
 
     @Throws(NCNativeException::class)
     external fun sendSignerPassphrase(masterSignerId: String, passphrase: String)
@@ -557,6 +609,13 @@ internal class LibNunchukAndroid {
         message: String,
         signature: String,
         path: String,
+    ): HealthStatus
+
+    @Throws(NCNativeException::class)
+    external fun healthCheckSingleSigner(
+        signer: SingleSigner,
+        message: String,
+        signature: String,
     ): HealthStatus
 
     @Throws(NCNativeException::class)
@@ -1213,6 +1272,9 @@ internal class LibNunchukAndroid {
     external fun getAddressPath(walletId: String, address: String): String
 
     @Throws(NCNativeException::class)
+    external fun getAddressPathBySigner(walletId: String, address: String, signer: SingleSigner): String
+
+    @Throws(NCNativeException::class)
     external fun getCoinsFromTxInputs(
         walletId: String,
         inputs: List<TxInput>,
@@ -1229,7 +1291,7 @@ internal class LibNunchukAndroid {
     external fun createHotWallet(): Wallet?
 
     @Throws(NCNativeException::class)
-    external fun getMnemonicFromHotWallet(walletId: String): String
+    external fun getMnemonicFromUnbackedUpWallet(walletId: String): String
 
     @Throws(NCNativeException::class)
     external fun markHotWalletExported(walletId: String)
@@ -1263,6 +1325,62 @@ internal class LibNunchukAndroid {
         walletType: Int,
         addressType: Int,
         index: Int
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorGetPublicKey(
+        walletType: Int,
+        addressType: Int,
+        index: Int,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParsePublicKeyResponse(
+        response: String,
+    ): SingleSigner
+
+    @Throws(NCNativeException::class)
+    external fun trezorSignTransaction(
+        wallet: WalletBridge,
+        psbt: String,
+        xfp: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParseSignTransactionResponse(
+        wallet: WalletBridge,
+        psbt: String,
+        xfp: String,
+        response: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorSignMessage(
+        signer: SingleSigner,
+        message: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorGetSignMessagePath(
+        signer: SingleSigner,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParseSignMessageResponse(
+        response: String,
+        message: String,
+    ): SignedMessage
+
+    @Throws(NCNativeException::class)
+    external fun trezorGetAddress(
+        wallet: WalletBridge,
+        address: String,
+        path: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun trezorParseGetAddressResponse(
+        response: String,
     ): String
 
     @Throws(NCNativeException::class)
@@ -1684,7 +1802,7 @@ internal class LibNunchukAndroid {
     ): GroupSandbox
 
     @Throws(NCNativeException::class)
-    external fun getMnemonicFromHotKey(signerId: String): String
+    external fun getMnemonicFromUnbackedUpKey(signerId: String): String
 
     @Throws(NCNativeException::class)
     external fun createMiniscriptTemplateBySelection(
@@ -1762,6 +1880,9 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner>
+
+    @Throws(NCNativeException::class)
+    external fun getTimelockTemplate(timelockType: Int, timeUnit: Int, time: Long): String
 
     companion object {
         init {

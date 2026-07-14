@@ -70,9 +70,8 @@ class NunchukNativeSdk {
             chain = appSettings.chain.ordinal,
             hwiPath = appSettings.hwiPath,
             enableProxy = appSettings.enableProxy,
-            testnetServers = appSettings.testnetServers,
-            mainnetServers = appSettings.mainnetServers,
-            signetServers = appSettings.signetServers,
+            electrumServers = appSettings.electrumServers,
+            liquidServers = appSettings.liquidServers,
             backendType = appSettings.backendType.ordinal,
             storagePath = appSettings.storagePath,
             passphrase = passphrase,
@@ -580,10 +579,13 @@ class NunchukNativeSdk {
     fun isSilentPaymentAddress(address: String) = nunchukAndroid.isSilentPaymentAddress(address = address)
 
     @Throws(NCNativeException::class)
+    fun isLiquidAddress(address: String) = nunchukAndroid.isLiquidAddress(address = address)
+
+    @Throws(NCNativeException::class)
     fun getDevices() = nunchukAndroid.getDevices()
 
     @Throws(NCNativeException::class)
-    fun getChainTip() = nunchukAndroid.getChainTip()
+    fun getChainTip(liquid: Boolean = false) = nunchukAndroid.getChainTip(liquid)
 
     @Throws(NCNativeException::class)
     fun sendSignerPassphrase(masterSignerId: String, passphrase: String) =
@@ -784,6 +786,17 @@ class NunchukNativeSdk {
         message = message,
         signature = signature,
         path = path
+    )
+
+    @Throws(NCNativeException::class)
+    fun healthCheckSingleSigner(
+        signer: SingleSigner,
+        message: String,
+        signature: String,
+    ) = nunchukAndroid.healthCheckSingleSigner(
+        signer = signer,
+        message = message,
+        signature = signature
     )
 
     @Throws(NCNativeException::class)
@@ -1506,6 +1519,10 @@ class NunchukNativeSdk {
         nunchukAndroid.getAddressPath(walletId = walletId, address = address)
 
     @Throws(NCNativeException::class)
+    fun getAddressPath(walletId: String, address: String, signer: SingleSigner): String =
+        nunchukAndroid.getAddressPathBySigner(walletId = walletId, address = address, signer = signer)
+
+    @Throws(NCNativeException::class)
     fun getCoinsFromTxInputs(
         walletId: String,
         inputs: List<TxInput>,
@@ -1522,8 +1539,8 @@ class NunchukNativeSdk {
     fun createHotWallet() = nunchukAndroid.createHotWallet()
 
     @Throws(NCNativeException::class)
-    fun getMnemonicFromHotWallet(walletId: String) =
-        nunchukAndroid.getMnemonicFromHotWallet(walletId)
+    fun getMnemonicFromUnbackedUpWallet(walletId: String) =
+        nunchukAndroid.getMnemonicFromUnbackedUpWallet(walletId)
 
     @Throws(NCNativeException::class)
     fun markHotWalletExported(walletId: String) = nunchukAndroid.markHotWalletExported(walletId)
@@ -1566,6 +1583,61 @@ class NunchukNativeSdk {
         addressType: AddressType,
         index: Int
     ) = nunchukAndroid.getBip32Path(walletType.ordinal, addressType.ordinal, index)
+
+    @Throws(NCNativeException::class)
+    fun trezorGetPublicKey(
+        walletType: WalletType,
+        addressType: AddressType,
+        index: Int
+    ) = nunchukAndroid.trezorGetPublicKey(walletType.ordinal, addressType.ordinal, index)
+
+    @Throws(NCNativeException::class)
+    fun trezorParsePublicKeyResponse(response: String) =
+        nunchukAndroid.trezorParsePublicKeyResponse(response)
+
+    @Throws(NCNativeException::class)
+    fun trezorSignTransaction(
+        wallet: Wallet,
+        psbt: String,
+        xfp: String
+    ) = nunchukAndroid.trezorSignTransaction(wallet.toBridge(), psbt, xfp)
+
+    @Throws(NCNativeException::class)
+    fun trezorParseSignTransactionResponse(
+        wallet: Wallet,
+        psbt: String,
+        xfp: String,
+        response: String
+    ) = nunchukAndroid.trezorParseSignTransactionResponse(wallet.toBridge(), psbt, xfp, response)
+
+    @Throws(NCNativeException::class)
+    fun trezorSignMessage(
+        signer: SingleSigner,
+        message: String
+    ) = nunchukAndroid.trezorSignMessage(signer, message)
+
+    @Throws(NCNativeException::class)
+    fun trezorGetSignMessagePath(
+        signer: SingleSigner
+    ) = nunchukAndroid.trezorGetSignMessagePath(signer)
+
+    @Throws(NCNativeException::class)
+    fun trezorParseSignMessageResponse(
+        response: String,
+        message: String
+    ) = nunchukAndroid.trezorParseSignMessageResponse(response, message)
+
+    @Throws(NCNativeException::class)
+    fun trezorGetAddress(
+        wallet: Wallet,
+        address: String,
+        path: String
+    ) = nunchukAndroid.trezorGetAddress(wallet.toBridge(), address, path)
+
+    @Throws(NCNativeException::class)
+    fun trezorParseGetAddressResponse(
+        response: String
+    ) = nunchukAndroid.trezorParseGetAddressResponse(response)
 
     @Throws(NCNativeException::class)
     fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)
@@ -2027,8 +2099,8 @@ class NunchukNativeSdk {
     ): GroupSandbox = nunchukAndroid.setGroupPlatformKeyPolicies(groupId, policies)
 
     @Throws(NCNativeException::class)
-    fun getMnemonicFromHotKey(signerId: String) =
-        nunchukAndroid.getMnemonicFromHotKey(signerId)
+    fun getMnemonicFromUnbackedUpKey(signerId: String) =
+        nunchukAndroid.getMnemonicFromUnbackedUpKey(signerId)
 
     @Throws(NCNativeException::class)
     fun createMiniscriptTemplateBySelection(
@@ -2153,5 +2225,63 @@ class NunchukNativeSdk {
     @Throws(NCNativeException::class)
     fun getTransactionSigners(walletId: String, txId: String): List<SingleSigner> =
         nunchukAndroid.getTransactionSigners(walletId, txId)
+
+    @Throws(NCNativeException::class)
+    fun createLiquidWallet(signer: SingleSigner): Wallet =
+        nunchukAndroid.createLiquidWalletFromSigner(signer)
+
+    @Throws(NCNativeException::class)
+    fun createLiquidWallet(mnemonic: String = "", passphrase: String = ""): Wallet =
+        nunchukAndroid.createLiquidWalletFromMnemonic(mnemonic, passphrase)
+
+    @Throws(NCNativeException::class)
+    fun draftLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean = false,
+    ): Transaction =
+        nunchukAndroid.draftLiquidTransaction(walletId, outputs, feeRate, subtractFeeFromAmount)
+
+    @Throws(NCNativeException::class)
+    fun createLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        memo: String,
+        subtractFeeFromAmount: Boolean = false,
+    ): Transaction =
+        nunchukAndroid.createLiquidTransaction(walletId, outputs, feeRate, memo, subtractFeeFromAmount)
+
+    @Throws(NCNativeException::class)
+    fun estimateFeeForLiquidTransaction(
+        walletId: String,
+        outputs: Map<String, Map<String, Amount>>,
+        feeRate: Amount,
+        subtractFeeFromAmount: Boolean = false,
+    ): Amount =
+        nunchukAndroid.estimateFeeForLiquidTransaction(walletId, outputs, feeRate, subtractFeeFromAmount)
+
+    @Throws(NCNativeException::class)
+    fun signLiquidTransaction(walletId: String, txId: String, device: Device): Transaction =
+        nunchukAndroid.signLiquidTransaction(walletId, txId, device)
+
+    @Throws(NCNativeException::class)
+    fun getAddressAssets(walletId: String, address: String): Map<String, Amount> =
+        nunchukAndroid.getAddressAssets(walletId, address)
+
+    @Throws(NCNativeException::class)
+    fun getAssetBalance(walletId: String, assetIdHex: String): Amount =
+        nunchukAndroid.getAssetBalance(walletId, assetIdHex)
+
+    @Throws(NCNativeException::class)
+    fun getUSDTAssetId(): String = nunchukAndroid.getUSDTAssetId()
+
+    @Throws(NCNativeException::class)
+    fun getLBTCAssetId(): String = nunchukAndroid.getLBTCAssetId()
+
+    @Throws(NCNativeException::class)
+    fun getTimelockTemplate(timelockType: Int, timeUnit: Int, time: Long): String =
+        nunchukAndroid.getTimelockTemplate(timelockType, timeUnit, time)
 
 }
