@@ -110,4 +110,48 @@ installOpenSSL $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A "android-arm
 installOpenSSL $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A "android-arm64"
 popd || exit
 
+
+#########################################################################################
+####                               libwally-core                                     ####
+#########################################################################################
+# libnunchuk now links libwally as a prebuilt static lib imported from
+# contrib/libwally-core/build/${ANDROID_ABI}/libwallycore.a (see its CMakeLists).
+# Cross-compile it per ABI with the NDK toolchain, mirroring wally's own
+# tools/android_helpers.sh (without the SWIG Java bindings, which we don't use),
+# then stage the static archive at the path the CMake IMPORTED target expects.
+
+installWally() {
+  abi=$1
+  target=$2
+  host=$3
+  echo "-------------------------------------------------------------------------------"
+  echo "                  Building libwally-core for $abi $target                      "
+  echo "-------------------------------------------------------------------------------"
+
+  export AR=$TOOLCHAIN/bin/llvm-ar
+  export CC=$TOOLCHAIN/bin/$target$API-clang
+  export AS=$CC
+  export CXX=$TOOLCHAIN/bin/$target$API-clang++
+  export LD=$TOOLCHAIN/bin/ld
+  export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
+  export STRIP=$TOOLCHAIN/bin/llvm-strip
+
+  ./configure --host=$host \
+    --disable-swig-java --disable-swig-python \
+    --enable-static --disable-shared --disable-tests
+
+  PATH="$TOOLCHAIN/bin:$PATH" make -o configure clean
+  PATH="$TOOLCHAIN/bin:$PATH" make -o configure -j $num_jobs
+
+  mkdir -p "build/$abi"
+  cp src/.libs/libwallycore.a "build/$abi/libwallycore.a"
+}
+
+pushd "libnunchuk/contrib/libwally-core" || exit
+./tools/cleanup.sh || true
+./tools/autogen.sh
+installWally $ANDROID_ABI_ARMEABI_V7A $ANDROID_TARGET_ARMEABI_V7A "armv7-none-linux-androideabi$API"
+installWally $ANDROID_ABI_ARM64_V8A $ANDROID_TARGET_ARM64_V8A "aarch64-none-linux-android$API"
+popd || exit
+
 echo "done"
