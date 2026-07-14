@@ -136,9 +136,12 @@ installWally() {
   export RANLIB=$TOOLCHAIN/bin/llvm-ranlib
   export STRIP=$TOOLCHAIN/bin/llvm-strip
 
+  # --with-pic is required: libwallycore.a is linked into the shared
+  # libnunchuk-android.so, so its objects must be position-independent
+  # (libtool builds non-PIC objects for static-only libs by default).
   ./configure --host=$host \
     --disable-swig-java --disable-swig-python \
-    --enable-static --disable-shared --disable-tests
+    --enable-static --disable-shared --disable-tests --with-pic
 
   PATH="$TOOLCHAIN/bin:$PATH" make -o configure clean
   PATH="$TOOLCHAIN/bin:$PATH" make -o configure -j $num_jobs
