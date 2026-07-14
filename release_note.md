@@ -1,3 +1,3 @@
-- BBQR support
-- Added a new Setting item to use large font in home
+- USDT on Liquid network (self-custodial)
+- Trezor Bluetooth support
 - Bug fixes and improvements
