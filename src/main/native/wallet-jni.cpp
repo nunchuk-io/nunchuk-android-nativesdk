@@ -605,7 +605,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromHotWallet(JN
                                                                               jobject thiz,
                                                                               jstring wallet_id) {
     try {
-        std::string mnemonic = NunchukProvider::get()->nu->GetHotWalletMnemonic(
+        std::string mnemonic = NunchukProvider::get()->nu->GetUnbackedUpWalletMnemonic(
                 StringWrapper(env, wallet_id)
         );
         return env->NewStringUTF(mnemonic.c_str());

@@ -973,7 +973,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getMnemonicFromHotKey(JNIEn
                                                                            jstring signer_id) {
     try {
         return env->NewStringUTF(
-                NunchukProvider::get()->nu->GetHotKeyMnemonic(
+                NunchukProvider::get()->nu->GetUnbackedUpKeyMnemonic(
                         StringWrapper(env, signer_id)).c_str());
     } catch (BaseException &e) {
         Deserializer::convert2JException(env, e);

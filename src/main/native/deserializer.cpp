@@ -176,8 +176,8 @@ jobject Deserializer::convert2JTxOutput(JNIEnv *env, const TxOutput &output) {
     jmethodID setSecondMethod = env->GetMethodID(clazz, "setSecond", "(Lcom/nunchuk/android/model/Amount;)V");
     jobject instance = env->NewObject(clazz, constructor);
     try {
-        callSetString(env, instance, setFirstMethod, output.first.c_str());
-        env->CallVoidMethod(instance, setSecondMethod, convert2JAmount(env, output.second));
+        callSetString(env, instance, setFirstMethod, output.address.c_str());
+        env->CallVoidMethod(instance, setSecondMethod, convert2JAmount(env, output.amount));
     } catch (const std::exception &e) {
         syslog(LOG_DEBUG, "[JNI] convert2JTxOutput error::%s", e.what());
     }
@@ -486,14 +486,35 @@ jobject Deserializer::convert2JTransaction(JNIEnv *env, const Transaction &trans
                             convert2JTxInputs(env, transaction.get_inputs()));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setOutputs", "(Ljava/util/List;)V"),
                             convert2JTxOutputs(env, transaction.get_outputs()));
+        // libnunchuk removed the separate user/receive output vectors and the
+        // change index; reconstruct them from the flat outputs list and its
+        // per-output flags (isReceive / isChange / userAmount).
+        const auto &allOutputs = transaction.get_outputs();
+        std::vector<TxOutput> receiveOutputs;
+        if (transaction.is_receive()) {
+            for (const auto &output: allOutputs) {
+                if (output.isReceive) receiveOutputs.push_back(output);
+            }
+        }
+        std::vector<TxOutput> userOutputs;
+        int changeIndex = -1;
+        for (size_t i = 0; i < allOutputs.size(); i++) {
+            const auto &output = allOutputs[i];
+            if (output.userAmount != 0) {
+                userOutputs.emplace_back(output.address, output.userAmount);
+            }
+            if (changeIndex < 0 && output.isChange) {
+                changeIndex = static_cast<int>(i);
+            }
+        }
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setReceiveOutputs", "(Ljava/util/List;)V"),
-                            convert2JTxOutputs(env, transaction.get_receive_outputs()));
+                            convert2JTxOutputs(env, receiveOutputs));
         env->CallVoidMethod(instance,
                             env->GetMethodID(clazz, "setUserOutputs", "(Ljava/util/List;)V"),
-                            convert2JTxOutputs(env, transaction.get_user_outputs()));
+                            convert2JTxOutputs(env, userOutputs));
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setChangeIndex", "(I)V"),
-                            transaction.get_change_index());
+                            changeIndex);
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setM", "(I)V"), transaction.get_m());
         env->CallVoidMethod(instance, env->GetMethodID(clazz, "setSigners", "(Ljava/util/Map;)V"),
                             convert2JStringBooleanMap(env, transaction.get_signers()));

@@ -153,9 +153,20 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_chain(Serializer::convert2CChain(chain));
         settings.set_hwi_path(StringWrapper(env, hwi_path));
         settings.enable_proxy(enable_proxy);
-        settings.set_testnet_servers(Serializer::convert2CListString(env, testnet_servers));
-        settings.set_mainnet_servers(Serializer::convert2CListString(env, mainnet_servers));
-        settings.set_signet_servers(Serializer::convert2CListString(env, signet_servers));
+        // libnunchuk replaced the per-chain server lists (mainnet/signet/testnet)
+        // with a single electrum server list for the active chain (+ a separate
+        // liquid list). Select the list matching the current chain.
+        switch (Serializer::convert2CChain(chain)) {
+            case Chain::TESTNET:
+                settings.set_electrum_servers(Serializer::convert2CListString(env, testnet_servers));
+                break;
+            case Chain::SIGNET:
+                settings.set_electrum_servers(Serializer::convert2CListString(env, signet_servers));
+                break;
+            default:
+                settings.set_electrum_servers(Serializer::convert2CListString(env, mainnet_servers));
+                break;
+        }
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
         settings.set_storage_path(StringWrapper(env, storage_path));
         settings.set_group_server(StringWrapper(env, base_url_api));
@@ -192,7 +203,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         );
         try {
             NunchukProvider::get()->nu->AddBlockchainConnectionListener(
-                    [](ConnectionStatus connectionStatus, int percent) {
+                    [](ConnectionStatus connectionStatus, int percent, bool liquid) {
                         JNIEnvGuard guard;
                         if (!guard) return;
                         JNIEnv *g_env = guard.get();
@@ -215,7 +226,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
 
         try {
             NunchukProvider::get()->nu->AddBlockListener(
-                    [](int height, const std::string &hex_header) {
+                    [](int height, const std::string &hex_header, bool liquid) {
                         JNIEnvGuard guard;
                         if (!guard) return;
                         JNIEnv *g_env = guard.get();
