@@ -29,6 +29,7 @@ add_library(nunchuk-android SHARED
         mk4.cpp
         string-wrapper.h
         group-wallet-jni.cpp
+        ledger-jni.cpp
 )
 
 add_subdirectory(libnunchuk)
