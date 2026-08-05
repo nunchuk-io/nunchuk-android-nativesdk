@@ -16,7 +16,8 @@ A push to **GitHub `main`** triggers `.github/workflows/ci.yml` (native amd64):
 build the reproducible `.aar` (both arm ABIs) → on `main`, `upload_aar.py`
 uploads it to `nunchuk-android-nativesdk-prebuild` + creates tag `VERSION` →
 **JitPack** builds that tag. Consumers use
-`com.github.nunchuk-io:nunchuk-android-nativesdk-prebuild:<VERSION>`.
+`com.github.nunchuk-io:nunchuk-android-nativesdk-prebuild:<COMMIT SHA>` — the **commit** the tag
+points at, not the tag itself (see step 8; a git tag is mutable, a commit is not).
 
 ### Per-release checklist
 1. **Bump `def VERSION`** in `build.gradle` (MUST change every release — publish runs on every `main` push; an existing tag makes it re-upload then fail on `create_git_release`). `upload_aar.py` is now idempotent on the release step, but the version still must be new for JitPack to serve fresh bytes.
@@ -26,17 +27,95 @@ uploads it to `nunchuk-android-nativesdk-prebuild` + creates tag `VERSION` →
 5. **Verify BEFORE publishing (CONDITIONAL — skip by default).** Per the user, the verify-branch build wastes time on the common case, so **push `main` immediately** for a routine bump (pure-internal libnunchuk hotfix / no public C++ API change — the app compiles unchanged). Only run the verify branch when the libnunchuk bump **changes or adds public C++ APIs** (the bindings gate, step 3 / Pitfall A/F) — that's the sole failure the verify build exists to catch. To verify: push HEAD to a **slash-free** GitHub branch (`git push origin-github main:refs/heads/verify-<ver>`). CI builds on any branch but only publishes on `main`, so a green **"Build the sdk"** confirms it compiles with zero publish side-effects. ⚠️ The trigger is `branches: ["*"]` and `*` matches ONE path segment — a slashed name like `ci/verify` silently does NOT trigger.
 6. **Publish:** push `main` to GitLab **and** GitHub (see topology below).
 7. **VALIDATE the published aar** (don't trust JitPack's green — see Pitfall E): download it and `unzip -t` (must be a real zip, not base64 text) + confirm a new API is in `classes.jar`.
-8. **Bump the app** `prebuildNativeSdk` in `nunchuk-android/gradle/libs.versions.toml` + bump `versionCode` (versionName may stay). Push GitLab `main`, then GitHub `master` to trigger the AAB→Play draft.
+8. **Bump the app** in `nunchuk-android/gradle/libs.versions.toml`: set `nativeSdk` to the new `<VER>`, and set `prebuildNativeSdk` to the **commit SHA the new prebuild tag points at** — NOT the tag. A git tag is mutable and nothing in the app build records a checksum (JitPack's `.sha1` is served by the same origin as the aar), so a moved tag would silently swap the entire crypto layer. Resolve it after CI has created the tag:
+   ```bash
+   curl -s https://api.github.com/repos/nunchuk-io/nunchuk-android-nativesdk-prebuild/git/ref/tags/<VER> | grep '"sha"'
+   ```
+   ```toml
+   nativeSdk = "<VER>"
+   prebuildNativeSdk = "<commit sha>" # tag <VER>
+   ```
+   Keep the tag in the trailing comment so the version stays readable. Then bump `versionCode` (versionName may stay) and push GitLab `main`, then GitHub `master` to trigger the AAB→Play draft.
 9. **Tag + GitHub binary release for the app:** tag `android.<versionName>` on both remotes, then publish the universal APK + signed checksums with `nunchuk-android/scripts/publish-github-release.sh` (see "App GitHub binary release" below).
+
+## App-only hotfix (no SDK rebuild) — the common case, exercised on 2.7.2/2.7.3/2.7.4
+When the user says "hotfix" / "no need to rebuild the SDK", **skip steps 1-7 entirely**
+(they are all nativesdk work) and leave `nativeSdk` + `prebuildNativeSdk` in
+`gradle/libs.versions.toml` **untouched**. The whole release is:
+
+1. Bump **both** `versionCode` and `versionName` in `nunchuk-app/build.gradle.kts`
+   (patch bump: 2.7.1 -> 2.7.2). One commit, message `Release <ver> (versionCode N) - hotfix`.
+2. `git push origin main` **and** `git push github_origin main:master` (note: the app's
+   GitHub remote is `github_origin`, and `main` maps to `master`).
+3. GitHub Actions "Build release" runs ~21 min, then uploads the AAB as a Play
+   **production draft**. Watch it with a `Monitor` on
+   `/actions/runs/<id>`; the run id comes from `/actions/runs?branch=master&per_page=2`
+   about 15 s after the push.
+4. Operator rolls out in Play Console (or `scripts/rollout-play-production.sh`, below).
+
+**Release notes for a hotfix: don't go to Slack.** Per the user, hotfixes ship the
+generic single line `- Bug fixes and improvements` in
+`distribution/whatsnew/whatsnew-en-US`. The Slack-thread procedure (step 4) applies to
+**feature** releases only. Note the whatsnew file otherwise keeps the *previous feature
+release's* bullets, so a hotfix that doesn't touch it silently ships stale notes
+(2.7.2/2.7.3 shipped the 2.7.1 bullets this way).
+
+**Cherry-pick hotfix:** when the fix lives on a release branch (e.g. `2.7.2`), verify
+with `git cherry main <branch>` that the commits aren't already in `main`, cherry-pick
+in **chronological** order, then bump. Auto-merged hunks need review: check that a
+commit adding an interface method has *every* implementation on `main` updated
+(`grep -rn "override fun <newMethod>"`) and that added extension properties aren't
+now duplicated — both are silent-until-CI compile breaks.
+
+### Hotfix pitfalls (each of these actually happened)
+- **Never push a non-release commit to GitHub `master` between releases.** Any push to
+  `master` re-triggers the build, which re-uploads the *same* versionCode and Play
+  rejects it (`Version code NNN has already been used`) -> red CI. Park tooling/docs
+  commits on GitLab `main` and let them ride along with the next versionCode bump.
+- **A new draft replaces an un-rolled-out draft.** `r0adkll/upload-google-play` rewrites
+  the production track's release list, so uploading 337 drops a still-draft 336. Harmless
+  when the newer build contains the older one's commits (it did for 2.7.2->2.7.4), but
+  say so explicitly — the operator may be expecting to roll out the older one.
+- **A green run does not prove the Play upload happened.** The `Publish to Google Play`
+  step self-skips when `PLAY_SERVICE_ACCOUNT_JSON` is absent *and the run still goes
+  green*. Confirm via `/actions/runs/<id>/jobs` that the step's conclusion is `success`,
+  not `skipped`, before telling anyone the draft is ready.
+- **`rtk` filters command output; use `rtk proxy '<cmd>'` when correctness matters.**
+  Its `git log` summary showed `main`'s history while `HEAD` was on another branch, and
+  it truncates `curl` JSON mid-string. For git-state questions the unfilterable source
+  of truth is `.git/HEAD`, `.git/refs/heads/<b>`, `.git/logs/refs/heads/<b>`. Also: the
+  user may switch branches in their IDE between turns, so re-check `HEAD` before
+  committing rather than trusting the session-start `gitStatus`.
 
 ## Automation status — the only required human step is the Play Console rollout
 Steps 1–9 are fully automatable and have all been exercised end-to-end. Drive them in one go on "release"; the operator's **only required manual action is Play Console → review & roll out the production draft** (CI intentionally uploads `status: draft`, not `completed`). Creds live in gitignored files (`githubToken`/`GPGpass` in `local.properties`, `nunchuk-service-account.json`); the app GitHub release is now a **zero-arg** `./scripts/publish-github-release.sh` (auto-derives VERSION/VERSION_CODE from `nunchuk-app/build.gradle.kts`, auto-reads creds).
+
+**Creds are the practical blocker — check them BEFORE promising an end-to-end run.**
+As of the 2.7.2-2.7.4 hotfixes all three were missing on this mac: `githubToken` in
+`../nunchuk-android-nativesdk/local.properties` was **expired** (verify with
+`curl -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $T" https://api.github.com/user`
+-> 401), and `nunchuk-service-account.json` + `GPGpass` were **absent** from both repos.
+That blocks step 9 (GitHub binary release) and any API-driven rollout, but **not** the
+Play draft itself (CI uses its own GitHub secrets). So a hotfix can go all the way to a
+production draft with zero local creds — surface the gap early and let the operator
+decide between restoring creds and doing the rollout/GitHub release by hand.
+
+**Terminal rollout:** `nunchuk-android/scripts/rollout-play-production.sh` promotes the
+draft over the Play API (`edits.insert` -> `tracks.update` -> `edits.commit`), reusing
+the openssl RS256 JWT auth from `publish-github-release.sh`. Dry-run by default (prints
+the planned change and discards the edit); `CONFIRM=yes` commits, `USER_FRACTION=0.1`
+does a staged rollout instead of 100%. Needs `nunchuk-service-account.json`. It preserves
+the draft's own name/releaseNotes and only changes how it is served.
 
 Only two things can *interrupt* automation, both exceptional (not per-release):
 - **Bindings gate (step 3):** when the libnunchuk bump changes/adds public C++ APIs, the Kotlin+JNI bindings must be written by hand (Pitfall A/F). This is **auto-detected** by the verify-branch build (step 5) — a red build stops the release for a human; a no-API-change bump sails through.
 - **JitPack cached failure (Pitfall E):** a transient failed build is cached and must be deleted on jitpack.io by the repo owner (web UI). Rare.
 
-Soft/optional: **release notes** come from the Slack thread (channel `C01QW8XJDPT`, read the whole thread) — copy the agreed bullets into `release_note.md` + `distribution/whatsnew/whatsnew-en-US`; no wording judgment needed once posted. `versionCode` can be auto-picked as `max(existing on Play)+1` to avoid the "already used" reject.
+Soft/optional: **release notes** for a *feature* release come from the Slack thread (channel `C01QW8XJDPT`, read the whole thread) — copy the agreed bullets into `release_note.md` + `distribution/whatsnew/whatsnew-en-US`; no wording judgment needed once posted. A **hotfix** skips Slack and uses the generic `- Bug fixes and improvements` (see the hotfix section). `versionCode` can be auto-picked as `max(existing on Play)+1` to avoid the "already used" reject.
+
+Note on changing notes late: `whatsNewDirectory` is read by CI **at upload time**, so once
+a draft exists, editing the file changes nothing for that build — it needs either a new
+versionCode or a manual edit of "What's new" in Play Console before rollout.
 
 Policy note: the **publish push (step 6)** and the app **AAB→Play push (step 8)** are irreversible/outward-facing; proceed only under the user's standing "automate everything" authorization, and always gate on a green verify build first.
 
@@ -94,7 +173,8 @@ unzip -p v.aar classes.jar | LC_ALL=C grep -a -c "<someNewApiName>"   # >0 = bin
 **G. Version reuse / JitPack cache.** Can't cleanly re-fix a bad version in place (JitPack caches the build; the prebuild tag points at the bad file). Cut a fresh VERSION instead.
 
 ## App consumption (`nunchuk-android`)
-- Modern branches (2.6.1+, Kotlin DSL): version catalog `gradle/libs.versions.toml` → `prebuildNativeSdk = "<VER>"`. The `NativeSdkConventionPlugin` builds the coordinate and appends `@aar` — so put the **bare** version in the catalog (NOT `<VER>@aar`, which would double). `nativeSdk` (separate) is the maven debug dep.
+- Modern branches (2.6.1+, Kotlin DSL): version catalog `gradle/libs.versions.toml` → `prebuildNativeSdk = "<commit sha>" # tag <VER>`. From 2.7.2 on this is the **commit SHA**, not the tag (step 8); older branches still carry the bare tag. The `NativeSdkConventionPlugin` builds the coordinate and appends `@aar` — so put the **bare** value in the catalog (NOT `<VER>@aar`, which would double). `nativeSdk` (separate) is the maven debug dep and still holds the readable version.
+- `com.github.Nunchuk1:LibPortal` (inline dep in `nunchuk-core` + `nunchuk-signer`) is pinned to a commit for the same reason. It is not part of this release flow — it only changes when the Portal SDK itself is bumped.
 - Older branches (2.2): `configs/dependencies.gradle` → `prebuildNativeSdkVersion = '<VER>@aar'`.
 - Play publish: app `ci.yml` builds+signs `bundleProductionRelease` and (if `PLAY_SERVICE_ACCOUNT_JSON` secret set) uploads a **production draft** via `r0adkll/upload-google-play` with notes in `distribution/whatsnew/`. `versionCode` must strictly increase per upload or Play rejects it (`Version code NNN has already been used`) — bump it again (a prior CI re-trigger may have already consumed the value). versionName can stay the same across rebuilds.
 - **Tag the app release:** lightweight tag `android.<versionName>` (e.g. `android.2.7.0`) on the released commit, pushed to **both** remotes (GitLab `origin` + GitHub via the `git@github.com:` SSH URL). Convention: `git cat-file -t android.2.6.0` → `commit` (lightweight, not annotated).
