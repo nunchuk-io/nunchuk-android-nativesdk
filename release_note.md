@@ -1,3 +1,4 @@
-- USDT on Liquid network (self-custodial)
-- Trezor Bluetooth support
-- Bug fixes and improvements
+- Ledger support (BLE & USB)
+- Seed phrase settings
+- Fix using passphrase key for stablecoin wallet
+- Improved NFC for Motorola devices
