@@ -1628,6 +1628,17 @@ class NunchukNativeSdk {
         message: String
     ) = nunchukAndroid.trezorParseSignMessageResponse(response, message)
 
+    /**
+     * Builds the signed-message result for a signature produced outside the SDK (e.g. by a
+     * Ledger over BLE/USB): derives [signer]'s address and exports the RFC2440 block.
+     */
+    @Throws(NCNativeException::class)
+    fun getSignedMessage(
+        signer: SingleSigner,
+        message: String,
+        signature: String
+    ) = nunchukAndroid.getSignedMessage(signer, message, signature)
+
     @Throws(NCNativeException::class)
     fun trezorGetAddress(
         wallet: Wallet,

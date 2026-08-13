@@ -1372,6 +1372,17 @@ internal class LibNunchukAndroid {
         message: String,
     ): SignedMessage
 
+    /**
+     * Builds the signed-message result for a signature produced outside the SDK (e.g. by a
+     * Ledger over BLE/USB): derives [signer]'s address and exports the RFC2440 block.
+     */
+    @Throws(NCNativeException::class)
+    external fun getSignedMessage(
+        signer: SingleSigner,
+        message: String,
+        signature: String,
+    ): SignedMessage
+
     @Throws(NCNativeException::class)
     external fun trezorGetAddress(
         wallet: WalletBridge,

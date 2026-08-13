@@ -571,6 +571,30 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorParseSignMessageRespo
 }
 
 extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getSignedMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jobject signer,
+        jstring message,
+        jstring signature) {
+    try {
+        auto cSigner = Serializer::convert2CSigner(env, signer);
+        std::string address = NunchukProvider::get()->nu->GetSignerAddress(cSigner);
+        std::string signatureStr = StringWrapper(env, signature);
+        auto rfc2440 = ExportBitcoinSignedMessage(
+                BitcoinSignedMessage{StringWrapper(env, message), address, signatureStr});
+        return Deserializer::convert2JSignedMessage(env, address, signatureStr, rfc2440);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_trezorGetAddress(
         JNIEnv *env,
