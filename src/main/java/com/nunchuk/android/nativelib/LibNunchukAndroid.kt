@@ -47,6 +47,7 @@ import com.nunchuk.android.model.MiniscriptTemplateResult
 import com.nunchuk.android.model.NunchukMatrixEvent
 import com.nunchuk.android.model.PairAmount
 import com.nunchuk.android.model.PrimaryKey
+import com.nunchuk.android.model.LedgerStep
 import com.nunchuk.android.model.RoomTransaction
 import com.nunchuk.android.model.RoomWallet
 import com.nunchuk.android.model.SatsCardSlot
@@ -1382,6 +1383,89 @@ internal class LibNunchukAndroid {
     external fun trezorParseGetAddressResponse(
         response: String,
     ): String
+
+    // region Ledger
+    // Stateful step-machine bindings. `transport` is a LedgerTransport ordinal;
+    // `sessionId` is a stable per-device id reused across every call while the
+    // device stays connected. Each command returns a LedgerStep the caller pumps
+    // through onData()/resume() until COMPLETE or FAILED, then reads via
+    // ledgerResultString().
+    @Throws(NCNativeException::class)
+    external fun ledgerGetMasterFingerprint(
+        sessionId: String,
+        transport: Int,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerGetExtendedPublicKey(
+        sessionId: String,
+        transport: Int,
+        walletType: Int,
+        addressType: Int,
+        index: Int,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerSignMessage(
+        sessionId: String,
+        transport: Int,
+        derivationPath: String,
+        message: String,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerRegisterWallet(
+        sessionId: String,
+        transport: Int,
+        wallet: WalletBridge,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerSignPsbt(
+        sessionId: String,
+        transport: Int,
+        wallet: WalletBridge,
+        hmac: String,
+        psbt: String,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerGetWalletAddress(
+        sessionId: String,
+        transport: Int,
+        wallet: WalletBridge,
+        hmac: String,
+        addressIndex: Int,
+        change: Boolean,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerOnData(
+        sessionId: String,
+        data: ByteArray,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerResume(
+        sessionId: String,
+    ): LedgerStep
+
+    @Throws(NCNativeException::class)
+    external fun ledgerResultString(
+        sessionId: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun getLedgerWalletHmac(
+        walletId: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun setLedgerWalletHmac(
+        walletId: String,
+        hmac: String,
+    ): Boolean
+    // endregion Ledger
 
     @Throws(NCNativeException::class)
     external fun parseSignerString(

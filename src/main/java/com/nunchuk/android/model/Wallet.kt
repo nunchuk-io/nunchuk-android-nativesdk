@@ -44,6 +44,7 @@ data class Wallet(
     var archived: Boolean = false,
     var miniscript: String = "",
     var walletType: WalletType = WalletType.MULTI_SIG,
+    var needsPassphrase: Boolean = false,
 ) : Parcelable {
     companion object {
         val EMPTY = Wallet()

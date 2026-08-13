@@ -47,6 +47,7 @@ import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.DescriptorPath
 import com.nunchuk.android.type.ExportFormat
+import com.nunchuk.android.type.LedgerTransport
 import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
 import com.nunchuk.android.type.SignerType
@@ -1638,6 +1639,97 @@ class NunchukNativeSdk {
     fun trezorParseGetAddressResponse(
         response: String
     ) = nunchukAndroid.trezorParseGetAddressResponse(response)
+
+    // region Ledger
+    @Throws(NCNativeException::class)
+    fun ledgerGetMasterFingerprint(
+        sessionId: String,
+        transport: LedgerTransport
+    ) = nunchukAndroid.ledgerGetMasterFingerprint(sessionId, transport.ordinal)
+
+    @Throws(NCNativeException::class)
+    fun ledgerGetExtendedPublicKey(
+        sessionId: String,
+        transport: LedgerTransport,
+        walletType: WalletType,
+        addressType: AddressType,
+        index: Int
+    ) = nunchukAndroid.ledgerGetExtendedPublicKey(
+        sessionId,
+        transport.ordinal,
+        walletType.ordinal,
+        addressType.ordinal,
+        index
+    )
+
+    @Throws(NCNativeException::class)
+    fun ledgerSignMessage(
+        sessionId: String,
+        transport: LedgerTransport,
+        derivationPath: String,
+        message: String
+    ) = nunchukAndroid.ledgerSignMessage(sessionId, transport.ordinal, derivationPath, message)
+
+    @Throws(NCNativeException::class)
+    fun ledgerRegisterWallet(
+        sessionId: String,
+        transport: LedgerTransport,
+        wallet: Wallet
+    ) = nunchukAndroid.ledgerRegisterWallet(sessionId, transport.ordinal, wallet.toBridge())
+
+    @Throws(NCNativeException::class)
+    fun ledgerSignPsbt(
+        sessionId: String,
+        transport: LedgerTransport,
+        wallet: Wallet,
+        hmac: String,
+        psbt: String
+    ) = nunchukAndroid.ledgerSignPsbt(sessionId, transport.ordinal, wallet.toBridge(), hmac, psbt)
+
+    @Throws(NCNativeException::class)
+    fun ledgerGetWalletAddress(
+        sessionId: String,
+        transport: LedgerTransport,
+        wallet: Wallet,
+        hmac: String,
+        addressIndex: Int,
+        change: Boolean
+    ) = nunchukAndroid.ledgerGetWalletAddress(
+        sessionId,
+        transport.ordinal,
+        wallet.toBridge(),
+        hmac,
+        addressIndex,
+        change
+    )
+
+    @Throws(NCNativeException::class)
+    fun ledgerOnData(
+        sessionId: String,
+        data: ByteArray
+    ) = nunchukAndroid.ledgerOnData(sessionId, data)
+
+    @Throws(NCNativeException::class)
+    fun ledgerResume(
+        sessionId: String
+    ) = nunchukAndroid.ledgerResume(sessionId)
+
+    @Throws(NCNativeException::class)
+    fun ledgerResultString(
+        sessionId: String
+    ) = nunchukAndroid.ledgerResultString(sessionId)
+
+    @Throws(NCNativeException::class)
+    fun getLedgerWalletHmac(
+        walletId: String
+    ) = nunchukAndroid.getLedgerWalletHmac(walletId)
+
+    @Throws(NCNativeException::class)
+    fun setLedgerWalletHmac(
+        walletId: String,
+        hmac: String
+    ) = nunchukAndroid.setLedgerWalletHmac(walletId, hmac)
+    // endregion Ledger
 
     @Throws(NCNativeException::class)
     fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)
