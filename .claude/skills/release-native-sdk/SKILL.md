@@ -37,6 +37,7 @@ points at, not the tag itself (see step 8; a git tag is mutable, a commit is not
    ```
    Keep the tag in the trailing comment so the version stays readable. Then bump `versionCode` (versionName may stay) and push GitLab `main`, then GitHub `master` to trigger the AAB→Play draft.
 9. **Tag + GitHub binary release for the app:** tag `android.<versionName>` on both remotes, then publish the universal APK + signed checksums with `nunchuk-android/scripts/publish-github-release.sh` (see "App GitHub binary release" below).
+10. **Smoke-test the shipped APK:** run `nunchuk-android/scripts/smoke-test-apk.sh` — boots an emulator, installs the Play-signed universal APK, signs in, and asserts no crash (catches JNI/native-SDK runtime breaks a build can't). See "Post-release smoke test" below.
 
 ## App-only hotfix (no SDK rebuild) — the common case, exercised on 2.7.2/2.7.3/2.7.4
 When the user says "hotfix" / "no need to rebuild the SDK", **skip steps 1-7 entirely**
@@ -190,6 +191,24 @@ It auto-derives `VERSION`/`VERSION_CODE` from `nunchuk-app/build.gradle.kts`, re
 - **Non-interactive GPG:** this mac has no GUI pinentry (only `pinentry-curses`), so a headless `gpg --clearsign` dies with `Inappropriate ioctl for device`. The script uses `--pinentry-mode loopback --passphrase-fd 0` (passphrase via stdin, not argv). Script is **idempotent/re-runnable**: skips re-download with `APK_PATH`, skips signing only if `SHA256SUMS.asc` verifies **and its signed payload matches the current `SHA256SUMS`**. Uses the API (not a push) so it triggers no CI.
   - **Stale-`.asc` pitfall (bit 2.7.1, now fixed in-script).** `WORKDIR=build/github-release` persists across releases, so the *previous* version's `SHA256SUMS.asc` is left behind. `gpg --verify` alone passes on it (it only checks the signature is valid, not that it covers the new apk's hash) → the release shipped a signature for the OLD apk hash. Fix committed to the script: the skip now also `diff`s the signed payload (`gpg -d`) against the regenerated `SHA256SUMS`. If you ever see "existing SHA256SUMS.asc verified" on a fresh version, confirm the `.apk` line inside the `.asc` matches this version before trusting it.
 - Keep the script **ASCII-only** — a Unicode ellipsis right after `$TAG` was parsed into the variable name under `set -u` (`TAG…: unbound variable`).
+
+### Post-release smoke test (emulator — APK must not crash)
+After the GitHub binary release downloads the Play-signed universal APK, run
+**`nunchuk-android/scripts/smoke-test-apk.sh`** to prove the shipped APK boots, signs
+in, and does not crash on a real Android runtime. This exists because a native-SDK bump
+is a **JNI** swap: a JNI method-name ↔ Kotlin `external` mismatch is an
+`UnsatisfiedLinkError`/`SIGSEGV` at *runtime*, never a compile error (see Pitfall F) — so
+it only surfaces when the app actually runs. Zero-arg from the app repo root:
+```bash
+./scripts/smoke-test-apk.sh                        # boots AVD, installs build/github-release/<ver>.apk, launches, signs in, monkey, crash-watch
+SKIP_LOGIN=1 ./scripts/smoke-test-apk.sh           # launch + crash gate only (no account needed)
+CONFIRM_CODE=<emailed-code> ./scripts/smoke-test-apk.sh   # complete the 2FA step
+```
+- Boots the first AVD from `emulator -list-avds` headless (`-no-window -wipe-data -gpu swiftshader_indirect`), installs, launches via `monkey`, and **fails** if logcat shows `FATAL EXCEPTION`/`UnsatisfiedLinkError`/`SIGSEGV`/process-death for `io.nunchuk.android` or the process dies. Watches after cold-launch, sign-in, and a 60-event monkey pass.
+- On an **Apple-Silicon** host the AVD must be an **arm64-v8a** system image (e.g. `Pixel_3a_API_34`); the universal APK carries the arm64 split so it installs fine.
+- `emulator -list-avds` prints INFO log lines to stdout — filter to a bare AVD name (`grep -E '^[A-Za-z0-9._-]+$'`), else you boot with a garbage `-avd` and hang on `adb wait-for-device`.
+- Sign-in flow (discovered on 2.8.0): screen 1 `editText`=email → `signIn` ("Continue"); screen 2 `editText`(password) → `signIn` ("Sign in"); optional 2FA `editText`(emailed code) → `btnContinue`; post-login dismiss `btnNotNow`. Landing on the wallets home (`btnNotNow` seen, wallets rendered, JNI `connectionListener` logs for bitcoin+liquid) with a stable pid = pass. **2FA is a real gate** — the code is emailed, so full automation needs `CONFIRM_CODE`; without it the script still enforces the launch+sign-in-UI crash gate and stops before the logged-in phase.
+- **Sensitive test-account creds stay in `local.properties` only** (gitignored) — keys `SmokeTestEmail` / `SmokeTestPassword` / `SmokeTestConfirmCode` (the account's static test 2FA code, so the run auto-clears the 2FA gate), searched in the app repo then `../nunchuk-android-nativesdk/local.properties`. Never hardcode them in the script or this runbook. Override per run with `EMAIL`/`PASSWORD`/`CONFIRM_CODE` env if needed.
 
 ## Local fallback (Docker on macOS — prefer CI)
 The GHCR builder image is **private** (pull = unauthorized), so build it locally.
