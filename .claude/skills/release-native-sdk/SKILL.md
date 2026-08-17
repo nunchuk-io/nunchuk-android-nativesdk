@@ -38,8 +38,13 @@ points at, not the tag itself (see step 8; a git tag is mutable, a commit is not
    Keep the tag in the trailing comment so the version stays readable. Then bump `versionCode` (versionName may stay) and push GitLab `main`, then GitHub `master` to trigger the AAB→Play draft.
 9. **Tag + GitHub binary release for the app:** tag `android.<versionName>` on both remotes, then publish the universal APK + signed checksums with `nunchuk-android/scripts/publish-github-release.sh` (see "App GitHub binary release" below).
 10. **Smoke-test the shipped APK:** run `nunchuk-android/scripts/smoke-test-apk.sh` — boots an emulator, installs the Play-signed universal APK, signs in, and asserts no crash (catches JNI/native-SDK runtime breaks a build can't). See "Post-release smoke test" below.
+11. **Roll out to 100% — but only after step 10 is green.** Standing instruction from the user (2026-08-17): once the emulator smoke test passes, promote the Play production draft to a **full 100% rollout** without asking again:
+    ```bash
+    cd nunchuk-android && CONFIRM=yes ./scripts/rollout-play-production.sh   # no USER_FRACTION => 100%
+    ```
+    The smoke test is the **gate**, not a formality — a red or inconclusive smoke test (e.g. it stopped at the 2FA screen) means **stop and report**, don't roll out. Run it dry (omit `CONFIRM`) first if anything about the draft looks off.
 
-## App-only hotfix (no SDK rebuild) — the common case, exercised on 2.7.2/2.7.3/2.7.4
+## App-only hotfix (no SDK rebuild) — the common case, exercised on 2.7.2/2.7.3/2.7.4/2.8.1
 When the user says "hotfix" / "no need to rebuild the SDK", **skip steps 1-7 entirely**
 (they are all nativesdk work) and leave `nativeSdk` + `prebuildNativeSdk` in
 `gradle/libs.versions.toml` **untouched**. The whole release is:
@@ -52,7 +57,10 @@ When the user says "hotfix" / "no need to rebuild the SDK", **skip steps 1-7 ent
    **production draft**. Watch it with a `Monitor` on
    `/actions/runs/<id>`; the run id comes from `/actions/runs?branch=master&per_page=2`
    about 15 s after the push.
-4. Operator rolls out in Play Console (or `scripts/rollout-play-production.sh`, below).
+4. Publish the app GitHub release (step 9) + run the emulator smoke test (step 10), then
+   **roll out 100% automatically** with `CONFIRM=yes ./scripts/rollout-play-production.sh`
+   (step 11). Only fall back to a manual Play Console rollout if the script's creds are
+   missing.
 
 **Release notes for a hotfix: don't go to Slack.** Per the user, hotfixes ship the
 generic single line `- Bug fixes and improvements` in
@@ -88,11 +96,17 @@ now duplicated — both are silent-until-CI compile breaks.
   user may switch branches in their IDE between turns, so re-check `HEAD` before
   committing rather than trusting the session-start `gitStatus`.
 
-## Automation status — the only required human step is the Play Console rollout
-Steps 1–9 are fully automatable and have all been exercised end-to-end. Drive them in one go on "release"; the operator's **only required manual action is Play Console → review & roll out the production draft** (CI intentionally uploads `status: draft`, not `completed`). Creds live in gitignored files (`githubToken`/`GPGpass` in `local.properties`, `nunchuk-service-account.json`); the app GitHub release is now a **zero-arg** `./scripts/publish-github-release.sh` (auto-derives VERSION/VERSION_CODE from `nunchuk-app/build.gradle.kts`, auto-reads creds).
+## Automation status — end-to-end, rollout included
+Steps 1–11 are fully automatable and have all been exercised end-to-end. Drive them in one go on "release": CI uploads the Play draft (`status: draft`, never `completed`), and **step 11 promotes that draft to 100% over the Play API once the smoke test is green** — no Play Console visit needed. Nothing else waits on a human. Creds live in gitignored files (`githubToken`/`GPGpass` in `local.properties`, `nunchuk-service-account.json`); the app GitHub release is now a **zero-arg** `./scripts/publish-github-release.sh` (auto-derives VERSION/VERSION_CODE from `nunchuk-app/build.gradle.kts`, auto-reads creds).
 
 **Creds are the practical blocker — check them BEFORE promising an end-to-end run.**
-As of the 2.7.2-2.7.4 hotfixes all three were missing on this mac: `githubToken` in
+Status as of 2.8.1 (2026-08-17): **all present and working** — `GithubToken` + `GPGpass` in
+`../nunchuk-android-nativesdk/local.properties` (token verified 200), `nunchuk-service-account.json`
+in the **app repo root** (not the nativesdk repo), and `SmokeTestEmail`/`SmokeTestPassword`/
+`SmokeTestConfirmCode` in the app's `local.properties`. So steps 9-11 run unattended. Still
+re-check every release with the one-liner below — the PAT expires.
+
+History (they were all missing once, don't assume): as of the 2.7.2-2.7.4 hotfixes `githubToken` in
 `../nunchuk-android-nativesdk/local.properties` was **expired** (verify with
 `curl -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $T" https://api.github.com/user`
 -> 401), and `nunchuk-service-account.json` + `GPGpass` were **absent** from both repos.
@@ -108,6 +122,12 @@ the planned change and discards the edit); `CONFIRM=yes` commits, `USER_FRACTION
 does a staged rollout instead of 100%. Needs `nunchuk-service-account.json`. It preserves
 the draft's own name/releaseNotes and only changes how it is served.
 
+**The rollout gate is the smoke test, and only the smoke test.** Standing instruction
+(2026-08-17): green smoke test -> `CONFIRM=yes ./scripts/rollout-play-production.sh` at
+100%, immediately, no confirmation prompt. Anything less than green (crash signature,
+script never reached the logged-in phase, no draft found for this versionCode) -> stop
+and report; do not roll out a build you could not launch.
+
 Only two things can *interrupt* automation, both exceptional (not per-release):
 - **Bindings gate (step 3):** when the libnunchuk bump changes/adds public C++ APIs, the Kotlin+JNI bindings must be written by hand (Pitfall A/F). This is **auto-detected** by the verify-branch build (step 5) — a red build stops the release for a human; a no-API-change bump sails through.
 - **JitPack cached failure (Pitfall E):** a transient failed build is cached and must be deleted on jitpack.io by the repo owner (web UI). Rare.
@@ -120,7 +140,7 @@ versionCode or a manual edit of "What's new" in Play Console before rollout.
 
 Policy note: the **publish push (step 6)** and the app **AAB→Play push (step 8)** are irreversible/outward-facing; proceed only under the user's standing "automate everything" authorization, and always gate on a green verify build first.
 
-Keep-awake: the release spans long CI waits (native build ~10-20 min + JitPack + Play processing). The user permits running `caffeinate -d -t 7200` to stop the mac sleeping. Run it as a background task **directly** (NOT `foo &` inside the tool shell — the `&`'d child is reaped when that shell exits, exit 0 immediately); one `run_in_background` invocation of `caffeinate` itself survives across turns.
+Keep-awake: the release spans long CI waits (native build ~10-20 min + JitPack + Play processing). The user permits (and often asks for -- "keep the screen on during the release") running `caffeinate -d -t 7200`; `-d` holds the *display* awake, which is what that request means. Run it as a background task **directly** (NOT `foo &` inside the tool shell — the `&`'d child is reaped when that shell exits, exit 0 immediately); one `run_in_background` invocation of `caffeinate` itself survives across turns.
 
 ## Repo topology (IMPORTANT — differs from old docs)
 - `origin` = GitLab, `origin-github` = GitHub (nativesdk). App repo: `origin` = GitLab, `github_origin` = GitHub (HTTPS — push via the `git@github.com:` SSH URL instead, HTTPS has no creds locally).
@@ -130,6 +150,11 @@ Keep-awake: the release spans long CI waits (native build ~10-20 min + JitPack +
   git push origin-github main     # GitHub  → triggers the release
   ```
 - App repo mirror: GitLab `main` ↔ GitHub `master` (note the name flip); the AAB auto-builds on GitHub `master`.
+- **GitLab is over its free 10 GiB storage quota (seen 2026-08-17).** Every push prints a
+  loud "You have reached the free storage limit... You can't push to your repository,
+  create pipelines..." banner — but the **push still lands** (check the `old..new` line at
+  the bottom, or `git rev-parse origin/main`). GitLab CI is dead; irrelevant, the release
+  builds on GitHub Actions. Don't read the banner as a failed push.
 
 ## One-time setup (already done)
 - Secret `NATIVESDK_PUBLISH_TOKEN` (PAT, write to prebuild + nativesdk) is set.
