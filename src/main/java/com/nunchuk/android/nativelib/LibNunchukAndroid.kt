@@ -605,6 +605,12 @@ internal class LibNunchukAndroid {
     external fun parsePassportSigners(qrData: List<String>): List<SingleSigner>
 
     @Throws(NCNativeException::class)
+    external fun handleJadePinQR(qrData: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun exportJadePinQR(pin: String, fragmentLen: Int): List<String>
+
+    @Throws(NCNativeException::class)
     external fun healthCheckMasterSigner(
         fingerprint: String,
         message: String,

@@ -116,6 +116,22 @@ class NunchukNativeSdk {
         qrData: List<String>,
     ) = nunchukAndroid.parsePassportSigners(qrData)
 
+    /**
+     * Resolves a Jade PIN-unlock QR by calling the Blockstream PIN server; returns the payload
+     * to hand back to the device via [exportJadePinQR]. Performs network I/O.
+     */
+    @Throws(NCNativeException::class)
+    fun handleJadePinQR(
+        qrData: List<String>,
+    ) = nunchukAndroid.handleJadePinQR(qrData)
+
+    /** Encodes the PIN server response as BC-UR fragments for Jade to scan. */
+    @Throws(NCNativeException::class)
+    fun exportJadePinQR(
+        pin: String,
+        fragmentLen: Int = 200,
+    ) = nunchukAndroid.exportJadePinQR(pin, fragmentLen)
+
     @Throws(NCNativeException::class)
     fun createSoftwareSigner(
         name: String,
