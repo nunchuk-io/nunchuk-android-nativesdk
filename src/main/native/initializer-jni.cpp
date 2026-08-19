@@ -145,6 +145,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jint chain,
         jstring hwi_path,
         jboolean enable_proxy,
+        jstring proxy_host,
+        jint proxy_port,
+        jstring proxy_username,
+        jstring proxy_password,
         jobject electrum_servers,
         jobject liquid_servers,
         jint backend_type,
@@ -160,6 +164,10 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         settings.set_chain(Serializer::convert2CChain(chain));
         settings.set_hwi_path(StringWrapper(env, hwi_path));
         settings.enable_proxy(enable_proxy);
+        settings.set_proxy_host(StringWrapper(env, proxy_host));
+        settings.set_proxy_port(proxy_port);
+        settings.set_proxy_username(StringWrapper(env, proxy_username));
+        settings.set_proxy_password(StringWrapper(env, proxy_password));
         settings.set_electrum_servers(Serializer::convert2CListString(env, electrum_servers));
         settings.set_liquid_servers(Serializer::convert2CListString(env, liquid_servers));
         settings.set_backend_type(Serializer::convert2CBackendType(backend_type));
