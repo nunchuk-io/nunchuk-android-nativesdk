@@ -24,6 +24,11 @@ import android.nfc.tech.IsoDep
 import com.nunchuk.android.exception.NCNativeException
 import com.nunchuk.android.model.Amount
 import com.nunchuk.android.model.BSMSData
+import com.nunchuk.android.model.BitBoxBackup
+import com.nunchuk.android.model.BitBoxDeviceInfo
+import com.nunchuk.android.model.BitBoxFirmwareInfo
+import com.nunchuk.android.model.BitBoxInitializeResult
+import com.nunchuk.android.model.BitBoxStep
 import com.nunchuk.android.model.BtcUri
 import com.nunchuk.android.model.CardStatus
 import com.nunchuk.android.model.CoinCollection
@@ -76,6 +81,10 @@ internal class LibNunchukAndroid {
         chain: Int,
         hwiPath: String,
         enableProxy: Boolean,
+        proxyHost: String,
+        proxyPort: Int,
+        proxyUsername: String,
+        proxyPassword: String,
         electrumServers: List<String>,
         liquidServers: List<String>,
         backendType: Int,
@@ -603,6 +612,12 @@ internal class LibNunchukAndroid {
 
     @Throws(NCNativeException::class)
     external fun parsePassportSigners(qrData: List<String>): List<SingleSigner>
+
+    @Throws(NCNativeException::class)
+    external fun handleJadePinQR(qrData: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun exportJadePinQR(pin: String, fragmentLen: Int): List<String>
 
     @Throws(NCNativeException::class)
     external fun healthCheckMasterSigner(
@@ -1477,6 +1492,221 @@ internal class LibNunchukAndroid {
         hmac: String,
     ): Boolean
     // endregion Ledger
+
+    // region BitBox
+    // Stateful step-machine bindings, same shape as the Ledger block above: `sessionId`
+    // is a stable per-device id (BLE address / USB device name) and every command
+    // returns a BitBoxStep the caller pumps through bitboxOnData()/bitboxResume() until
+    // COMPLETE, FAILED or REBOOT, then reads with one of the result getters.
+    //
+    // Unlike Ledger, `transport` is supplied only to bitboxInitialize: that call creates
+    // a fresh session (replacing any existing one under the same id), and every other
+    // command runs against that session. A transport disconnect invalidates the Noise
+    // session, so reconnecting means calling bitboxInitialize again — never bitboxResume.
+    @Throws(NCNativeException::class)
+    external fun bitboxInitialize(
+        sessionId: String,
+        transport: Int,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxOnData(
+        sessionId: String,
+        data: ByteArray,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxResume(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxConfirmPairing(
+        sessionId: String,
+        accepted: Boolean,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxGetMasterFingerprint(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxGetExtendedPublicKey(
+        sessionId: String,
+        derivationPath: String,
+        checkOnDevice: Boolean,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxIsWalletRegistered(
+        sessionId: String,
+        wallet: WalletBridge,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxRegisterWallet(
+        sessionId: String,
+        wallet: WalletBridge,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxSignPsbt(
+        sessionId: String,
+        wallet: WalletBridge,
+        psbt: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxSignMessage(
+        sessionId: String,
+        derivationPath: String,
+        message: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxGetWalletAddress(
+        sessionId: String,
+        wallet: WalletBridge,
+        addressIndex: Int,
+        change: Boolean,
+        checkOnDevice: Boolean,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxSetDeviceName(
+        sessionId: String,
+        name: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxCreateNewSeed(
+        sessionId: String,
+        mnemonicLength: Int,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxShowMnemonic(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxRestoreFromMnemonic(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxCheckSdCard(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxInsertSdCard(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxListBackups(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxRestoreBackup(
+        sessionId: String,
+        backupId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxChangePassword(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxSetMnemonicPassphraseEnabled(
+        sessionId: String,
+        enabled: Boolean,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxCreateBackup(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxCheckBackup(
+        sessionId: String,
+        silent: Boolean,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxFactoryReset(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxInspectFirmware(
+        signedFirmware: ByteArray,
+    ): BitBoxFirmwareInfo?
+
+    @Throws(NCNativeException::class)
+    external fun bitboxEnterFirmwareUpgrade(
+        sessionId: String,
+        signedFirmware: ByteArray,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxUpgradeFirmware(
+        sessionId: String,
+        product: Int,
+        signedFirmware: ByteArray,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxBootloaderOnData(
+        sessionId: String,
+        data: ByteArray,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxBootloaderReboot(
+        sessionId: String,
+    ): BitBoxStep
+
+    @Throws(NCNativeException::class)
+    external fun bitboxResultString(
+        sessionId: String,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun bitboxResultBoolean(
+        sessionId: String,
+    ): Boolean
+
+    @Throws(NCNativeException::class)
+    external fun bitboxInitializeResult(
+        sessionId: String,
+    ): BitBoxInitializeResult?
+
+    @Throws(NCNativeException::class)
+    external fun bitboxListBackupsResult(
+        sessionId: String,
+    ): List<BitBoxBackup>
+
+    @Throws(NCNativeException::class)
+    external fun bitboxDeviceInfo(
+        sessionId: String,
+    ): BitBoxDeviceInfo
+
+    @Throws(NCNativeException::class)
+    external fun getBitBoxSignMessagePath(
+        signer: SingleSigner,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun getBitBoxSignMessageAddress(
+        signer: SingleSigner,
+    ): String
+    // endregion BitBox
 
     @Throws(NCNativeException::class)
     external fun parseSignerString(

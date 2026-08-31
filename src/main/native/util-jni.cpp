@@ -815,3 +815,38 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getLBTCAssetId(JNIEnv *env,
         return nullptr;
     }
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_handleJadePinQR(JNIEnv *env, jobject thiz,
+                                                                    jobject qrs) {
+    try {
+        auto pin = Utils::HandleJadePinQR(Serializer::convert2CListString(env, qrs));
+        return env->NewStringUTF(pin.c_str());
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] handleJadePinQR error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportJadePinQR(JNIEnv *env, jobject thiz,
+                                                                    jstring pin,
+                                                                    jint fragment_len) {
+    try {
+        auto parts = Utils::ExportJadePinQR(StringWrapper(env, pin), fragment_len);
+        return Deserializer::convert2JListString(env, parts);
+    } catch (BaseException &e) {
+        syslog(LOG_DEBUG, "[JNI] exportJadePinQR error::%s", e.what());
+        Deserializer::convert2JException(env, e);
+        return env->ExceptionOccurred();
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return env->ExceptionOccurred();
+    }
+}

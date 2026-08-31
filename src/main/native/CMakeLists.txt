@@ -30,6 +30,7 @@ add_library(nunchuk-android SHARED
         string-wrapper.h
         group-wallet-jni.cpp
         ledger-jni.cpp
+        bitbox-jni.cpp
 )
 
 add_subdirectory(libnunchuk)

@@ -47,6 +47,9 @@ import com.nunchuk.android.model.bridge.toBridge
 import com.nunchuk.android.type.AddressType
 import com.nunchuk.android.type.DescriptorPath
 import com.nunchuk.android.type.ExportFormat
+import com.nunchuk.android.type.BitBoxMnemonicLength
+import com.nunchuk.android.type.BitBoxProduct
+import com.nunchuk.android.type.BitBoxTransport
 import com.nunchuk.android.type.LedgerTransport
 import com.nunchuk.android.type.MiniscriptTimelockBased
 import com.nunchuk.android.type.SignerTag
@@ -71,6 +74,10 @@ class NunchukNativeSdk {
             chain = appSettings.chain.ordinal,
             hwiPath = appSettings.hwiPath,
             enableProxy = appSettings.enableProxy,
+            proxyHost = appSettings.proxyHost,
+            proxyPort = appSettings.proxyPort,
+            proxyUsername = appSettings.proxyUsername,
+            proxyPassword = appSettings.proxyPassword,
             electrumServers = appSettings.electrumServers,
             liquidServers = appSettings.liquidServers,
             backendType = appSettings.backendType.ordinal,
@@ -115,6 +122,22 @@ class NunchukNativeSdk {
     fun parsePassportSigners(
         qrData: List<String>,
     ) = nunchukAndroid.parsePassportSigners(qrData)
+
+    /**
+     * Resolves a Jade PIN-unlock QR by calling the Blockstream PIN server; returns the payload
+     * to hand back to the device via [exportJadePinQR]. Performs network I/O.
+     */
+    @Throws(NCNativeException::class)
+    fun handleJadePinQR(
+        qrData: List<String>,
+    ) = nunchukAndroid.handleJadePinQR(qrData)
+
+    /** Encodes the PIN server response as BC-UR fragments for Jade to scan. */
+    @Throws(NCNativeException::class)
+    fun exportJadePinQR(
+        pin: String,
+        fragmentLen: Int = 200,
+    ) = nunchukAndroid.exportJadePinQR(pin, fragmentLen)
 
     @Throws(NCNativeException::class)
     fun createSoftwareSigner(
@@ -1741,6 +1764,275 @@ class NunchukNativeSdk {
         hmac: String
     ) = nunchukAndroid.setLedgerWalletHmac(walletId, hmac)
     // endregion Ledger
+
+    // region BitBox
+    /**
+     * Starts a fresh session for [sessionId] over [transport] and begins initialization.
+     * This replaces any existing session under the same id, so it is also the reconnect
+     * path after a transport disconnect — the Noise session cannot be resumed.
+     *
+     * Read the outcome with [bitboxInitializeResult] once the step machine reaches
+     * COMPLETE: check attestation first, then firmware, then whether the device is set up.
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxInitialize(
+        sessionId: String,
+        transport: BitBoxTransport
+    ) = nunchukAndroid.bitboxInitialize(sessionId, transport.ordinal)
+
+    @Throws(NCNativeException::class)
+    fun bitboxOnData(
+        sessionId: String,
+        data: ByteArray
+    ) = nunchukAndroid.bitboxOnData(sessionId, data)
+
+    /** Retries an expired request on the same session — invalid after a disconnect. */
+    @Throws(NCNativeException::class)
+    fun bitboxResume(
+        sessionId: String
+    ) = nunchukAndroid.bitboxResume(sessionId)
+
+    /** Answers an AWAITING_USER step with whether the user confirmed the pairing code. */
+    @Throws(NCNativeException::class)
+    fun bitboxConfirmPairing(
+        sessionId: String,
+        accepted: Boolean
+    ) = nunchukAndroid.bitboxConfirmPairing(sessionId, accepted)
+
+    @Throws(NCNativeException::class)
+    fun bitboxGetMasterFingerprint(
+        sessionId: String
+    ) = nunchukAndroid.bitboxGetMasterFingerprint(sessionId)
+
+    @Throws(NCNativeException::class)
+    fun bitboxGetExtendedPublicKey(
+        sessionId: String,
+        derivationPath: String,
+        checkOnDevice: Boolean = false
+    ) = nunchukAndroid.bitboxGetExtendedPublicKey(sessionId, derivationPath, checkOnDevice)
+
+    /** Result is a boolean — read it with [bitboxResultBoolean]. */
+    @Throws(NCNativeException::class)
+    fun bitboxIsWalletRegistered(
+        sessionId: String,
+        wallet: Wallet
+    ) = nunchukAndroid.bitboxIsWalletRegistered(sessionId, wallet.toBridge())
+
+    @Throws(NCNativeException::class)
+    fun bitboxRegisterWallet(
+        sessionId: String,
+        wallet: Wallet
+    ) = nunchukAndroid.bitboxRegisterWallet(sessionId, wallet.toBridge())
+
+    /**
+     * Signs [psbt] with [wallet]. The wallet must already be registered on the device
+     * ([bitboxIsWalletRegistered] / [bitboxRegisterWallet]); unlike Ledger there is no
+     * registration HMAC for the app to cache. Result is the signed PSBT.
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxSignPsbt(
+        sessionId: String,
+        wallet: Wallet,
+        psbt: String
+    ) = nunchukAndroid.bitboxSignPsbt(sessionId, wallet.toBridge(), psbt)
+
+    /**
+     * Signs [message] with the key at [derivationPath] — use [getBitBoxSignMessagePath]
+     * to derive the path from the signer. Result is the signature.
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxSignMessage(
+        sessionId: String,
+        derivationPath: String,
+        message: String
+    ) = nunchukAndroid.bitboxSignMessage(sessionId, derivationPath, message)
+
+    /**
+     * Shows [wallet]'s address at [addressIndex] on the device. [change] must match the
+     * value passed to GetAddresses(). Result is the address the device derived — compare
+     * it with the expected one and fail verification if they differ.
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxGetWalletAddress(
+        sessionId: String,
+        wallet: Wallet,
+        addressIndex: Int,
+        change: Boolean,
+        checkOnDevice: Boolean = true
+    ) = nunchukAndroid.bitboxGetWalletAddress(
+        sessionId,
+        wallet.toBridge(),
+        addressIndex,
+        change,
+        checkOnDevice
+    )
+
+    @Throws(NCNativeException::class)
+    fun bitboxSetDeviceName(
+        sessionId: String,
+        name: String
+    ) = nunchukAndroid.bitboxSetDeviceName(sessionId, name)
+
+    /** [BitBoxMnemonicLength.WORDS_12] requires device firmware 9.6 or newer. */
+    @Throws(NCNativeException::class)
+    fun bitboxCreateNewSeed(
+        sessionId: String,
+        mnemonicLength: BitBoxMnemonicLength
+    ) = nunchukAndroid.bitboxCreateNewSeed(sessionId, mnemonicLength.words)
+
+    /** Recovery words are shown on the device only; as an initial backup needs fw 9.13+. */
+    @Throws(NCNativeException::class)
+    fun bitboxShowMnemonic(
+        sessionId: String
+    ) = nunchukAndroid.bitboxShowMnemonic(sessionId)
+
+    @Throws(NCNativeException::class)
+    fun bitboxRestoreFromMnemonic(
+        sessionId: String
+    ) = nunchukAndroid.bitboxRestoreFromMnemonic(sessionId)
+
+    /** Result is a boolean — whether a microSD card is inserted. */
+    @Throws(NCNativeException::class)
+    fun bitboxCheckSdCard(
+        sessionId: String
+    ) = nunchukAndroid.bitboxCheckSdCard(sessionId)
+
+    @Throws(NCNativeException::class)
+    fun bitboxInsertSdCard(
+        sessionId: String
+    ) = nunchukAndroid.bitboxInsertSdCard(sessionId)
+
+    /** Result is the backup list — read it with [bitboxListBackupsResult]. */
+    @Throws(NCNativeException::class)
+    fun bitboxListBackups(
+        sessionId: String
+    ) = nunchukAndroid.bitboxListBackups(sessionId)
+
+    /** Restoring a backup is setup-only — the device must not be initialized yet. */
+    @Throws(NCNativeException::class)
+    fun bitboxRestoreBackup(
+        sessionId: String,
+        backupId: String
+    ) = nunchukAndroid.bitboxRestoreBackup(sessionId, backupId)
+
+    /** Requires device firmware 9.25 or newer. */
+    @Throws(NCNativeException::class)
+    fun bitboxChangePassword(
+        sessionId: String
+    ) = nunchukAndroid.bitboxChangePassword(sessionId)
+
+    @Throws(NCNativeException::class)
+    fun bitboxSetMnemonicPassphraseEnabled(
+        sessionId: String,
+        enabled: Boolean
+    ) = nunchukAndroid.bitboxSetMnemonicPassphraseEnabled(sessionId, enabled)
+
+    /** Creates or replaces the device's microSD backup. */
+    @Throws(NCNativeException::class)
+    fun bitboxCreateBackup(
+        sessionId: String
+    ) = nunchukAndroid.bitboxCreateBackup(sessionId)
+
+    /** Verifies the microSD backup; the result is the matching backup id, if any. */
+    @Throws(NCNativeException::class)
+    fun bitboxCheckBackup(
+        sessionId: String,
+        silent: Boolean = false
+    ) = nunchukAndroid.bitboxCheckBackup(sessionId, silent)
+
+    /** Terminates in REBOOT: write the frames, then expect the device to disconnect. */
+    @Throws(NCNativeException::class)
+    fun bitboxFactoryReset(
+        sessionId: String
+    ) = nunchukAndroid.bitboxFactoryReset(sessionId)
+
+    /**
+     * Reads a signed firmware file without touching the device. Check the returned
+     * product against the connected device before starting an upgrade.
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxInspectFirmware(
+        signedFirmware: ByteArray
+    ) = nunchukAndroid.bitboxInspectFirmware(signedFirmware)
+
+    /** Reboots the device into its bootloader; expect a disconnect, then reconnect. */
+    @Throws(NCNativeException::class)
+    fun bitboxEnterFirmwareUpgrade(
+        sessionId: String,
+        signedFirmware: ByteArray
+    ) = nunchukAndroid.bitboxEnterFirmwareUpgrade(sessionId, signedFirmware)
+
+    /**
+     * Uploads [signedFirmware] through a bootloader session. This replaces any normal
+     * session under [sessionId], so a fresh [bitboxInitialize] is required afterwards.
+     * Steps carry `progress`; the terminal REBOOT step ends the upgrade.
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxUpgradeFirmware(
+        sessionId: String,
+        product: BitBoxProduct,
+        signedFirmware: ByteArray
+    ) = nunchukAndroid.bitboxUpgradeFirmware(sessionId, product.ordinal, signedFirmware)
+
+    @Throws(NCNativeException::class)
+    fun bitboxBootloaderOnData(
+        sessionId: String,
+        data: ByteArray
+    ) = nunchukAndroid.bitboxBootloaderOnData(sessionId, data)
+
+    /** Boots the installed firmware — used when a firmware upload is rejected. */
+    @Throws(NCNativeException::class)
+    fun bitboxBootloaderReboot(
+        sessionId: String
+    ) = nunchukAndroid.bitboxBootloaderReboot(sessionId)
+
+    /**
+     * The string-shaped results: xpub, master fingerprint, address, message signature,
+     * signed PSBT, and the backup id from [bitboxCheckBackup].
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxResultString(
+        sessionId: String
+    ) = nunchukAndroid.bitboxResultString(sessionId)
+
+    /**
+     * The boolean-shaped results: [bitboxIsWalletRegistered] and [bitboxCheckSdCard].
+     */
+    @Throws(NCNativeException::class)
+    fun bitboxResultBoolean(
+        sessionId: String
+    ) = nunchukAndroid.bitboxResultBoolean(sessionId)
+
+    /** The result of [bitboxInitialize]; null if the session holds another result. */
+    @Throws(NCNativeException::class)
+    fun bitboxInitializeResult(
+        sessionId: String
+    ) = nunchukAndroid.bitboxInitializeResult(sessionId)
+
+    /** The result of [bitboxListBackups]; empty if the session holds another result. */
+    @Throws(NCNativeException::class)
+    fun bitboxListBackupsResult(
+        sessionId: String
+    ) = nunchukAndroid.bitboxListBackupsResult(sessionId)
+
+    /** The device info cached on the session; valid once initialization has completed. */
+    @Throws(NCNativeException::class)
+    fun bitboxDeviceInfo(
+        sessionId: String
+    ) = nunchukAndroid.bitboxDeviceInfo(sessionId)
+
+    /** The derivation path a BitBox signs health-check messages with. */
+    @Throws(NCNativeException::class)
+    fun getBitBoxSignMessagePath(
+        signer: SingleSigner
+    ) = nunchukAndroid.getBitBoxSignMessagePath(signer)
+
+    /** The compact-signature P2PKH address matching [getBitBoxSignMessagePath]. */
+    @Throws(NCNativeException::class)
+    fun getBitBoxSignMessageAddress(
+        signer: SingleSigner
+    ) = nunchukAndroid.getBitBoxSignMessageAddress(signer)
+    // endregion BitBox
 
     @Throws(NCNativeException::class)
     fun parseSignerString(xpub: String) = nunchukAndroid.parseSignerString(xpub)

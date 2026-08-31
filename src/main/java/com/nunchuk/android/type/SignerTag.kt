@@ -13,4 +13,6 @@ enum class SignerTag {
     TREZOR,
     LEDGER,
     BITBOX,
+    KEEPKEY,
+    KRUX,
 }
