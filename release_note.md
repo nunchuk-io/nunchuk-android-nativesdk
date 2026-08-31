@@ -1,4 +1,6 @@
-- Ledger support (BLE & USB)
-- Seed phrase settings
-- Fix using passphrase key for stablecoin wallet
-- Improved NFC for Motorola devices
+- BitBox02 hardware wallet support (USB & BLE)
+- Jade QR PIN unlock
+- SOCKS5 proxy support
+- KeepKey and Krux signer tags
+- Support self-signed and Onion Electrum servers
+- Fix RBF for silent payments
