@@ -764,6 +764,89 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_extractColdcardMessageSigna
     }
 }
 extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generatePassportMessageSigning(
+        JNIEnv *env,
+        jobject thiz,
+        jstring derivation_path,
+        jstring message,
+        jint address_type) {
+    try {
+        std::string result = Utils::GeneratePassportMessageSigning(
+                StringWrapper(env, derivation_path),
+                StringWrapper(env, message),
+                Serializer::convert2CAddressType(address_type)
+        );
+        return env->NewStringUTF(result.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateKruxMessageSigning(
+        JNIEnv *env,
+        jobject thiz,
+        jstring derivation_path,
+        jstring message,
+        jint address_type) {
+    try {
+        std::string result = Utils::GenerateKruxMessageSigning(
+                StringWrapper(env, derivation_path),
+                StringWrapper(env, message),
+                Serializer::convert2CAddressType(address_type)
+        );
+        return env->NewStringUTF(result.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_extractMessageSignature(
+        JNIEnv *env,
+        jobject thiz,
+        jstring value) {
+    try {
+        std::string signature = Utils::ExtractMessageSignature(
+                StringWrapper(env, value)
+        );
+        return env->NewStringUTF(signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_extractMessageSignatureFromQr(
+        JNIEnv *env,
+        jobject thiz,
+        jobject qr_data) {
+    try {
+        auto qr_list = Serializer::convert2CListString(env, qr_data);
+        std::string signature = Utils::ExtractMessageSignature(qr_list);
+        return env->NewStringUTF(signature.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBBQRJSON(
         JNIEnv *env,
@@ -848,5 +931,51 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportJadePinQR(JNIEnv *env
     } catch (std::exception &e) {
         Deserializer::convertStdException2JException(env, e);
         return env->ExceptionOccurred();
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_generateMessageSigningQR(
+        JNIEnv *env,
+        jobject thiz,
+        jstring derivation_path,
+        jstring message) {
+    try {
+        auto parts = Utils::GenerateMessageSigningQR(
+                StringWrapper(env, derivation_path),
+                StringWrapper(env, message)
+        );
+        return Deserializer::convert2JListString(env, parts);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
+    }
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_exportBitcoinSignedMessage(
+        JNIEnv *env,
+        jobject thiz,
+        jstring message,
+        jstring address,
+        jstring signature) {
+    try {
+        auto rfc2440 = ExportBitcoinSignedMessage(BitcoinSignedMessage{
+                StringWrapper(env, message),
+                StringWrapper(env, address),
+                StringWrapper(env, signature)
+        });
+        return env->NewStringUTF(rfc2440.c_str());
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return nullptr;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return nullptr;
     }
 }

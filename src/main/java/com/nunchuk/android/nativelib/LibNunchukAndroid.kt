@@ -963,6 +963,39 @@ internal class LibNunchukAndroid {
     external fun extractColdcardMessageSignature(value: String): String
 
     @Throws(NCNativeException::class)
+    external fun generatePassportMessageSigning(
+        derivationPath: String,
+        message: String,
+        addressType: Int = 1,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun generateKruxMessageSigning(
+        derivationPath: String,
+        message: String,
+        addressType: Int = 1,
+    ): String
+
+    @Throws(NCNativeException::class)
+    external fun extractMessageSignature(value: String): String
+
+    @Throws(NCNativeException::class)
+    external fun extractMessageSignatureFromQr(qrData: List<String>): String
+
+    @Throws(NCNativeException::class)
+    external fun generateMessageSigningQR(
+        derivationPath: String,
+        message: String,
+    ): List<String>
+
+    @Throws(NCNativeException::class)
+    external fun exportBitcoinSignedMessage(
+        message: String,
+        address: String,
+        signature: String,
+    ): String
+
+    @Throws(NCNativeException::class)
     external fun exportBBQRJSON(
         value: String,
         minVersion: Int = 1,

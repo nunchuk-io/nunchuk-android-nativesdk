@@ -1159,6 +1159,54 @@ class NunchukNativeSdk {
     fun extractColdcardMessageSignature(value: String): String =
         nunchukAndroid.extractColdcardMessageSignature(value)
 
+    /** Message-signing request file for a Passport (microSD "Sign a Message"). */
+    @Throws(NCNativeException::class)
+    fun generatePassportMessageSigning(
+        derivationPath: String,
+        message: String,
+        addressType: AddressType = AddressType.LEGACY,
+    ): String =
+        nunchukAndroid.generatePassportMessageSigning(derivationPath, message, addressType.ordinal)
+
+    /** Message-signing request file for a Krux (SD card). */
+    @Throws(NCNativeException::class)
+    fun generateKruxMessageSigning(
+        derivationPath: String,
+        message: String,
+        addressType: AddressType = AddressType.LEGACY,
+    ): String =
+        nunchukAndroid.generateKruxMessageSigning(derivationPath, message, addressType.ordinal)
+
+    /** Signature out of any device's reply: an armored signed-message file or a bare base64. */
+    @Throws(NCNativeException::class)
+    fun extractMessageSignature(value: String): String =
+        nunchukAndroid.extractMessageSignature(value)
+
+    @Throws(NCNativeException::class)
+    fun extractMessageSignatureFromQr(qrData: List<String>): String =
+        nunchukAndroid.extractMessageSignatureFromQr(qrData)
+
+    /**
+     * Message-signing request for a device that speaks the Specter QR format (Jade, SeedSigner):
+     * `signmessage <path> ascii:<message>`, one frame.
+     */
+    @Throws(NCNativeException::class)
+    fun generateMessageSigningQR(
+        derivationPath: String,
+        message: String,
+    ): List<String> = nunchukAndroid.generateMessageSigningQR(derivationPath, message)
+
+    /**
+     * RFC2440 signed-message block for a signature produced outside the SDK, at an address the
+     * caller resolves itself (BitBox signs below the signer's own path).
+     */
+    @Throws(NCNativeException::class)
+    fun exportBitcoinSignedMessage(
+        message: String,
+        address: String,
+        signature: String,
+    ): String = nunchukAndroid.exportBitcoinSignedMessage(message, address, signature)
+
     @Throws(NCNativeException::class)
     fun exportBBQRJSON(
         value: String,
