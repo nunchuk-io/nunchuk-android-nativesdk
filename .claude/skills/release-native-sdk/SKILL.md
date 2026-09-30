@@ -20,14 +20,22 @@ uploads it to `nunchuk-android-nativesdk-prebuild` + creates tag `VERSION` →
 points at, not the tag itself (see step 8; a git tag is mutable, a commit is not).
 
 ### Per-release checklist
+0. **Sync `main` from GitLab FIRST — the release content may not be local yet.** GitLab is the source of truth and the team commits there directly, so local `main` is routinely *behind* it; `git fetch origin main && git merge --ff-only origin/main` before reading `VERSION` or deciding scope. (Seen on 1.2.24: the entire payload of the release — the message-signing bindings — existed only on GitLab `main`.) Then `git submodule update --init --recursive src/main/native/libnunchuk` so the working tree matches the pinned commit; an out-of-sync submodule reads as a bogus pointer change in `git diff`. A trailing `-dirty` on the submodule line is just local build residue (untracked `contrib/*-arm8`, `contrib/sqlcipher`) — **don't `git add` the submodule** to "fix" it.
 1. **Bump `def VERSION`** in `build.gradle` (MUST change every release — publish runs on every `main` push; an existing tag makes it re-upload then fail on `create_git_release`). `upload_aar.py` is now idempotent on the release step, but the version still must be new for JitPack to serve fresh bytes.
+   **Never trust a commit message's claimed version — check the tag list.** A commit may land on GitLab announcing a *republish at the same version* (1.2.24's payload commit said "Republished as 1.2.23 (no bump, per the rebuild flow)"). There is no such flow: JitPack caches a version's build, so a republish serves the OLD aar and the new bindings silently never reach the app. Confirm with
+   ```bash
+   T=$(grep -i '^GithubToken' local.properties | cut -d= -f2- | tr -d ' \r')
+   curl -s -H "Authorization: Bearer $T" "https://api.github.com/repos/nunchuk-io/nunchuk-android-nativesdk-prebuild/tags?per_page=8" | grep '"name"'
+   ```
+   If the version in `build.gradle` is already tagged, bump past it (Pitfall G).
 2. **Bump `libnunchuk` submodule** to latest `main` AND confirm that commit is on the **GitHub mirror** `nunchuk-io/libnunchuk` (CI pulls the pinned commit from the mirror).
 3. **Bindings gate (critical):** a libnunchuk bump only adds C++ APIs — the app also needs the matching **Kotlin+JNI bindings on `main`**. If the app's release code calls new APIs (e.g. Liquid/USDT), those bindings may live on a **feature branch** (e.g. `usdt`), not `main`. Merge them in first (see Pitfall F). A plain-`main` release will *build* but the app's `compileReleaseKotlin` fails with `Unresolved reference`.
 4. **Update release notes** — source of truth is the **Slack release-notes thread** (channel `C01QW8XJDPT`); **always read the whole thread**, not just the top message (replies often correct the version / wording). Mirror the agreed bullets into: nativesdk `release_note.md` (nativesdk GitHub release body), and the app's `distribution/whatsnew/whatsnew-en-US` (Play "what's new" + the app GitHub release body).
+   **If Slack is unreachable, don't block the release.** The `slack-mcp` server often fails to connect (`CONNECTION_CLOSED`) and the built-in Claude Slack Reader **cannot see `C01QW8XJDPT`** (`channel_not_found` — different workspace). Fallback: derive the bullets from the actual commit range (`git log --oneline <lastver>..main`), write them into `release_note.md`, and **tell the operator the notes are commit-derived, not Slack-agreed**, so they can correct the wording before the app's Play notes are written. `release_note.md` only feeds the nativesdk GitHub release body, so a commit-derived note there is low-stakes; the app's `whatsnew-en-US` is the one that reaches users.
 5. **Verify BEFORE publishing (CONDITIONAL — skip by default).** Per the user, the verify-branch build wastes time on the common case, so **push `main` immediately** for a routine bump (pure-internal libnunchuk hotfix / no public C++ API change — the app compiles unchanged). Only run the verify branch when the libnunchuk bump **changes or adds public C++ APIs** (the bindings gate, step 3 / Pitfall A/F) — that's the sole failure the verify build exists to catch. To verify: push HEAD to a **slash-free** GitHub branch (`git push origin-github main:refs/heads/verify-<ver>`). CI builds on any branch but only publishes on `main`, so a green **"Build the sdk"** confirms it compiles with zero publish side-effects. ⚠️ The trigger is `branches: ["*"]` and `*` matches ONE path segment — a slashed name like `ci/verify` silently does NOT trigger.
 6. **Publish:** push `main` to GitLab **and** GitHub (see topology below).
 7. **VALIDATE the published aar** (don't trust JitPack's green — see Pitfall E): download it and `unzip -t` (must be a real zip, not base64 text) + confirm a new API is in `classes.jar`.
-8. **Bump the app** in `nunchuk-android/gradle/libs.versions.toml`: set `nativeSdk` to the new `<VER>`, and set `prebuildNativeSdk` to the **commit SHA the new prebuild tag points at** — NOT the tag. A git tag is mutable and nothing in the app build records a checksum (JitPack's `.sha1` is served by the same origin as the aar), so a moved tag would silently swap the entire crypto layer. Resolve it after CI has created the tag:
+8. **Bump the app** — *only if the app actually needs the new SDK.* **A nativesdk release does not imply an app release.** Check two things before starting app work: the app repo's real branch (`cat ../nunchuk-android/.git/HEAD` — it is often parked on a feature/release branch like `2.8.6`, **not** `main`, and the session-start `gitStatus` describes the *nativesdk* repo, not the app), and whether any app code calls the newly bound APIs (`grep -rn '<newApiName>' --include=*.kt ../nunchuk-android`). If nothing calls them, the SDK release stands alone: stop after step 7, report the published version, and leave `nativeSdk`/`prebuildNativeSdk` untouched — steps 9-11 (tag, GitHub binary release, smoke test, Play rollout) are an **app** release the operator has to ask for separately. Bindings are routinely published ahead of the app work that consumes them (1.2.24 shipped this way). When the app does need it, in `nunchuk-android/gradle/libs.versions.toml`: set `nativeSdk` to the new `<VER>`, and set `prebuildNativeSdk` to the **commit SHA the new prebuild tag points at** — NOT the tag. A git tag is mutable and nothing in the app build records a checksum (JitPack's `.sha1` is served by the same origin as the aar), so a moved tag would silently swap the entire crypto layer. Resolve it after CI has created the tag:
    ```bash
    curl -s https://api.github.com/repos/nunchuk-io/nunchuk-android-nativesdk-prebuild/git/ref/tags/<VER> | grep '"sha"'
    ```
@@ -179,7 +187,16 @@ Verify the artifact (after CI + JitPack):
 B=https://jitpack.io/com/github/nunchuk-io/nunchuk-android-nativesdk-prebuild/<VER>
 curl -sL "$B/nunchuk-android-nativesdk-prebuild-<VER>.pom" -o /dev/null -w "%{http_code}\n"  # 200 = built
 curl -sL "$B/...-<VER>.aar" -o v.aar; file v.aar; unzip -t v.aar >/dev/null && echo "real zip"
-unzip -p v.aar classes.jar | LC_ALL=C grep -a -c "<someNewApiName>"   # >0 = bindings present
+# WRONG: classes.jar is a nested zip - .class strings are deflated, so this prints 0
+#   even on a perfectly good aar (false negative seen on 1.2.24).
+# unzip -p v.aar classes.jar | LC_ALL=C grep -a -c "<someNewApiName>"
+# RIGHT: extract the nested jar, then grep the .class files
+mkdir -p x && (cd x && unzip -qo ../v.aar classes.jar && unzip -qo classes.jar)
+LC_ALL=C grep -a -l "<someNewApiName>" x/com/nunchuk/android/nativelib/*.class   # expect 2 hits
+# And prove the JNI half shipped too - a Kotlin extern with no native symbol is a
+# runtime UnsatisfiedLinkError, never a compile error:
+unzip -qo v.aar 'jni/arm64-v8a/libnunchuk-android.so' -d so
+LC_ALL=C grep -a -c "LibNunchukAndroid_<someNewApiName>" so/jni/arm64-v8a/libnunchuk-android.so
 ```
 
 ## Pitfalls (each of these bit us — check them)
