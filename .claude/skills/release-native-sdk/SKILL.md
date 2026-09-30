@@ -235,6 +235,58 @@ It auto-derives `VERSION`/`VERSION_CODE` from `nunchuk-app/build.gradle.kts`, re
   - **Stale-`.asc` pitfall (bit 2.7.1, now fixed in-script).** `WORKDIR=build/github-release` persists across releases, so the *previous* version's `SHA256SUMS.asc` is left behind. `gpg --verify` alone passes on it (it only checks the signature is valid, not that it covers the new apk's hash) → the release shipped a signature for the OLD apk hash. Fix committed to the script: the skip now also `diff`s the signed payload (`gpg -d`) against the regenerated `SHA256SUMS`. If you ever see "existing SHA256SUMS.asc verified" on a fresh version, confirm the `.apk` line inside the `.asc` matches this version before trusting it.
 - Keep the script **ASCII-only** — a Unicode ellipsis right after `$TAG` was parsed into the variable name under `set -u` (`TAG…: unbound variable`).
 
+### JDK version is per-branch — check it before every app build
+There is no single right JDK; each repo/branch pins its own and they disagree. Getting it
+wrong costs a full build cycle each time (three different failures hit on 2.9.0):
+- **nativesdk repo:** JDK 17. Gradle 8.7 + kapt cannot read a JDK 25 javac.
+- **app, older branches:** JDK 21 (`build-logic:convention` requires >= 21).
+- **app, 2.8.6 / 2.9.0 onward:** **JDK 25** — the branch carries `Build against the JDK 25
+  toolchain current Android Studio ships`.
+
+The signature is always the same, at *configuration* time, and it names both numbers:
+```
+> Could not resolve project :build-logic:convention.
+  > Dependency requires at least JVM runtime version 25. This build uses a Java 21 JVM.
+```
+Read the required number out of that line and re-run with a matching `JAVA_HOME`
+(`/usr/libexec/java_home -V` lists what is installed).
+
+**⚠️ CI's builder image pins the JDK too, and drifts behind the app.** The app's
+`reproducible-builds/Dockerfile` hardcodes `openjdk-<N>-jdk` **and**
+`ENV JAVA_HOME=/usr/lib/jvm/java-<N>-openjdk-amd64` — both must move together. A branch
+that raises its toolchain **fails CI with the exact error above** until the Dockerfile is
+bumped; the AAB build dies in ~1m at configuration, well before any Play step (which
+self-skips, so nothing reaches Play). Bumping the image's JDK changes the reproducible
+build environment — flag it rather than slipping it into a release commit.
+
+### Firebase development build (what QA verifies)
+`./gradlew assembleDevelopmentDebug appDistributionUploadDevelopmentDebug` — the GitLab
+`uatDevelop` job, but **GitLab CI is dead** (storage quota), so run it locally.
+- `FIREBASE_TOKEN` is needed for the upload; it is currently hardcoded in
+  `.gitlab-ci.yml` (a credential in a repo that mirrors to public GitHub — worth raising).
+- Notes come from `nunchuk-app/release_notes.txt` (NOT `distribution/whatsnew/`), and it
+  goes stale — it sat on May-2024 content until 2.9.0. Rewrite it for the release.
+- **The `development`/debug flavor resolves `io.nunchuk.android:nativesdk:<nativeSdk>`
+  from local Maven, not JitPack** — that is what the catalog's `nativeSdk` key is for,
+  separate from `prebuildNativeSdk`. A freshly released SDK is not in `~/.m2` yet, so the
+  build fails with `Could not find io.nunchuk.android:nativesdk:<VER>`. Fix by publishing
+  it locally, or (much faster, and byte-identical to what ships) by dropping the validated
+  JitPack aar straight in:
+  ```bash
+  D=~/.m2/repository/io/nunchuk/android/nativesdk/<VER>; mkdir -p $D
+  cp v.aar $D/nativesdk-<VER>.aar
+  sed 's/<PREVVER>/<VER>/g' ~/.m2/.../<PREVVER>/nativesdk-<PREVVER>.pom > $D/nativesdk-<VER>.pom
+  cd $D && for f in nativesdk-<VER>.aar nativesdk-<VER>.pom; do md5 -q $f > $f.md5; \
+    shasum -a 1 $f|cut -d' ' -f1 > $f.sha1; shasum -a 256 $f|cut -d' ' -f1 > $f.sha256; \
+    shasum -a 512 $f|cut -d' ' -f1 > $f.sha512; done
+  ```
+
+### The release's version number is NOT the branch name
+The work branch and the released version routinely differ — 2.9.0 shipped off branch
+`2.8.6`, whose own `build.gradle.kts` still said `versionName = "2.8.6"`. Never infer the
+version from the branch, the previous tag, or the file; **get it from the operator or the
+Slack thread**, and bump `versionCode` past the highest already used on Play.
+
 ### Post-release smoke test (emulator — APK must not crash)
 After the GitHub binary release downloads the Play-signed universal APK, run
 **`nunchuk-android/scripts/smoke-test-apk.sh`** to prove the shipped APK boots, signs
