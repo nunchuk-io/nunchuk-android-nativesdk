@@ -259,6 +259,13 @@ bumped; the AAB build dies in ~1m at configuration, well before any Play step (w
 self-skips, so nothing reaches Play). Bumping the image's JDK changes the reproducible
 build environment — flag it rather than slipping it into a release commit.
 
+**The two Dockerfiles are one file.** This repo's `Dockerfile` and the app's
+`reproducible-builds/Dockerfile` must stay byte-identical (`cmp` them) — the app's
+reproducible-build guide builds this SDK in the app's image, so drift breaks `.aar`
+verification. The image ships JDK 25 (default `JAVA_HOME`, for the app) and JDK 21 (for this
+repo's Gradle 8.7); every `docker run` here passes
+`-e JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64`. Change both copies in the same sitting.
+
 ### Firebase development build (what QA verifies)
 `./gradlew assembleDevelopmentDebug appDistributionUploadDevelopmentDebug` — the GitLab
 `uatDevelop` job, but **GitLab CI is dead** (storage quota), so run it locally.

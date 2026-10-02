@@ -51,6 +51,7 @@ jobs:
         run: |
           docker run  --rm \
             -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
+            -e JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
             -w /nunchuk-android-nativesdk/src/main/native \
             ghcr.io/${{ github.repository }}/nunchuk-builder \
             bash ./.install_deps.sh
@@ -59,6 +60,7 @@ jobs:
         run: |
           docker run  --rm \
             -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
+            -e JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
             -w /nunchuk-android-nativesdk \
             ghcr.io/${{ github.repository }}/nunchuk-builder \
             ./gradlew assembleArmRelease
