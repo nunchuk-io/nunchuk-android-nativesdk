@@ -1,20 +1,21 @@
+plugins {
+    id 'com.android.library' version '9.1.0'
+    id 'org.jetbrains.kotlin.plugin.parcelize' version '2.3.20'
+    id 'maven-publish'
+}
+
 apply from: 'configs/dependencies.gradle'
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'maven-publish'
-apply plugin: 'kotlin-parcelize'
 
 android {
-    ndkVersion "27.2.12479018"
-    namespace "com.nunchuk.android.nativesdk"
-    compileSdkVersion androidConfig.compileSdkVersion
+    ndkVersion = "27.2.12479018"
+    namespace = "com.nunchuk.android.nativesdk"
+    compileSdk = androidConfig.compileSdkVersion
     defaultConfig {
-        minSdkVersion androidConfig.minSdkVersion
-        targetSdkVersion androidConfig.targetSdkVersion
+        minSdk = androidConfig.minSdkVersion
+        targetSdk = androidConfig.targetSdkVersion
         externalNativeBuild {
             cmake {
-                cppFlags "-stdlib=libc++"
+                cppFlags += "-stdlib=libc++"
                 // The Android SDK embeds Bitcoin Core libraries, but does not need
                 // the host executables/tests that trigger host libevent lookup.
                 arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
@@ -42,69 +43,53 @@ android {
     flavorDimensions = ['cpuArch']
     productFlavors {
         arm {
-            dimension 'cpuArch'
+            dimension = "cpuArch"
             ndk {
                 abiFilters 'arm64-v8a', 'armeabi-v7a'
             }
         }
         arm64_v8a {
-            dimension 'cpuArch'
+            dimension = "cpuArch"
             ndk {
                 abiFilters 'arm64-v8a'
             }
         }
         armeabi_v7a {
-            dimension 'cpuArch'
+            dimension = "cpuArch"
             ndk {
                 abiFilters 'armeabi-v7a'
             }
         }
         x86_64 {
-            dimension 'cpuArch'
+            dimension = "cpuArch"
             ndk {
                 abiFilters 'x86_64'
             }
         }
         universal {
-            dimension 'cpuArch'
+            dimension = "cpuArch"
             // include all default ABIs. with NDK-r16,  it is:
             //   armeabi-v7a, arm64-v8a, x86, x86_64
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = '1.8'
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     externalNativeBuild {
         cmake {
-            path "src/main/native/CMakeLists.txt"
-            version "3.22.1"
+            path = "src/main/native/CMakeLists.txt"
+            version = "3.22.1"
         }
     }
 
 }
 
-buildscript {
-    apply from: 'configs/dependencies.gradle'
-    ext {
-        kotlin_version = '1.9.0'
-    }
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://maven.google.com" }
-        mavenLocal()
-    }
-    dependencies {
-        classpath pluginsDeps.gradleAndroid
-        classpath kotlinDeps.plugin
-        classpath pluginsDeps.kotlinAndroidRuntime
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
 
@@ -117,7 +102,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://maven.google.com" }
+        maven { url = "https://maven.google.com" }
         mavenLocal()
     }
 }
@@ -138,16 +123,16 @@ def VERSION = "1.2.24"
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId "${GROUP_ID}"
-            artifactId "$ARTIFACT_ID"
-            version "${VERSION}"
-            artifact("$buildDir/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_ARCH}-release.aar")
+            groupId = "${GROUP_ID}"
+            artifactId = "$ARTIFACT_ID"
+            version = "${VERSION}"
+            artifact("${layout.buildDirectory.get().asFile}/outputs/aar/nunchuk-android-nativesdk-${SUPPORTED_ARCH}-release.aar")
         }
     }
 
     repositories {
         maven {
-            url mavenLocal().getUrl()
+            url = mavenLocal().getUrl()
         }
     }
 }

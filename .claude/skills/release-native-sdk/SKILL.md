@@ -238,7 +238,8 @@ It auto-derives `VERSION`/`VERSION_CODE` from `nunchuk-app/build.gradle.kts`, re
 ### JDK version is per-branch — check it before every app build
 There is no single right JDK; each repo/branch pins its own and they disagree. Getting it
 wrong costs a full build cycle each time (three different failures hit on 2.9.0):
-- **nativesdk repo:** JDK 17. Gradle 8.7 + kapt cannot read a JDK 25 javac.
+- **nativesdk repo:** JDK 25 for releases after 1.2.24 (Gradle 9.4.1, AGP 9.1, built-in Kotlin 2.3.20 —
+  the app's toolchain). 1.2.24 and older tags are Gradle 8.7 + kapt and need JDK 17/21.
 - **app, older branches:** JDK 21 (`build-logic:convention` requires >= 21).
 - **app, 2.8.6 / 2.9.0 onward:** **JDK 25** — the branch carries `Build against the JDK 25
   toolchain current Android Studio ships`.
@@ -262,9 +263,9 @@ build environment — flag it rather than slipping it into a release commit.
 **The two Dockerfiles are one file.** This repo's `Dockerfile` and the app's
 `reproducible-builds/Dockerfile` must stay byte-identical (`cmp` them) — the app's
 reproducible-build guide builds this SDK in the app's image, so drift breaks `.aar`
-verification. The image ships JDK 25 (default `JAVA_HOME`, for the app) and JDK 21 (for this
-repo's Gradle 8.7); every `docker run` here passes
-`-e JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64`. Change both copies in the same sitting.
+verification. That only works while both repos share one toolchain (JDK 25, build-tools 36,
+android-36): bump the SDK's Gradle/AGP/JDK together with the app's, and change both
+Dockerfile copies in the same sitting.
 
 ### Firebase development build (what QA verifies)
 `./gradlew assembleDevelopmentDebug appDistributionUploadDevelopmentDebug` — the GitLab

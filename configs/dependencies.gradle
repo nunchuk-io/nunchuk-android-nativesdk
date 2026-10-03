@@ -1,25 +1,10 @@
 ext {
     coroutinesVersion = '1.4.3'
 
-    //Plugins versions
-    gradleVersion = '8.6.0'
-    kotlinGradlePluginVersion = '1.9.0'
-    kotlinStdlibVersion = '1.9.0'
-
     androidConfig = [
-            compileSdkVersion: 35,
+            compileSdkVersion: 36,
             targetSdkVersion : 33,
             minSdkVersion    : 24,
-    ]
-
-    pluginsDeps = [
-            gradleAndroid       : "com.android.tools.build:gradle:${gradleVersion}",
-            kotlinAndroidRuntime: "org.jetbrains.kotlin:kotlin-android-extensions-runtime:1.4.30"
-    ]
-
-    kotlinDeps = [
-            plugin: "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinGradlePluginVersion}",
-            stdlib: "org.jetbrains.kotlin:kotlin-stdlib:${kotlinStdlibVersion}"
     ]
 
     coroutineDeps = [
