@@ -45,8 +45,8 @@ points at, not the tag itself (see step 8; a git tag is mutable, a commit is not
    prebuildNativeSdk = "<commit sha>" # tag <VER>
    ```
    Keep the tag in the trailing comment so the version stays readable. Then bump `versionCode` (versionName may stay) and push GitLab `main`, then GitHub `master` to trigger the AAB→Play draft.
-9. **Tag + GitHub binary release for the app:** tag `android.<versionName>` on both remotes, then publish the universal APK + signed checksums with `nunchuk-android/scripts/publish-github-release.sh` (see "App GitHub binary release" below).
-10. **Smoke-test the shipped APK:** run `nunchuk-android/scripts/smoke-test-apk.sh` — boots an emulator, installs the Play-signed universal APK, signs in, and asserts no crash (catches JNI/native-SDK runtime breaks a build can't). See "Post-release smoke test" below.
+9. **Tag + GitHub binary release for the app:** tag `android.<versionName>` on both remotes. The GitHub tag push starts the **"GitHub binary release"** workflow, which publishes the Play-signed universal APK + `SHA256SUMS` + `SHA256SUMS.asc`, signed **on CI**. It waits for **approval** in the `release-signing` environment. **Ask the operator first.** Once they approve in chat, approve it over the API (see "App GitHub binary release" below). Then confirm the release has all 3 assets.
+10. **Smoke-test the shipped APK:** first pull the APK from the GitHub release with `gh release download` (see "App GitHub binary release"), then run `nunchuk-android/scripts/smoke-test-apk.sh` — boots an emulator, installs the Play-signed universal APK, signs in, and asserts no crash (catches JNI/native-SDK runtime breaks a build can't). See "Post-release smoke test" below.
 11. **Roll out to 100% — but only after step 10 is green.** Standing instruction from the user (2026-08-17): once the emulator smoke test passes, promote the Play production draft to a **full 100% rollout** without asking again:
     ```bash
     cd nunchuk-android && CONFIRM=yes ./scripts/rollout-play-production.sh   # no USER_FRACTION => 100%
@@ -106,7 +106,7 @@ now duplicated — both are silent-until-CI compile breaks.
   committing rather than trusting the session-start `gitStatus`.
 
 ## Automation status — end-to-end, rollout included
-Steps 1–11 are fully automatable and have all been exercised end-to-end. Drive them in one go on "release": CI uploads the Play draft (`status: draft`, never `completed`), and **step 11 promotes that draft to 100% over the Play API once the smoke test is green** — no Play Console visit needed. Nothing else waits on a human. Creds live in gitignored files (`githubToken`/`GPGpass` in `local.properties`, `nunchuk-service-account.json`); the app GitHub release is now a **zero-arg** `./scripts/publish-github-release.sh` (auto-derives VERSION/VERSION_CODE from `nunchuk-app/build.gradle.kts`, auto-reads creds).
+Steps 1–11 are fully automatable and have all been exercised end-to-end. Drive them in one go on "release": CI uploads the Play draft (`status: draft`, never `completed`), and **step 11 promotes that draft to 100% over the Play API once the smoke test is green** — no Play Console visit needed. The one thing that waits on a human is the signing approval in step 9 (one question in chat). The app GitHub release (step 9) runs **on CI** from the tag push. Its only human step is the reviewer **approval** in the `release-signing` environment: ask the operator in chat, and on their yes approve it via the API. It needs no local creds. Rollout and smoke-test creds still live in gitignored files: `nunchuk-service-account.json` and the `SmokeTest*` keys in `local.properties`.
 
 **Creds are the practical blocker — check them BEFORE promising an end-to-end run.**
 Status as of 2.8.1 (2026-08-17): **all present and working** — `GithubToken` + `GPGpass` in
@@ -114,6 +114,11 @@ Status as of 2.8.1 (2026-08-17): **all present and working** — `GithubToken` +
 in the **app repo root** (not the nativesdk repo), and `SmokeTestEmail`/`SmokeTestPassword`/
 `SmokeTestConfirmCode` in the app's `local.properties`. So steps 9-11 run unattended. Still
 re-check every release with the one-liner below — the PAT expires.
+
+**Update 2026-10-07:** step 9 no longer uses `GithubToken` or `GPGpass`; it signs on CI. The
+`githubToken` in `local.properties` was found **expired** (401) again. For any GitHub API work, use
+the `gh` CLI (installed via brew, logged in as `JayceLuong`, who is now a repo **admin**):
+`gh auth status`, or `GITHUB_TOKEN=$(gh auth token)` for scripts.
 
 History (they were all missing once, don't assume): as of the 2.7.2-2.7.4 hotfixes `githubToken` in
 `../nunchuk-android-nativesdk/local.properties` was **expired** (verify with
@@ -224,13 +229,37 @@ LC_ALL=C grep -a -c "LibNunchukAndroid_<someNewApiName>" so/jni/arm64-v8a/libnun
 - **Tag the app release:** lightweight tag `android.<versionName>` (e.g. `android.2.7.0`) on the released commit, pushed to **both** remotes (GitLab `origin` + GitHub via the `git@github.com:` SSH URL). Convention: `git cat-file -t android.2.6.0` → `commit` (lightweight, not annotated).
 
 ### App GitHub binary release (universal APK + signed checksums)
-Every app GitHub release carries 3 assets matching prior releases: `<versionName>.apk` (~145 MB), `SHA256SUMS` (76 B), `SHA256SUMS.asc` (958 B, GPG clearsigned with the *Ta Tat Tai (Nunchuk binary release signing key)*). Automated by **`nunchuk-android/scripts/publish-github-release.sh`** — now **zero-arg** from the app repo root:
+Every app GitHub release carries 3 assets matching prior releases: `<versionName>.apk` (~145 MB), `SHA256SUMS` (76 B), `SHA256SUMS.asc` (958 B, GPG clearsigned with the *Ta Tat Tai (Nunchuk binary release signing key)*, fpr `8C8E CD3F 660C A53C D878 792A 6E38 A462 ED2E F525`).
+
+**Signed on CI since 2026-10-07.** `.github/workflows/github-release.yml` in the app repo runs on every **`android.*` tag push to GitHub**. It calls `scripts/publish-github-release.sh` with `PLAY_WAIT_SECS=1800`, so it polls Play for up to 30 min until the universal APK exists. Then it signs and creates the release.
+- **Approval gate:** the job uses the environment **`release-signing`**. That environment only allows `android.*` tags and requires a reviewer (**JayceLuong**). The run sits at "Waiting for review" until it is approved. That is the only manual step.
+  **Approval protocol (standing instruction from the user, 2026-10-07):** when the run reaches "Waiting for review", **ask the operator** whether to approve. Use `AskUserQuestion`, and include the tag, the run URL and the versionCode. **Only after they say yes**, approve it yourself over the API with the commands below; they don't need to open GitHub. **Never approve without that yes**, even under the release's general "automate everything" authorization. This approval is the gate that protects the signing key, so a no or no answer means stop and report. If the API call fails (e.g. `gh` is not logged in, or the account is not a reviewer), fall back to giving them the run URL to approve in the UI (run page → *Review deployments* → *Approve and deploy*).
+  ```bash
+  R=nunchuk-io/nunchuk-android
+  RUN=$(gh run list -R $R --workflow "GitHub binary release" --limit 1 --json databaseId --jq '.[0].databaseId')
+  ENV_ID=$(gh api repos/$R/environments/release-signing --jq .id)
+  gh api -X POST repos/$R/actions/runs/$RUN/pending_deployments --input - <<EOF
+  {"environment_ids":[$ENV_ID],"state":"approved","comment":"release <ver>"}
+  EOF
+  gh run watch $RUN -R $R
+  ```
+- **Secrets:** `GPG_PRIVATE_KEY` + `GPG_PASSPHRASE` exist **only** as environment secrets of `release-signing`. They were deliberately removed from repo level, so a branch push cannot read them. Don't re-add them at repo level, and don't reference that environment from `ci.yml`. The job runs no Gradle, pins its actions to commit SHAs, and deletes `~/.gnupg` at the end. Keep it that way: any code in that job can read the imported key. The primary key is used directly (no CI subkey); that is a deliberate choice, so the public key on keyservers never had to change.
+- **The workflow must exist in the tagged commit.** It landed on GitLab `main` in `d26444d98`. A tag on an older commit, e.g. an old release branch without the file, runs nothing; for that case use the local fallback below.
+- **Dry run:** a tag ending in **`-signtest`** (e.g. `android.2.9.0-signtest`) signs but creates **no** release. Instead it uploads `SHA256SUMS` + `.asc` as a workflow artifact. Verified on 2026-10-07: the CI hash matched the published 2.9.0 `SHA256SUMS`, and the `.asc` verified Good against the keyserver.ubuntu.com public key. Afterwards, cancel the "Build release" run that the tag also triggers, then delete the tag: `git push github_origin :refs/tags/<tag>`.
+- **Step 10 needs the APK locally now.** The smoke test defaults to `build/github-release/<ver>.apk`, which CI does not create on your machine. Fetch it from the release and check it against the signed sums first:
+  ```bash
+  gh release download android.<ver> -R nunchuk-io/nunchuk-android -D build/github-release --clobber
+  (cd build/github-release && shasum -a 256 -c SHA256SUMS)
+  ```
+- **Verifying from outside:** keys.openpgp.org serves this key **without its user ID** (the email was never verified there), so `gpg --import` rejects it with `no user ID`. Use keyserver.ubuntu.com. Fetch it with `rtk proxy curl`, because plain `curl` goes through the rtk hook, which rewrites the output and corrupts the armored key (`invalid radix64 character`).
+
+**Local fallback** (e.g. an old commit without the workflow): **`nunchuk-android/scripts/publish-github-release.sh`**, zero-arg from the app repo root. It needs `GITHUB_TOKEN=$(gh auth token)` plus the key in your local keyring and `GPGpass` in `local.properties`:
 ```bash
-./scripts/publish-github-release.sh
+GITHUB_TOKEN=$(gh auth token) ./scripts/publish-github-release.sh
 ```
 It auto-derives `VERSION`/`VERSION_CODE` from `nunchuk-app/build.gradle.kts`, reads `githubToken`+`GPGpass` from `local.properties` (searches the app repo then `../nunchuk-android-nativesdk/local.properties`), finds `nunchuk-service-account.json`, and sets the **release body from `distribution/whatsnew/whatsnew-en-US`** (override with `RELEASE_BODY`/`RELEASE_BODY_FILE`). Idempotent: re-running updates the notes + re-uploads assets. Any value is still env-overridable.
 - **Download the Play-signed APK, do NOT build locally.** With Play App Signing on, the installed APK is signed by Google's **app signing key**, not the local upload key (`nunchuk-keystore.jks`). The script pulls the Google-signed **universal** APK via the Play Developer API `generatedApks.list`/`:download` (needs the `PLAY_SERVICE_ACCOUNT_JSON` service account; `androidpublisher` scope). Fallback: `APK_PATH=<file>` to use a manually-downloaded "Signed, universal APK" from Play Console → App bundle explorer → the versionCode → Downloads.
-- Creds locally: `GithubToken` (a repo-write PAT — the nativesdk `local.properties` one works, `JayceLuong` has push) and `GPGpass` live in `local.properties` (gitignored). The APK download waits on Play finishing processing the uploaded AAB for that versionCode.
+- Creds for the local fallback: `GPGpass` in `local.properties` (gitignored); the key file is `.nunchuk.asc` in the nativesdk repo root, excluded via `.git/info/exclude`, **never `git add` it**. The `GithubToken` PAT is expired, so use `gh auth token`. `PLAY_WAIT_SECS` (default 0 locally) makes the script poll until Play finishes processing the AAB for that versionCode.
 - **Non-interactive GPG:** this mac has no GUI pinentry (only `pinentry-curses`), so a headless `gpg --clearsign` dies with `Inappropriate ioctl for device`. The script uses `--pinentry-mode loopback --passphrase-fd 0` (passphrase via stdin, not argv). Script is **idempotent/re-runnable**: skips re-download with `APK_PATH`, skips signing only if `SHA256SUMS.asc` verifies **and its signed payload matches the current `SHA256SUMS`**. Uses the API (not a push) so it triggers no CI.
   - **Stale-`.asc` pitfall (bit 2.7.1, now fixed in-script).** `WORKDIR=build/github-release` persists across releases, so the *previous* version's `SHA256SUMS.asc` is left behind. `gpg --verify` alone passes on it (it only checks the signature is valid, not that it covers the new apk's hash) → the release shipped a signature for the OLD apk hash. Fix committed to the script: the skip now also `diff`s the signed payload (`gpg -d`) against the regenerated `SHA256SUMS`. If you ever see "existing SHA256SUMS.asc verified" on a fresh version, confirm the `.apk` line inside the `.asc` matches this version before trusting it.
 - Keep the script **ASCII-only** — a Unicode ellipsis right after `$TAG` was parsed into the variable name under `set -u` (`TAG…: unbound variable`).
