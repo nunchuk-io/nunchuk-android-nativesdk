@@ -1,1 +1,2 @@
-- Message signing support for Passport, Krux, Jade, SeedSigner and BitBox02
+- Build with the app's toolchain (Gradle 9.4.1, AGP 9.1, JDK 25) and a shared builder image
+- No API changes
