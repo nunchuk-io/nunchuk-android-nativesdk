@@ -18,10 +18,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Override submodule URL
+      - name: Initialize submodules
         run: |
-          git config -f .gitmodules submodule.src/main/native/libnunchuk.url https://github.com/nunchuk-io/libnunchuk
-          git submodule sync
           git submodule update --init --recursive --depth 1
 
       - name: Set up Docker Buildx
@@ -37,30 +35,40 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push builder image
+        id: builder
         working-directory: ${{ github.workspace }}
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}/nunchuk-builder
         run: |
           docker buildx build \
             --platform linux/amd64 \
             -f Dockerfile \
-            -t ghcr.io/${{ github.repository }}/nunchuk-builder \
+            -t "$IMAGE" \
             --cache-from type=registry,ref=ghcr.io/${{ github.repository }}/builder-cache \
             --cache-to   type=registry,ref=ghcr.io/${{ github.repository }}/builder-cache,mode=max \
+            --metadata-file "$RUNNER_TEMP/builder-metadata.json" \
             --push .
+          digest=$(jq -er '."containerimage.digest"' "$RUNNER_TEMP/builder-metadata.json")
+          echo "image=$IMAGE@$digest" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
+        env:
+          BUILDER_IMAGE: ${{ steps.builder.outputs.image }}
         run: |
-          docker run  --rm \
-            -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
+          docker run --rm --platform linux/amd64 \
+            -v "$GITHUB_WORKSPACE":/nunchuk-android-nativesdk \
             -w /nunchuk-android-nativesdk/src/main/native \
-            ghcr.io/${{ github.repository }}/nunchuk-builder \
+            "$BUILDER_IMAGE" \
             bash ./.install_deps.sh
 
       - name: Build the sdk
+        env:
+          BUILDER_IMAGE: ${{ steps.builder.outputs.image }}
         run: |
-          docker run  --rm \
-            -v ${{ github.workspace }}:/nunchuk-android-nativesdk \
+          docker run --rm --platform linux/amd64 \
+            -v "$GITHUB_WORKSPACE":/nunchuk-android-nativesdk \
             -w /nunchuk-android-nativesdk \
-            ghcr.io/${{ github.repository }}/nunchuk-builder \
+            "$BUILDER_IMAGE" \
             ./gradlew assembleArmRelease
 
       - name: Upload build artifacts
