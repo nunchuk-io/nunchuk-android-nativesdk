@@ -1,2 +1,4 @@
-- Build with the app's toolchain (Gradle 9.4.1, AGP 9.1, JDK 25) and a shared builder image
-- No API changes
+- Security: distrust the compromised eMudhra CA keys and refresh the bundled CA trust store
+- BIP-329 labels: export `spendable` as a JSON boolean; on import, accept boolean or string and keep a coin's lock state when `spendable` is absent
+- Reproducible build: pin the CI builder image by digest
+- No Kotlin/JNI API changes
