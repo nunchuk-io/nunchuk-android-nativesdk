@@ -77,6 +77,16 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     Initializer::get()->transactionListenerMethod = tmpTransactionListenerMethod;
     env->DeleteLocalRef(tmpTransactionListenerClass);
 
+    auto tmpInvalidTransactionListenerClass = env->FindClass(
+            "com/nunchuk/android/listener/InvalidTransactionListener");
+    auto tmpInvalidTransactionListenerMethod = env->GetStaticMethodID(
+            tmpInvalidTransactionListenerClass, "onInvalidTransaction",
+            "(Ljava/lang/String;Ljava/lang/String;)V");
+    Initializer::get()->invalidTransactionListenerClass = (jclass) env->NewGlobalRef(
+            tmpInvalidTransactionListenerClass);
+    Initializer::get()->invalidTransactionListenerMethod = tmpInvalidTransactionListenerMethod;
+    env->DeleteLocalRef(tmpInvalidTransactionListenerClass);
+
     auto tmpGroupSandboxListenerClass = env->FindClass(
             "com/nunchuk/android/listener/GroupSandboxListener");
     auto tmpGroupMessageListenerClass = env->FindClass(
@@ -339,6 +349,31 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     });
         } catch (BaseException &e) {
             syslog(LOG_DEBUG, "[JNI] Transaction Listener Error::%s", e.what());
+            Deserializer::convert2JException(env, e);
+        }
+
+        try {
+            NunchukProvider::get()->nu->AddInvalidTransactionListener(
+                    [](std::string tx_id, std::string wallet_id) {
+                        JNIEnvGuard guard;
+                        if (!guard) return;
+                        JNIEnv *g_env = guard.get();
+                        try {
+                            jstring jTxId = g_env->NewStringUTF(tx_id.c_str());
+                            jstring jWalletId = g_env->NewStringUTF(wallet_id.c_str());
+                            g_env->CallStaticVoidMethod(
+                                    Initializer::get()->invalidTransactionListenerClass,
+                                    Initializer::get()->invalidTransactionListenerMethod,
+                                    jTxId, jWalletId
+                            );
+                            g_env->DeleteLocalRef(jTxId);
+                            g_env->DeleteLocalRef(jWalletId);
+                        } catch (const std::exception &t) {
+                            syslog(LOG_DEBUG, "[JNI] invalidTransactionListener error::%s", t.what());
+                        }
+                    });
+        } catch (BaseException &e) {
+            syslog(LOG_DEBUG, "[JNI] Invalid Transaction Listener Error::%s", e.what());
             Deserializer::convert2JException(env, e);
         }
         NunchukProvider::get()->nuMatrix->EnableGenerateReceiveEvent(NunchukProvider::get()->nu);

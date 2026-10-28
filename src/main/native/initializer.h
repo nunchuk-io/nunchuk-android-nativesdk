@@ -54,6 +54,9 @@ public:
     jclass transactionListenerClass;
     jmethodID transactionListenerMethod;
 
+    jclass invalidTransactionListenerClass;
+    jmethodID invalidTransactionListenerMethod;
+
     jclass groupSandboxListenerClass;
     jmethodID groupSandboxListenerMethod;
 
