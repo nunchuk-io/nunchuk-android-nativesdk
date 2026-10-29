@@ -10,6 +10,16 @@ description: >-
 
 # Release nunchuk-android-nativesdk
 
+## Standing defaults — DO NOT ask the operator about any of these (user, 2026-10-29)
+The user was angry at being asked questions this runbook already answers. Just do it:
+- **"Release" / "release to fix <issue>" = SDK + app, end to end.** Build latest libnunchuk `main` with nativesdk `main` → publish SDK → pull latest app `main` → point it at the new SDK → bump version → release the app (steps 1-11). Don't stop after the SDK to ask whether the app should follow; a fix only reaches users through an app release.
+- **App version:** patch bump from latest app `origin/main` (`2.9.2` → `2.9.3`), `versionCode` = previous + 1 (past the max used on Play). Don't ask for the number.
+- **Release notes for a fix release:** `- Bug fixes and improvements` in BOTH `release_note.md` (nativesdk) and `distribution/whatsnew/whatsnew-en-US` (app). Never name the advisory/GHSA or describe the vuln in notes or the release commit message (`Release <ver>`).
+- **Slack link unreadable** (`channel_not_found` is normal — the Slack Reader is on another workspace): don't report it as a blocker, don't ask. Infer the issue from the commits since the last release.
+- **App repo is `../my-android`** (NOT `../nunchuk-android`; every `nunchuk-android/scripts/...` path below means `../my-android/scripts/...`). Its checkout is usually parked on a feature branch with uncommitted WIP — never stash/checkout over it. Do the app release in a worktree: `git -C ../my-android fetch origin && git -C ../my-android worktree add ../my-android-release origin/main -B release-<ver>`, then push `release-<ver>:main` (GitLab) and `release-<ver>:master` (GitHub). Remove the worktree afterwards.
+- **nativesdk GitHub remote is `github_origin`** (older text said `origin-github`).
+- Only questions still allowed: the `release-signing` approval (step 9) and a red/inconclusive gate (verify build, aar validation, smoke test).
+
 ## TL;DR — the release IS a push to GitHub `main`
 
 A push to **GitHub `main`** triggers `.github/workflows/ci.yml` (native amd64):
@@ -33,10 +43,10 @@ points at, not the tag itself (see step 8; a git tag is mutable, a commit is not
 3. **Bindings gate (critical):** a libnunchuk bump only adds C++ APIs — the app also needs the matching **Kotlin+JNI bindings on `main`**. If the app's release code calls new APIs (e.g. Liquid/USDT), those bindings may live on a **feature branch** (e.g. `usdt`), not `main`. Merge them in first (see Pitfall F). A plain-`main` release will *build* but the app's `compileReleaseKotlin` fails with `Unresolved reference`.
 4. **Update release notes** — source of truth is the **Slack release-notes thread** (channel `C01QW8XJDPT`); **always read the whole thread**, not just the top message (replies often correct the version / wording). Mirror the agreed bullets into: nativesdk `release_note.md` (nativesdk GitHub release body), and the app's `distribution/whatsnew/whatsnew-en-US` (Play "what's new" + the app GitHub release body).
    **If Slack is unreachable, don't block the release.** The `slack-mcp` server often fails to connect (`CONNECTION_CLOSED`) and the built-in Claude Slack Reader **cannot see `C01QW8XJDPT`** (`channel_not_found` — different workspace). Fallback: derive the bullets from the actual commit range (`git log --oneline <lastver>..main`), write them into `release_note.md`, and **tell the operator the notes are commit-derived, not Slack-agreed**, so they can correct the wording before the app's Play notes are written. `release_note.md` only feeds the nativesdk GitHub release body, so a commit-derived note there is low-stakes; the app's `whatsnew-en-US` is the one that reaches users.
-5. **Verify BEFORE publishing (CONDITIONAL — skip by default).** Per the user, the verify-branch build wastes time on the common case, so **push `main` immediately** for a routine bump (pure-internal libnunchuk hotfix / no public C++ API change — the app compiles unchanged). Only run the verify branch when the libnunchuk bump **changes or adds public C++ APIs** (the bindings gate, step 3 / Pitfall A/F) — that's the sole failure the verify build exists to catch. To verify: push HEAD to a **slash-free** GitHub branch (`git push origin-github main:refs/heads/verify-<ver>`). CI builds on any branch but only publishes on `main`, so a green **"Build the sdk"** confirms it compiles with zero publish side-effects. ⚠️ The trigger is `branches: ["*"]` and `*` matches ONE path segment — a slashed name like `ci/verify` silently does NOT trigger.
+5. **Verify BEFORE publishing (CONDITIONAL — skip by default).** Per the user, the verify-branch build wastes time on the common case, so **push `main` immediately** for a routine bump (pure-internal libnunchuk hotfix / no public C++ API change — the app compiles unchanged). Only run the verify branch when the libnunchuk bump **changes or adds public C++ APIs** (the bindings gate, step 3 / Pitfall A/F) — that's the sole failure the verify build exists to catch. To verify: push HEAD to a **slash-free** GitHub branch (`git push github_origin main:refs/heads/verify-<ver>`). CI builds on any branch but only publishes on `main`, so a green **"Build the sdk"** confirms it compiles with zero publish side-effects. ⚠️ The trigger is `branches: ["*"]` and `*` matches ONE path segment — a slashed name like `ci/verify` silently does NOT trigger.
 6. **Publish:** push `main` to GitLab **and** GitHub (see topology below).
 7. **VALIDATE the published aar** (don't trust JitPack's green — see Pitfall E): download it and `unzip -t` (must be a real zip, not base64 text) + confirm a new API is in `classes.jar`.
-8. **Bump the app** — *only if the app actually needs the new SDK.* **A nativesdk release does not imply an app release.** Check two things before starting app work: the app repo's real branch (`cat ../nunchuk-android/.git/HEAD` — it is often parked on a feature/release branch like `2.8.6`, **not** `main`, and the session-start `gitStatus` describes the *nativesdk* repo, not the app), and whether any app code calls the newly bound APIs (`grep -rn '<newApiName>' --include=*.kt ../nunchuk-android`). If nothing calls them, the SDK release stands alone: stop after step 7, report the published version, and leave `nativeSdk`/`prebuildNativeSdk` untouched — steps 9-11 (tag, GitHub binary release, smoke test, Play rollout) are an **app** release the operator has to ask for separately. Bindings are routinely published ahead of the app work that consumes them (1.2.24 shipped this way). When the app does need it, in `nunchuk-android/gradle/libs.versions.toml`: set `nativeSdk` to the new `<VER>`, and set `prebuildNativeSdk` to the **commit SHA the new prebuild tag points at** — NOT the tag. A git tag is mutable and nothing in the app build records a checksum (JitPack's `.sha1` is served by the same origin as the aar), so a moved tag would silently swap the entire crypto layer. Resolve it after CI has created the tag:
+8. **Bump the app** — *default YES on a "release" request (see Standing defaults); skip only when the operator explicitly asked for an SDK-only publish.* **A nativesdk release does not imply an app release.** Check two things before starting app work: the app repo's real branch (`cat ../nunchuk-android/.git/HEAD` — it is often parked on a feature/release branch like `2.8.6`, **not** `main`, and the session-start `gitStatus` describes the *nativesdk* repo, not the app), and whether any app code calls the newly bound APIs (`grep -rn '<newApiName>' --include=*.kt ../nunchuk-android`). If nothing calls them, the SDK release stands alone: stop after step 7, report the published version, and leave `nativeSdk`/`prebuildNativeSdk` untouched — steps 9-11 (tag, GitHub binary release, smoke test, Play rollout) are an **app** release the operator has to ask for separately. Bindings are routinely published ahead of the app work that consumes them (1.2.24 shipped this way). When the app does need it, in `nunchuk-android/gradle/libs.versions.toml`: set `nativeSdk` to the new `<VER>`, and set `prebuildNativeSdk` to the **commit SHA the new prebuild tag points at** — NOT the tag. A git tag is mutable and nothing in the app build records a checksum (JitPack's `.sha1` is served by the same origin as the aar), so a moved tag would silently swap the entire crypto layer. Resolve it after CI has created the tag:
    ```bash
    curl -s https://api.github.com/repos/nunchuk-io/nunchuk-android-nativesdk-prebuild/git/ref/tags/<VER> | grep '"sha"'
    ```
@@ -157,11 +167,11 @@ Policy note: the **publish push (step 6)** and the app **AAB→Play push (step 8
 Keep-awake: the release spans long CI waits (native build ~10-20 min + JitPack + Play processing). The user permits (and often asks for -- "keep the screen on during the release") running `caffeinate -d -t 7200`; `-d` holds the *display* awake, which is what that request means. Run it as a background task **directly** (NOT `foo &` inside the tool shell — the `&`'d child is reaped when that shell exits, exit 0 immediately); one `run_in_background` invocation of `caffeinate` itself survives across turns.
 
 ## Repo topology (IMPORTANT — differs from old docs)
-- `origin` = GitLab, `origin-github` = GitHub (nativesdk). App repo: `origin` = GitLab, `github_origin` = GitHub (HTTPS — push via the `git@github.com:` SSH URL instead, HTTPS has no creds locally).
+- `origin` = GitLab, `github_origin` = GitHub (nativesdk). App repo: `origin` = GitLab, `github_origin` = GitHub (HTTPS — push via the `git@github.com:` SSH URL instead, HTTPS has no creds locally).
 - **The live line is `main` on BOTH remotes.** GitLab `master` is stale (stuck ~1.1.85), so **`push_code.py` (which mirrors `master`) is NOT usable** — push `main` directly to both remotes:
   ```bash
   git push origin main           # GitLab (source of truth)
-  git push origin-github main     # GitHub  → triggers the release
+  git push github_origin main     # GitHub  → triggers the release
   ```
 - App repo mirror: GitLab `main` ↔ GitHub `master` (note the name flip); the AAB auto-builds on GitHub `master`.
 - **GitLab is over its free 10 GiB storage quota (seen 2026-08-17).** Every push prints a
@@ -184,9 +194,9 @@ git -C $L remote add github git@github.com:nunchuk-io/libnunchuk.git 2>/dev/null
 git -C $L merge-base --is-ancestor $(git -C $L rev-parse HEAD) github/main && echo "mirror synced ✓"
 git add $L
 # ... bump VERSION, release_note.md, ensure bindings on main, commit ...
-git push origin-github main:refs/heads/verify-$(grep -oP 'def VERSION = "\K[^"]+' build.gradle)   # build-only check
+git push github_origin main:refs/heads/verify-$(grep -oP 'def VERSION = "\K[^"]+' build.gradle)   # build-only check
 # once green:
-git push origin main && git push origin-github main
+git push origin main && git push github_origin main
 ```
 Verify the artifact (after CI + JitPack):
 ```bash
