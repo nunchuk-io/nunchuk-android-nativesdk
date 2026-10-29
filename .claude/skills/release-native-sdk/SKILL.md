@@ -19,6 +19,10 @@ The user was angry at being asked questions this runbook already answers. Just d
 - **App repo is `../my-android`** (NOT `../nunchuk-android`; every `nunchuk-android/scripts/...` path below means `../my-android/scripts/...`). Its checkout is usually parked on a feature branch with uncommitted WIP — never stash/checkout over it. Do the app release in a worktree: `git -C ../my-android fetch origin && git -C ../my-android worktree add ../my-android-release origin/main -B release-<ver>`, then push `release-<ver>:main` (GitLab) and `release-<ver>:master` (GitHub). Remove the worktree afterwards.
 - **nativesdk GitHub remote is `github_origin`** (older text said `origin-github`).
 - Only questions still allowed: the `release-signing` approval (step 9) and a red/inconclusive gate (verify build, aar validation, smoke test).
+- **Smoke-test creds live in `../my-android/local.properties`** (`SmokeTestEmail`/`SmokeTestPassword`/`SmokeTestConfirmCode`, restored 2026-10-29). The script reads `./local.properties` then `../nunchuk-android-nativesdk/local.properties`, so when running from the release worktree, **copy `local.properties` + `nunchuk-service-account.json` from `../my-android`** into the worktree first (both gitignored). Never ask for the creds.
+- **A physical phone is often plugged in (e.g. `RFGL22QP4JB`).** On 2.9.3 the smoke test's unpinned `adb uninstall` wiped the Nunchuk app + data off the user's real phone. Fixed in app `main` `54821b798` (`export ANDROID_SERIAL=emulator-5554`). Before any smoke run, confirm `grep ANDROID_SERIAL scripts/smoke-test-apk.sh` hits; never run `adb` without `-s emulator-5554` yourself.
+- **`caffeinate` background task:** pass `timeout: 7200000`, or the harness kills it at the 30-min default.
+- **Smoke-test/tooling fixes ride on GitLab `main` only** — pushing app GitHub `master` or nativesdk GitHub `main` outside a release re-triggers a build with an already-used versionCode/VERSION.
 
 ## TL;DR — the release IS a push to GitHub `main`
 
