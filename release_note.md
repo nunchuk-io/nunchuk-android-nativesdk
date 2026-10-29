@@ -1,4 +1,1 @@
-- Security: distrust the compromised eMudhra CA keys and refresh the bundled CA trust store
-- BIP-329 labels: export `spendable` as a JSON boolean; on import, accept boolean or string and keep a coin's lock state when `spendable` is absent
-- Reproducible build: pin the CI builder image by digest
-- No Kotlin/JNI API changes
+- Bug fixes and improvements
