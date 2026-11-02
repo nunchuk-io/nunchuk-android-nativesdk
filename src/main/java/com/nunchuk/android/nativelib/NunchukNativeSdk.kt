@@ -1657,6 +1657,13 @@ class NunchukNativeSdk {
     ) = nunchukAndroid.getBip32Path(walletType.ordinal, addressType.ordinal, index)
 
     @Throws(NCNativeException::class)
+    fun isDefaultBip32Path(
+        path: String,
+        addressType: AddressType,
+        walletType: WalletType
+    ): Boolean = nunchukAndroid.isDefaultBip32Path(path, addressType.ordinal, walletType.ordinal)
+
+    @Throws(NCNativeException::class)
     fun trezorGetPublicKey(
         walletType: WalletType,
         addressType: AddressType,

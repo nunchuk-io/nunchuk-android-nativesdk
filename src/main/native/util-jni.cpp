@@ -401,6 +401,27 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isValidXPrv(JNIEnv *env, jo
     }
 }
 extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_isDefaultBip32Path(JNIEnv *env, jobject thiz,
+                                                                        jstring path,
+                                                                        jint address_type,
+                                                                        jint wallet_type) {
+    try {
+        return Utils::IsDefaultBip32Path(
+                StringWrapper(env, path),
+                Serializer::convert2CAddressType(address_type),
+                Serializer::convert2CWalletType(wallet_type)
+        );
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+        return JNI_FALSE;
+    } catch (std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+        return JNI_FALSE;
+    }
+}
+
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_nunchuk_android_nativelib_LibNunchukAndroid_getBip32Path(JNIEnv *env, jobject thiz,
                                                                   jint wallet_type,

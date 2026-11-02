@@ -1370,6 +1370,13 @@ internal class LibNunchukAndroid {
     external fun isValidXPrv(xprv: String): Boolean
 
     @Throws(NCNativeException::class)
+    external fun isDefaultBip32Path(
+        path: String,
+        addressType: Int,
+        walletType: Int
+    ): Boolean
+
+    @Throws(NCNativeException::class)
     external fun getBip32Path(
         walletType: Int,
         addressType: Int,
