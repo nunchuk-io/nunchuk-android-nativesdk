@@ -1,1 +1,2 @@
+- Warn about keys on a non-standard BIP32 path
 - Bug fixes and improvements
