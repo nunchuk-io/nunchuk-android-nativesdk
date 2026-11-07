@@ -27,6 +27,7 @@ public:
             const std::string &account_id,
             const std::string &device_id,
             const std::string &decoy_pin,
+            bool recovery_mode,
             SendEventFunc send_event_func
     );
 };

@@ -94,7 +94,12 @@ internal class LibNunchukAndroid {
         deviceId: String,
         decoyPin: String,
         baseApiUrl: String,
+        internalEncryptKey: ByteArray,
+        recoveryMode: Boolean,
     )
+
+    @Throws(NCNativeException::class)
+    external fun recoveryMode(value: Boolean)
 
     @Throws(NCNativeException::class)
     external fun registerGlobalListener()

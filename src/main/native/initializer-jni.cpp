@@ -167,10 +167,28 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
         jstring account_id,
         jstring device_id,
         jstring decoy_pin,
-        jstring base_url_api
+        jstring base_url_api,
+        jbyteArray internal_encrypt_key,
+        jboolean recovery_mode
 ) {
+    // Copied straight into a buffer we own (GetByteArrayRegion), so the only native copies of
+    // the key are ones we can zero once libnunchuk has taken its own.
+    std::vector<uint8_t> encrypt_key;
+    if (internal_encrypt_key != nullptr) {
+        encrypt_key.resize(env->GetArrayLength(internal_encrypt_key));
+        env->GetByteArrayRegion(internal_encrypt_key, 0, (jsize) encrypt_key.size(),
+                                reinterpret_cast<jbyte *>(encrypt_key.data()));
+    }
+    struct WipeOnExit {
+        std::vector<uint8_t> &bytes;
+        ~WipeOnExit() {
+            volatile uint8_t *p = bytes.data();
+            for (size_t i = 0; i < bytes.size(); ++i) p[i] = 0;
+        }
+    } wipeKey{encrypt_key};
     try {
         AppSettings settings;
+        settings.set_internal_encrypt_key(encrypt_key);
         settings.set_chain(Serializer::convert2CChain(chain));
         settings.set_hwi_path(StringWrapper(env, hwi_path));
         settings.enable_proxy(enable_proxy);
@@ -191,6 +209,7 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                 StringWrapper(env, account_id),
                 StringWrapper(env, device_id),
                 StringWrapper(env, decoy_pin),
+                recovery_mode,
                 [](const std::string &room_id, const std::string &type, const std::string &content,
                    bool ignore_error) {
                     JNIEnvGuard guard;
@@ -214,6 +233,9 @@ Java_com_nunchuk_android_nativelib_LibNunchukAndroid_initNunchuk(
                     return std::string("");
                 }
         );
+        // libnunchuk keeps its own copy; overwrite this one in place (same size, so the
+        // assignment reuses the buffer rather than freeing it with the key still in it).
+        settings.set_internal_encrypt_key(std::vector<uint8_t>(encrypt_key.size(), 0));
         try {
             NunchukProvider::get()->nu->AddBlockchainConnectionListener(
                     [](ConnectionStatus connectionStatus, int percent, bool liquid) {
@@ -508,4 +530,17 @@ jclass Initializer::getClass(JNIEnv *env, const char *classPath) {
                                   className));
     env->DeleteLocalRef(className);
     return clazz;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nunchuk_android_nativelib_LibNunchukAndroid_recoveryMode(JNIEnv *env, jobject thiz,
+                                                                  jboolean value) {
+    try {
+        NunchukProvider::get()->nu->RecoveryMode(value);
+    } catch (BaseException &e) {
+        Deserializer::convert2JException(env, e);
+    } catch (const std::exception &e) {
+        Deserializer::convertStdException2JException(env, e);
+    }
 }

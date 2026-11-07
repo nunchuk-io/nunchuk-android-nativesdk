@@ -69,6 +69,8 @@ class NunchukNativeSdk {
         deviceId: String,
         decoyPin: String,
         baseApiUrl: String,
+        internalEncryptKey: ByteArray = ByteArray(0),
+        recoveryMode: Boolean = false,
     ) {
         nunchukAndroid.initNunchuk(
             chain = appSettings.chain.ordinal,
@@ -86,9 +88,19 @@ class NunchukNativeSdk {
             accountId = accountId,
             deviceId = deviceId,
             decoyPin = decoyPin,
-            baseApiUrl = baseApiUrl
+            baseApiUrl = baseApiUrl,
+            internalEncryptKey = internalEncryptKey,
+            recoveryMode = recoveryMode,
         )
     }
+
+    /**
+     * Databases opened after this call erase an internal value (mnemonic / master xprv) that the
+     * current internal encrypt key cannot decrypt and read it back as empty, instead of throwing.
+     * Erasing is permanent: only turn this on once the previous key is known to be gone.
+     */
+    @Throws(NCNativeException::class)
+    fun recoveryMode(value: Boolean) = nunchukAndroid.recoveryMode(value)
 
     @Throws(NCNativeException::class)
     fun createSigner(
