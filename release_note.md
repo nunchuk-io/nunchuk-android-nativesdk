@@ -1,2 +1,2 @@
-- Warn about keys on a non-standard BIP32 path
+- Encrypt local data with an internal key
 - Bug fixes and improvements
